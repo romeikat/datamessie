@@ -1,0 +1,21 @@
+# Java
+*.class
+*.log
+*.ctxt
+.mtj.tmp/
+*.jar
+*.war
+*.eard
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# Maven
+target/
+dependency-reduced-pom.xml
+
+# Eclipse
+.project
+.classpath
+.settings/

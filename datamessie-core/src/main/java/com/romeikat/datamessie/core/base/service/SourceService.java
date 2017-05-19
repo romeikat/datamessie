@@ -1,0 +1,270 @@
+package com.romeikat.datamessie.core.base.service;
+
+/*-
+ * ============================LICENSE_START============================
+ * data.messie (core)
+ * =====================================================================
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * =====================================================================
+ * This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public
+License along with this program.  If not, see
+<http://www.gnu.org/licenses/gpl-3.0.html>.
+ * =============================LICENSE_END=============================
+ */
+import java.util.Collection;
+import java.util.List;
+
+import org.hibernate.StatelessSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
+
+import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
+import com.romeikat.datamessie.core.base.dao.impl.Source2SourceTypeDao;
+import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
+import com.romeikat.datamessie.core.base.dao.impl.SourceTypeDao;
+import com.romeikat.datamessie.core.base.dao.impl.TagSelectingRuleDao;
+import com.romeikat.datamessie.core.base.task.DocumentsDeprocessingTask;
+import com.romeikat.datamessie.core.base.task.Task;
+import com.romeikat.datamessie.core.base.task.management.TaskExecution;
+import com.romeikat.datamessie.core.base.task.management.TaskManager;
+import com.romeikat.datamessie.core.base.util.EntitiesById;
+import com.romeikat.datamessie.core.base.util.EntitiesWithIdById;
+import com.romeikat.datamessie.core.base.util.UpdateTracker;
+import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
+import com.romeikat.datamessie.core.domain.dto.SourceDto;
+import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
+import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
+import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
+import com.romeikat.datamessie.core.domain.entity.impl.Source;
+import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
+import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
+
+@Service
+public class SourceService {
+
+  @Autowired
+  private TaskManager taskManager;
+
+  @Autowired
+  @Qualifier("sourceDao")
+  private SourceDao sourceDao;
+
+  @Autowired
+  @Qualifier("sourceTypeDao")
+  private SourceTypeDao sourceTypeDao;
+
+  @Autowired
+  private RedirectingRuleDao redirectingRuleDao;
+
+  @Autowired
+  private TagSelectingRuleDao tagSelectingRuleDao;
+
+  @Autowired
+  private Source2SourceTypeDao source2SourceTypeDao;
+
+  @Autowired
+  private ApplicationContext ctx;
+
+  public void updateSource(final StatelessSession statelessSession, final SourceDto sourceDto) {
+    // Get
+    final Source source = sourceDao.getEntity(statelessSession, sourceDto.getId());
+    if (source == null) {
+      return;
+    }
+
+    // Set simple fields
+    source.setName(sourceDto.getName());
+    source.setLanguage(sourceDto.getLanguage());
+    source.setUrl(sourceDto.getUrl());
+    source.setVisible(sourceDto.getVisible());
+
+    // Set new types
+    setSourceTypes(statelessSession, source.getId(), sourceDto.getTypes());
+
+    // Set new rules
+    final boolean wereRedirectingRulesUpdated =
+        updateRedirectingRules(statelessSession, sourceDto.getRedirectingRules(), source.getId());
+    final boolean wereTagSelectingRulesUpdated =
+        updateTagSelectingRules(statelessSession, sourceDto.getTagSelectingRules(), source.getId());
+
+    // Update
+    sourceDao.update(statelessSession, source);
+
+    // If the rules have changed, trigger deprocessing of respective documents
+    if (wereRedirectingRulesUpdated) {
+      // Only trigger if no task targeting the same source is being active
+      final boolean taskAlreadyActive =
+          isTaskActive(DocumentsDeprocessingTask.NAME, source.getId(), DocumentProcessingState.DOWNLOADED);
+      if (!taskAlreadyActive) {
+        final DocumentsDeprocessingTask task = (DocumentsDeprocessingTask) ctx
+            .getBean(DocumentsDeprocessingTask.BEAN_NAME, source.getId(), DocumentProcessingState.DOWNLOADED);
+        taskManager.addTask(task);
+      }
+    }
+    if (wereTagSelectingRulesUpdated) {
+      // Only trigger if no task targeting the same source is being active
+      final boolean taskAlreadyActive =
+          isTaskActive(DocumentsDeprocessingTask.NAME, source.getId(), DocumentProcessingState.REDIRECTED);
+      if (!taskAlreadyActive) {
+        final DocumentsDeprocessingTask task = (DocumentsDeprocessingTask) ctx
+            .getBean(DocumentsDeprocessingTask.BEAN_NAME, source.getId(), DocumentProcessingState.REDIRECTED);
+        taskManager.addTask(task);
+      }
+    }
+  }
+
+  private boolean updateRedirectingRules(final StatelessSession statelessSession,
+      final List<RedirectingRuleDto> redirectingRuleDtos, final long sourceId) {
+    boolean updated = false;
+
+    final Collection<RedirectingRule> redirectingRules = redirectingRuleDao.getOfSource(statelessSession, sourceId);
+    final EntitiesById<RedirectingRule> redirectingRulesById = new EntitiesWithIdById<>(redirectingRules);
+    for (final RedirectingRuleDto redirectingRuleDto : redirectingRuleDtos) {
+      RedirectingRule redirectingRule = redirectingRulesById.poll(redirectingRuleDto.getId());
+
+      // Create rule (DTO without ID or with unknown ID)
+      if (redirectingRule == null) {
+        redirectingRule = new RedirectingRule();
+        redirectingRuleDao.insert(statelessSession, redirectingRule);
+        updated = true;
+      }
+
+      // Update rule
+      final UpdateTracker<RedirectingRule> updateTracker = new UpdateTracker<>(redirectingRule).beginUpdate();
+      redirectingRule.setRegex(redirectingRuleDto.getRegex());
+      redirectingRule.setRegexGroup(redirectingRuleDto.getRegexGroup());
+      redirectingRule.setActiveFrom(redirectingRuleDto.getActiveFrom());
+      redirectingRule.setActiveTo(redirectingRuleDto.getActiveTo());
+      redirectingRule.setSourceId(sourceId);
+      updateTracker.endUpdate();
+      if (updateTracker.wasObjectUpdated()) {
+        updated = true;
+      }
+    }
+
+    // Delete rules
+    for (final RedirectingRule redirectingRule : redirectingRulesById.getObjects()) {
+      redirectingRuleDao.delete(statelessSession, redirectingRule);
+      updated = true;
+    }
+
+    return updated;
+  }
+
+  private boolean updateTagSelectingRules(final StatelessSession statelessSession,
+      final List<TagSelectingRuleDto> tagSelectingRuleDtos, final long sourceId) {
+    boolean updated = false;
+
+    final Collection<TagSelectingRule> tagSelectingRules = tagSelectingRuleDao.getOfSource(statelessSession, sourceId);
+    final EntitiesById<TagSelectingRule> tagSelectingRulesById = new EntitiesWithIdById<>(tagSelectingRules);
+    for (final TagSelectingRuleDto tagSelectingRuleDto : tagSelectingRuleDtos) {
+      TagSelectingRule tagSelectingRule = tagSelectingRulesById.poll(tagSelectingRuleDto.getId());
+
+      // Create rule (DTO without ID or with unknown ID)
+      if (tagSelectingRule == null) {
+        tagSelectingRule = new TagSelectingRule();
+        tagSelectingRuleDao.update(statelessSession, tagSelectingRule);
+        updated = true;
+      }
+
+      // Update rule
+      final UpdateTracker<TagSelectingRule> updateTracker = new UpdateTracker<>(tagSelectingRule).beginUpdate();
+      tagSelectingRule.setTagSelector(tagSelectingRuleDto.getTagSelector());
+      tagSelectingRule.setActiveFrom(tagSelectingRuleDto.getActiveFrom());
+      tagSelectingRule.setActiveTo(tagSelectingRuleDto.getActiveTo());
+      tagSelectingRule.setSourceId(sourceId);
+      updateTracker.endUpdate();
+      if (updateTracker.wasObjectUpdated()) {
+        updated = true;
+      }
+    }
+
+    // Delete rules
+    for (final TagSelectingRule entity : tagSelectingRulesById.getObjects()) {
+      tagSelectingRuleDao.delete(statelessSession, entity);
+      updated = true;
+    }
+
+    return updated;
+  }
+
+  private boolean isTaskActive(final String name, final long sourceId, final DocumentProcessingState targetState) {
+    final List<TaskExecution> taskExecutions =
+        taskManager.getTaskExecutions(name, TaskExecutionStatus.EXECUTION_REQUESTED, TaskExecutionStatus.EXECUTING,
+            TaskExecutionStatus.PAUSE_REQUESTED, TaskExecutionStatus.PAUSING, TaskExecutionStatus.IDLE);
+    for (final TaskExecution taskExecution : taskExecutions) {
+      final Task task = taskExecution.getTask();
+      if (task instanceof DocumentsDeprocessingTask) {
+        final DocumentsDeprocessingTask documentsDeprocessingTask = (DocumentsDeprocessingTask) task;
+        if (documentsDeprocessingTask.getSourceId() == sourceId
+            && documentsDeprocessingTask.getTargetState() == targetState) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public void setVisible(final StatelessSession statelessSession, final long id, final Boolean visible) {
+    if (visible == null) {
+      return;
+    }
+    // Get
+    final Source source = sourceDao.getEntity(statelessSession, id);
+    if (source == null) {
+      return;
+    }
+    // Update
+    source.setVisible(visible);
+    sourceDao.update(statelessSession, source);
+  }
+
+  public void setSourceTypes(final StatelessSession statelessSession, final long sourceId,
+      final Collection<SourceTypeDto> sourceTypeDtos) {
+    if (sourceTypeDtos == null) {
+      return;
+    }
+
+    setTypes(statelessSession, sourceId, sourceTypeDtos);
+  }
+
+  private void setTypes(final StatelessSession statelessSession, final long sourceId,
+      final Collection<SourceTypeDto> sourceTypeDtos) {
+    final List<Source2SourceType> assignments = source2SourceTypeDao.getForSourceId(statelessSession, sourceId);
+    final EntitiesById<Source2SourceType> assignmentsBySourceTypeId =
+        new EntitiesById<>(assignments, e -> e.getSourceTypeId());
+
+    for (final SourceTypeDto sourceTypeDto : sourceTypeDtos) {
+      final Long sourceTypeId = sourceTypeDto.getId();
+      Source2SourceType assignment = assignmentsBySourceTypeId.poll(sourceTypeId);
+
+      // Create assignment
+      if (assignment == null) {
+        assignment = new Source2SourceType();
+        assignment.setSourceId(sourceId);
+        assignment.setSourceTypeId(sourceTypeId);
+        source2SourceTypeDao.update(statelessSession, assignment);
+      }
+    }
+
+    // Delete assignments
+    for (final Source2SourceType assignment : assignmentsBySourceTypeId.getObjects()) {
+      source2SourceTypeDao.delete(statelessSession, assignment);
+    }
+  }
+
+}

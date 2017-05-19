@@ -1,0 +1,151 @@
+<!--
+  ============================LICENSE_START============================
+  data.messie (core)
+  =====================================================================
+  Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+  =====================================================================
+  This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public
+License along with this program.  If not, see
+<http://www.gnu.org/licenses/gpl-3.0.html>.
+  =============================LICENSE_END=============================
+  -->
+<wicket:extend>
+
+		<div wicket:id="document">
+			<table>
+				<tr>
+					<td class="nowrap">
+						ID:
+					</td>
+					<td>
+						<span wicket:id="idLabel"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Title:
+					</td>
+					<td>
+						<span wicket:id="titleLabel"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Stemmed title:
+					</td>
+					<td>
+						<span wicket:id="stemmedTitleLabel"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						URL:
+					</td>
+					<td>
+						<a href="#" target="_blank" wicket:id="urlLink"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Published:
+					</td>
+					<td>
+						<span wicket:id="publishedLabel"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Downloaded:
+					</td>
+					<td>
+						<span wicket:id="downloadedLabel"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Source:
+					</td>
+					<td>
+						<a href="#" wicket:id="sourceLink">
+							<span wicket:id="sourceNameLabel"/>
+						</a>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Status code:
+					</td>
+					<td>
+						<span wicket:id="statusCodeLabel"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						State:
+					</td>
+					<td>
+						<span wicket:id="stateLabel"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Description:
+					</td>
+					<td>
+						<span wicket:id="descriptionLabel"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Stemmed description:
+					</td>
+					<td>
+						<span wicket:id="stemmedDescriptionLabel"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Stemmed content:
+					</td>
+					<td>
+						<textarea class="source" readonly="readonly" wicket:id="stemmedContentTextArea"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Named entities:
+					</td>
+					<td>
+						<textarea class="source" readonly="readonly" wicket:id="namedEntitiesTextArea"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Cleaned content:
+					</td>
+					<td>
+						<textarea class="source" readonly="readonly" wicket:id="cleanedContentTextArea"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Raw content:
+					</td>
+					<td>
+						<textarea class="source" readonly="readonly" wicket:id="rawContentTextArea"/>
+					</td>
+				</tr>
+			</table>
+		</div>
+
+</wicket:extend>

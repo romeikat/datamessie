@@ -1,0 +1,100 @@
+<!--
+  ============================LICENSE_START============================
+  data.messie (core)
+  =====================================================================
+  Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+  =====================================================================
+  This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public
+License along with this program.  If not, see
+<http://www.gnu.org/licenses/gpl-3.0.html>.
+  =============================LICENSE_END=============================
+  -->
+<wicket:extend>
+
+		<form wicket:id="source">
+			<table>
+				<tr>
+					<td class="nowrap">
+						ID:
+					</td>
+					<td>
+						<span wicket:id="id"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Name:
+					</td>
+					<td>
+						<input wicket:id="name" type="text" size="50"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Language:
+					</td>
+					<td>
+						<span wicket:id="language"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Types:
+					</td>
+					<td>
+						<input wicket:id="types" type="hidden"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						URL:
+					</td>
+					<td>
+						<input wicket:id="url" type="text" size="50"/>
+						<a href="#" target="_blank" wicket:id="urlLink" style="margin-left: 0.5em;"><img src="img/doc_page.png" alt="RSS feed"></a>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Redirecting rules:
+					</td>
+					<td>
+						<span wicket:id="redirectingRules"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Tag selecting rules:
+					</td>
+					<td>
+						<span wicket:id="tagSelectingRules"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Visible:
+					</td>
+					<td>
+						<input wicket:id="visible" type="checkbox"/>
+					</td>
+				</tr>
+				<tr style="height: 10px;"/>
+				<tr>
+					<td colspan="2">
+						<input type="submit" value="Save"/>
+					</td>
+				</tr>
+			</table>
+		</form>
+
+</wicket:extend>

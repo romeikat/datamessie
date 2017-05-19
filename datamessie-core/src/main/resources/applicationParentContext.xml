@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:task="http://www.springframework.org/schema/task" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+	<context:annotation-config />
+	<context:component-scan base-package="tools" />
+	<context:component-scan base-package="com.romeikat.datamessie.core" />
+
+	<task:annotation-driven />
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${hibernate.dialect}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+				<prop key="hibernate.id.new_generator_mappings">${hibernate.id.new_generator_mappings}</prop>
+				<prop key="hibernate.allow_update_outside_transaction">${hibernate.allow_update_outside_transaction}</prop>
+				<prop key="hibernate.cache.provider_class">${hibernate.cache.provider_class}</prop>
+				<prop key="hibernate.jdbc.batch_size">${hibernate.jdbc.batch_size}</prop>
+				<prop key="hibernate.order_inserts">${hibernate.order_inserts}</prop>
+				<prop key="hibernate.order_updates">${hibernate.order_updates}</prop>
+				<prop key="hibernate.jdbc.batch_versioned_data">${hibernate.jdbc.batch_versioned_data}</prop>
+				<prop key="hibernate.search.default.directory_provider">${hibernate.search.default.directory_provider}</prop>
+				<prop key="hibernate.search.default.indexBase">${hibernate.search.default.indexBase}</prop>
+				<prop key="hibernate.search.worker.thread_pool.size">${hibernate.search.worker.thread_pool.size}</prop>
+			</props>
+		</property>
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan">
+			<list>
+				<value>com.romeikat.datamessie.core.domain.entity</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="sessionFactorySyncSource"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">${syncSource.hibernate.dialect}</prop>
+				<prop key="hibernate.hbm2ddl.auto">${syncSource.hibernate.hbm2ddl.auto}</prop>
+				<prop key="hibernate.show_sql">$hibernate.show_sql}</prop>
+				<prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+				<prop key="hibernate.id.new_generator_mappings">${hibernate.id.new_generator_mappings}</prop>
+				<prop key="hibernate.allow_update_outside_transaction">${hibernate.allow_update_outside_transaction}</prop>
+				<prop key="hibernate.cache.provider_class">${hibernate.cache.provider_class}</prop>
+				<prop key="hibernate.jdbc.batch_size">${hibernate.jdbc.batch_size}</prop>
+				<prop key="hibernate.order_inserts">${hibernate.order_inserts}</prop>
+				<prop key="hibernate.order_updates">${hibernate.order_updates}</prop>
+				<prop key="hibernate.jdbc.batch_versioned_data">${hibernate.jdbc.batch_versioned_data}</prop>
+				<prop key="hibernate.search.default.directory_provider">${hibernate.search.default.directory_provider}</prop>
+				<prop key="hibernate.search.default.indexBase">${hibernate.search.default.indexBase}</prop>
+				<prop key="hibernate.search.worker.thread_pool.size">${hibernate.search.worker.thread_pool.size}</prop>
+			</props>
+		</property>
+		<property name="dataSource" ref="dataSourceSyncSource" />
+		<property name="packagesToScan">
+			<list>
+				<value>com.romeikat.datamessie.core.domain.entity</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean name="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<!-- Database connection -->
+		<property name="driverClass" value="${jdbc.driverClass}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!-- Collection pool size -->
+		<property name="initialPoolSize" value="4" />
+		<property name="minPoolSize" value="4" />
+		<property name="maxPoolSize" value="${connections.maxPoolSize}" />
+		<property name="acquireIncrement" value="2" />
+		<!-- Collection establishment -->
+		<property name="checkoutTimeout" value="5000" />
+		<!-- Connection age -->
+		<property name="maxIdleTime" value="28800" />
+		<!-- Connection testing -->
+		<property name="testConnectionOnCheckin" value="true" />
+		<property name="idleConnectionTestPeriod" value="14400" />
+		<property name="preferredTestQuery" value="/* ping */ SELECT 1" />
+		<!-- Debugging -->
+		<!-- <property name="unreturnedConnectionTimeout" value="5" /> -->
+		<!-- <property name="debugUnreturnedConnectionStackTraces" value="true" 
+			/> -->
+	</bean>
+
+	<bean name="dataSourceSyncSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<!-- Database connection -->
+		<property name="driverClass" value="${syncSource.jdbc.driverClass}" />
+		<property name="jdbcUrl" value="${syncSource.jdbc.url}" />
+		<property name="user" value="${syncSource.jdbc.username}" />
+		<property name="password" value="${syncSource.jdbc.password}" />
+		<!-- Collection pool size -->
+		<property name="initialPoolSize" value="4" />
+		<property name="minPoolSize" value="4" />
+		<property name="maxPoolSize" value="${syncSource.connections.maxPoolSize}" />
+		<property name="acquireIncrement" value="2" />
+		<!-- Collection establishment -->
+		<property name="checkoutTimeout" value="5000" />
+		<!-- Connection age -->
+		<property name="maxIdleTime" value="28800" />
+		<!-- Connection testing -->
+		<property name="testConnectionOnCheckin" value="true" />
+		<property name="idleConnectionTestPeriod" value="14400" />
+		<property name="preferredTestQuery" value="/* ping */ SELECT 1" />
+		<!-- Debugging -->
+		<!-- <property name="unreturnedConnectionTimeout" value="5" /> -->
+		<!-- <property name="debugUnreturnedConnectionStackTraces" value="true" 
+			/> -->
+	</bean>
+
+	<!-- HTTP invoker for statistics manager -->
+	<bean id="httpStatisticsManager"
+		class="org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean">
+		<property name="serviceUrl" value="${statistics.manager.url}" />
+		<property name="serviceInterface"
+			value="com.romeikat.datamessie.core.base.app.shared.IStatisticsManager" />
+
+	</bean>
+
+</beans>

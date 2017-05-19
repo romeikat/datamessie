@@ -1,0 +1,73 @@
+<!--
+  ============================LICENSE_START============================
+  data.messie (core)
+  =====================================================================
+  Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+  =====================================================================
+  This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public
+License along with this program.  If not, see
+<http://www.gnu.org/licenses/gpl-3.0.html>.
+  =============================LICENSE_END=============================
+  -->
+<wicket:panel>
+
+		<form wicket:id="filterForm" id="filter">
+			<table>
+				<tr>
+					<td>
+						<a wicket:id="submit">Filter:</a>
+						<input type="submit" value="Filter" style="display:none;"/>
+					</td>
+					<td>
+						<input wicket:id="sourceIdFilter" type="hidden"/>
+						<input wicket:id="crawlingIdFilter" type="hidden"/>
+						<input wicket:id="fromDateFilter" type="text" style="width: 80px;" placeholder="From"/>
+						<span wicket:id="toLabel"/>
+						<input wicket:id="toDateFilter" type="text" style="width: 80px;" placeholder="To"/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+						<input wicket:id="sourceTypeIdFilter" type="hidden"/>
+						<input wicket:id="statesFilter" type="hidden"/>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+						<textarea wicket:id="cleanedContentFilter" 
+							placeholder="Insert keywords to search cleaned content (boolean OR)" 
+							title="
+Standard query:&#13;
+- Group keywords to a phrase with double quotes&#13;
+- Create boolean combinations with 'AND' and 'OR'&#13 (default is 'OR');
+- Use 'NOT' before a keyword or phrase to exclude the respective documents&#13;
+- Nest boolean combinations with round brackets&#13;
+OutOf query:&#13;
+- Start your query with '3 OUTOF' to filter documents with at least 3 matches&#13;
+- '3 OUTOF' must only be followed by a list of keywords or phrases without boolean combinations"
+							style="width:300px; height:40px;
+							"/>
+						<textarea wicket:id="documentsFilter" 
+							placeholder="Filter corpus by document ids" 
+							title="Separate documents ids with any non-digit character (whitespace, tab, comma etc.)" 
+							style="width:300px; height:40px;"/>
+					</td>
+				</tr>
+			</table>
+		</form>
+
+</wicket:panel>

@@ -1,0 +1,56 @@
+<!--
+  ============================LICENSE_START============================
+  data.messie (core)
+  =====================================================================
+  Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+  =====================================================================
+  This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public
+License along with this program.  If not, see
+<http://www.gnu.org/licenses/gpl-3.0.html>.
+  =============================LICENSE_END=============================
+  -->
+<wicket:extend>
+
+	<div id="header">
+		<div>
+			<span class="title">data.messie</span>
+		</div>
+	</div>
+
+	<form wicket:id="signInForm">
+		<table>
+			<tr>
+				<td>
+					Username:
+				</td>
+				<td>
+					<input wicket:id="username" type="text" size="20"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					Password:
+				</td>
+				<td>
+					<input wicket:id="password" type="password" size="20"/>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<input type="submit" value="Sign in"/>
+				</td>
+			</tr>
+		</table>
+	</form>
+
+</wicket:extend>

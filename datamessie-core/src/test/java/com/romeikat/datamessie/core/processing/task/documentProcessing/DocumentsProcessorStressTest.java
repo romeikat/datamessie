@@ -1,0 +1,294 @@
+package com.romeikat.datamessie.core.processing.task.documentProcessing;
+
+/*-
+ * ============================LICENSE_START============================
+ * data.messie (core)
+ * =====================================================================
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * =====================================================================
+ * This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public
+License along with this program.  If not, see
+<http://www.gnu.org/licenses/gpl-3.0.html>.
+ * =============================LICENSE_END=============================
+ */
+
+import static com.ninja_squad.dbsetup.Operations.sequenceOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.hibernate.StatelessSession;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.ninja_squad.dbsetup.operation.Operation;
+import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
+import com.romeikat.datamessie.core.CommonOperations;
+import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
+import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
+import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
+import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
+import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
+import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
+import com.romeikat.datamessie.core.domain.entity.impl.Project;
+import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.Source;
+import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
+import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.core.domain.enums.Language;
+import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
+import com.romeikat.datamessie.core.processing.dao.DocumentDao;
+import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentProcessor;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessor;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.NamedEntityCategoriesCreator;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.cache.DocumentsProcessingCache;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaner;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaningResult;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirectingResult;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirector;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmer;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmingResult;
+
+public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
+
+  private static final String CLEANED_CONTENT = "This is a cleaned content";
+
+  private static final String STEMMED_TITLE = "This is a stemmed title";
+  private static final String STEMMED_DESCRIPTION = "This is a stemmed description";
+  private static final String STEMMED_CONTENT = "This is a stemmed content";
+
+  private static final String NAMED_ENTITY_NAME = "This is a named entity";
+  private static final String NAMED_ENTITY_CATEGORY_NAME = "This is a named entity category";
+
+  private static final int NUMBER_OF_DOCUMENTS = 1234;
+
+  @Value("${documents.processing.parallelism.factor}")
+  private Double documentsParallelismFactor;
+
+  private DocumentsProcessor documentsProcessor;
+
+  @Autowired
+  private DocumentRedirector documentRedirector;
+
+  @Autowired
+  private DocumentCleaner documentCleaner;
+
+  @Autowired
+  private DocumentStemmer documentStemmer;
+
+  @Autowired
+  private NamedEntityCategoriesCreator namedEntityCategoriesCreator;
+
+  @Autowired
+  @Qualifier("processingDocumentDao")
+  private DocumentDao documentDao;
+
+  @Autowired
+  private RawContentDao rawContentDao;
+
+  @Autowired
+  private CleanedContentDao cleanedContentDao;
+
+  @Autowired
+  private StemmedContentDao stemmedContentDao;
+
+  @Autowired
+  private NamedEntityDao namedEntityDao;
+
+  @Autowired
+  private NamedEntityOccurrenceDao namedEntityOccurrenceDao;
+
+  @Autowired
+  private NamedEntityCategoryDao namedEntityCategoryDao;
+
+  @Autowired
+  private ApplicationContext ctx;
+
+  private static List<Integer> getDocumentIds() {
+    final List<Integer> documentIds = Lists.newArrayListWithExpectedSize(NUMBER_OF_DOCUMENTS);
+    for (int documentId = 1; documentId <= NUMBER_OF_DOCUMENTS; documentId++) {
+      documentIds.add(documentId);
+    }
+    return documentIds;
+  }
+
+  @Override
+  protected Operation initDb() {
+    final Project project1 = new Project(1, "Project1", false, false);
+    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true);
+    final Crawling crawling1 = new Crawling(1, project1.getId());
+    final NamedEntity namedEntity = new NamedEntity(1, "NamedEntity");
+
+    // Project, source, and crawling
+    final Operation initBaseData =
+        sequenceOf(sequenceOf(CommonOperations.insertIntoProject(project1), CommonOperations.insertIntoSource(source1),
+            CommonOperations.insertIntoCrawling(crawling1), CommonOperations.insertIntoNamedEntity(namedEntity)));
+
+    // Document for each ID
+    final List<Operation> operations = Lists.newArrayListWithExpectedSize(5 * NUMBER_OF_DOCUMENTS);
+    for (final int documentId : getDocumentIds()) {
+      final Document document = new Document(documentId, crawling1.getId(), source1.getId())
+          .setTitle("Title" + documentId).setUrl("http://www.document" + documentId + ".de/")
+          .setDescription("Description" + documentId).setPublished(LocalDateTime.now())
+          .setDownloaded(LocalDateTime.now()).setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
+      final RawContent rawContent = new RawContent(documentId, "RawContent" + documentId);
+      final CleanedContent cleanedContent = new CleanedContent(documentId, "Outdated CleanedContent" + documentId);
+      final StemmedContent stemmedContent = new StemmedContent(documentId, "Outdated StemmedContent" + documentId);
+      final NamedEntityOccurrence namedEntityOccurrence = new NamedEntityOccurrence(documentId, namedEntity.getId(),
+          namedEntity.getId(), NamedEntityType.MISC, 1, document.getId());
+
+      operations.add(CommonOperations.insertIntoDocument(document));
+      operations.add(CommonOperations.insertIntoRawContent(rawContent));
+      operations.add(CommonOperations.insertIntoCleanedContent(cleanedContent));
+      operations.add(CommonOperations.insertIntoStemmedContent(stemmedContent));
+      operations.add(CommonOperations.insertIntoNamedEntityOccurrence(namedEntityOccurrence));
+    }
+    final Operation initDocuments = sequenceOf(operations);
+
+    // Done
+    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE, initBaseData, initDocuments);
+  }
+
+  @Override
+  @Before
+  public void before() throws Exception {
+    super.before();
+
+    documentRedirector = createSpy(documentRedirector);
+    documentCleaner = createSpy(documentCleaner);
+    documentStemmer = createSpy(documentStemmer);
+    namedEntityCategoriesCreator = createSpy(namedEntityCategoriesCreator);
+
+    // Simulate absent redirection
+    final DocumentRedirectingResult expectedDocumentRedirectingResult = new DocumentRedirectingResult(null, null);
+    doReturn(expectedDocumentRedirectingResult).when(documentRedirector).redirect(any(StatelessSession.class),
+        any(Document.class), any(RawContent.class));
+    // Simulate successful cleaning
+    final DocumentCleaningResult expectedDocumentCleaningResult = new DocumentCleaningResult(CLEANED_CONTENT);
+    doReturn(expectedDocumentCleaningResult).when(documentCleaner).clean(any(StatelessSession.class),
+        any(DocumentsProcessingCache.class), any(Document.class), any(RawContent.class));
+    // Simulate successful stemming
+    final NamedEntityDetectionDto namedEntityDetection = new NamedEntityDetectionDto().setName(NAMED_ENTITY_NAME)
+        .setParentName(NAMED_ENTITY_NAME).setType(NamedEntityType.MISC).setQuantity(1);
+    final DocumentStemmingResult expectedDocumentStemmingResult = new DocumentStemmingResult(STEMMED_TITLE,
+        STEMMED_DESCRIPTION, STEMMED_CONTENT, Lists.newArrayList(namedEntityDetection));
+    doReturn(expectedDocumentStemmingResult).when(documentStemmer).stem(any(StatelessSession.class),
+        any(Document.class), any(String.class), any(Language.class));
+    // Simulate named entity categories
+    final Set<String> namedEntityCategories = Sets.newHashSetWithExpectedSize(1);
+    namedEntityCategories.add(NAMED_ENTITY_CATEGORY_NAME);
+    doReturn(namedEntityCategories).when(namedEntityCategoriesCreator)
+        .getNamedEntityCategoryNames(any(NamedEntity.class));
+
+    documentsProcessor = new DocumentsProcessor(ctx) {
+      @Override
+      protected DocumentProcessor createDocumentProcessor(final ApplicationContext ctx,
+          final DocumentsProcessingCache documentsProcessingCache) {
+        final DocumentProcessor documentProcessor = super.createDocumentProcessor(ctx, documentsProcessingCache);
+        injectSpy(documentProcessor, "documentRedirector", documentRedirector);
+        injectSpy(documentProcessor, "documentCleaner", documentCleaner);
+        injectSpy(documentProcessor, "documentStemmer", documentStemmer);
+        injectSpy(documentProcessor, "namedEntityCategoriesCreator", namedEntityCategoriesCreator);
+        return documentProcessor;
+      }
+    };
+  }
+
+  @Test
+  public void processDocuments() throws TaskCancelledException {
+    final Map<Integer, DocumentAndContentValues> oldValuesPerId = Maps.newHashMapWithExpectedSize(NUMBER_OF_DOCUMENTS);
+    for (final int documentId : getDocumentIds()) {
+      final Document document = documentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+      final RawContent rawContent = rawContentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+      final CleanedContent cleanedContent =
+          cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+      final StemmedContent stemmedContent =
+          stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+      final DocumentAndContentValues oldValues =
+          new DocumentAndContentValues(document, rawContent, cleanedContent, stemmedContent);
+      oldValuesPerId.put(documentId, oldValues);
+    }
+
+    // Process
+    final List<Document> documents = documentDao.getAllEntites(sessionProvider.getStatelessSession());
+    documentsProcessor.processDocuments(documents);
+
+    // Processing was successful:
+    // state becomes STEMMED
+    for (final int documentId : getDocumentIds()) {
+      final Document document = documentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+      final RawContent rawContent = rawContentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+      final CleanedContent cleanedContent =
+          cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+      final StemmedContent stemmedContent =
+          stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+      final DocumentAndContentValues oldValues = oldValuesPerId.get(documentId);
+      final DocumentAndContentValues expectedValues = new DocumentAndContentValues(oldValues.getTitle(), STEMMED_TITLE,
+          oldValues.getUrl(), oldValues.getDescription(), STEMMED_DESCRIPTION, oldValues.getPublished(),
+          oldValues.getDownloaded(), DocumentProcessingState.STEMMED, oldValues.getStatusCode(),
+          oldValues.getRawContent(), CLEANED_CONTENT, STEMMED_CONTENT);
+      final DocumentAndContentValues actualValues =
+          new DocumentAndContentValues(document, rawContent, cleanedContent, stemmedContent);
+      assertEquals(expectedValues, actualValues);
+
+      final List<NamedEntityOccurrence> namedEntityOccurrences =
+          namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), documentId);
+      assertEquals(1, namedEntityOccurrences.size());
+      final NamedEntityOccurrence namedEntityOccurrence = namedEntityOccurrences.iterator().next();
+      NamedEntity namedEntity =
+          namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityOccurrence.getNamedEntityId());
+      assertEquals(NAMED_ENTITY_NAME, namedEntity.getName());
+
+      final List<NamedEntityCategory> namedEntityCategories =
+          namedEntityCategoryDao.getByNamedEntity(sessionProvider.getStatelessSession(), namedEntity);
+      assertEquals(1, namedEntityCategories.size());
+      final NamedEntityCategory namedEntityCategory = namedEntityCategories.iterator().next();
+      namedEntity =
+          namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityCategory.getNamedEntityId());
+      final NamedEntity categoryNamedEntity = namedEntityDao.getEntity(sessionProvider.getStatelessSession(),
+          namedEntityCategory.getCategoryNamedEntityId());
+      assertEquals(NAMED_ENTITY_NAME, namedEntity.getName());
+      assertEquals(NAMED_ENTITY_CATEGORY_NAME, categoryNamedEntity.getName());
+
+      // Statistics are rebuilt
+      final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentsProcessor.getStatisticsToBeRebuilt();
+      assertTrue(statisticsToBeRebuilt.getValue(document.getSourceId(), document.getPublishedDate()));
+    }
+
+    // Failed documents
+    assertTrue(documentsProcessor.getFailedDocumentIds().isEmpty());
+  }
+
+}

@@ -1,0 +1,45 @@
+<!--
+  ============================LICENSE_START============================
+  data.messie (core)
+  =====================================================================
+  Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+  =====================================================================
+  This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public
+License along with this program.  If not, see
+<http://www.gnu.org/licenses/gpl-3.0.html>.
+  =============================LICENSE_END=============================
+  -->
+<wicket:panel>
+
+		<div class="fixed_size">
+			<form wicket:id="uploadForm">
+				<div wicket:id="inputPanel" style="margin-bottom:10px;"/>
+				<span wicket:id="fileUploadsLabel"/><br>
+				<table>
+					<div wicket:id="fileUploadList" style="margin-top:5px; margin-bottom:5px;">
+						<tr>
+							<td>
+								<span wicket:id="fileUploadLabel"/>
+							</td>
+							<td>
+								<input wicket:id="fileUploadField" type="file"/>
+							</td>
+						</tr>
+					</div>
+				</table>
+				<input wicket:id="submitButton" type="submit" value="Upload"/><br>
+				<textarea wicket:id="feedbackTextArea" class="noborder" readonly="readonly" style="height: 525px; margin-top:5px; resize:none;"/>
+			</form>
+		</div>
+
+</wicket:panel>

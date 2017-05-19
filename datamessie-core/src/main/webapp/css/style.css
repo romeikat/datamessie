@@ -1,0 +1,305 @@
+html {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	overflow-y: scroll;
+}
+
+body {
+	position: relative;
+	margin: 0 auto;
+	width: 1050px;
+	text-align: left;
+	color: #666;
+}
+
+body, textarea, table, tr, th, td, label {
+	font-family: open sans, arial;
+	color: #666;
+}
+
+textarea {
+	font-size: 10pt;
+	color: #000;
+}
+
+input[type=text], input[type=password], input[type=submit], textarea, select {
+    border: 1px solid silver;
+}
+
+textarea {
+	width: 100%;
+	height: 150px;
+}
+
+img {
+	vertical-align: middle;
+}
+
+.source {
+	font-family: courier new;
+	font-size: 0.75em;
+}
+
+.noborder {
+	border: none;
+}
+
+.small_text {
+	font-size: 0.75em;
+}
+
+.fixed_size {
+	overflow: auto;
+	z-index: 1;
+	width: 600px;
+	height: 620px;
+	min-height: 520px;
+}
+
+table {
+	border-spacing: 0;
+}
+td.nowrap {
+	width: 0;
+	white-space: nowrap;
+}
+th, td {
+	vertical-align: top;
+	border-left: 1em solid transparent;
+}
+th:first-child, td:first-child {
+	border-left: 0;
+}
+th:first-child td, tr:first-child td {
+	border-top: 0;
+}
+
+table.dataview {
+	margin-bottom: 10px;
+	border-bottom: 1px solid #0079d6;
+	font-size: 1em;
+}
+table.dataview caption {
+	text-align: left;
+}
+table.dataview tr {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+table.dataview tr.even {
+	background-color: #ffebcd;
+}
+table.dataview tr.odd {
+	background-color: #fff;
+}
+table.dataview tr th {
+	border-left: 0;
+	color: black;
+	padding: 2px 15px 2px 10px;
+	background-color: #c1e4ff;
+	background-position: right;
+	background-repeat: no-repeat;
+	border-bottom: 1px solid #0079d6;
+	border-top: 1px solid #0079d6;
+	text-align: left;
+	white-space: nowrap;
+}
+table.dataview tr td {
+	border-left: 0;
+	padding: 0px 15px 0px 10px;
+}
+table.dataview tr th.wicket_orderDown {
+	background-color: #87cbff;
+	background-image: url(img/arrow_down.png); }
+table.dataview tr th.wicket_orderUp {
+	background-color: #87cbff;
+	background-image: url(img/arrow_up.png); }
+table.dataview tr th.wicket_orderNone {
+	background-image: url(img/arrow_off.png);
+}
+table.dataview tr th a {
+	font-weight: normal;
+}
+table.dataview #message {
+	padding-left: 3px;
+}
+table.dataview caption {
+	padding-bottom: 2px;
+}
+
+a {
+	text-decoration: none;
+	color: #ff7f00;
+}
+a:hover {
+	text-decoration: none;
+	background-color: #ff7f00 !important; 
+	color: #fff;
+}
+
+
+
+#header {
+	position: relative;
+	margin: 0 200px 20 0;
+}
+#header a label {
+	color: rgb(102, 102, 102);
+}
+.title {
+	font-size: 4em;
+	line-height: 1;
+	font-weight: 100;
+}
+.title img {
+	display: block;
+	float: left;
+	margin: 0 15px 0 0;
+}
+.title span {
+	display: block;
+	margin-bottom: 5px;
+}
+nav select {
+	margin-right: 1em;
+}
+nav a {
+	margin-right: 0.5em;
+	color: #666;
+}
+nav a.selected {
+	font-weight: bold;
+}
+
+
+
+/* Select2: choices */
+.select2-results {
+	max-height: 400px;
+	font-size: 10pt;
+}
+/* Select2: choices */
+.select2-results .select2-result-label {
+	padding: 3px 7px 4px;
+}
+/* Select2Choice: placeholder */
+.select2-container .select2-choice span {
+ 	font-size: 10pt;
+}
+/* Select2MultiChoice: placeholder */
+.select2-container-multi .select2-choices .select2-search-field input {
+	font-family: open sans, arial;
+	color: #666;
+	font-size: 10pt;
+	padding-left: 0;
+}
+/* Select2MultiChoice: selected items */
+.select2-container-multi .select2-choices .select2-search-choice {
+	font-size: 10pt;
+}
+
+
+/* Main content */
+
+#filterline {
+	margin: 0 0 5px 0;
+}
+#filter select {
+	margin: 0 0 0 0.75em;
+	max-width: 200px;
+}
+#filter input {
+	margin: 0 0 0 0.75em;
+}
+#filter div {
+	margin: 0 0 0 0.75em;
+}
+#filter textarea {
+	margin: 0 0 0 0.75em;
+}
+
+#ioline {
+	margin: 0 0 10px 0;
+}
+
+.pagingNavigator {
+	margin: 0 0 10px 0;
+}
+.navigator {
+	margin: 0 0 0 10px;
+}
+
+#content {
+	overflow-x: auto;
+	overflow-y: hidden;
+	max-width: 800px;
+}
+
+
+/* Side containers */
+
+#sideContainer {
+	float: right;
+	overflow: hidden;
+	z-index: 1;
+}
+
+.sidePanel {
+	overflow: auto;
+	width: 160px;
+	margin-bottom: 10px;
+	padding: 10px;
+	background: none repeat scroll 0% 0% rgb(250, 250, 250);
+	border: 1px solid rgb(200, 200, 200);
+	border-radius: 5px 5px 5px 5px;
+}
+
+#taskExecutionsContainer {
+	height: 250px;
+	min-height: 100px;
+}
+
+/* Line beak within words, if necessary */
+
+div {
+	word-wrap: break-word;         /* All browsers since IE 5.5+ */
+	overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+}
+
+table {
+	table-layout: fixed;
+}
+
+table th {
+	word-wrap: break-word;         /* All browsers since IE 5.5+ */
+	overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+}
+
+table td {
+	word-wrap: break-word;         /* All browsers since IE 5.5+ */
+	overflow-wrap: break-word;     /* Renamed property in CSS3 draft spec */
+}
+
+/* Fonts */
+
+@font-face {
+	font-family: 'Open Sans';
+	font-style: normal;
+	font-weight: 300;
+	src: local('Open Sans Light'), local('OpenSans-Light'), url(OpenSans.woff) format('woff');
+}
+/* 	src: local('Open Sans Light'), local('OpenSans-Light'), url(http://themes.googleusercontent.com/static/fonts/opensans/v6/DXI1ORHCpsQm3Vp6mXoaTXhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+ */
+
+::-webkit-input-placeholder {
+	font-size: 0.8em;
+}
+::-moz-placeholder {
+	font-size: 0.8em;
+}
+:-ms-input-placeholder {
+	font-size: 0.8em;
+}
+input:-moz-placeholder {
+	font-size: 0.8em;
+}
