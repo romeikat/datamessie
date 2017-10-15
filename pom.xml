@@ -4,7 +4,7 @@
 
 	<groupId>com.romeikat.datamessie</groupId>
 	<artifactId>datamessie-parent</artifactId>
-	<version>0.15.0</version>
+	<version>0.15.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>data.messie (parent)</name>
