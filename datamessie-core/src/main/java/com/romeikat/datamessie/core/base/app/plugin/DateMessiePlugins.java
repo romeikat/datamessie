@@ -116,6 +116,16 @@ public class DateMessiePlugins {
   }
 
   private <B, P> B loadBean(final Class<P> pluginClazz, final Class<B> beanClazz) {
+    final ApplicationContext pluginCtx = getPluginContext(pluginClazz);
+    if (pluginCtx == null) {
+      return null;
+    }
+
+    final B bean = pluginCtx.getBean(beanClazz);
+    return bean;
+  }
+
+  public <P> ApplicationContext getPluginContext(final Class<P> pluginClazz) {
     final P plugin = getOrLoadPlugin(pluginClazz);
     if (plugin == null) {
       return null;
@@ -127,8 +137,7 @@ public class DateMessiePlugins {
 
     final IDataMessiePluginWithContext pluginWithCtx = (IDataMessiePluginWithContext) plugin;
     final ApplicationContext pluginContext = pluginWithCtx.getPluginContext();
-    final B bean = pluginContext.getBean(beanClazz);
-    return bean;
+    return pluginContext;
   }
 
 }
