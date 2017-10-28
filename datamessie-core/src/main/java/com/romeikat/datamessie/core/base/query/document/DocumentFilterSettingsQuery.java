@@ -41,8 +41,8 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
-import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery.ReturnMode;
+import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.CleanedContentQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.CrawlingQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.DocumentQuery;
@@ -195,14 +195,13 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     // Orders
     for (final Entry<Class<?>, Order> entry : orders.entries()) {
       final Class<?> clazz = entry.getKey();
-      final EntityWithIdQuery<?> query = getQuery(clazz);
-      if (query == null) {
-        LOG.warn("No query for class {} available", clazz.getName());
+      if (clazz != targetClass) {
+        LOG.warn("Order for class {} cannot be applied to target class {}", clazz.getName(), targetClass.getName());
         continue;
       }
 
       final Order order = entry.getValue();
-      query.addOrder(order);
+      overallQuery.addOrder(order);
     }
 
     // First and max
