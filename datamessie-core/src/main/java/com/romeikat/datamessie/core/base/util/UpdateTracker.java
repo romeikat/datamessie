@@ -52,7 +52,7 @@ public class UpdateTracker<T extends StringHashProvider> {
       return false;
     }
 
-    return stringHashBeforeUpdate.equals(stringHashAfterUpdate);
+    return !stringHashBeforeUpdate.equals(stringHashAfterUpdate);
   }
 
 }

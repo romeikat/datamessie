@@ -152,6 +152,7 @@ public class SourceService {
       redirectingRule.setSourceId(sourceId);
       updateTracker.endUpdate();
       if (updateTracker.wasObjectUpdated()) {
+        redirectingRuleDao.update(statelessSession, redirectingRule);
         updated = true;
       }
     }
@@ -177,7 +178,7 @@ public class SourceService {
       // Create rule (DTO without ID or with unknown ID)
       if (tagSelectingRule == null) {
         tagSelectingRule = new TagSelectingRule();
-        tagSelectingRuleDao.update(statelessSession, tagSelectingRule);
+        tagSelectingRuleDao.insert(statelessSession, tagSelectingRule);
         updated = true;
       }
 
@@ -189,6 +190,7 @@ public class SourceService {
       tagSelectingRule.setSourceId(sourceId);
       updateTracker.endUpdate();
       if (updateTracker.wasObjectUpdated()) {
+        tagSelectingRuleDao.update(statelessSession, tagSelectingRule);
         updated = true;
       }
     }
