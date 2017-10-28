@@ -176,4 +176,11 @@ public class DocumentPage extends AbstractAuthenticatedPage {
     return DocumentsPage.class;
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    documentModel.detach();
+  }
+
 }

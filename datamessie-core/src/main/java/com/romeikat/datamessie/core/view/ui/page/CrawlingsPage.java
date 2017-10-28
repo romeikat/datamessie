@@ -116,4 +116,11 @@ public class CrawlingsPage extends AbstractAuthenticatedPage {
     add(crawlingsList);
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    crawlingsModel.detach();
+  }
+
 }

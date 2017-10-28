@@ -179,4 +179,11 @@ public class SourcePage extends AbstractAuthenticatedPage {
     return SourcesPage.class;
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    sourceModel.detach();
+  }
+
 }

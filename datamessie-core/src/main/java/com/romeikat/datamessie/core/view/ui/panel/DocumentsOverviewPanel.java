@@ -153,4 +153,11 @@ public class DocumentsOverviewPanel extends Panel {
     add(numberOfDocumentsLabel);
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    dfsModel.detach();
+  }
+
 }

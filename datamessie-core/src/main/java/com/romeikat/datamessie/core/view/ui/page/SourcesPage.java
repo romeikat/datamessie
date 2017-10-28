@@ -43,8 +43,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
-import com.romeikat.datamessie.core.base.service.SourceService;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
+import com.romeikat.datamessie.core.base.service.SourceService;
 import com.romeikat.datamessie.core.base.ui.behavior.ModelUpdatingBehavior;
 import com.romeikat.datamessie.core.base.ui.component.SourceTypeChoice;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
@@ -194,6 +194,13 @@ public class SourcesPage extends AbstractAuthenticatedPage {
     };
     addSourceLink.setOutputMarkupId(true);
     add(addSourceLink);
+  }
+
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    sourcesModel.detach();
   }
 
 }

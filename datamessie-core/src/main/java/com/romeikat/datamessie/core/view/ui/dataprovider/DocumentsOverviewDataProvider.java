@@ -85,6 +85,9 @@ public class DocumentsOverviewDataProvider implements IDataProvider<DocumentOver
   }
 
   @Override
-  public void detach() {}
+  public void detach() {
+    dfsModel.detach();
+    numberOfDocumentsModel.detach();
+  }
 
 }
