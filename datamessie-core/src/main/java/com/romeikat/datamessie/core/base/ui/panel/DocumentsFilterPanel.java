@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.wicket.Page;
 import org.apache.wicket.datetime.StyleDateConverter;
 import org.apache.wicket.extensions.yui.calendar.DatePicker;
 import org.apache.wicket.markup.html.basic.Label;
@@ -168,12 +167,6 @@ public class DocumentsFilterPanel extends Panel {
           Collections.sort(statesOrdinals);
           pageParameters.set("states", StringUtils.join(statesOrdinals, ","));
         }
-
-        // Rarely, the wicket page number is not increased on form submit,
-        // thus the filtering results are not updated;
-        // setting the response page is an attempt to overcome this issue
-        final Class<? extends Page> pageClass = getPage().getClass();
-        setResponsePage(pageClass, pageParameters);
       }
     };
     add(filterForm);
