@@ -24,8 +24,8 @@ License along with this program.  If not, see
  */
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,11 +63,9 @@ import com.romeikat.datamessie.core.domain.dto.NamedEntityDto;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Repository
 public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
@@ -113,6 +111,22 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     documentQuery.addRestriction(Restrictions.idEq(documentId));
     final Document document = documentQuery.uniqueObject(ssc);
     return document;
+  }
+
+  public List<Document> getForSourceAndDownloaded(final SharedSessionContract ssc, final long sourceId,
+      final LocalDate downloaded) {
+    final LocalDateTime minDownloaded = LocalDateTime.of(downloaded, LocalTime.MIDNIGHT);
+    final LocalDateTime maxDownloaded = LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
+
+    // Query: Document
+    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
+    documentQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
+    documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
+    documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
+
+    // Done
+    final List<Document> entities = documentQuery.listObjects(ssc);
+    return entities;
   }
 
   public Map<RawContent, Document> getForRawContents(final SharedSessionContract ssc,
@@ -328,45 +342,6 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     return dtos;
   }
 
-  public List<Long> getIdsOfNamedEntityForDeprocessing(final SharedSessionContract ssc, final long namedEntityId) {
-    // Query: NamedEntityOccurrence
-    final EntityWithIdQuery<NamedEntityOccurrence> namedEntityOccurrenceQuery =
-        new EntityWithIdQuery<>(NamedEntityOccurrence.class);
-    namedEntityOccurrenceQuery.addRestriction(Restrictions.eq("namedEntityId", namedEntityId));
-    final List<Long> documentIds = namedEntityOccurrenceQuery.listIdsForProperty(ssc, "documentId");
-    if (documentIds.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    // Query: Document
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
-    documentQuery.addRestriction(Restrictions.in("id", documentIds));
-    documentQuery.addRestriction(Restrictions.ne("document.state", DocumentProcessingState.DOWNLOADED));
-    documentQuery.addRestriction(Restrictions.ne("document.state", DocumentProcessingState.DOWNLOAD_ERROR));
-    final List<Long> documentIds2 = documentQuery.listIds(ssc);
-    if (documentIds2.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    // Sort
-    final List<Long> documentIds2Sorted = Lists.newArrayList(documentIds2);
-    Collections.sort(documentIds2Sorted);
-    return documentIds2Sorted;
-  }
-
-  public List<Long> getIdsOfSourceForDeprocessing(final SharedSessionContract ssc, final long sourceId) {
-    // Query: Crawling
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
-    documentQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
-    documentQuery.addRestriction(Restrictions.ne("state", DocumentProcessingState.DOWNLOADED));
-    documentQuery.addRestriction(Restrictions.ne("state", DocumentProcessingState.DOWNLOAD_ERROR));
-    documentQuery.addOrder(Order.asc("id"));
-
-    // Done
-    final List<Long> ids = documentQuery.listIds(ssc);
-    return ids;
-  }
-
   public List<Document> get(final SharedSessionContract ssc, final LocalDateTime downloaded) {
     // Query: Document
     final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
@@ -389,6 +364,16 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     // Execute
     final List<Date> publishedDates = query.list();
     return Lists.transform(publishedDates, d -> DateUtil.toLocalDate(d));
+  }
+
+  public LocalDateTime getMinDownloaded(final SharedSessionContract ssc) {
+    // Query: Document
+    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
+
+    // Done
+    final Projection projection = Projections.min("downloaded");
+    final LocalDateTime result = (LocalDateTime) documentQuery.uniqueForProjection(ssc, projection);
+    return result;
   }
 
   public LocalDateTime getMaxDownloaded(final SharedSessionContract ssc, final long crawlingId) {

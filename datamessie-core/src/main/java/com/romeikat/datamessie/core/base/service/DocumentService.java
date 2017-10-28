@@ -22,10 +22,12 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +43,10 @@ import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
+import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
+import com.romeikat.datamessie.core.base.task.management.TaskExecution;
+import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
+import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -162,26 +168,71 @@ public class DocumentService {
     documentDao.update(statelessSession, document);
   }
 
-  public void deprocessDocumentsOfNamedEntity(final StatelessSession statelessSession, final long namedEntityId,
-      final DocumentProcessingState targetState) {
-    final List<Long> documentIds = documentDao.getIdsOfNamedEntityForDeprocessing(statelessSession, namedEntityId);
-    deprocessDocuments(statelessSession, documentIds, targetState);
-  }
-
-  public void deprocessDocumentsOfSource(final StatelessSession statelessSession, final long sourceId,
-      final DocumentProcessingState targetState) {
-    final List<Long> documentIds = documentDao.getIdsOfSourceForDeprocessing(statelessSession, sourceId);
-    deprocessDocuments(statelessSession, documentIds, targetState);
-  }
-
-  private void deprocessDocuments(final StatelessSession statelessSession, final List<Long> documentIds,
-      final DocumentProcessingState targetState) {
+  public void deprocessDocumentsOfSource(final StatelessSession statelessSession, final TaskExecution taskExecution,
+      final long sourceId, final DocumentProcessingState targetState) throws TaskCancelledException {
+    // Initialize
+    final TaskExecutionWork work = taskExecution.reportWorkStart(
+        String.format("Deprocessing documents of source %s to state %s", sourceId, targetState.getName()));
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
 
-    for (final Long documentId : documentIds) {
-      LOG.debug("Deprocessing document {}", documentId);
+    // Determine minimum downloaded date
+    final LocalDate minDownloadedDate = getMinDownloadedDate(statelessSession);
+
+    // Process all download dates one after another, starting with the minimum downloaded date
+    final MutableObject<LocalDate> downloadedDate = new MutableObject<LocalDate>(minDownloadedDate);
+    while (downloadedDate.getValue() != null) {
+      // Deprocess
+      deprocessDocumentsOfSourceAndDownloadDate(statelessSession, taskExecution, sourceId, targetState, statisticsToBeRebuilt,
+          downloadedDate.getValue());
+
+      // Prepare for next iteration
+      final LocalDate nextDownloadedDate = getNextDownloadedDate(downloadedDate.getValue());
+      downloadedDate.setValue(nextDownloadedDate);
+    }
+
+    // Rebuild statistics
+    final IStatisticsManager statisticsManager = sharedBeanProvider.getSharedBean(IStatisticsManager.class);
+    if (statisticsManager != null) {
+      statisticsManager.rebuildStatistics(statisticsToBeRebuilt);
+    }
+
+    // Done
+    taskExecution.reportWorkEnd(work);
+  }
+
+  private LocalDate getMinDownloadedDate(final StatelessSession statelessSession) {
+    final LocalDateTime minDownloadedDateTime = documentDao.getMinDownloaded(statelessSession);
+    if (minDownloadedDateTime == null) {
+      return null;
+    }
+
+    final LocalDate minDownloadedDate = minDownloadedDateTime.toLocalDate();
+    return minDownloadedDate;
+  }
+
+  private void deprocessDocumentsOfSourceAndDownloadDate(final StatelessSession statelessSession, final TaskExecution taskExecution,
+      final long sourceId, final DocumentProcessingState targetState,
+      final StatisticsRebuildingSparseTable statisticsToBeRebuilt, final LocalDate downloadedDate)
+      throws TaskCancelledException {
+    final TaskExecutionWork work2 =
+        taskExecution.reportWorkStart(String.format("Deprocessing documents with download date %s",
+            LocalDateConverter.INSTANCE_UI.convertToString(downloadedDate)));
+
+    // Load
+    final List<Document> documents = documentDao.getForSourceAndDownloaded(statelessSession, sourceId, downloadedDate);
+
+    // Deprocess
+    deprocessDocuments(statelessSession, documents, targetState, statisticsToBeRebuilt);
+
+    taskExecution.reportWorkEnd(work2);
+    taskExecution.checkpoint();
+  }
+
+  private void deprocessDocuments(final StatelessSession statelessSession, final Collection<Document> documents,
+      final DocumentProcessingState targetState, final StatisticsRebuildingSparseTable statisticsToBeRebuilt) {
+    for (final Document document : documents) {
+      LOG.debug("Deprocessing document {}", document.getId());
       // Update state
-      final Document document = documentDao.getEntity(statelessSession, documentId);
       if (document != null) {
         final DocumentProcessingState oldState = document.getState();
         if (!isValidDeprocessingStep(oldState, targetState)) {
@@ -194,12 +245,6 @@ public class DocumentService {
         final LocalDate publishedDate = document.getPublishedDate();
         statisticsToBeRebuilt.putValue(sourceId, publishedDate, true);
       }
-    }
-
-    // Rebuild statistics
-    final IStatisticsManager statisticsManager = sharedBeanProvider.getSharedBean(IStatisticsManager.class);
-    if (statisticsManager != null) {
-      statisticsManager.rebuildStatistics(statisticsToBeRebuilt);
     }
   }
 
@@ -231,6 +276,16 @@ public class DocumentService {
     }
     // Done
     return true;
+  }
+
+  private LocalDate getNextDownloadedDate(final LocalDate downloadedDate) {
+    // Increase only up to current date
+    final LocalDate now = LocalDate.now();
+    if (downloadedDate.isAfter(now)) {
+      return null;
+    }
+    // Otherwise, go to next date
+    return downloadedDate.plusDays(1);
   }
 
 }

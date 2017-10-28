@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.service.DocumentService;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
-import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
@@ -77,14 +76,11 @@ public class DocumentsDeprocessingTask implements Task {
 
   @Override
   public void execute(final TaskExecution taskExecution) throws TaskCancelledException {
-    final TaskExecutionWork work = taskExecution.reportWorkStart(
-        String.format("Deprocessing documents of source %s to state %s", sourceId, targetState.getName()));
-    // Reprocess documents of source
+    // Deprocess documents of source
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
-    documentService.deprocessDocumentsOfSource(sessionProvider.getStatelessSession(), sourceId, targetState);
+    documentService.deprocessDocumentsOfSource(sessionProvider.getStatelessSession(), taskExecution, sourceId,
+        targetState);
     sessionProvider.closeStatelessSession();
-    // Done
-    taskExecution.reportWorkEnd(work);
   }
 
   public long getSourceId() {
