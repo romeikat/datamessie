@@ -24,8 +24,12 @@ License along with this program.  If not, see
 
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ExecuteWithTransactionAndResult<T> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ExecuteWithTransactionAndResult.class);
 
   private final StatelessSession statelessSession;
 
@@ -54,7 +58,9 @@ public abstract class ExecuteWithTransactionAndResult<T> {
 
   protected abstract T executeWithResult(StatelessSession statelessSession);
 
-  protected void onException(final Exception e) {}
+  protected void onException(final Exception e) {
+    LOG.error("Could not execute transaction", e);
+  }
 
   private Transaction beginTransaction(final StatelessSession statelessSession) {
     return statelessSession.beginTransaction();
