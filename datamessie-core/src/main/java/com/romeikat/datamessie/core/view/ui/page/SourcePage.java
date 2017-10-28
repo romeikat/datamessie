@@ -42,8 +42,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
-import com.romeikat.datamessie.core.base.service.SourceService;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
+import com.romeikat.datamessie.core.base.service.SourceService;
 import com.romeikat.datamessie.core.base.ui.component.SourceTypeChoice;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
@@ -99,7 +99,9 @@ public class SourcePage extends AbstractAuthenticatedPage {
         final StringValue idParameter = getRequest().getRequestParameters().getParameterValue("id");
         if (!idParameter.isNull() && oldSource != null) {
           if (oldSource.getId() != idParameter.toLong()) {
+            final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
             final SourceDto newSource = sourceDao.getAsDto(sessionProvider.getStatelessSession(), idParameter.toLong());
+            sessionProvider.closeStatelessSession();
             if (newSource != null) {
               return newSource;
             }
@@ -117,12 +119,14 @@ public class SourcePage extends AbstractAuthenticatedPage {
 
           @Override
           protected void onSubmit() {
+            final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
             new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
               @Override
               protected void execute(final StatelessSession statelessSession) {
                 sourceService.updateSource(statelessSession, getModelObject());
               }
             }.execute();
+            sessionProvider.closeStatelessSession();
           }
 
           @Override
