@@ -70,8 +70,7 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
 
   public boolean isEmpty() {
     return projectId == null && sourceId == null && sourceVisible == null && sourceTypeIds == null && crawlingId == null
-        && fromDate == null && toDate == null && cleanedContent == null && states == null
-        && CollectionUtils.isEmpty(documentIds);
+        && fromDate == null && toDate == null && cleanedContent == null && states == null && documentIds == null;
   }
 
   public Long getProjectId() {

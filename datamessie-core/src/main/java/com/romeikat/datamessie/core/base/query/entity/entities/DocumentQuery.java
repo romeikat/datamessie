@@ -63,7 +63,7 @@ public class DocumentQuery extends EntityWithIdQuery<Document> {
 
     // Document IDs from DFS
     final Collection<Long> documentIds = dfs.getDocumentIds();
-    final boolean documentIdsApply = !CollectionUtils.isEmpty(documentIds);
+    final boolean documentIdsApply = documentIds != null;
     if (documentIdsApply) {
       addIdRestriction(documentIds);
     }
