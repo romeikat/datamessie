@@ -64,4 +64,11 @@ public class StatisticsTypeSelector extends DropDownChoice<StatisticsType> {
     setChoiceRenderer(statisticsTypesChoiceRenderer);
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    allStatisticsTypesModel.detach();
+  }
+
 }

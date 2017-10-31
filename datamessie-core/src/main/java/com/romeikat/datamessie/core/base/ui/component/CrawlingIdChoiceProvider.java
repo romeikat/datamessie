@@ -103,4 +103,11 @@ public class CrawlingIdChoiceProvider extends AbstractIdBasedChoiceProvider<Craw
     return displayTextComparator;
   }
 
+  @Override
+  public void detach() {
+    super.detach();
+
+    dfsModel.detach();
+  }
+
 }

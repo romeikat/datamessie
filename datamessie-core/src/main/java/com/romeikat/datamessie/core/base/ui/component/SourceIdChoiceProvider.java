@@ -73,4 +73,11 @@ public class SourceIdChoiceProvider extends AbstractIdBasedChoiceProvider<Source
     return choice.getName();
   }
 
+  @Override
+  public void detach() {
+    super.detach();
+
+    dfsModel.detach();
+  }
+
 }

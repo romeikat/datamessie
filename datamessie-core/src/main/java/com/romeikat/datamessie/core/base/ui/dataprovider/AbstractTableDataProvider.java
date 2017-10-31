@@ -132,6 +132,7 @@ public abstract class AbstractTableDataProvider<X extends Comparable<? super X>,
   @Override
   public void detach() {
     super.detach();
+
     tableModel.detach();
     tableRowsModel.detach();
   }

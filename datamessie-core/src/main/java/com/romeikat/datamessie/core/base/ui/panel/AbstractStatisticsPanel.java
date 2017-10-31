@@ -193,4 +193,11 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
 
   protected abstract SparseSingleTable<Long, LocalDate, Z> getStatistics(Collection<Long> sourceIds);
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    sourcesModel.detach();
+  }
+
 }

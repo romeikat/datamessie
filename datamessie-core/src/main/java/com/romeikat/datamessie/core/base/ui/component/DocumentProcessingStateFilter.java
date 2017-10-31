@@ -56,4 +56,11 @@ public class DocumentProcessingStateFilter extends Select2MultiChoice<DocumentPr
     settings.setMinimumResultsForSearch(20);
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    selectedStatesModel.detach();
+  }
+
 }

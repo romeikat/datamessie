@@ -55,4 +55,11 @@ public class SourceTypeIdFilter extends Select2MultiChoice<Long> {
     settings.setMinimumResultsForSearch(20);
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    selectedSourceTypeIdsModel.detach();
+  }
+
 }

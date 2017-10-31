@@ -41,6 +41,13 @@ public class TableBookmarkablePageLink<T> extends BookmarkablePageLink<T> implem
 
   protected IModel<String> getLabelModel() {
     return labelModel;
-  };
+  }
+
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    labelModel.detach();
+  }
 
 }

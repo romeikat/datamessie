@@ -64,4 +64,11 @@ public class StatisticsIntervalSelector extends DropDownChoice<StatisticsInterva
     setChoiceRenderer(statisticsIntervalsChoiceRenderer);
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    allStatisticsIntervalsModel.detach();
+  }
+
 }

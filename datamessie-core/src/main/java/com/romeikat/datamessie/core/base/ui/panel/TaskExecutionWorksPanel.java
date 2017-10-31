@@ -176,6 +176,7 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
   @Override
   public void onDetach() {
     super.onDetach();
+
     taskExecutionModel.detach();
     taskExecutionWorksModel.detach();
   }

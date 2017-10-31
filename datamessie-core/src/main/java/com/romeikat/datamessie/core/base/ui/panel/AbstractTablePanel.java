@@ -167,4 +167,11 @@ public abstract class AbstractTablePanel<X extends Comparable<? super X>, Y exte
     return new AscendingComparator<Y>();
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    tableModel.detach();
+  }
+
 }

@@ -109,6 +109,7 @@ public class TaskExecutionsPanel extends Panel {
   @Override
   public void onDetach() {
     super.onDetach();
+
     taskExecutionsModel.detach();
   }
 

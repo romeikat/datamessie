@@ -73,4 +73,11 @@ public class LocalDateTextField extends DateTextField {
     setModelObject(date);
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    dateModel.detach();
+  }
+
 }

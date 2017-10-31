@@ -42,4 +42,11 @@ public class CleanedContentFilter extends TextArea<String> {
     setModel(selectedCleanedContentModel);
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    selectedCleanedContentModel.detach();
+  }
+
 }

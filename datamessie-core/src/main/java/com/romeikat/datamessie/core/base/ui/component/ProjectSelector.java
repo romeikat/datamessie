@@ -71,4 +71,11 @@ public class ProjectSelector extends DropDownChoice<ProjectDto> {
     setChoiceRenderer(projectsChoiceRenderer);
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    allProjectsModel.detach();
+  }
+
 }

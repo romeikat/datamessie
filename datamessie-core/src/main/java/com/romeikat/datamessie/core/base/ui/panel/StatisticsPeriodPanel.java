@@ -96,6 +96,7 @@ public class StatisticsPeriodPanel extends Panel {
   @Override
   public void onDetach() {
     super.onDetach();
+
     statisticsModel.detach();
   }
 

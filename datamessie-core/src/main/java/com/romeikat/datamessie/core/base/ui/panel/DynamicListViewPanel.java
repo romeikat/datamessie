@@ -181,4 +181,11 @@ public abstract class DynamicListViewPanel<T extends Serializable> extends Panel
 
   protected abstract T newItem();
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    itemModel.detach();
+  }
+
 }

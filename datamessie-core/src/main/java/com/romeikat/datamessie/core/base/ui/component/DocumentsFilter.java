@@ -95,4 +95,11 @@ public class DocumentsFilter extends TextArea<String> {
     return documentIds;
   }
 
+  @Override
+  protected void onDetach() {
+    super.onDetach();
+
+    selectedDocumentsModel.detach();
+  }
+
 }
