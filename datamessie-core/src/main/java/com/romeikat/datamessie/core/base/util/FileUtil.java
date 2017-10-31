@@ -247,7 +247,7 @@ public class FileUtil {
     final Path path = FileSystems.getDefault().getPath(file.getAbsolutePath());
     final Charset charset = Charset.defaultCharset();
     try (BufferedWriter writer = Files.newBufferedWriter(path, charset, StandardOpenOption.APPEND)) {
-      writer.write(String.format(content + "%n"));
+      writer.write(String.format("%s%n", content));
     } catch (final Exception e) {
       LOG.error("Could not apennd to file " + file.getAbsolutePath(), e);
     }
