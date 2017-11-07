@@ -27,15 +27,15 @@ import java.time.LocalDateTime;
 
 public class DownloadResult {
 
-  private final String originalUrl;
+  private String originalUrl;
 
-  private final String url;
+  private String url;
 
-  private final String content;
+  private String content;
 
-  private final LocalDateTime downloaded;
+  private LocalDateTime downloaded;
 
-  private final Integer statusCode;
+  private Integer statusCode;
 
   public DownloadResult(final String originalUrl, final String url, final String content,
       final LocalDateTime downloaded, final Integer statusCode) {
@@ -50,20 +50,40 @@ public class DownloadResult {
     return originalUrl;
   }
 
+  public void setOriginalUrl(final String originalUrl) {
+    this.originalUrl = originalUrl;
+  }
+
   public String getUrl() {
     return url;
+  }
+
+  public void setUrl(final String url) {
+    this.url = url;
   }
 
   public String getContent() {
     return content;
   }
 
+  public void setContent(final String content) {
+    this.content = content;
+  }
+
   public LocalDateTime getDownloaded() {
     return downloaded;
   }
 
+  public void setDownloaded(final LocalDateTime downloaded) {
+    this.downloaded = downloaded;
+  }
+
   public Integer getStatusCode() {
     return statusCode;
+  }
+
+  public void setStatusCode(final Integer statusCode) {
+    this.statusCode = statusCode;
   }
 
 }
