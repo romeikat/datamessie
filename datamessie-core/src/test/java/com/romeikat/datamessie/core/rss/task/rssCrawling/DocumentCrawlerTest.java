@@ -51,7 +51,6 @@ import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
-import com.romeikat.datamessie.core.rss.task.rssCrawling.DocumentCrawler;
 
 public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
 
@@ -261,14 +260,8 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     Document document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
 
-    final String title1Old = document1.getTitle();
     final String originalUrl1Old = "http://www.originalUrl1.de/";
     final String url1Old = "http://www.url1.de/";
-    final String description1Old = document1.getDescription();
-    final LocalDateTime published1Old = document1.getPublished();
-    final LocalDateTime downloaded1Old = document1.getDownloaded();
-    final Integer statusCode1Old = document1.getStatusCode();
-    final String rawContent1Old = rawContent1.getContent();
 
     final String title1New = "title1New";
     final String originalUrl1New = "http://www.additionalUrl1.de/";
@@ -289,16 +282,16 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
     assertEquals(3, count);
 
-    // Document metadata is not modified
+    // Document metadata is modified
     document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    assertEquals(title1Old, document1.getTitle());
-    assertEquals(url1Old, document1.getUrl());
-    assertEquals(description1Old, document1.getDescription());
-    assertEquals(published1Old, document1.getPublished());
-    assertEquals(downloaded1Old, document1.getDownloaded());
+    assertEquals(title1New, document1.getTitle());
+    assertEquals(url1New, document1.getUrl());
+    assertEquals(description1New, document1.getDescription());
+    assertEquals(published1New, document1.getPublished());
+    assertEquals(downloaded1New, document1.getDownloaded());
     assertEquals(DocumentProcessingState.DOWNLOADED, document1.getState());
-    assertEquals(statusCode1Old, document1.getStatusCode());
+    assertEquals(statusCode1New, document1.getStatusCode());
 
     // Additional downloads are created
     final Collection<Download> downloads1 =
@@ -311,14 +304,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         true);
     assertEqDownload(getDownload(downloads1, url1New), url1New, source1.getId(), true);
 
-    // Content is not modified
+    // Content is modified
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), document1.getId());
-    assertEquals(rawContent1Old, rawContent1.getContent());
+    assertEquals(rawContent1New, rawContent1.getContent());
 
     // Statistics are not rebuilt
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         documentCrawler.getStatisticsToBeRebuilt();
-    assertNull(
+    assertTrue(
         statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
   }
 
@@ -520,14 +513,8 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     RawContent rawCntent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     Document document2 = documentDao.getEntity(sessionProvider.getStatelessSession(), 2);
 
-    final String title1Old = document1.getTitle();
     final String originalUrl1Old = "http://www.originalUrl1.de/";
     final String url1Old = "http://www.url1.de/";
-    final String description1Old = document1.getDescription();
-    final LocalDateTime published1Old = document1.getPublished();
-    final LocalDateTime downloaded1Old = document1.getDownloaded();
-    final Integer statusCode1Old = document1.getStatusCode();
-    final String rawContent1Old = rawCntent1.getContent();
 
     final String title2Old = document2.getTitle();
     final String originalUrl2Old = "http://www.originalUrl2.de/";
@@ -556,16 +543,16 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
     assertEquals(3, count);
 
-    // Document 1 metadata is not modified
+    // Document 1 metadata is modified
     document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     rawCntent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    assertEquals(title1Old, document1.getTitle());
-    assertEquals(url1Old, document1.getUrl());
-    assertEquals(description1Old, document1.getDescription());
-    assertEquals(published1Old, document1.getPublished());
-    assertEquals(downloaded1Old, document1.getDownloaded());
+    assertEquals(title1New, document1.getTitle());
+    assertEquals(url1New, document1.getUrl());
+    assertEquals(description1New, document1.getDescription());
+    assertEquals(published1New, document1.getPublished());
+    assertEquals(downloaded1New, document1.getDownloaded());
     assertEquals(DocumentProcessingState.DOWNLOADED, document1.getState());
-    assertEquals(statusCode1Old, document1.getStatusCode());
+    assertEquals(statusCode1New, document1.getStatusCode());
 
     // Document 2 metadata is not modified (except state)
     document2 = documentDao.getEntity(sessionProvider.getStatelessSession(), 2);
@@ -594,14 +581,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), document2.getId());
     assertEquals(0, downloads2.size());
 
-    // Content 1 is not modified
+    // Content 1 is modified
     rawCntent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), document1.getId());
-    assertEquals(rawContent1Old, rawCntent1.getContent());
+    assertEquals(rawContent1New, rawCntent1.getContent());
 
-    // Statistics are not rebuilt for document 1, but for document 2
+    // Statistics are not rebuilt for documents 1 and 2
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         documentCrawler.getStatisticsToBeRebuilt();
-    assertNull(
+    assertTrue(
         statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
     assertTrue(
         statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
@@ -615,14 +602,8 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     Document document3 = documentDao.getEntity(sessionProvider.getStatelessSession(), 3);
 
-    final String title1Old = document1.getTitle();
     final String originalUrl1Old = "http://www.originalUrl1.de/";
     final String url1Old = "http://www.url1.de/";
-    final String description1Old = document1.getDescription();
-    final LocalDateTime published1Old = document1.getPublished();
-    final LocalDateTime downloaded1Old = document1.getDownloaded();
-    final Integer statusCode1Old = document1.getStatusCode();
-    final String rawContent1Old = rawContent1.getContent();
 
     final String title3Old = document3.getTitle();
     final String originalUrl3Old = "http://www.originalUrl3.de/";
@@ -653,16 +634,16 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
     assertEquals(3, count);
 
-    // Document 1 metadata is not modified
+    // Document 1 metadata is modified
     document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    assertEquals(title1Old, document1.getTitle());
-    assertEquals(url1Old, document1.getUrl());
-    assertEquals(description1Old, document1.getDescription());
-    assertEquals(published1Old, document1.getPublished());
-    assertEquals(downloaded1Old, document1.getDownloaded());
+    assertEquals(title1New, document1.getTitle());
+    assertEquals(url1New, document1.getUrl());
+    assertEquals(description1New, document1.getDescription());
+    assertEquals(published1New, document1.getPublished());
+    assertEquals(downloaded1New, document1.getDownloaded());
     assertEquals(DocumentProcessingState.DOWNLOADED, document1.getState());
-    assertEquals(statusCode1Old, document1.getStatusCode());
+    assertEquals(statusCode1New, document1.getStatusCode());
 
     // Document 3 metadata is not modified (except state)
     document3 = documentDao.getEntity(sessionProvider.getStatelessSession(), 3);
@@ -695,14 +676,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), document3.getId());
     assertEquals(0, downloads3.size());
 
-    // Content 1 is not modified
+    // Content 1 is modified
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), document1.getId());
-    assertEquals(rawContent1Old, rawContent1.getContent());
+    assertEquals(rawContent1New, rawContent1.getContent());
 
-    // Statistics are not rebuilt for document 1, but for document 2
+    // Statistics are rebuilt for documents 1 and 2
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         documentCrawler.getStatisticsToBeRebuilt();
-    assertNull(
+    assertTrue(
         statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
     assertTrue(
         statisticsToBeRebuilt.getValue(document3.getSourceId(), document3.getPublishedDate()));

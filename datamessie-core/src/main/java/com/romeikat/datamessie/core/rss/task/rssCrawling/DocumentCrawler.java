@@ -40,8 +40,6 @@ import com.romeikat.datamessie.core.base.util.DocumentWithDownloads;
 import com.romeikat.datamessie.core.base.util.comparator.MasterDocumentWithDownloadsComparator;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.rss.service.DocumentService;
 import jersey.repackaged.com.google.common.collect.Lists;
@@ -155,16 +153,16 @@ public class DocumentCrawler {
 
     // Master download succeeded
     final boolean masterDownloadSuccess = masterDocumentWithDownloads.getSuccess();
-    if (masterDownloadSuccess) {
-      // Leave master document and content unmodified
 
-      // Should not be called at all as SourceCrawler does not crawl any URL that is associated to
-      // a successfully downloaded document
-      LOG.warn("Repeated processing of a successful download for {} and source {}", url, sourceId);
-    }
+    // Process if existing master download failed or current download succeeded
+    if (!masterDownloadSuccess || downloadSuccess) {
+      if (masterDownloadSuccess) {
+        // Should not be called at all as SourceCrawler does not crawl any URL that is associated to
+        // a successfully downloaded document
+        LOG.warn("Repeated processing of a successful download for {} and source {}", url,
+            sourceId);
+      }
 
-    // Master download failed
-    else {
       // Update master document
       final Document document = documentDao.getEntity(statelessSession, documentId);
       final LocalDate oldPublishedDate = document.getPublishedDate();
