@@ -26,16 +26,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 
-public class NamedEntityName2CategoriesCache extends AbstractLazyCache<String, Set<String>, SharedSessionContract> {
+public class NamedEntityName2CategoriesCache
+    extends AbstractLazyCache<String, Set<String>, SharedSessionContract> {
 
   @Override
   protected Set<String> loadValue(final SharedSessionContract ssc, final String namedEntityName) {
@@ -46,7 +45,8 @@ public class NamedEntityName2CategoriesCache extends AbstractLazyCache<String, S
     }
 
     // NamedEntity ID -> NamedEntityCategories
-    final Collection<NamedEntityCategory> namedEntityCategories = getNamedEntityCategories(ssc, namedEntityId);
+    final Collection<NamedEntityCategory> namedEntityCategories =
+        getNamedEntityCategories(ssc, namedEntityId);
     registerDependencies(namedEntityCategories, namedEntityName);
 
     // NamedEntityCategories -> category NamedEntity IDs
@@ -67,7 +67,8 @@ public class NamedEntityName2CategoriesCache extends AbstractLazyCache<String, S
   }
 
   private Long getNamedEntityId(final SharedSessionContract ssc, final String namedEntityName) {
-    final EntityWithIdQuery<NamedEntity> namedEntityQuery = new EntityWithIdQuery<>(NamedEntity.class);
+    final EntityWithIdQuery<NamedEntity> namedEntityQuery =
+        new EntityWithIdQuery<>(NamedEntity.class);
     namedEntityQuery.addRestriction(Restrictions.eq("name", namedEntityName));
     final Long namedEntityId = namedEntityQuery.uniqueId(ssc);
     return namedEntityId;
@@ -75,9 +76,11 @@ public class NamedEntityName2CategoriesCache extends AbstractLazyCache<String, S
 
   private Collection<NamedEntityCategory> getNamedEntityCategories(final SharedSessionContract ssc,
       final Long namedEntityId) {
-    final EntityQuery<NamedEntityCategory> namedEntityCategoryQuery = new EntityQuery<>(NamedEntityCategory.class);
+    final EntityQuery<NamedEntityCategory> namedEntityCategoryQuery =
+        new EntityQuery<>(NamedEntityCategory.class);
     namedEntityCategoryQuery.addRestriction(Restrictions.eq("namedEntityId", namedEntityId));
-    final Collection<NamedEntityCategory> namedEntityCategories = namedEntityCategoryQuery.listObjects(ssc);
+    final Collection<NamedEntityCategory> namedEntityCategories =
+        namedEntityCategoryQuery.listObjects(ssc);
     return namedEntityCategories;
   }
 
@@ -90,8 +93,8 @@ public class NamedEntityName2CategoriesCache extends AbstractLazyCache<String, S
 
   private Collection<Long> getNamedEntityIds(final SharedSessionContract ssc,
       final Collection<NamedEntityCategory> namedEntityCategories) {
-    final Collection<Long> categoryNamedEntityIds =
-        namedEntityCategories.stream().map(nec -> nec.getCategoryNamedEntityId()).collect(Collectors.toSet());
+    final Collection<Long> categoryNamedEntityIds = namedEntityCategories.stream()
+        .map(nec -> nec.getCategoryNamedEntityId()).collect(Collectors.toSet());
     return categoryNamedEntityIds;
   }
 

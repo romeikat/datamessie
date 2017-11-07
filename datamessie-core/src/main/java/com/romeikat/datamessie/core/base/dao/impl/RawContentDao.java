@@ -22,7 +22,6 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 
 @Repository

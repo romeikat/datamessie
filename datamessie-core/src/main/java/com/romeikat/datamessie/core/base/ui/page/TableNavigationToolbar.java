@@ -37,13 +37,16 @@ public class TableNavigationToolbar extends AjaxNavigationToolbar {
 
   @Override
   protected WebComponent newNavigatorLabel(final String navigatorId, final DataTable<?, ?> table) {
-    final WebComponent navigatorLabel = new TableNavigatorLabel(navigatorId, (AbstractTable<?, ?>) table);
+    final WebComponent navigatorLabel =
+        new TableNavigatorLabel(navigatorId, (AbstractTable<?, ?>) table);
     return navigatorLabel;
   }
 
   @Override
-  protected PagingNavigator newPagingNavigator(final String navigatorId, final DataTable<?, ?> table) {
-    final PagingNavigator pagingNavigator = new TablePagingNavigator(navigatorId, (AbstractTable<?, ?>) table);
+  protected PagingNavigator newPagingNavigator(final String navigatorId,
+      final DataTable<?, ?> table) {
+    final PagingNavigator pagingNavigator =
+        new TablePagingNavigator(navigatorId, (AbstractTable<?, ?>) table);
     return pagingNavigator;
   }
 

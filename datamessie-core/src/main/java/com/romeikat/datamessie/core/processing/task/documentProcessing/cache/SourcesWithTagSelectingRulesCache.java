@@ -23,10 +23,8 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.hibernate.SharedSessionContract;
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.cache.AbstractLazyCache;
 import com.romeikat.datamessie.core.base.dao.impl.TagSelectingRuleDao;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;

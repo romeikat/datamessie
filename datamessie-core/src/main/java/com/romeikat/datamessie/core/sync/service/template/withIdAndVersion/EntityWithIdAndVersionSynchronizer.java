@@ -27,11 +27,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.springframework.context.ApplicationContext;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
@@ -49,7 +47,8 @@ import com.romeikat.datamessie.core.sync.service.template.ISynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 import com.romeikat.datamessie.core.sync.util.SyncMode;
 
-public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdAndVersion> implements ISynchronizer {
+public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdAndVersion>
+    implements ISynchronizer {
 
   private final Class<E> clazz;
   private final EntityWithIdAndVersionDao<E> dao;
@@ -80,7 +79,8 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     if (SyncService.MAX_RESULTS != null) {
       batchSizeIds = Math.min(batchSizeIds, SyncService.MAX_RESULTS);
     }
-    batchSizeEntities = Integer.valueOf(SpringUtil.getPropertyValue(ctx, "sync.batch.size.entities"));
+    batchSizeEntities =
+        Integer.valueOf(SpringUtil.getPropertyValue(ctx, "sync.batch.size.entities"));
     parallelismFactor = Double.valueOf(SpringUtil.getPropertyValue(ctx, "sync.parallelism.factor"));
   }
 
@@ -129,13 +129,16 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
       // Feedback
       final long lastResult = Math.min(firstResult + batchSizeIds, rhsCount);
       final double progress = (double) lastResult / (double) rhsCount;
-      msg = String.format("Processing %s to %s of %s (%s)", IntegerConverter.INSTANCE.convertToString(firstResult + 1),
-          LongConverter.INSTANCE.convertToString(lastResult), LongConverter.INSTANCE.convertToString(rhsCount),
+      msg = String.format("Processing %s to %s of %s (%s)",
+          IntegerConverter.INSTANCE.convertToString(firstResult + 1),
+          LongConverter.INSTANCE.convertToString(lastResult),
+          LongConverter.INSTANCE.convertToString(rhsCount),
           PercentageConverter.INSTANCE_2.convertToString(progress));
       final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
       // Load RHS
-      final List<Long> rhsIds = dao.getIds(rhsSessionProvider.getStatelessSession(), firstResult, batchSizeIds);
+      final List<Long> rhsIds =
+          dao.getIds(rhsSessionProvider.getStatelessSession(), firstResult, batchSizeIds);
       if (rhsIds.isEmpty()) {
         rhsSessionProvider.closeStatelessSession();
         return;
@@ -160,19 +163,21 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
         new DeleteDecider(lhsIds, rhsIds).makeDecisions().getDecisionResults();
 
     // Execute
-    final int numberOfDeletedEntities =
-        new DeleteExecutor<E>(decisionResults, batchSizeEntities, clazz, sessionFactory, parallelismFactor)
-            .executeDecisons();
+    final int numberOfDeletedEntities = new DeleteExecutor<E>(decisionResults, batchSizeEntities,
+        clazz, sessionFactory, parallelismFactor).executeDecisons();
     return numberOfDeletedEntities;
   }
 
   private List<Long> loadLhsIds(final List<Long> rhsIds) {
-    final List<Long> lhsIds = Collections.synchronizedList(Lists.newArrayListWithExpectedSize(rhsIds.size()));
+    final List<Long> lhsIds =
+        Collections.synchronizedList(Lists.newArrayListWithExpectedSize(rhsIds.size()));
     final List<List<Long>> rhsIdsBatches = Lists.partition(rhsIds, batchSizeEntities);
     new ParallelProcessing<List<Long>>(sessionFactorySyncSource, rhsIdsBatches, parallelismFactor) {
       @Override
-      public void doProcessing(final HibernateSessionProvider lhsSessionProvider, final List<Long> rhsIdsBatch) {
-        final Collection<Long> lhsIdsBatch = dao.getIds(lhsSessionProvider.getStatelessSession(), rhsIdsBatch);
+      public void doProcessing(final HibernateSessionProvider lhsSessionProvider,
+          final List<Long> rhsIdsBatch) {
+        final Collection<Long> lhsIdsBatch =
+            dao.getIds(lhsSessionProvider.getStatelessSession(), rhsIdsBatch);
         lhsIds.addAll(lhsIdsBatch);
       }
     };
@@ -184,8 +189,9 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     taskExecution.reportWork(msg);
 
     // Process in batches
-    final long lhsCount = SyncService.MAX_RESULTS == null ? dao.countAll(lhsSessionProvider.getStatelessSession())
-        : SyncService.MAX_RESULTS;
+    final long lhsCount =
+        SyncService.MAX_RESULTS == null ? dao.countAll(lhsSessionProvider.getStatelessSession())
+            : SyncService.MAX_RESULTS;
     int firstResult = 0;
     while (true) {
       if (firstResult >= lhsCount) {
@@ -199,14 +205,16 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
       // Feedback
       final long lastResult = Math.min(firstResult + batchSizeIds, lhsCount);
       final double progress = (double) lastResult / (double) lhsCount;
-      msg = String.format("Processing %s to %s of %s (%s)", IntegerConverter.INSTANCE.convertToString(firstResult + 1),
-          LongConverter.INSTANCE.convertToString(lastResult), LongConverter.INSTANCE.convertToString(lhsCount),
+      msg = String.format("Processing %s to %s of %s (%s)",
+          IntegerConverter.INSTANCE.convertToString(firstResult + 1),
+          LongConverter.INSTANCE.convertToString(lastResult),
+          LongConverter.INSTANCE.convertToString(lhsCount),
           PercentageConverter.INSTANCE_2.convertToString(progress));
       final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
       // Load LHS
-      final Map<Long, Long> lhsIdsWithVersion =
-          dao.getIdsWithVersion(lhsSessionProvider.getStatelessSession(), firstResult, batchSizeIds);
+      final Map<Long, Long> lhsIdsWithVersion = dao
+          .getIdsWithVersion(lhsSessionProvider.getStatelessSession(), firstResult, batchSizeIds);
       if (lhsIdsWithVersion.isEmpty()) {
         lhsSessionProvider.closeStatelessSession();
         rhsSessionProvider.closeStatelessSession();
@@ -225,18 +233,21 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     }
   }
 
-  private void createOrUpdate(final Map<Long, Long> lhsIdsWithVersion, final StatelessSession lhsStatelessSession,
-      final StatelessSession rhsStatelessSession, final TaskExecution taskExecution) throws TaskCancelledException {
+  private void createOrUpdate(final Map<Long, Long> lhsIdsWithVersion,
+      final StatelessSession lhsStatelessSession, final StatelessSession rhsStatelessSession,
+      final TaskExecution taskExecution) throws TaskCancelledException {
     // Load corresponding RHS (in batches)
     final Map<Long, Long> rhsIdsWithVersion = loadRhsIdsWithVersion(lhsIdsWithVersion);
 
     // Decide
     final CreateOrUpdateDecisionResults decisionResults =
-        new CreateOrUpdateDecider(lhsIdsWithVersion, rhsIdsWithVersion).makeDecisions().getDecisionResults();
+        new CreateOrUpdateDecider(lhsIdsWithVersion, rhsIdsWithVersion).makeDecisions()
+            .getDecisionResults();
 
     // Execute
-    new CreateOrUpdateExecutor<E>(decisionResults, batchSizeEntities, dao, clazz, lhsStatelessSession,
-        rhsStatelessSession, sessionFactory, parallelismFactor, taskExecution) {
+    new CreateOrUpdateExecutor<E>(decisionResults, batchSizeEntities, dao, clazz,
+        lhsStatelessSession, rhsStatelessSession, sessionFactory, parallelismFactor,
+        taskExecution) {
       @Override
       protected void copyProperties(final E source, final E target) {
         EntityWithIdAndVersionSynchronizer.this.copyProperties(source, target);
@@ -251,7 +262,8 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     final List<List<Long>> lhsIdsBatches = Lists.partition(lhsIds, batchSizeEntities);
     new ParallelProcessing<List<Long>>(sessionFactory, lhsIdsBatches, parallelismFactor) {
       @Override
-      public void doProcessing(final HibernateSessionProvider rhsSessionProvider, final List<Long> lhsIdsBatch) {
+      public void doProcessing(final HibernateSessionProvider rhsSessionProvider,
+          final List<Long> lhsIdsBatch) {
         final Map<Long, Long> rhsIdsWithVersionBatch =
             dao.getIdsWithVersion(rhsSessionProvider.getStatelessSession(), lhsIdsBatch);
         rhsIdsWithVersion.putAll(rhsIdsWithVersionBatch);

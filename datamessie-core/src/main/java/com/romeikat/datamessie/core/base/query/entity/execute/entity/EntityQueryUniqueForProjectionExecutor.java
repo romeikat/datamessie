@@ -25,17 +25,17 @@ License along with this program.  If not, see
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Projection;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.execute.AbstractEntityQueryExecutor;
 import com.romeikat.datamessie.core.domain.entity.Entity;
 
-public class EntityQueryUniqueForProjectionExecutor<E extends Entity> extends AbstractEntityQueryExecutor<E, Object> {
+public class EntityQueryUniqueForProjectionExecutor<E extends Entity>
+    extends AbstractEntityQueryExecutor<E, Object> {
 
   private final Projection projection;
 
-  public EntityQueryUniqueForProjectionExecutor(final SharedSessionContract ssc, final EntityQuery<E> query,
-      final Projection projection) {
+  public EntityQueryUniqueForProjectionExecutor(final SharedSessionContract ssc,
+      final EntityQuery<E> query, final Projection projection) {
     super(ssc, query);
 
     this.projection = projection;

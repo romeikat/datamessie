@@ -34,7 +34,8 @@ public abstract class AbstractDateMessiePluginWithGenericXmlApplicationContext
   private GenericXmlApplicationContext pluginCtx;
 
   @Override
-  public void setApplicationContext(final ApplicationContext appCtxWithPlugin) throws BeansException {
+  public void setApplicationContext(final ApplicationContext appCtxWithPlugin)
+      throws BeansException {
     this.appCtxWithPlugin = appCtxWithPlugin;
   }
 

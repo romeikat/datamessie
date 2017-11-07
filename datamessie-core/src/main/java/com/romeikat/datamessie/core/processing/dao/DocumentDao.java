@@ -27,11 +27,9 @@ import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -44,7 +42,8 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
   public List<Document> getToProcess(final SharedSessionContract ssc, final LocalDate downloaded,
       final int maxResults) {
     final LocalDateTime minDownloaded = LocalDateTime.of(downloaded, LocalTime.MIDNIGHT);
-    final LocalDateTime maxDownloaded = LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
+    final LocalDateTime maxDownloaded =
+        LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
 
     // Query: Project
     final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(Project.class);
@@ -66,8 +65,9 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
     documentQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
     documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
     documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
-    final Object[] statesForProcessing = new DocumentProcessingState[] {DocumentProcessingState.DOWNLOADED,
-        DocumentProcessingState.REDIRECTED, DocumentProcessingState.CLEANED};
+    final Object[] statesForProcessing =
+        new DocumentProcessingState[] {DocumentProcessingState.DOWNLOADED,
+            DocumentProcessingState.REDIRECTED, DocumentProcessingState.CLEANED};
     documentQuery.addRestriction(Restrictions.in("state", statesForProcessing));
     documentQuery.setMaxResults(maxResults);
 

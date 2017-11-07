@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import javax.persistence.MappedSuperclass;
-
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.OptimisticLockType;
 import org.hibernate.annotations.OptimisticLocking;

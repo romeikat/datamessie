@@ -25,14 +25,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.statistics.dto.DocumentStatisticsDto;
@@ -40,9 +38,10 @@ import com.romeikat.datamessie.core.statistics.dto.DocumentStatisticsDto;
 @Repository("statisticsDocumentDao")
 public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.DocumentDao {
 
-  public List<DocumentStatisticsDto> getAsDocumentStatisticsDtos(final SharedSessionContract ssc, final Long sourceId,
-      final LocalDate published) {
-    final LocalDateTime minPublished = published == null ? null : LocalDateTime.of(published, LocalTime.MIDNIGHT);
+  public List<DocumentStatisticsDto> getAsDocumentStatisticsDtos(final SharedSessionContract ssc,
+      final Long sourceId, final LocalDate published) {
+    final LocalDateTime minPublished =
+        published == null ? null : LocalDateTime.of(published, LocalTime.MIDNIGHT);
     final LocalDateTime maxPublished =
         published == null ? null : LocalDateTime.of(published.plusDays(1), LocalTime.MIDNIGHT);
 
@@ -57,7 +56,8 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
     if (maxPublished != null) {
       documentQuery.addRestriction(Restrictions.lt("published", maxPublished));
     }
-    documentQuery.setResultTransformer(new AliasToBeanResultTransformer(DocumentStatisticsDto.class));
+    documentQuery
+        .setResultTransformer(new AliasToBeanResultTransformer(DocumentStatisticsDto.class));
 
     // Done
     final ProjectionList projectionList = Projections.projectionList();

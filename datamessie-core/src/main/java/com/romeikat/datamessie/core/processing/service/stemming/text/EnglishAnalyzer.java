@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.io.Reader;
-
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.LowerCaseFilter;

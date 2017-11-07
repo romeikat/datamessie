@@ -24,10 +24,8 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Map;
-
 import com.google.common.base.Function;
 import com.romeikat.datamessie.core.domain.entity.Entity;
-
 import jersey.repackaged.com.google.common.collect.Maps;
 
 public class EntitiesById<T extends Entity> {

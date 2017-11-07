@@ -38,12 +38,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.StatelessSession;
 import org.junit.Before;
@@ -51,7 +49,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.ninja_squad.dbsetup.operation.Operation;
@@ -154,32 +151,40 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     final LocalDateTime now = LocalDateTime.now();
     // Document1 with download success
     final LocalDateTime published1 = now.minusDays(1);
-    final Document document1 = new Document(1, crawling1.getId(), source1.getId()).setTitle("Title1")
-        .setUrl("http://www.document1.de/").setDescription("Description1").setPublished(published1).setDownloaded(now)
-        .setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
+    final Document document1 = new Document(1, crawling1.getId(), source1.getId())
+        .setTitle("Title1").setUrl("http://www.document1.de/").setDescription("Description1")
+        .setPublished(published1).setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED)
+        .setStatusCode(200);
     final RawContent rawContent1 = new RawContent(document1.getId(), "RawContent1");
-    final CleanedContent cleanedContent1 = new CleanedContent(document1.getId(), "Outdated CleanedContent1");
-    final StemmedContent stemmedContent1 = new StemmedContent(document1.getId(), "Outdated StemmedContent1");
-    final NamedEntityOccurrence namedEntityOccurrence1 = new NamedEntityOccurrence(1, namedEntity.getId(),
-        namedEntity.getId(), NamedEntityType.MISC, 1, document1.getId());
+    final CleanedContent cleanedContent1 =
+        new CleanedContent(document1.getId(), "Outdated CleanedContent1");
+    final StemmedContent stemmedContent1 =
+        new StemmedContent(document1.getId(), "Outdated StemmedContent1");
+    final NamedEntityOccurrence namedEntityOccurrence1 = new NamedEntityOccurrence(1,
+        namedEntity.getId(), namedEntity.getId(), NamedEntityType.MISC, 1, document1.getId());
     // Document2 with failed download
     final LocalDateTime published2 = now.minusDays(2);
-    final Document document2 = new Document(2, crawling1.getId(), source1.getId()).setTitle("Title2")
-        .setUrl("http://www.document2.de/").setDescription("Description2").setPublished(published2).setDownloaded(now)
+    final Document document2 = new Document(2, crawling1.getId(), source1.getId())
+        .setTitle("Title2").setUrl("http://www.document2.de/").setDescription("Description2")
+        .setPublished(published2).setDownloaded(now)
         .setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);
     final RawContent rawContent2 = new RawContent(document2.getId(), "Outdated RawContent2");
-    final CleanedContent cleanedContent2 = new CleanedContent(document2.getId(), "Outdated CleanedContent2");
-    final StemmedContent stemmedContent2 = new StemmedContent(document2.getId(), "Outdated StemmedContent3");
-    final NamedEntityOccurrence namedEntityOccurrence2 = new NamedEntityOccurrence(2, namedEntity.getId(),
-        namedEntity.getId(), NamedEntityType.MISC, 1, document2.getId());
+    final CleanedContent cleanedContent2 =
+        new CleanedContent(document2.getId(), "Outdated CleanedContent2");
+    final StemmedContent stemmedContent2 =
+        new StemmedContent(document2.getId(), "Outdated StemmedContent3");
+    final NamedEntityOccurrence namedEntityOccurrence2 = new NamedEntityOccurrence(2,
+        namedEntity.getId(), namedEntity.getId(), NamedEntityType.MISC, 1, document2.getId());
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
-        sequenceOf(insertIntoProject(project1), insertIntoSource(source1), insertIntoCrawling(crawling1),
-            insertIntoNamedEntity(namedEntity), insertIntoDocument(document1), insertIntoRawContent(rawContent1),
+        sequenceOf(insertIntoProject(project1), insertIntoSource(source1),
+            insertIntoCrawling(crawling1), insertIntoNamedEntity(namedEntity),
+            insertIntoDocument(document1), insertIntoRawContent(rawContent1),
             insertIntoCleanedContent(cleanedContent1), insertIntoStemmedContent(stemmedContent1),
             insertIntoNamedEntityOccurrence(namedEntityOccurrence1), insertIntoDocument(document2),
             insertIntoRawContent(rawContent2), insertIntoCleanedContent(cleanedContent2),
-            insertIntoStemmedContent(stemmedContent2), insertIntoNamedEntityOccurrence(namedEntityOccurrence2)));
+            insertIntoStemmedContent(stemmedContent2),
+            insertIntoNamedEntityOccurrence(namedEntityOccurrence2)));
   }
 
   @Override
@@ -187,31 +192,38 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
   public void before() throws Exception {
     super.before();
 
-    final Collection<Document> documents = documentDao.getAllEntites(sessionProvider.getStatelessSession());
-    final DocumentsProcessingCache documentsProcessingCache = new DocumentsProcessingCache(documents, ctx);
+    final Collection<Document> documents =
+        documentDao.getAllEntites(sessionProvider.getStatelessSession());
+    final DocumentsProcessingCache documentsProcessingCache =
+        new DocumentsProcessingCache(documents, ctx);
     documentProcessor = new DocumentProcessor(ctx, documentsProcessingCache);
 
-    documentRedirector = createAndInjectSpy(documentRedirector, documentProcessor, "documentRedirector");
+    documentRedirector =
+        createAndInjectSpy(documentRedirector, documentProcessor, "documentRedirector");
     documentCleaner = createAndInjectSpy(documentCleaner, documentProcessor, "documentCleaner");
     documentStemmer = createAndInjectSpy(documentStemmer, documentProcessor, "documentStemmer");
-    namedEntityCategoriesCreator =
-        createAndInjectSpy(namedEntityCategoriesCreator, documentProcessor, "namedEntityCategoriesCreator");
+    namedEntityCategoriesCreator = createAndInjectSpy(namedEntityCategoriesCreator,
+        documentProcessor, "namedEntityCategoriesCreator");
 
     // Simulate successful redirecting
     final DocumentRedirectingResult expectedDocumentRedirectingResult =
-        new DocumentRedirectingResult(REDIRECTED_URL, new DownloadResult(null, REDIRECTED_URL, REDIRECTED_RAW_CONTENT,
-            REDIRECTED_DOWNLOADED, REDIRECTED_STATUS_CODE));
-    doReturn(expectedDocumentRedirectingResult).when(documentRedirector).redirect(any(StatelessSession.class),
-        any(Document.class), any(RawContent.class));
+        new DocumentRedirectingResult(REDIRECTED_URL, new DownloadResult(null, REDIRECTED_URL,
+            REDIRECTED_RAW_CONTENT, REDIRECTED_DOWNLOADED, REDIRECTED_STATUS_CODE));
+    doReturn(expectedDocumentRedirectingResult).when(documentRedirector)
+        .redirect(any(StatelessSession.class), any(Document.class), any(RawContent.class));
     // Simulate successful cleaning
-    final DocumentCleaningResult expectedDocumentCleaningResult = new DocumentCleaningResult(CLEANED_CONTENT);
-    doReturn(expectedDocumentCleaningResult).when(documentCleaner).clean(any(StatelessSession.class),
-        any(DocumentsProcessingCache.class), any(Document.class), any(RawContent.class));
+    final DocumentCleaningResult expectedDocumentCleaningResult =
+        new DocumentCleaningResult(CLEANED_CONTENT);
+    doReturn(expectedDocumentCleaningResult).when(documentCleaner).clean(
+        any(StatelessSession.class), any(DocumentsProcessingCache.class), any(Document.class),
+        any(RawContent.class));
     // Simulate successful stemming
-    final NamedEntityDetectionDto namedEntityDetection = new NamedEntityDetectionDto().setName(NAMED_ENTITY_NAME)
-        .setParentName(NAMED_ENTITY_NAME).setType(NamedEntityType.MISC).setQuantity(1);
-    final DocumentStemmingResult expectedDocumentStemmingResult = new DocumentStemmingResult(STEMMED_TITLE,
-        STEMMED_DESCRIPTION, STEMMED_CONTENT, Lists.newArrayList(namedEntityDetection));
+    final NamedEntityDetectionDto namedEntityDetection =
+        new NamedEntityDetectionDto().setName(NAMED_ENTITY_NAME).setParentName(NAMED_ENTITY_NAME)
+            .setType(NamedEntityType.MISC).setQuantity(1);
+    final DocumentStemmingResult expectedDocumentStemmingResult =
+        new DocumentStemmingResult(STEMMED_TITLE, STEMMED_DESCRIPTION, STEMMED_CONTENT,
+            Lists.newArrayList(namedEntityDetection));
     doReturn(expectedDocumentStemmingResult).when(documentStemmer).stem(any(StatelessSession.class),
         any(Document.class), any(String.class), any(Language.class));
     // Simulate named entity categories
@@ -225,8 +237,10 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
   public void processDocument() {
     Document document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    CleanedContent cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    StemmedContent stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    CleanedContent cleanedContent1 =
+        cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    StemmedContent stemmedContent1 =
+        stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     final DocumentAndContentValues oldValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
 
@@ -240,9 +254,10 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     final DocumentAndContentValues expectedValues =
-        new DocumentAndContentValues(oldValues.getTitle(), STEMMED_TITLE, REDIRECTED_URL, oldValues.getDescription(),
-            STEMMED_DESCRIPTION, oldValues.getPublished(), REDIRECTED_DOWNLOADED, DocumentProcessingState.STEMMED,
-            REDIRECTED_STATUS_CODE, REDIRECTED_RAW_CONTENT, CLEANED_CONTENT, STEMMED_CONTENT);
+        new DocumentAndContentValues(oldValues.getTitle(), STEMMED_TITLE, REDIRECTED_URL,
+            oldValues.getDescription(), STEMMED_DESCRIPTION, oldValues.getPublished(),
+            REDIRECTED_DOWNLOADED, DocumentProcessingState.STEMMED, REDIRECTED_STATUS_CODE,
+            REDIRECTED_RAW_CONTENT, CLEANED_CONTENT, STEMMED_CONTENT);
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);
@@ -251,24 +266,26 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
         namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 1);
     assertEquals(1, namedEntityOccurrences.size());
     final NamedEntityOccurrence namedEntityOccurrence = namedEntityOccurrences.iterator().next();
-    NamedEntity namedEntity =
-        namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityOccurrence.getNamedEntityId());
+    NamedEntity namedEntity = namedEntityDao.getEntity(sessionProvider.getStatelessSession(),
+        namedEntityOccurrence.getNamedEntityId());
     assertEquals(NAMED_ENTITY_NAME, namedEntity.getName());
 
     final List<NamedEntityCategory> namedEntityCategories =
         namedEntityCategoryDao.getByNamedEntity(sessionProvider.getStatelessSession(), namedEntity);
     assertEquals(1, namedEntityCategories.size());
     final NamedEntityCategory namedEntityCategory = namedEntityCategories.iterator().next();
-    namedEntity =
-        namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityCategory.getNamedEntityId());
-    final NamedEntity categoryNamedEntity =
-        namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityCategory.getCategoryNamedEntityId());
+    namedEntity = namedEntityDao.getEntity(sessionProvider.getStatelessSession(),
+        namedEntityCategory.getNamedEntityId());
+    final NamedEntity categoryNamedEntity = namedEntityDao.getEntity(
+        sessionProvider.getStatelessSession(), namedEntityCategory.getCategoryNamedEntityId());
     assertEquals(NAMED_ENTITY_NAME, namedEntity.getName());
     assertEquals(NAMED_ENTITY_CATEGORY_NAME, categoryNamedEntity.getName());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentProcessor.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentProcessor.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
 
     // Failed documents
     assertTrue(documentProcessor.getFailedDocumentIds().isEmpty());
@@ -278,8 +295,10 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
   public void processDocument_downloadError() throws Exception {
     Document document2 = documentDao.getEntity(sessionProvider.getStatelessSession(), 2);
     RawContent rawContent2 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
-    CleanedContent cleanedContent2 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
-    StemmedContent stemmedContent2 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
+    CleanedContent cleanedContent2 =
+        cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
+    StemmedContent stemmedContent2 =
+        stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
     final DocumentAndContentValues oldValues =
         new DocumentAndContentValues(document2, rawContent2, cleanedContent2, stemmedContent2);
 
@@ -292,19 +311,23 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     rawContent2 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
     cleanedContent2 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
     stemmedContent2 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
-    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(oldValues.getTitle(),
-        oldValues.getStemmedTitle(), oldValues.getUrl(), oldValues.getDescription(), oldValues.getStemmedDescription(),
-        oldValues.getPublished(), oldValues.getDownloaded(), DocumentProcessingState.DOWNLOAD_ERROR,
-        oldValues.getStatusCode(), null, null, null);
-    final DocumentAndContentValues actualValues = new DocumentAndContentValues(document2, null, null, null);
+    final DocumentAndContentValues expectedValues =
+        new DocumentAndContentValues(oldValues.getTitle(), oldValues.getStemmedTitle(),
+            oldValues.getUrl(), oldValues.getDescription(), oldValues.getStemmedDescription(),
+            oldValues.getPublished(), oldValues.getDownloaded(),
+            DocumentProcessingState.DOWNLOAD_ERROR, oldValues.getStatusCode(), null, null, null);
+    final DocumentAndContentValues actualValues =
+        new DocumentAndContentValues(document2, null, null, null);
     assertEquals(expectedValues, actualValues);
     final List<NamedEntityOccurrence> namedEntityOccurrences =
         namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 2);
     assertEquals(0, namedEntityOccurrences.size());
 
     // Statistics are not rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentProcessor.getStatisticsToBeRebuilt();
-    assertNull(statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentProcessor.getStatisticsToBeRebuilt();
+    assertNull(
+        statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
 
     // Failed documents
     assertTrue(documentProcessor.getFailedDocumentIds().isEmpty());
@@ -314,15 +337,18 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
   public void processDocument_noRedirectionFound() throws Exception {
     Document document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    CleanedContent cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    StemmedContent stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    CleanedContent cleanedContent1 =
+        cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    StemmedContent stemmedContent1 =
+        stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     final DocumentAndContentValues oldValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
 
     // Simulate absent redirection
-    final DocumentRedirectingResult expectedDocumentRedirectingResult = new DocumentRedirectingResult(null, null);
-    doReturn(expectedDocumentRedirectingResult).when(documentRedirector).redirect(any(StatelessSession.class),
-        any(Document.class), any(RawContent.class));
+    final DocumentRedirectingResult expectedDocumentRedirectingResult =
+        new DocumentRedirectingResult(null, null);
+    doReturn(expectedDocumentRedirectingResult).when(documentRedirector)
+        .redirect(any(StatelessSession.class), any(Document.class), any(RawContent.class));
 
     // Process
     documentProcessor.processDocument(sessionProvider.getStatelessSession(), document1);
@@ -333,10 +359,11 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(oldValues.getTitle(), STEMMED_TITLE,
-        oldValues.getUrl(), oldValues.getDescription(), STEMMED_DESCRIPTION, oldValues.getPublished(),
-        oldValues.getDownloaded(), DocumentProcessingState.STEMMED, oldValues.getStatusCode(),
-        oldValues.getRawContent(), CLEANED_CONTENT, STEMMED_CONTENT);
+    final DocumentAndContentValues expectedValues =
+        new DocumentAndContentValues(oldValues.getTitle(), STEMMED_TITLE, oldValues.getUrl(),
+            oldValues.getDescription(), STEMMED_DESCRIPTION, oldValues.getPublished(),
+            oldValues.getDownloaded(), DocumentProcessingState.STEMMED, oldValues.getStatusCode(),
+            oldValues.getRawContent(), CLEANED_CONTENT, STEMMED_CONTENT);
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);
@@ -345,8 +372,10 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     assertEquals(1, namedEntityOccurrences.size());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentProcessor.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentProcessor.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
 
     // Failed documents
     assertTrue(documentProcessor.getFailedDocumentIds().isEmpty());
@@ -356,16 +385,19 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
   public void processDocument_redirectedDownloadError() throws Exception {
     Document document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    CleanedContent cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    StemmedContent stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    CleanedContent cleanedContent1 =
+        cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    StemmedContent stemmedContent1 =
+        stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     final DocumentAndContentValues oldValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
 
     // Simulate error
-    final DocumentRedirectingResult expectedDocumentRedirectingResult = new DocumentRedirectingResult(REDIRECTED_URL,
-        new DownloadResult(document1.getUrl(), REDIRECTED_URL, null, LocalDateTime.now(), 503));
-    doReturn(expectedDocumentRedirectingResult).when(documentRedirector).redirect(any(StatelessSession.class),
-        any(Document.class), any(RawContent.class));
+    final DocumentRedirectingResult expectedDocumentRedirectingResult =
+        new DocumentRedirectingResult(REDIRECTED_URL,
+            new DownloadResult(document1.getUrl(), REDIRECTED_URL, null, LocalDateTime.now(), 503));
+    doReturn(expectedDocumentRedirectingResult).when(documentRedirector)
+        .redirect(any(StatelessSession.class), any(Document.class), any(RawContent.class));
 
     // Process
     documentProcessor.processDocument(sessionProvider.getStatelessSession(), document1);
@@ -377,9 +409,10 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(oldValues.getTitle(),
-        oldValues.getStemmedTitle(), oldValues.getUrl(), oldValues.getDescription(), oldValues.getStemmedDescription(),
-        oldValues.getPublished(), oldValues.getDownloaded(), DocumentProcessingState.REDIRECTING_ERROR,
+    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(
+        oldValues.getTitle(), oldValues.getStemmedTitle(), oldValues.getUrl(),
+        oldValues.getDescription(), oldValues.getStemmedDescription(), oldValues.getPublished(),
+        oldValues.getDownloaded(), DocumentProcessingState.REDIRECTING_ERROR,
         oldValues.getStatusCode(), oldValues.getRawContent(), null, null);
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
@@ -389,8 +422,10 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     assertEquals(0, namedEntityOccurrences.size());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentProcessor.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentProcessor.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
 
     // Failed documents
     assertTrue(documentProcessor.getFailedDocumentIds().isEmpty());
@@ -400,14 +435,16 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
   public void processDocument_redirectingException() throws Exception {
     Document document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    CleanedContent cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    StemmedContent stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    CleanedContent cleanedContent1 =
+        cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    StemmedContent stemmedContent1 =
+        stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     final DocumentAndContentValues oldValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
 
     // Simulate exception
-    doThrow(Exception.class).when(documentRedirector).redirect(any(StatelessSession.class), any(Document.class),
-        any(RawContent.class));
+    doThrow(Exception.class).when(documentRedirector).redirect(any(StatelessSession.class),
+        any(Document.class), any(RawContent.class));
 
     // Process
     documentProcessor.processDocument(sessionProvider.getStatelessSession(), document1);
@@ -419,9 +456,10 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(oldValues.getTitle(),
-        oldValues.getStemmedTitle(), oldValues.getUrl(), oldValues.getDescription(), oldValues.getStemmedDescription(),
-        oldValues.getPublished(), oldValues.getDownloaded(), DocumentProcessingState.TECHNICAL_ERROR,
+    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(
+        oldValues.getTitle(), oldValues.getStemmedTitle(), oldValues.getUrl(),
+        oldValues.getDescription(), oldValues.getStemmedDescription(), oldValues.getPublished(),
+        oldValues.getDownloaded(), DocumentProcessingState.TECHNICAL_ERROR,
         oldValues.getStatusCode(), oldValues.getRawContent(), null, null);
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
@@ -431,26 +469,32 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     assertEquals(0, namedEntityOccurrences.size());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentProcessor.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentProcessor.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
 
     // Failed documents
-    assertTrue(CollectionUtils.isEqualCollection(Sets.newHashSet(1l), documentProcessor.getFailedDocumentIds()));
+    assertTrue(CollectionUtils.isEqualCollection(Sets.newHashSet(1l),
+        documentProcessor.getFailedDocumentIds()));
   }
 
   @Test
   public void processDocument_cleaningError() throws Exception {
     Document document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    CleanedContent cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    StemmedContent stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    CleanedContent cleanedContent1 =
+        cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    StemmedContent stemmedContent1 =
+        stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     final DocumentAndContentValues oldValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
 
     // Simulate error
     final DocumentCleaningResult expectedDocumentCleaningResult = new DocumentCleaningResult(null);
-    doReturn(expectedDocumentCleaningResult).when(documentCleaner).clean(any(StatelessSession.class),
-        any(DocumentsProcessingCache.class), any(Document.class), any(RawContent.class));
+    doReturn(expectedDocumentCleaningResult).when(documentCleaner).clean(
+        any(StatelessSession.class), any(DocumentsProcessingCache.class), any(Document.class),
+        any(RawContent.class));
 
     // Process
     documentProcessor.processDocument(sessionProvider.getStatelessSession(), document1);
@@ -462,10 +506,11 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(oldValues.getTitle(),
-        oldValues.getStemmedTitle(), REDIRECTED_URL, oldValues.getDescription(), oldValues.getStemmedDescription(),
-        oldValues.getPublished(), REDIRECTED_DOWNLOADED, DocumentProcessingState.CLEANING_ERROR, REDIRECTED_STATUS_CODE,
-        REDIRECTED_RAW_CONTENT, null, null);
+    final DocumentAndContentValues expectedValues =
+        new DocumentAndContentValues(oldValues.getTitle(), oldValues.getStemmedTitle(),
+            REDIRECTED_URL, oldValues.getDescription(), oldValues.getStemmedDescription(),
+            oldValues.getPublished(), REDIRECTED_DOWNLOADED, DocumentProcessingState.CLEANING_ERROR,
+            REDIRECTED_STATUS_CODE, REDIRECTED_RAW_CONTENT, null, null);
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);
@@ -474,8 +519,10 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     assertEquals(0, namedEntityOccurrences.size());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentProcessor.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentProcessor.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
 
     // Failed documents
     assertTrue(documentProcessor.getFailedDocumentIds().isEmpty());
@@ -485,8 +532,10 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
   public void processDocument_cleaningException() throws Exception {
     Document document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    CleanedContent cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    StemmedContent stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    CleanedContent cleanedContent1 =
+        cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    StemmedContent stemmedContent1 =
+        stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     final DocumentAndContentValues oldValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
 
@@ -504,10 +553,11 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(oldValues.getTitle(),
-        oldValues.getStemmedTitle(), REDIRECTED_URL, oldValues.getDescription(), oldValues.getStemmedDescription(),
-        oldValues.getPublished(), REDIRECTED_DOWNLOADED, DocumentProcessingState.TECHNICAL_ERROR,
-        oldValues.getStatusCode(), REDIRECTED_RAW_CONTENT, null, null);
+    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(
+        oldValues.getTitle(), oldValues.getStemmedTitle(), REDIRECTED_URL,
+        oldValues.getDescription(), oldValues.getStemmedDescription(), oldValues.getPublished(),
+        REDIRECTED_DOWNLOADED, DocumentProcessingState.TECHNICAL_ERROR, oldValues.getStatusCode(),
+        REDIRECTED_RAW_CONTENT, null, null);
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);
@@ -516,25 +566,30 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     assertEquals(0, namedEntityOccurrences.size());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentProcessor.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentProcessor.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
 
     // Failed documents
-    assertTrue(CollectionUtils.isEqualCollection(Sets.newHashSet(1l), documentProcessor.getFailedDocumentIds()));
+    assertTrue(CollectionUtils.isEqualCollection(Sets.newHashSet(1l),
+        documentProcessor.getFailedDocumentIds()));
   }
 
   @Test
   public void processDocument_stemmingException() throws Exception {
     Document document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    CleanedContent cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    StemmedContent stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    CleanedContent cleanedContent1 =
+        cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    StemmedContent stemmedContent1 =
+        stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     final DocumentAndContentValues oldValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
 
     // Simulate exception
-    doThrow(Exception.class).when(documentStemmer).stem(any(StatelessSession.class), any(Document.class),
-        any(String.class), any(Language.class));
+    doThrow(Exception.class).when(documentStemmer).stem(any(StatelessSession.class),
+        any(Document.class), any(String.class), any(Language.class));
 
     // Process
     documentProcessor.processDocument(sessionProvider.getStatelessSession(), document1);
@@ -546,10 +601,11 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
-    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(oldValues.getTitle(),
-        oldValues.getStemmedTitle(), REDIRECTED_URL, oldValues.getDescription(), oldValues.getStemmedDescription(),
-        oldValues.getPublished(), REDIRECTED_DOWNLOADED, DocumentProcessingState.TECHNICAL_ERROR,
-        oldValues.getStatusCode(), REDIRECTED_RAW_CONTENT, CLEANED_CONTENT, null);
+    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(
+        oldValues.getTitle(), oldValues.getStemmedTitle(), REDIRECTED_URL,
+        oldValues.getDescription(), oldValues.getStemmedDescription(), oldValues.getPublished(),
+        REDIRECTED_DOWNLOADED, DocumentProcessingState.TECHNICAL_ERROR, oldValues.getStatusCode(),
+        REDIRECTED_RAW_CONTENT, CLEANED_CONTENT, null);
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);
@@ -558,11 +614,14 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     assertEquals(0, namedEntityOccurrences.size());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentProcessor.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentProcessor.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
 
     // Failed documents
-    assertTrue(CollectionUtils.isEqualCollection(Sets.newHashSet(1l), documentProcessor.getFailedDocumentIds()));
+    assertTrue(CollectionUtils.isEqualCollection(Sets.newHashSet(1l),
+        documentProcessor.getFailedDocumentIds()));
   }
 
 }

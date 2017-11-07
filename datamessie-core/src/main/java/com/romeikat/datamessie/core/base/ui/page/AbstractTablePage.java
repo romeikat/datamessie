@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.ui.panel.AbstractTableContainerPanel;
 import com.romeikat.datamessie.core.base.ui.panel.AbstractTablePanel;

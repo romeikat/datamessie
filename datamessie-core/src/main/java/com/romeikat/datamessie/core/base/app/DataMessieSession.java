@@ -28,7 +28,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-
 import com.romeikat.datamessie.core.base.service.AuthenticationService;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
@@ -84,7 +83,8 @@ public class DataMessieSession extends AuthenticatedWebSession {
 
   @Override
   public DataMessieRoles getRoles() {
-    final DataMessieRoles roles = authenticationService.getRoles(username, passwordHash, isSignedIn());
+    final DataMessieRoles roles =
+        authenticationService.getRoles(username, passwordHash, isSignedIn());
     return roles;
   }
 

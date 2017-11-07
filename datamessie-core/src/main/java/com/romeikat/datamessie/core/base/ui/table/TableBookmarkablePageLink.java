@@ -27,14 +27,15 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public class TableBookmarkablePageLink<T> extends BookmarkablePageLink<T> implements ITableComponent {
+public class TableBookmarkablePageLink<T> extends BookmarkablePageLink<T>
+    implements ITableComponent {
 
   private static final long serialVersionUID = 1L;
 
   private final IModel<String> labelModel;
 
-  public TableBookmarkablePageLink(final Class<? extends Page> pageClass, final PageParameters parameters,
-      final IModel<String> labelModel) {
+  public TableBookmarkablePageLink(final Class<? extends Page> pageClass,
+      final PageParameters parameters, final IModel<String> labelModel) {
     super(ITableComponent.CONTENT_ID, pageClass, parameters);
     this.labelModel = labelModel;
   }

@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.Map;
-
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
@@ -32,7 +31,8 @@ public class NumberOfDocumentsPerState {
   private final Map<DocumentProcessingState, Long> numberOfDocumentsPerState;
 
   public NumberOfDocumentsPerState() {
-    numberOfDocumentsPerState = Maps.newHashMapWithExpectedSize(DocumentProcessingState.values().length);
+    numberOfDocumentsPerState =
+        Maps.newHashMapWithExpectedSize(DocumentProcessingState.values().length);
   }
 
   public long get(final DocumentProcessingState... states) {

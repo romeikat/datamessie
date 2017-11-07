@@ -25,12 +25,10 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
 import org.wicketstuff.select2.Response;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
@@ -77,24 +75,27 @@ public class SourceTypeChoiceProvider extends AbstractChoiceProvider<SourceTypeD
   @Override
   public Collection<SourceTypeDto> toChoices(final Collection<String> ids) {
     final Map<Long, SourceTypeDto> sourceTypes = getSourceTypes();
-    final Function<String, SourceTypeDto> toChoicesFunction = new Function<String, SourceTypeDto>() {
+    final Function<String, SourceTypeDto> toChoicesFunction =
+        new Function<String, SourceTypeDto>() {
 
-      @Override
-      public SourceTypeDto apply(final String id) {
-        return sourceTypes.get(Long.parseLong(id));
-      }
+          @Override
+          public SourceTypeDto apply(final String id) {
+            return sourceTypes.get(Long.parseLong(id));
+          }
 
-    };
+        };
     final Collection<SourceTypeDto> choices = Collections2.transform(ids, toChoicesFunction);
     return choices;
   }
 
   private Map<Long, SourceTypeDto> getSourceTypes() {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
-    final List<SourceTypeDto> sourceTypes = sourceTypeDao.getAsDtos(sessionProvider.getStatelessSession());
+    final List<SourceTypeDto> sourceTypes =
+        sourceTypeDao.getAsDtos(sessionProvider.getStatelessSession());
     sessionProvider.closeStatelessSession();
 
-    final Map<Long, SourceTypeDto> sourceTypesMap = Maps.newHashMapWithExpectedSize(sourceTypes.size());
+    final Map<Long, SourceTypeDto> sourceTypesMap =
+        Maps.newHashMapWithExpectedSize(sourceTypes.size());
     for (final SourceTypeDto sourceType : sourceTypes) {
       sourceTypesMap.put(sourceType.getId(), sourceType);
     }

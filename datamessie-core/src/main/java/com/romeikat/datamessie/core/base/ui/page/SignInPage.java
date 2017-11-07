@@ -29,7 +29,6 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.Strings;
-
 import com.romeikat.datamessie.core.base.ui.behavior.FocusBehavior;
 
 public class SignInPage extends AbstractPage {

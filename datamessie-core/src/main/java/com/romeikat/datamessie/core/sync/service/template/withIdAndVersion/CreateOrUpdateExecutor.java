@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.apache.wicket.util.lang.Objects;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
@@ -35,7 +34,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
@@ -64,9 +62,10 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
 
   private final List<Long> failedLhsIds;
 
-  public CreateOrUpdateExecutor(final CreateOrUpdateDecisionResults decisionResults, final int batchSizeEntities,
-      final EntityWithIdAndVersionDao<E> dao, final Class<E> clazz, final StatelessSession lhsStatelessSession,
-      final StatelessSession rhsStatelessSession, final SessionFactory sessionFactory, final Double parallelismFactor,
+  public CreateOrUpdateExecutor(final CreateOrUpdateDecisionResults decisionResults,
+      final int batchSizeEntities, final EntityWithIdAndVersionDao<E> dao, final Class<E> clazz,
+      final StatelessSession lhsStatelessSession, final StatelessSession rhsStatelessSession,
+      final SessionFactory sessionFactory, final Double parallelismFactor,
       final TaskExecution taskExecution) {
     this.decisionResults = decisionResults;
     this.batchSizeEntities = batchSizeEntities;
@@ -115,7 +114,8 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
       final double progress = (double) lastEntity / (double) lhsCount;
       final String msg = String.format("Creating %s to %s of %s (%s)",
           IntegerConverter.INSTANCE.convertToString(firstEntity + 1),
-          IntegerConverter.INSTANCE.convertToString(lastEntity), IntegerConverter.INSTANCE.convertToString(lhsCount),
+          IntegerConverter.INSTANCE.convertToString(lastEntity),
+          IntegerConverter.INSTANCE.convertToString(lhsCount),
           PercentageConverter.INSTANCE_2.convertToString(progress));
       final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
@@ -137,7 +137,8 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
       }
 
       @Override
-      public void doProcessing(final HibernateSessionProvider rhsSessionProvider, final E lhsEntity) {
+      public void doProcessing(final HibernateSessionProvider rhsSessionProvider,
+          final E lhsEntity) {
         try {
           create(rhsSessionProvider.getStatelessSession(), lhsEntity);
         } catch (final ConstraintViolationException e) {
@@ -184,7 +185,8 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
       final double progress = (double) lastEntity / (double) lhsCount;
       final String msg = String.format("Updating %s to %s of %s (%s)",
           IntegerConverter.INSTANCE.convertToString(firstEntity + 1),
-          IntegerConverter.INSTANCE.convertToString(lastEntity), IntegerConverter.INSTANCE.convertToString(lhsCount),
+          IntegerConverter.INSTANCE.convertToString(lastEntity),
+          IntegerConverter.INSTANCE.convertToString(lhsCount),
           PercentageConverter.INSTANCE_2.convertToString(progress));
       final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
@@ -199,10 +201,12 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
 
   private void updateBatch(final List<Long> lhsIds) {
     final Collection<E> lhsEntities = dao.getEntities(lhsStatelessSession, lhsIds);
-    final Map<Long, E> rhsEntities = new ConcurrentHashMap<>(dao.getIdsWithEntities(rhsStatelessSession, lhsIds));
+    final Map<Long, E> rhsEntities =
+        new ConcurrentHashMap<>(dao.getIdsWithEntities(rhsStatelessSession, lhsIds));
     new ParallelProcessing<E>(sessionFactory, lhsEntities, parallelismFactor) {
       @Override
-      public void doProcessing(final HibernateSessionProvider rhsSessionProvider, final E lhsEntity) {
+      public void doProcessing(final HibernateSessionProvider rhsSessionProvider,
+          final E lhsEntity) {
         final E rhsEntity = rhsEntities.get(lhsEntity.getId());
         if (rhsEntity == null) {
           LOG.warn("Could not load RHS {} with ID {}", clazz.getSimpleName(), lhsEntity.getId());
@@ -219,7 +223,8 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
     };
   }
 
-  private void update(final HibernateSessionProvider rhsSessionProvider, final E lhsEntity, final E rhsEntity) {
+  private void update(final HibernateSessionProvider rhsSessionProvider, final E lhsEntity,
+      final E rhsEntity) {
     // Copy
     copyProperties(lhsEntity, rhsEntity);
 
@@ -237,12 +242,14 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
     }
   }
 
-  private void updateVersion(final StatelessSession rhsStatelessSession, final E lhsEntity, final E rhsEntity) {
+  private void updateVersion(final StatelessSession rhsStatelessSession, final E lhsEntity,
+      final E rhsEntity) {
     if (Objects.equal(lhsEntity.getVersion(), rhsEntity.getVersion())) {
       return;
     }
 
-    final String queryString = "UPDATE " + clazz.getSimpleName() + " SET version = :_version WHERE id = :_id";
+    final String queryString =
+        "UPDATE " + clazz.getSimpleName() + " SET version = :_version WHERE id = :_id";
     final Query<?> query = rhsStatelessSession.createQuery(queryString);
     query.setParameter("_id", rhsEntity.getId());
     query.setParameter("_version", lhsEntity.getVersion());

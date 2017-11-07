@@ -39,7 +39,8 @@ public class TableNavigatorLabel extends Label {
       @Override
       public String getObject() {
         final long itemCount = table.getItemCount();
-        final String objectName = itemCount == 1 ? table.getSingularObjectName() : table.getPluralObjectName();
+        final String objectName =
+            itemCount == 1 ? table.getSingularObjectName() : table.getPluralObjectName();
         final String label = itemCount + " " + objectName;
         return label;
       }

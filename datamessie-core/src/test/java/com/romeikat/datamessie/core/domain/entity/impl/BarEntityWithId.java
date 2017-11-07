@@ -27,7 +27,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 
 @Entity

@@ -23,12 +23,10 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.wicketstuff.select2.Select2MultiChoice;
 import org.wicketstuff.select2.Settings;
-
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 
 public class SourceTypeIdFilter extends Select2MultiChoice<Long> {

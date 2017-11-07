@@ -22,17 +22,16 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.List;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 
 @Repository
-public class NamedEntityOccurrenceDao extends AbstractEntityWithIdAndVersionDao<NamedEntityOccurrence> {
+public class NamedEntityOccurrenceDao
+    extends AbstractEntityWithIdAndVersionDao<NamedEntityOccurrence> {
 
   public NamedEntityOccurrenceDao() {
     super(NamedEntityOccurrence.class);
@@ -43,12 +42,13 @@ public class NamedEntityOccurrenceDao extends AbstractEntityWithIdAndVersionDao<
     return null;
   }
 
-  public List<NamedEntityOccurrence> getByDocument(final SharedSessionContract ssc, final long documentId) {
+  public List<NamedEntityOccurrence> getByDocument(final SharedSessionContract ssc,
+      final long documentId) {
     return getEntitesByProperty(ssc, "documentId", documentId);
   }
 
-  public NamedEntityOccurrence getByTypeAndDocument(final SharedSessionContract ssc, final NamedEntityType type,
-      final long documentId) {
+  public NamedEntityOccurrence getByTypeAndDocument(final SharedSessionContract ssc,
+      final NamedEntityType type, final long documentId) {
     final EntityQuery<NamedEntityOccurrence> query = new EntityQuery<>(NamedEntityOccurrence.class);
     query.addRestriction(Restrictions.eq("type", type));
     query.addRestriction(Restrictions.eq("documentId", documentId));

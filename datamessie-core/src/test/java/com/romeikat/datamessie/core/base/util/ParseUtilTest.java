@@ -24,14 +24,11 @@ License along with this program.  If not, see
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Collection;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.util.ParseUtil;
@@ -61,43 +58,47 @@ public class ParseUtilTest extends AbstractTest {
 
   @Test
   public void findsWordsInBetween() throws Exception {
-    final boolean matchFound = parseUtil.containsWordsInTheRightSequence(getTextWithAllWordsInBetween(),
-        getWordVariants(WORD_1), getWordVariants(WORD_2), 2, analyzer);
+    final boolean matchFound =
+        parseUtil.containsWordsInTheRightSequence(getTextWithAllWordsInBetween(),
+            getWordVariants(WORD_1), getWordVariants(WORD_2), 2, analyzer);
     assertTrue(matchFound);
   }
 
   @Test
   public void findsWordPartsInBetween() throws Exception {
-    final boolean matchFound = parseUtil.containsWordsInTheRightSequence(getTextWithAllWordsInBetween(),
-        getWordVariants(WORD_3_PART_1), getWordVariants(WORD_3_PART_2), 2, analyzer);
+    final boolean matchFound =
+        parseUtil.containsWordsInTheRightSequence(getTextWithAllWordsInBetween(),
+            getWordVariants(WORD_3_PART_1), getWordVariants(WORD_3_PART_2), 2, analyzer);
     assertTrue(matchFound);
   }
 
   @Test
   public void findsWordsAtBorders() throws Exception {
-    final boolean matchFound = parseUtil.containsWordsInTheRightSequence(getTextWithWords1And2AtBorders(),
-        getWordVariants(WORD_1), getWordVariants(WORD_2), 2, analyzer);
+    final boolean matchFound =
+        parseUtil.containsWordsInTheRightSequence(getTextWithWords1And2AtBorders(),
+            getWordVariants(WORD_1), getWordVariants(WORD_2), 2, analyzer);
     assertTrue(matchFound);
   }
 
   @Test
   public void ignoresWordsIfAboveDistance() throws Exception {
-    final boolean matchFound = parseUtil.containsWordsInTheRightSequence(getTextWithAllWordsInBetween(),
-        getWordVariants(WORD_1), getWordVariants(WORD_2), 1, analyzer);
+    final boolean matchFound =
+        parseUtil.containsWordsInTheRightSequence(getTextWithAllWordsInBetween(),
+            getWordVariants(WORD_1), getWordVariants(WORD_2), 1, analyzer);
     assertFalse(matchFound);
   }
 
   @Test
   public void ignoresBlankWord1() throws Exception {
-    final boolean matchFound = parseUtil.containsWordsInTheRightSequence(getTextWithAllWordsInBetween(), null,
-        getWordVariants(WORD_2), 2, analyzer);
+    final boolean matchFound = parseUtil.containsWordsInTheRightSequence(
+        getTextWithAllWordsInBetween(), null, getWordVariants(WORD_2), 2, analyzer);
     assertTrue(matchFound);
   }
 
   @Test
   public void ignoresBlankWord2() throws Exception {
-    final boolean matchFound = parseUtil.containsWordsInTheRightSequence(getTextWithAllWordsInBetween(),
-        getWordVariants(WORD_1), null, 2, analyzer);
+    final boolean matchFound = parseUtil.containsWordsInTheRightSequence(
+        getTextWithAllWordsInBetween(), getWordVariants(WORD_1), null, 2, analyzer);
     assertTrue(matchFound);
   }
 

@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import com.romeikat.datamessie.core.sync.service.template.ISynchronizer;
 
 public interface ISynchronizersProvider {

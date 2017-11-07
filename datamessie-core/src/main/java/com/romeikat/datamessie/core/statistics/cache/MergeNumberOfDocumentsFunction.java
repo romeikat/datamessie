@@ -23,18 +23,17 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
-
 import org.apache.commons.lang3.tuple.Pair;
-
 import com.google.common.base.Function;
 
-public class MergeNumberOfDocumentsFunction
-    implements Function<Pair<DocumentsPerState, DocumentsPerState>, DocumentsPerState>, Serializable {
+public class MergeNumberOfDocumentsFunction implements
+    Function<Pair<DocumentsPerState, DocumentsPerState>, DocumentsPerState>, Serializable {
 
   private static final long serialVersionUID = 1L;
 
   @Override
-  public DocumentsPerState apply(final Pair<DocumentsPerState, DocumentsPerState> documentsPerStatePair) {
+  public DocumentsPerState apply(
+      final Pair<DocumentsPerState, DocumentsPerState> documentsPerStatePair) {
     final DocumentsPerState documentsPerState1 = documentsPerStatePair.getLeft();
     final DocumentsPerState documentsPerState2 = documentsPerStatePair.getRight();
 

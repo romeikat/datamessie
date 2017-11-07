@@ -33,16 +33,13 @@ import static com.romeikat.datamessie.core.CommonOperations.insertIntoSource2Sou
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoSourceType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -90,30 +87,38 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final Crawling crawling12 = new Crawling(12, project1.getId());
     final Crawling crawling21 = new Crawling(21, project2.getId());
     final Crawling crawling22 = new Crawling(22, project2.getId());
-    final Document document11 =
-        new Document(11, crawling11.getId(), source11.getId()).setPublished(LocalDateTime.of(2015, 9, 30, 12, 0))
-            .setDownloaded(LocalDateTime.of(2015, 9, 30, 12, 0)).setState(DocumentProcessingState.DOWNLOADED);
-    final Document document12 =
-        new Document(12, crawling12.getId(), source11.getId()).setPublished(LocalDateTime.of(2015, 9, 30, 13, 0))
-            .setDownloaded(LocalDateTime.of(2015, 9, 30, 13, 0)).setState(DocumentProcessingState.DOWNLOAD_ERROR);
-    final Document document13 =
-        new Document(13, crawling11.getId(), source12.getId()).setPublished(LocalDateTime.of(2015, 9, 30, 14, 0))
-            .setDownloaded(LocalDateTime.of(2015, 9, 30, 14, 0)).setState(DocumentProcessingState.DOWNLOADED);
-    final Document document14 =
-        new Document(14, crawling12.getId(), source12.getId()).setPublished(LocalDateTime.of(2015, 9, 30, 15, 0))
-            .setDownloaded(LocalDateTime.of(2015, 9, 30, 15, 0)).setState(DocumentProcessingState.DOWNLOAD_ERROR);
-    final Document document21 =
-        new Document(21, crawling21.getId(), source21.getId()).setPublished(LocalDateTime.of(2015, 10, 1, 12, 0))
-            .setDownloaded(LocalDateTime.of(2015, 10, 1, 12, 0)).setState(DocumentProcessingState.DOWNLOADED);
-    final Document document22 =
-        new Document(22, crawling22.getId(), source21.getId()).setPublished(LocalDateTime.of(2015, 10, 1, 13, 0))
-            .setDownloaded(LocalDateTime.of(2015, 10, 1, 13, 0)).setState(DocumentProcessingState.DOWNLOAD_ERROR);
-    final Document document23 =
-        new Document(23, crawling21.getId(), source22.getId()).setPublished(LocalDateTime.of(2015, 10, 1, 14, 0))
-            .setDownloaded(LocalDateTime.of(2015, 10, 1, 14, 0)).setState(DocumentProcessingState.DOWNLOADED);
-    final Document document24 =
-        new Document(24, crawling22.getId(), source22.getId()).setPublished(LocalDateTime.of(2015, 10, 1, 15, 0))
-            .setDownloaded(LocalDateTime.of(2015, 10, 1, 15, 0)).setState(DocumentProcessingState.DOWNLOAD_ERROR);
+    final Document document11 = new Document(11, crawling11.getId(), source11.getId())
+        .setPublished(LocalDateTime.of(2015, 9, 30, 12, 0))
+        .setDownloaded(LocalDateTime.of(2015, 9, 30, 12, 0))
+        .setState(DocumentProcessingState.DOWNLOADED);
+    final Document document12 = new Document(12, crawling12.getId(), source11.getId())
+        .setPublished(LocalDateTime.of(2015, 9, 30, 13, 0))
+        .setDownloaded(LocalDateTime.of(2015, 9, 30, 13, 0))
+        .setState(DocumentProcessingState.DOWNLOAD_ERROR);
+    final Document document13 = new Document(13, crawling11.getId(), source12.getId())
+        .setPublished(LocalDateTime.of(2015, 9, 30, 14, 0))
+        .setDownloaded(LocalDateTime.of(2015, 9, 30, 14, 0))
+        .setState(DocumentProcessingState.DOWNLOADED);
+    final Document document14 = new Document(14, crawling12.getId(), source12.getId())
+        .setPublished(LocalDateTime.of(2015, 9, 30, 15, 0))
+        .setDownloaded(LocalDateTime.of(2015, 9, 30, 15, 0))
+        .setState(DocumentProcessingState.DOWNLOAD_ERROR);
+    final Document document21 = new Document(21, crawling21.getId(), source21.getId())
+        .setPublished(LocalDateTime.of(2015, 10, 1, 12, 0))
+        .setDownloaded(LocalDateTime.of(2015, 10, 1, 12, 0))
+        .setState(DocumentProcessingState.DOWNLOADED);
+    final Document document22 = new Document(22, crawling22.getId(), source21.getId())
+        .setPublished(LocalDateTime.of(2015, 10, 1, 13, 0))
+        .setDownloaded(LocalDateTime.of(2015, 10, 1, 13, 0))
+        .setState(DocumentProcessingState.DOWNLOAD_ERROR);
+    final Document document23 = new Document(23, crawling21.getId(), source22.getId())
+        .setPublished(LocalDateTime.of(2015, 10, 1, 14, 0))
+        .setDownloaded(LocalDateTime.of(2015, 10, 1, 14, 0))
+        .setState(DocumentProcessingState.DOWNLOADED);
+    final Document document24 = new Document(24, crawling22.getId(), source22.getId())
+        .setPublished(LocalDateTime.of(2015, 10, 1, 15, 0))
+        .setDownloaded(LocalDateTime.of(2015, 10, 1, 15, 0))
+        .setState(DocumentProcessingState.DOWNLOAD_ERROR);
     final CleanedContent cleanedContent11 = new CleanedContent(document11.getId(), "Foo is good");
     final CleanedContent cleanedContent13 = new CleanedContent(document13.getId(), "Bar is better");
     final CleanedContent cleanedContent21 = new CleanedContent(document21.getId(), "Foo rocks");
@@ -124,11 +129,14 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
         insertIntoSourceType(sourceType1), insertIntoSourceType(sourceType2),
 
         // Sources 11, 12, 21, 22
-        insertIntoSource(source11), insertIntoSource(source12), insertIntoSource(source21), insertIntoSource(source22),
+        insertIntoSource(source11), insertIntoSource(source12), insertIntoSource(source21),
+        insertIntoSource(source22),
         // Sources 11, 21 -> Source type 1
-        insertIntoSource2SourceType(source2SourceType111), insertIntoSource2SourceType(source2SourceType211),
+        insertIntoSource2SourceType(source2SourceType111),
+        insertIntoSource2SourceType(source2SourceType211),
         // Sources 12, 22 -> Source type 2
-        insertIntoSource2SourceType(source2SourceType122), insertIntoSource2SourceType(source2SourceType222),
+        insertIntoSource2SourceType(source2SourceType122),
+        insertIntoSource2SourceType(source2SourceType222),
 
         // Project 1
         insertIntoProject(project1),
@@ -137,8 +145,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
         // Crawlings 11, 12
         insertIntoCrawling(crawling11), insertIntoCrawling(crawling12),
         // Documents 11, 12, 13, 14
-        insertIntoDocument(document11), insertIntoDocument(document12), insertIntoDocument(document13),
-        insertIntoDocument(document14),
+        insertIntoDocument(document11), insertIntoDocument(document12),
+        insertIntoDocument(document13), insertIntoDocument(document14),
         // Contents 11, 13
         insertIntoCleanedContent(cleanedContent11), insertIntoCleanedContent(cleanedContent13),
 
@@ -149,8 +157,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
         // Crawlings 21, 22
         insertIntoCrawling(crawling21), insertIntoCrawling(crawling22),
         // Documents 21, 22, 23, 24
-        insertIntoDocument(document21), insertIntoDocument(document22), insertIntoDocument(document23),
-        insertIntoDocument(document24),
+        insertIntoDocument(document21), insertIntoDocument(document22),
+        insertIntoDocument(document23), insertIntoDocument(document24),
         // Contents 21, 23
         insertIntoCleanedContent(cleanedContent21), insertIntoCleanedContent(cleanedContent23));
   }
@@ -207,7 +215,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_documentsBySourceTypeIds() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
     final DocumentFilterSettingsQuery<Document> query =
         new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
 
@@ -231,7 +240,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_documentsByFromDate() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setFromDate(LocalDate.of(2015, 10, 1));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setFromDate(LocalDate.of(2015, 10, 1));
     final DocumentFilterSettingsQuery<Document> query =
         new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
 
@@ -243,7 +253,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_documentsByToDate() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setToDate(LocalDate.of(2015, 9, 30));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setToDate(LocalDate.of(2015, 9, 30));
     final DocumentFilterSettingsQuery<Document> query =
         new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
 
@@ -269,7 +280,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_documentsByState() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setState(DocumentProcessingState.DOWNLOADED);
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setState(DocumentProcessingState.DOWNLOADED);
     final DocumentFilterSettingsQuery<Document> query =
         new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
 
@@ -281,7 +293,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_documentsByDocumentIds() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 12l));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 12l));
     final DocumentFilterSettingsQuery<Document> query =
         new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
 
@@ -293,13 +306,14 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_documentsByCleanedContentAndDocumentIds() {
-    final DocumentsFilterSettings dfs =
-        new DocumentsFilterSettings().setCleanedContent("foo").setDocumentIds(Lists.newArrayList(11l, 13l, 21l));
+    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setCleanedContent("foo")
+        .setDocumentIds(Lists.newArrayList(11l, 13l, 21l));
     final DocumentFilterSettingsQuery<Document> query =
         new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
-    final Collection<Long> resultIds = Collections2.transform(result, new EntityWithIdToIdFunction());
+    final Collection<Long> resultIds =
+        Collections2.transform(result, new EntityWithIdToIdFunction());
     final Collection<Long> expected = Lists.newArrayList(11l, 21l);
     assertTrue(CollectionUtils.isEqualCollection(expected, resultIds));
 
@@ -310,9 +324,9 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_documentsByAllFilters() {
     rebuildDataMessieIndex();
 
-    final DocumentsFilterSettings dfs =
-        new DocumentsFilterSettings(1l, 11l, true, Sets.newHashSet(1l, 2l), 11l, LocalDate.of(2015, 9, 30),
-            LocalDate.of(2015, 10, 1), "good is foo", DocumentProcessingState.getAllStates(), Lists.newArrayList(11l));
+    final DocumentsFilterSettings dfs = new DocumentsFilterSettings(1l, 11l, true,
+        Sets.newHashSet(1l, 2l), 11l, LocalDate.of(2015, 9, 30), LocalDate.of(2015, 10, 1),
+        "good is foo", DocumentProcessingState.getAllStates(), Lists.newArrayList(11l));
     final DocumentFilterSettingsQuery<Document> query =
         new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
 
@@ -324,7 +338,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void uniqueResult_documentsByDocumentId() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l));
     final DocumentFilterSettingsQuery<Document> query =
         new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
 
@@ -338,7 +353,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_crawlingIdsByDocumentIds() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
     final DocumentFilterSettingsQuery<Crawling> query =
         new DocumentFilterSettingsQuery<Crawling>(dfs, Crawling.class, sharedBeanProvider);
 
@@ -366,7 +382,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_crawlingIdsBySourceTypeId() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
     final DocumentFilterSettingsQuery<Crawling> query =
         new DocumentFilterSettingsQuery<Crawling>(dfs, Crawling.class, sharedBeanProvider);
 
@@ -398,7 +415,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_sourceIdsByDocumentIds() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
     final DocumentFilterSettingsQuery<Source> query =
         new DocumentFilterSettingsQuery<Source>(dfs, Source.class, sharedBeanProvider);
 
@@ -426,7 +444,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_sourceIdsBySourceTypeIds() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
     final DocumentFilterSettingsQuery<Source> query =
         new DocumentFilterSettingsQuery<Source>(dfs, Source.class, sharedBeanProvider);
 
@@ -456,7 +475,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_sourceTypeIdsByDocumentIds() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
     final DocumentFilterSettingsQuery<SourceType> query =
         new DocumentFilterSettingsQuery<SourceType>(dfs, SourceType.class, sharedBeanProvider);
 
@@ -512,7 +532,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_projectIdsByDocumentIds() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
     final DocumentFilterSettingsQuery<Project> query =
         new DocumentFilterSettingsQuery<Project>(dfs, Project.class, sharedBeanProvider);
 
@@ -552,7 +573,8 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void list_projectIdsBySourceTypeId() {
-    final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
+    final DocumentsFilterSettings dfs =
+        new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
     final DocumentFilterSettingsQuery<Project> query =
         new DocumentFilterSettingsQuery<Project>(dfs, Project.class, sharedBeanProvider);
 

@@ -23,12 +23,9 @@ License along with this program.  If not, see
  */
 
 import static org.junit.Assert.assertEquals;
-
 import java.time.LocalDate;
 import java.util.List;
-
 import org.junit.Test;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.util.DateUtil;
@@ -41,8 +38,8 @@ public class DateUtilTest extends AbstractTest {
     final LocalDate localDate2 = LocalDate.of(2016, 3, 1);
 
     final List<LocalDate> actual = DateUtil.getLocalDatesBetween(localDate1, localDate2);
-    final List<LocalDate> expected =
-        Lists.newArrayList(LocalDate.of(2016, 2, 28), LocalDate.of(2016, 2, 29), LocalDate.of(2016, 3, 1));
+    final List<LocalDate> expected = Lists.newArrayList(LocalDate.of(2016, 2, 28),
+        LocalDate.of(2016, 2, 29), LocalDate.of(2016, 3, 1));
 
     assertEquals(expected, actual);
   }
@@ -53,8 +50,8 @@ public class DateUtilTest extends AbstractTest {
     final LocalDate localDate2 = LocalDate.of(2016, 2, 28);
 
     final List<LocalDate> actual = DateUtil.getLocalDatesBetween(localDate1, localDate2);
-    final List<LocalDate> expected =
-        Lists.newArrayList(LocalDate.of(2016, 3, 1), LocalDate.of(2016, 2, 29), LocalDate.of(2016, 2, 28));
+    final List<LocalDate> expected = Lists.newArrayList(LocalDate.of(2016, 3, 1),
+        LocalDate.of(2016, 2, 29), LocalDate.of(2016, 2, 28));
 
     assertEquals(expected, actual);
   }

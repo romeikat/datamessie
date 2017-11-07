@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import com.google.common.collect.Lists;
 
 public class CreateOrUpdateDecisionResults {

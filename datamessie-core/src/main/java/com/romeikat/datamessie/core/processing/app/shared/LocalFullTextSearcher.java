@@ -24,7 +24,6 @@ License along with this program.  If not, see
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.app.shared.IFullTextSearcher;
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
@@ -50,8 +49,8 @@ public class LocalFullTextSearcher implements IFullTextSearcher {
   public FullTextResult searchForCleanedContent(final String luceneQueryString) {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
 
-    final FullTextResult fullTextResult =
-        queryExecutor.executeQuery(sessionProvider, luceneQueryString, CleanedContent.class, "content");
+    final FullTextResult fullTextResult = queryExecutor.executeQuery(sessionProvider,
+        luceneQueryString, CleanedContent.class, "content");
 
     return fullTextResult;
   }

@@ -24,25 +24,25 @@ License along with this program.  If not, see
 
 import java.time.LocalDate;
 import java.util.List;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionContract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.publishedDates.processing.PublishedDateProcessingStrategy;
 
-public abstract class PublishedDateSequenceProcessingStrategy extends PublishedDateProcessingStrategy {
+public abstract class PublishedDateSequenceProcessingStrategy
+    extends PublishedDateProcessingStrategy {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PublishedDateSequenceProcessingStrategy.class);
+  private static final Logger LOG =
+      LoggerFactory.getLogger(PublishedDateSequenceProcessingStrategy.class);
 
   private final HibernateSessionProvider sessionProvider;
 
-  public PublishedDateSequenceProcessingStrategy(final DocumentsFilterSettings dfs, final SessionFactory sessionFactory,
-      final SharedBeanProvider sharedBeanProvider) {
+  public PublishedDateSequenceProcessingStrategy(final DocumentsFilterSettings dfs,
+      final SessionFactory sessionFactory, final SharedBeanProvider sharedBeanProvider) {
     super(dfs, sessionFactory, sharedBeanProvider);
 
     sessionProvider = new HibernateSessionProvider(sessionFactory);
@@ -60,7 +60,8 @@ public abstract class PublishedDateSequenceProcessingStrategy extends PublishedD
     sessionProvider.closeStatelessSession();
   }
 
-  private void processForPublishedDate(final SharedSessionContract ssc, final LocalDate publishedDate) {
+  private void processForPublishedDate(final SharedSessionContract ssc,
+      final LocalDate publishedDate) {
     final DocumentsFilterSettings dfs = getDocumentsFilterSettings();
 
     // Restrict filter settings to the provided published date
@@ -71,6 +72,7 @@ public abstract class PublishedDateSequenceProcessingStrategy extends PublishedD
     process(ssc, dfsForQuery);
   }
 
-  protected abstract void process(SharedSessionContract ssc, DocumentsFilterSettings dfsWithPublishedDate);
+  protected abstract void process(SharedSessionContract ssc,
+      DocumentsFilterSettings dfsWithPublishedDate);
 
 }

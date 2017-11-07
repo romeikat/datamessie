@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.apache.wicket.Application;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -51,7 +50,6 @@ import org.hibernate.SessionFactory;
 import org.wicketstuff.modalx.ModalContentPanel;
 import org.wicketstuff.modalx.ModalContentWindow;
 import org.wicketstuff.modalx.ModalMgr;
-
 import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.base.ui.component.NavigationLink;
 import com.romeikat.datamessie.core.base.ui.component.ProjectSelector;
@@ -122,13 +120,15 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
       @Override
       protected ProjectDto load() {
         // Determine requested project id
-        final StringValue projectParameter = getRequest().getRequestParameters().getParameterValue("project");
+        final StringValue projectParameter =
+            getRequest().getRequestParameters().getParameterValue("project");
         // Load respective project
         ProjectDto activeProject;
         if (projectParameter.isNull()) {
           activeProject = getDefaultProject();
         } else {
-          activeProject = projectDao.getAsDto(sessionFactory.getCurrentSession(), projectParameter.toLong());
+          activeProject =
+              projectDao.getAsDto(sessionFactory.getCurrentSession(), projectParameter.toLong());
           if (activeProject == null) {
             activeProject = getDefaultProject();
           }
@@ -154,7 +154,8 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
         final PageParameters projectPageParameters = new PageParameters();
         final Long selectedProjectId = newSelection.getId();
         projectPageParameters.set("project", selectedProjectId);
-        final Class<? extends Page> responsePage = AbstractAuthenticatedPage.this.getNavigationLinkClass();
+        final Class<? extends Page> responsePage =
+            AbstractAuthenticatedPage.this.getNavigationLinkClass();
         final PageParameters pageParameters = getDefaultPageParameters(projectPageParameters);
         AbstractAuthenticatedPage.this.setResponsePage(responsePage, pageParameters);
       }
@@ -167,7 +168,8 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
     add(aciveProjectDropDownChoice);
 
     // Navigation links
-    final List<NavigationLink<? extends Page>> navigationLinks = getDataMessieApplication().getNavigationLinks();
+    final List<NavigationLink<? extends Page>> navigationLinks =
+        getDataMessieApplication().getNavigationLinks();
     final ListView<NavigationLink<? extends Page>> navigationLinksListView =
         new ListView<NavigationLink<? extends Page>>("navigationLinks", navigationLinks) {
           private static final long serialVersionUID = 1L;
@@ -179,9 +181,11 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
             final PageParameters projectPageParameters = createProjectPageParameters();
             final BookmarkablePageLink<? extends Page> bookmarkablePageLink =
                 createBookmarkablePageLink("navigationLink", navigationLink, projectPageParameters);
-            final Label bookmarkablePageLinkLabel = new Label("navigationLinkLabel", navigationLink.getLabel());
+            final Label bookmarkablePageLinkLabel =
+                new Label("navigationLinkLabel", navigationLink.getLabel());
             // Active link
-            if (AbstractAuthenticatedPage.this.getNavigationLinkClass() == navigationLink.getPageClass()) {
+            if (AbstractAuthenticatedPage.this.getNavigationLinkClass() == navigationLink
+                .getPageClass()) {
               markLinkSelected(bookmarkablePageLink);
             }
             // Done
@@ -205,23 +209,26 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
 
     // Side panels
     final List<SidePanel> sidePanels = getDataMessieApplication().getSidePanels();
-    final ListView<SidePanel> sidePanelsListView = new ListView<SidePanel>("sidePanels", sidePanels) {
-      private static final long serialVersionUID = 1L;
+    final ListView<SidePanel> sidePanelsListView =
+        new ListView<SidePanel>("sidePanels", sidePanels) {
+          private static final long serialVersionUID = 1L;
 
-      @Override
-      protected void populateItem(final ListItem<SidePanel> item) {
-        // Link
-        final SidePanel sidePanel = item.getModelObject();
-        final Panel panel = sidePanel.getPanel();
-        item.add(panel);
-      }
-    };
+          @Override
+          protected void populateItem(final ListItem<SidePanel> item) {
+            // Link
+            final SidePanel sidePanel = item.getModelObject();
+            final Panel panel = sidePanel.getPanel();
+            item.add(panel);
+          }
+        };
     add(sidePanelsListView);
 
     // Task executions container
-    final WebMarkupContainer taskExecutionsContainer = new WebMarkupContainer("taskExecutionsContainer");
+    final WebMarkupContainer taskExecutionsContainer =
+        new WebMarkupContainer("taskExecutionsContainer");
     taskExecutionsContainer.setOutputMarkupId(true);
-    taskExecutionsContainer.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(selfUpdatingInterval)));
+    taskExecutionsContainer
+        .add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(selfUpdatingInterval)));
     add(taskExecutionsContainer);
     // Task executions
     taskExecutionsPanel = new AjaxLazyLoadPanel("taskExecutionsPanel") {
@@ -247,7 +254,8 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
           @Override
           protected void onConfigure() {
             super.onConfigure();
-            final boolean visible = navigationLink.isVisible(AbstractAuthenticatedPage.this.getDataMessieSession());
+            final boolean visible =
+                navigationLink.isVisible(AbstractAuthenticatedPage.this.getDataMessieSession());
             setVisible(visible);
           }
 
@@ -255,8 +263,8 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
     return bookmarkablePageLink;
   }
 
-  protected <T extends Page> PageParameters getPageParameters(final NavigationLink<T> navigationLink,
-      final PageParameters projectPageParameters) {
+  protected <T extends Page> PageParameters getPageParameters(
+      final NavigationLink<T> navigationLink, final PageParameters projectPageParameters) {
     // When navigation from an AbstractDocumentsFilterPage to a different
     // AbstractDocumentsFilterPage, the page parameters should be kept
     final boolean navigatingFromAnAbstractDocumentsFilterPage =
@@ -330,7 +338,8 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
     modalContentWindows = new ModalContentWindow[2];
     for (int i = 0; i < modalContentWindows.length; i++) {
       final String modalContentWindowName = String.format("modalContentWindow%s", i);
-      final ModalContentWindow modalContentWindow = new ModalContentWindow(this, modalContentWindowName, true);
+      final ModalContentWindow modalContentWindow =
+          new ModalContentWindow(this, modalContentWindowName, true);
       modalContentWindow.setAutoSize(true);
       modalContentWindow.setResizable(false);
       modalContentWindow.setCookieName(modalContentWindowName);

@@ -26,12 +26,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.util.convert.IConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.app.module.AbstractDataMessieModule;
 import com.romeikat.datamessie.core.base.app.shared.ISharedBean;
@@ -89,17 +87,20 @@ public class DataMessieViewModule extends AbstractDataMessieModule {
 
   @Override
   public List<NavigationLink<? extends Page>> getNavigationLinks() {
-    final List<NavigationLink<? extends Page>> navigationLinks = new LinkedList<NavigationLink<? extends Page>>();
+    final List<NavigationLink<? extends Page>> navigationLinks =
+        new LinkedList<NavigationLink<? extends Page>>();
     // Project
-    navigationLinks.add(new NavigationLink<ProjectPage>("Project", 2, ProjectPage.class, DataMessieRoles.PROJECT_PAGE));
+    navigationLinks.add(new NavigationLink<ProjectPage>("Project", 2, ProjectPage.class,
+        DataMessieRoles.PROJECT_PAGE));
     // Sources
-    navigationLinks.add(new NavigationLink<SourcesPage>("Sources", 3, SourcesPage.class, DataMessieRoles.SOURCES_PAGE));
+    navigationLinks.add(new NavigationLink<SourcesPage>("Sources", 3, SourcesPage.class,
+        DataMessieRoles.SOURCES_PAGE));
     // Crawlings
-    navigationLinks
-        .add(new NavigationLink<CrawlingsPage>("Crawlings", 4, CrawlingsPage.class, DataMessieRoles.CRAWLINGS_PAGE));
+    navigationLinks.add(new NavigationLink<CrawlingsPage>("Crawlings", 4, CrawlingsPage.class,
+        DataMessieRoles.CRAWLINGS_PAGE));
     // Documents
-    final NavigationLink<DocumentsPage> documentsNavigationLink =
-        new NavigationLink<DocumentsPage>("Documents", 5, DocumentsPage.class, DataMessieRoles.DOCUMENTS_PAGE);
+    final NavigationLink<DocumentsPage> documentsNavigationLink = new NavigationLink<DocumentsPage>(
+        "Documents", 5, DocumentsPage.class, DataMessieRoles.DOCUMENTS_PAGE);
     navigationLinks.add(documentsNavigationLink);
     // Done
     return navigationLinks;

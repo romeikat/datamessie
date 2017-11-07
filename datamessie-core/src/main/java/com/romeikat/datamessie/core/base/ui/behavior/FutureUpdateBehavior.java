@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.util.time.Duration;

@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -94,7 +93,8 @@ public enum DocumentProcessingState {
     return states;
   }
 
-  public static DocumentProcessingState[] getWithout(final DocumentProcessingState... excludedStates) {
+  public static DocumentProcessingState[] getWithout(
+      final DocumentProcessingState... excludedStates) {
     final List<DocumentProcessingState> desiredStates = Lists.newLinkedList();
     final Set<DocumentProcessingState> excludedStatesAsSet = Sets.newHashSet(excludedStates);
     for (final DocumentProcessingState state : DocumentProcessingState.values()) {
@@ -109,7 +109,8 @@ public enum DocumentProcessingState {
     return Lists.newArrayList(DOWNLOADED, REDIRECTED, CLEANED, STEMMED);
   }
 
-  public static List<DocumentProcessingState> getSuccessStatesFor(final DocumentProcessingState state) {
+  public static List<DocumentProcessingState> getSuccessStatesFor(
+      final DocumentProcessingState state) {
     final List<DocumentProcessingState> states = Lists.newArrayListWithExpectedSize(4);
 
     // Add one after another in the right order until the desired state occurs
@@ -126,7 +127,8 @@ public enum DocumentProcessingState {
   }
 
   public static List<DocumentProcessingState> getErrorStates() {
-    return Lists.newArrayList(DOWNLOAD_ERROR, REDIRECTING_ERROR, CLEANING_ERROR, TECHNICAL_ERROR, TO_BE_DELETED);
+    return Lists.newArrayList(DOWNLOAD_ERROR, REDIRECTING_ERROR, CLEANING_ERROR, TECHNICAL_ERROR,
+        TO_BE_DELETED);
   }
 
   public static Set<DocumentProcessingState> getAllStates() {

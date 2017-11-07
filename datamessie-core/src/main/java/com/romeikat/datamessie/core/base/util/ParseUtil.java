@@ -30,20 +30,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.util.Attribute;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 @Service
 public class ParseUtil {
 
-  public List<String> parseTerms(final String text, final Analyzer analyzer, final boolean keepQuotes) {
+  public List<String> parseTerms(final String text, final Analyzer analyzer,
+      final boolean keepQuotes) {
     final List<String> terms = new LinkedList<String>();
     // Keep quotes
     if (keepQuotes) {
@@ -73,7 +72,8 @@ public class ParseUtil {
     final List<QuotedAwareToken> tokens = new LinkedList<QuotedAwareToken>();
     QuotedAwareToken currentToken = new QuotedAwareToken();
     // Process each single character
-    final Pattern pattern = Pattern.compile(".", Pattern.DOTALL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    final Pattern pattern =
+        Pattern.compile(".", Pattern.DOTALL | Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
     final Matcher matcher = pattern.matcher(text);
     boolean withinQuote = false;
     while (matcher.find()) {
@@ -166,8 +166,9 @@ public class ParseUtil {
 
   }
 
-  public boolean containsWordsInTheRightSequence(final String text, final Collection<String> word1Variants,
-      final Collection<String> word2Variants, final Integer maxWordsInBetween, final Analyzer analyzer) {
+  public boolean containsWordsInTheRightSequence(final String text,
+      final Collection<String> word1Variants, final Collection<String> word2Variants,
+      final Integer maxWordsInBetween, final Analyzer analyzer) {
     if (word1Variants == null || word2Variants == null) {
       return true;
     }
@@ -195,8 +196,8 @@ public class ParseUtil {
     final List<Integer> indexesOfWord1 = getIndexesOfWordVariants(parsedWord1Variants, parsedWords);
     final List<Integer> indexesOfWord2 = getIndexesOfWordVariants(parsedWord2Variants, parsedWords);
 
-    final boolean matchFound =
-        containsIndexesInTheRightSequenceAndDistance(indexesOfWord1, indexesOfWord2, maxWordsInBetween);
+    final boolean matchFound = containsIndexesInTheRightSequenceAndDistance(indexesOfWord1,
+        indexesOfWord2, maxWordsInBetween);
     return matchFound;
   }
 
@@ -204,7 +205,8 @@ public class ParseUtil {
       final List<Integer> indexesOfWord2, final Integer maxWordsInBetween) {
     for (final int indexOfWord1 : indexesOfWord1) {
       for (final int indexOfWord2 : indexesOfWord2) {
-        if (areIndexesInTheRightSequenceAndDistance(indexOfWord1, indexOfWord2, maxWordsInBetween)) {
+        if (areIndexesInTheRightSequenceAndDistance(indexOfWord1, indexOfWord2,
+            maxWordsInBetween)) {
           return true;
         }
       }
@@ -212,8 +214,8 @@ public class ParseUtil {
     return false;
   }
 
-  private boolean areIndexesInTheRightSequenceAndDistance(final int indexOfWord1, final int indexOfWord2,
-      final Integer maxWordsInBetween) {
+  private boolean areIndexesInTheRightSequenceAndDistance(final int indexOfWord1,
+      final int indexOfWord2, final Integer maxWordsInBetween) {
 
     final int indexesDiff = indexOfWord2 - indexOfWord1;
     final boolean areIndexesInTheRightSequence = indexesDiff > 0;
@@ -222,7 +224,8 @@ public class ParseUtil {
     }
 
     final int actualWordsInBetween = indexesDiff - 1;
-    final boolean areWithinDistance = maxWordsInBetween == null || actualWordsInBetween <= maxWordsInBetween;
+    final boolean areWithinDistance =
+        maxWordsInBetween == null || actualWordsInBetween <= maxWordsInBetween;
     if (!areWithinDistance) {
       return false;
     }
@@ -230,7 +233,8 @@ public class ParseUtil {
     return true;
   }
 
-  private List<Integer> getIndexesOfWordVariants(final Collection<String> wordVariants, final List<String> words) {
+  private List<Integer> getIndexesOfWordVariants(final Collection<String> wordVariants,
+      final List<String> words) {
     final List<Integer> indexes = Lists.newLinkedList();
 
     int i = 0;

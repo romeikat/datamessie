@@ -24,10 +24,8 @@ License along with this program.  If not, see
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
@@ -38,7 +36,8 @@ public abstract class IntervalTaskSchedulingThread extends Thread {
 
   private static final Logger LOG = LoggerFactory.getLogger(IntervalTaskSchedulingThread.class);
 
-  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyy HH:mm:ss");
+  private static final DateTimeFormatter DATE_TIME_FORMATTER =
+      DateTimeFormatter.ofPattern("dd.MM.yyy HH:mm:ss");
 
   private TaskExecution latestTaskExecution = null;
 
@@ -86,7 +85,8 @@ public abstract class IntervalTaskSchedulingThread extends Thread {
       // Determine task execution interval
       final Integer taskExecutionInterval = getTaskExecutionInterval();
       if (taskExecutionInterval == null) {
-        LOG.warn("No more scheduling task \"{}\" as task execution interval is not available", getTaskName());
+        LOG.warn("No more scheduling task \"{}\" as task execution interval is not available",
+            getTaskName());
         break;
       }
 
@@ -100,7 +100,9 @@ public abstract class IntervalTaskSchedulingThread extends Thread {
         // If latest task execution has not yet finished, wait a full interval
         final boolean hasLatestTaskExecutionFinished = hasLatestTaskExecutionFinished();
         if (!hasLatestTaskExecutionFinished) {
-          LOG.info("Skippig task execution as latest task execution for \"{}\" has not yet finished", getTaskName());
+          LOG.info(
+              "Skippig task execution as latest task execution for \"{}\" has not yet finished",
+              getTaskName());
           waitMillis(taskExecutionInterval);
           continue;
         }
@@ -157,15 +159,16 @@ public abstract class IntervalTaskSchedulingThread extends Thread {
       return LocalDateTime.now();
     }
 
-    final LocalDateTime nextStart = actualStartOfLatestCompletedTask.plusNanos(taskExecutionInterval * 1000);
+    final LocalDateTime nextStart =
+        actualStartOfLatestCompletedTask.plusNanos(taskExecutionInterval * 1000);
     return nextStart;
   }
 
   private boolean hasLatestTaskExecutionFinished() {
-    final boolean isLatestTaskExecutionFinished =
-        latestTaskExecution == null || latestTaskExecution.getStatus() == TaskExecutionStatus.COMPLETED
-            || latestTaskExecution.getStatus() == TaskExecutionStatus.CANCELLED
-            || latestTaskExecution.getStatus() == TaskExecutionStatus.FAILED;
+    final boolean isLatestTaskExecutionFinished = latestTaskExecution == null
+        || latestTaskExecution.getStatus() == TaskExecutionStatus.COMPLETED
+        || latestTaskExecution.getStatus() == TaskExecutionStatus.CANCELLED
+        || latestTaskExecution.getStatus() == TaskExecutionStatus.FAILED;
     return isLatestTaskExecutionFinished;
   }
 

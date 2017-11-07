@@ -31,10 +31,8 @@ import static com.romeikat.datamessie.core.CommonOperations.insertIntoProject2So
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoSource;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
@@ -64,9 +62,9 @@ public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
     final CleanedContent cleanedContent2 = new CleanedContent(document2.getId(), "Bar is better");
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE, insertIntoSource(source1),
-        insertIntoProject(project1), insertIntoProject2Source(project2Source), insertIntoCrawling(crawling1),
-        insertIntoDocument(document1), insertIntoDocument(document2), insertIntoCleanedContent(cleanedContent1),
-        insertIntoCleanedContent(cleanedContent2));
+        insertIntoProject(project1), insertIntoProject2Source(project2Source),
+        insertIntoCrawling(crawling1), insertIntoDocument(document1), insertIntoDocument(document2),
+        insertIntoCleanedContent(cleanedContent1), insertIntoCleanedContent(cleanedContent2));
   }
 
   @Test
@@ -75,7 +73,8 @@ public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
 
     final String luceneQueryString = "is";
 
-    final FullTextResult documentIds = localFullTextSearcher.searchForCleanedContent(luceneQueryString);
+    final FullTextResult documentIds =
+        localFullTextSearcher.searchForCleanedContent(luceneQueryString);
     assertEquals(2, documentIds.size());
     assertTrue(documentIds.getIds().contains(1l));
     assertTrue(documentIds.getIds().contains(2l));
@@ -89,7 +88,8 @@ public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
 
     final String luceneQueryString = "Foo";
 
-    final FullTextResult documentIds = localFullTextSearcher.searchForCleanedContent(luceneQueryString);
+    final FullTextResult documentIds =
+        localFullTextSearcher.searchForCleanedContent(luceneQueryString);
     assertEquals(1, documentIds.size());
     assertTrue(documentIds.getIds().contains(1l));
 
@@ -102,7 +102,8 @@ public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
 
     final String luceneQueryString = "whatsup";
 
-    final FullTextResult documentIds = localFullTextSearcher.searchForCleanedContent(luceneQueryString);
+    final FullTextResult documentIds =
+        localFullTextSearcher.searchForCleanedContent(luceneQueryString);
     assertEquals(0, documentIds.size());
 
     dbSetupTracker.skipNextLaunch();
@@ -114,7 +115,8 @@ public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
 
     final String luceneQueryString = "1 OUTOF foo is good";
 
-    final FullTextResult documentIds = localFullTextSearcher.searchForCleanedContent(luceneQueryString);
+    final FullTextResult documentIds =
+        localFullTextSearcher.searchForCleanedContent(luceneQueryString);
     assertEquals(2, documentIds.size());
     assertTrue(documentIds.getIds().contains(1l));
     assertTrue(documentIds.getIds().contains(2l));
@@ -128,7 +130,8 @@ public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
 
     final String luceneQueryString = "2 OUTOF foo is good";
 
-    final FullTextResult documentIds = localFullTextSearcher.searchForCleanedContent(luceneQueryString);
+    final FullTextResult documentIds =
+        localFullTextSearcher.searchForCleanedContent(luceneQueryString);
     assertEquals(1, documentIds.size());
     assertTrue(documentIds.getIds().contains(1l));
 
@@ -141,7 +144,8 @@ public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
 
     final String luceneQueryString = "3 OUTOF foo is better";
 
-    final FullTextResult documentIds = localFullTextSearcher.searchForCleanedContent(luceneQueryString);
+    final FullTextResult documentIds =
+        localFullTextSearcher.searchForCleanedContent(luceneQueryString);
     assertEquals(0, documentIds.size());
 
     dbSetupTracker.skipNextLaunch();

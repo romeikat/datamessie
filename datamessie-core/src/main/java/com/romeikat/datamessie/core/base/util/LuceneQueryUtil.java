@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause;
@@ -105,14 +104,15 @@ public class LuceneQueryUtil {
     return builder.build();
   }
 
-  public Query getProximityQuery(final Collection<String> term1Variants, final Collection<String> term2Variants,
-      final Integer slop) {
+  public Query getProximityQuery(final Collection<String> term1Variants,
+      final Collection<String> term2Variants, final Integer slop) {
     if (term1Variants.isEmpty() || term2Variants.isEmpty()) {
       return new MatchAllDocsQuery();
     }
 
     final BooleanQuery.Builder builder = new BooleanQuery.Builder();
-    final Collection<Pair<String, String>> variantsCombinations = collectionUtil.getPairs(term1Variants, term2Variants);
+    final Collection<Pair<String, String>> variantsCombinations =
+        collectionUtil.getPairs(term1Variants, term2Variants);
     for (final Pair<String, String> variantsCombination : variantsCombinations) {
       final PhraseQuery.Builder builder2 = new PhraseQuery.Builder();
       builder2.add(new Term(FIELD, variantsCombination.getLeft()));

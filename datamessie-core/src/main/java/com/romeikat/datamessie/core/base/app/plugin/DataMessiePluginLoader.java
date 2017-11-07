@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -84,7 +83,8 @@ public class DataMessiePluginLoader<T> {
 
     // Scan for classes annotated with @<PluginAnnotaionType>,
     // do not include standard Spring annotations in scan
-    final ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(appCtxWithPlugin, false);
+    final ClassPathBeanDefinitionScanner scanner =
+        new ClassPathBeanDefinitionScanner(appCtxWithPlugin, false);
     scanner.addIncludeFilter(new AnnotationTypeFilter(PLUGIN_ANNOTATION_TYPE));
     scanner.scan(PLUGIN_BASE_PACKAGE);
 

@@ -26,7 +26,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -37,7 +36,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.ui.dataprovider.AbstractTableDataProvider;
 import com.romeikat.datamessie.core.base.ui.page.AbstractTable;
@@ -82,8 +80,8 @@ public abstract class AbstractTablePanel<X extends Comparable<? super X>, Y exte
           private static final long serialVersionUID = 1L;
 
           @Override
-          public void populateItem(final Item<ICellPopulator<TableRow<X, Y, Z>>> cellItem, final String componentId,
-              final IModel<TableRow<X, Y, Z>> rowModel) {
+          public void populateItem(final Item<ICellPopulator<TableRow<X, Y, Z>>> cellItem,
+              final String componentId, final IModel<TableRow<X, Y, Z>> rowModel) {
             final TableRow<X, Y, Z> row = rowModel.getObject();
             final X rowHeader = row.getRowHeader();
             cellItem.add(getRowHeaderComponent(componentId, rowHeader));
@@ -96,12 +94,13 @@ public abstract class AbstractTablePanel<X extends Comparable<? super X>, Y exte
     final List<Y> columnHeaders = table.getColumnHeadersSorted(getColumnHeaderComparator());
     for (final Y columnHeader : columnHeaders) {
       final AbstractColumn<TableRow<X, Y, Z>, Y> valueColumn =
-          new AbstractColumn<TableRow<X, Y, Z>, Y>(getColumnHeaderModel(columnHeader), columnHeader) {
+          new AbstractColumn<TableRow<X, Y, Z>, Y>(getColumnHeaderModel(columnHeader),
+              columnHeader) {
             private static final long serialVersionUID = 1L;
 
             @Override
-            public void populateItem(final Item<ICellPopulator<TableRow<X, Y, Z>>> cellItem, final String componentId,
-                final IModel<TableRow<X, Y, Z>> rowModel) {
+            public void populateItem(final Item<ICellPopulator<TableRow<X, Y, Z>>> cellItem,
+                final String componentId, final IModel<TableRow<X, Y, Z>> rowModel) {
               final TableRow<X, Y, Z> row = rowModel.getObject();
               final X rowHeader = row.getRowHeader();
               final Z value = row.getValues().get(columnHeader);
@@ -113,14 +112,15 @@ public abstract class AbstractTablePanel<X extends Comparable<? super X>, Y exte
     }
 
     // Table
-    final AbstractTableDataProvider<X, Y, Z> dataProvider = new AbstractTableDataProvider<X, Y, Z>(tableModel) {
-      private static final long serialVersionUID = 1L;
+    final AbstractTableDataProvider<X, Y, Z> dataProvider =
+        new AbstractTableDataProvider<X, Y, Z>(tableModel) {
+          private static final long serialVersionUID = 1L;
 
-      @Override
-      protected Comparator<X> getRowHeaderComparator() {
-        return AbstractTablePanel.this.getRowHeaderComparator();
-      }
-    };
+          @Override
+          protected Comparator<X> getRowHeaderComparator() {
+            return AbstractTablePanel.this.getRowHeaderComparator();
+          }
+        };
     final DataTable<TableRow<X, Y, Z>, Y> dataTable =
         new AbstractTable<TableRow<X, Y, Z>, Y>("table", columns, dataProvider, getRowsPerPage()) {
           private static final long serialVersionUID = 1L;

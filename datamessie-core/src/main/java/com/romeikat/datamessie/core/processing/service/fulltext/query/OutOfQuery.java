@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import edu.stanford.nlp.util.StringUtils;
 
 public class OutOfQuery implements FullTextQuery {

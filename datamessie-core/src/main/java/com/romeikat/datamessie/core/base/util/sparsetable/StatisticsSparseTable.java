@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDate;
-
 import com.romeikat.datamessie.core.statistics.cache.DocumentsPerState;
 
 public class StatisticsSparseTable extends SparseSingleTable<Long, LocalDate, DocumentsPerState> {
@@ -31,7 +30,8 @@ public class StatisticsSparseTable extends SparseSingleTable<Long, LocalDate, Do
   private static final long serialVersionUID = 1L;
 
   @Override
-  protected DocumentsPerState overrideValue(final DocumentsPerState existingValue, final DocumentsPerState newValue) {
+  protected DocumentsPerState overrideValue(final DocumentsPerState existingValue,
+      final DocumentsPerState newValue) {
     if (existingValue == null) {
       return newValue;
     }

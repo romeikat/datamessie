@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryListIdsOfPropertyExecutor;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
@@ -34,8 +33,8 @@ public class EntityWithIdQueryListIdsOfPropertyExecutor<E extends EntityWithId>
 
   private final IdRestrictionsDecider idRestrictionsDecider;
 
-  public EntityWithIdQueryListIdsOfPropertyExecutor(final SharedSessionContract ssc, final EntityWithIdQuery<E> query,
-      final String propertyName) {
+  public EntityWithIdQueryListIdsOfPropertyExecutor(final SharedSessionContract ssc,
+      final EntityWithIdQuery<E> query, final String propertyName) {
     super(ssc, query, propertyName);
 
     idRestrictionsDecider = new IdRestrictionsDecider(query);

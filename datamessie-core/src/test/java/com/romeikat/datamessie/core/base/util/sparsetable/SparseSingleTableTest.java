@@ -23,10 +23,8 @@ License along with this program.  If not, see
  */
 
 import static org.junit.Assert.assertEquals;
-
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
-
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.util.sparsetable.SparseSingleTable;
 
@@ -37,7 +35,8 @@ public class SparseSingleTableTest extends AbstractTest {
   @Test
   public void serializeAndDeserialize() throws Exception {
 
-    final SparseSingleTable<Double, Double, Double> table = new SparseSingleTable<Double, Double, Double>();
+    final SparseSingleTable<Double, Double, Double> table =
+        new SparseSingleTable<Double, Double, Double>();
     for (int i = 0; i < NUMBER_OF_ITERATIONS; i++) {
       final double rowHeader = Math.random();
       final double columnHeader = Math.random();

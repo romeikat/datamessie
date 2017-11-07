@@ -25,19 +25,16 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.util.convert.IConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import com.romeikat.datamessie.core.base.app.module.AbstractDataMessieModule;
 import com.romeikat.datamessie.core.base.app.shared.ISharedBean;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
 import com.romeikat.datamessie.core.base.ui.component.NavigationLink;
 import com.romeikat.datamessie.core.base.ui.panel.SidePanel;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 
 @Component

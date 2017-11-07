@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
-
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;

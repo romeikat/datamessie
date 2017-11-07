@@ -23,11 +23,9 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDateTime;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
@@ -80,19 +78,21 @@ public class DocumentAndContentValues {
 
   public DocumentAndContentValues(final Document document, final RawContent rawContent,
       final CleanedContent cleanedContent, final StemmedContent stemmedContent) {
-    this(document.getTitle(), document.getStemmedTitle(), document.getUrl(), document.getDescription(),
-        document.getStemmedDescription(), document.getPublished(), document.getDownloaded(), document.getState(),
-        document.getStatusCode(), rawContent == null ? null : rawContent.getContent(),
+    this(document.getTitle(), document.getStemmedTitle(), document.getUrl(),
+        document.getDescription(), document.getStemmedDescription(), document.getPublished(),
+        document.getDownloaded(), document.getState(), document.getStatusCode(),
+        rawContent == null ? null : rawContent.getContent(),
         cleanedContent == null ? null : cleanedContent.getContent(),
         stemmedContent == null ? null : stemmedContent.getContent());
   }
 
   @Override
   public String toString() {
-    return new ToStringBuilder(this).append("title", title).append("stemmedTitle", stemmedTitle).append("url", url)
-        .append("description", description).append("stemmedDescription", stemmedDescription)
-        .append("published", published).append("downloaded", downloaded).append("state", state)
-        .append("statusCode", statusCode).append("rawContent", rawContent).append("cleanedContent", cleanedContent)
+    return new ToStringBuilder(this).append("title", title).append("stemmedTitle", stemmedTitle)
+        .append("url", url).append("description", description)
+        .append("stemmedDescription", stemmedDescription).append("published", published)
+        .append("downloaded", downloaded).append("state", state).append("statusCode", statusCode)
+        .append("rawContent", rawContent).append("cleanedContent", cleanedContent)
         .append("stemmedContent", stemmedContent).toString();
 
   }
@@ -158,11 +158,13 @@ public class DocumentAndContentValues {
     }
     final DocumentAndContentValues otherDocumentAndContentValues = (DocumentAndContentValues) other;
     final boolean equals = new EqualsBuilder().append(title, otherDocumentAndContentValues.title)
-        .append(stemmedTitle, otherDocumentAndContentValues.stemmedTitle).append(url, otherDocumentAndContentValues.url)
+        .append(stemmedTitle, otherDocumentAndContentValues.stemmedTitle)
+        .append(url, otherDocumentAndContentValues.url)
         .append(description, otherDocumentAndContentValues.description)
         .append(stemmedDescription, otherDocumentAndContentValues.stemmedDescription)
         .append(published, otherDocumentAndContentValues.published)
-        .append(downloaded, otherDocumentAndContentValues.downloaded).append(state, otherDocumentAndContentValues.state)
+        .append(downloaded, otherDocumentAndContentValues.downloaded)
+        .append(state, otherDocumentAndContentValues.state)
         .append(statusCode, otherDocumentAndContentValues.statusCode)
         .append(rawContent, otherDocumentAndContentValues.rawContent)
         .append(cleanedContent, otherDocumentAndContentValues.cleanedContent)
@@ -172,9 +174,10 @@ public class DocumentAndContentValues {
 
   @Override
   public int hashCode() {
-    final int hashCode = new HashCodeBuilder().append(title).append(stemmedTitle).append(url).append(description)
-        .append(stemmedDescription).append(published).append(downloaded).append(state).append(statusCode)
-        .append(rawContent).append(cleanedContent).append(stemmedContent).toHashCode();
+    final int hashCode = new HashCodeBuilder().append(title).append(stemmedTitle).append(url)
+        .append(description).append(stemmedDescription).append(published).append(downloaded)
+        .append(state).append(statusCode).append(rawContent).append(cleanedContent)
+        .append(stemmedContent).toHashCode();
     return hashCode;
   }
 

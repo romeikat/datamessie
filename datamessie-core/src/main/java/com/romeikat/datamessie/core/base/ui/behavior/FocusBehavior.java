@@ -42,8 +42,8 @@ public class FocusBehavior extends Behavior {
   @Override
   public void renderHead(final Component component, final IHeaderResponse iHeaderResponse) {
     super.renderHead(component, iHeaderResponse);
-    iHeaderResponse
-        .render(OnLoadHeaderItem.forScript("document.getElementById('" + component.getMarkupId() + "').focus();"));
+    iHeaderResponse.render(OnLoadHeaderItem
+        .forScript("document.getElementById('" + component.getMarkupId() + "').focus();"));
   }
 
   @Override

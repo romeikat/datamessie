@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
@@ -37,7 +36,6 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
@@ -79,8 +77,10 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return "name";
   }
 
-  public Map<Document, Source> getForDocuments(final SharedSessionContract ssc, final Collection<Document> documents) {
-    final Set<Long> sourceIds = documents.stream().map(d -> d.getSourceId()).collect(Collectors.toSet());
+  public Map<Document, Source> getForDocuments(final SharedSessionContract ssc,
+      final Collection<Document> documents) {
+    final Set<Long> sourceIds =
+        documents.stream().map(d -> d.getSourceId()).collect(Collectors.toSet());
     final Map<Long, Source> sourcesById = getIdsWithEntities(ssc, sourceIds);
 
     final Map<Document, Source> result = Maps.newHashMapWithExpectedSize(documents.size());
@@ -91,7 +91,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return result;
   }
 
-  public List<Long> getIds(final SharedSessionContract ssc, final long projectId, final Boolean visible) {
+  public List<Long> getIds(final SharedSessionContract ssc, final long projectId,
+      final Boolean visible) {
     // Query: Project2Source
     final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
     project2SourceQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
@@ -117,7 +118,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return sourceToDto(ssc, source);
   }
 
-  public List<SourceDto> getAsDtos(final SharedSessionContract ssc, final long projectId, final Boolean visible) {
+  public List<SourceDto> getAsDtos(final SharedSessionContract ssc, final long projectId,
+      final Boolean visible) {
     // Query: Project2Source
     final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
     project2SourceQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
@@ -142,8 +144,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return Lists.newArrayList(entitesAsDtos);
   }
 
-  public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc, final Long projectId,
-      final Boolean visible) {
+  public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
+      final Long projectId, final Boolean visible) {
     // Query: Project2Source
     final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
     project2SourceQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
@@ -166,16 +168,18 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     projectionList.add(Projections.property("id"), "id");
     projectionList.add(Projections.property("name"), "name");
     @SuppressWarnings("unchecked")
-    final List<SourceOverviewDto> dtos = (List<SourceOverviewDto>) sourceQuery.listForProjection(ssc, projectionList);
+    final List<SourceOverviewDto> dtos =
+        (List<SourceOverviewDto>) sourceQuery.listForProjection(ssc, projectionList);
     return dtos;
   }
 
-  public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc, final Long projectId,
-      final Long sourceId, final Collection<Long> sourceTypeIds) {
+  public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
+      final Long projectId, final Long sourceId, final Collection<Long> sourceTypeIds) {
     // Query: Project2Source
     Collection<Long> sourceIds = null;
     if (projectId != null) {
-      final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+      final EntityQuery<Project2Source> project2SourceQuery =
+          new EntityQuery<>(Project2Source.class);
       project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
       sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
       if (sourceIds.isEmpty()) {
@@ -186,7 +190,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     // Query: Source2SourceType
     Collection<Long> sourceIds2 = null;
     if (CollectionUtils.isNotEmpty(sourceTypeIds)) {
-      final EntityQuery<Source2SourceType> source2SourceTypeQuery = new EntityQuery<>(Source2SourceType.class);
+      final EntityQuery<Source2SourceType> source2SourceTypeQuery =
+          new EntityQuery<>(Source2SourceType.class);
       source2SourceTypeQuery.addRestriction(Restrictions.in("sourceTypeId", sourceTypeIds));
       sourceIds2 = source2SourceTypeQuery.listIdsForProperty(ssc, "sourceId");
       if (sourceIds2.isEmpty()) {
@@ -236,7 +241,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
 
   public List<Source> getOfSourceType(final SharedSessionContract ssc, final long sourceTypeId) {
     // Query: Source2SourceType
-    final EntityQuery<Source2SourceType> project2SourceQuery = new EntityQuery<>(Source2SourceType.class);
+    final EntityQuery<Source2SourceType> project2SourceQuery =
+        new EntityQuery<>(Source2SourceType.class);
     project2SourceQuery.addRestriction(Restrictions.eq("sourceTypeId", sourceTypeId));
     final List<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
 
@@ -269,9 +275,11 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     final List<SourceTypeDto> sourceTypeDtos = sourceTypeDao.getAsDtos(ssc, source.getId());
     dto.setTypes(sourceTypeDtos);
     dto.setUrl(source.getUrl());
-    final List<RedirectingRuleDto> redirectingRules = redirectingRuleDao.getAsDtos(ssc, source.getId());
+    final List<RedirectingRuleDto> redirectingRules =
+        redirectingRuleDao.getAsDtos(ssc, source.getId());
     dto.setRedirectingRules(redirectingRules);
-    final List<TagSelectingRuleDto> tagSelectingRules = tagSelectingRuleDao.getAsDtos(ssc, source.getId());
+    final List<TagSelectingRuleDto> tagSelectingRules =
+        tagSelectingRuleDao.getAsDtos(ssc, source.getId());
     dto.setTagSelectingRules(tagSelectingRules);
     dto.setNumberOfRedirectingRules(dto.getRedirectingRules().size());
     dto.setNumberOfTagSelectingRules(dto.getTagSelectingRules().size());

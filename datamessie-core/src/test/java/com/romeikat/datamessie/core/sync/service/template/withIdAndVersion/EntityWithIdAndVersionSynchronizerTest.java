@@ -26,14 +26,11 @@ import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-
 import java.util.Collection;
-
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
@@ -54,14 +51,16 @@ public class EntityWithIdAndVersionSynchronizerTest extends AbstractDbSetupBased
 
   @Override
   protected Operation initDb() {
-    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE, insertInto("fooEntityWithGeneratedIdAndVersion")
-        .columns("id", "version", "name", "active").values(1L, 0L, "Foo1", true).build());
+    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
+        insertInto("fooEntityWithGeneratedIdAndVersion").columns("id", "version", "name", "active")
+            .values(1L, 0L, "Foo1", true).build());
   }
 
   @Override
   protected Operation initDbSyncSource() {
-    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE, insertInto("fooEntityWithGeneratedIdAndVersion")
-        .columns("id", "version", "name", "active").values(1L, 0L, "Foo1", true).build());
+    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
+        insertInto("fooEntityWithGeneratedIdAndVersion").columns("id", "version", "name", "active")
+            .values(1L, 0L, "Foo1", true).build());
   }
 
   @Test
@@ -79,7 +78,8 @@ public class EntityWithIdAndVersionSynchronizerTest extends AbstractDbSetupBased
     assertEquals("Foo1", lhs1.getName());
 
     // RHS
-    final Collection<FooEntityWithGeneratedIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithGeneratedIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(1, rhs.size());
 
     final FooEntityWithGeneratedIdAndVersion rhs1 = rhs.iterator().next();
@@ -104,10 +104,12 @@ public class EntityWithIdAndVersionSynchronizerTest extends AbstractDbSetupBased
     new FooEntityWithGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // RHS
-    final Collection<FooEntityWithGeneratedIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithGeneratedIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(2, rhs.size());
 
-    final FooEntityWithGeneratedIdAndVersion rhs3 = dao.getEntity(sessionProvider.getStatelessSession(), lhs3.getId());
+    final FooEntityWithGeneratedIdAndVersion rhs3 =
+        dao.getEntity(sessionProvider.getStatelessSession(), lhs3.getId());
     assertEquals(lhs3.getId(), rhs3.getId());
     assertEquals(lhs3.getVersion().longValue(), rhs3.getVersion().longValue());
     assertEquals(lhs3.getName(), rhs3.getName());
@@ -116,7 +118,8 @@ public class EntityWithIdAndVersionSynchronizerTest extends AbstractDbSetupBased
   @Test
   public void sync_update() throws Exception {
     // LHS
-    final FooEntityWithGeneratedIdAndVersion lhs1 = dao.getEntity(syncSourceSessionProvider.getStatelessSession(), 1);
+    final FooEntityWithGeneratedIdAndVersion lhs1 =
+        dao.getEntity(syncSourceSessionProvider.getStatelessSession(), 1);
     lhs1.setName("Foo1 updated");
     dao.update(syncSourceSessionProvider.getStatelessSession(), lhs1);
     assertEquals(1, lhs1.getVersion().longValue());
@@ -127,10 +130,12 @@ public class EntityWithIdAndVersionSynchronizerTest extends AbstractDbSetupBased
     new FooEntityWithGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // RHS
-    final Collection<FooEntityWithGeneratedIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithGeneratedIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(1, rhs.size());
 
-    final FooEntityWithGeneratedIdAndVersion rhs1 = dao.getEntity(sessionProvider.getStatelessSession(), 1);
+    final FooEntityWithGeneratedIdAndVersion rhs1 =
+        dao.getEntity(sessionProvider.getStatelessSession(), 1);
     assertEquals(lhs1.getId(), rhs1.getId());
     assertEquals(lhs1.getVersion(), rhs1.getVersion());
     assertEquals(lhs1.getName(), rhs1.getName());
@@ -139,16 +144,19 @@ public class EntityWithIdAndVersionSynchronizerTest extends AbstractDbSetupBased
   @Test
   public void sync_delete() throws Exception {
     // LHS
-    final FooEntityWithGeneratedIdAndVersion lhs1 = dao.getEntity(syncSourceSessionProvider.getStatelessSession(), 1);
+    final FooEntityWithGeneratedIdAndVersion lhs1 =
+        dao.getEntity(syncSourceSessionProvider.getStatelessSession(), 1);
     dao.delete(syncSourceSessionProvider.getStatelessSession(), lhs1);
 
     new FooEntityWithGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // RHS
-    final Collection<FooEntityWithGeneratedIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithGeneratedIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(0, rhs.size());
 
-    final FooEntityWithGeneratedIdAndVersion rhs1 = dao.getEntity(sessionProvider.getStatelessSession(), 1);
+    final FooEntityWithGeneratedIdAndVersion rhs1 =
+        dao.getEntity(sessionProvider.getStatelessSession(), 1);
     assertNull(rhs1);
   }
 

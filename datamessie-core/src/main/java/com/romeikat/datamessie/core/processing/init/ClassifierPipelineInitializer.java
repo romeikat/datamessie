@@ -23,13 +23,11 @@ License along with this program.  If not, see
  */
 
 import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.processing.service.stemming.namedEntity.ClassifierPipelineProvider;
 
 @Service

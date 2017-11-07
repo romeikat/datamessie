@@ -23,9 +23,7 @@ License along with this program.  If not, see
  */
 
 import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.hibernate.SessionFactory;
 import org.hibernate.search.FullTextSession;
@@ -33,7 +31,6 @@ import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
@@ -55,18 +52,19 @@ public class QueryUtilTest extends AbstractTest {
     final FullTextSession fullTextSession = Search.getFullTextSession(sessionProvider.getSession());
     final SearchFactory searchFactory = fullTextSession.getSearchFactory();
     final Analyzer analyzer = searchFactory.getAnalyzer(CleanedContent.class);
-    final OutOfQuery outOfQuery = new OutOfQuery(2, Arrays.asList(new String[] {"abc", "def", "ghi"}));
+    final OutOfQuery outOfQuery =
+        new OutOfQuery(2, Arrays.asList(new String[] {"abc", "def", "ghi"}));
 
     final LuceneQuery luceneQuery = queryUtil.toLuceneQuery(outOfQuery, analyzer);
     sessionProvider.closeSession();
 
     final String parsedLuceneQueryString = luceneQuery.getLuceneQueryString();
-    final boolean abcDef =
-        parsedLuceneQueryString.contains("abc AND def") || parsedLuceneQueryString.contains("def AND abc");
-    final boolean abcGhi =
-        parsedLuceneQueryString.contains("abc AND ghi") || parsedLuceneQueryString.contains("ghi AND abc");
-    final boolean defGhi =
-        parsedLuceneQueryString.contains("def AND ghi") || parsedLuceneQueryString.contains("ghi AND def");
+    final boolean abcDef = parsedLuceneQueryString.contains("abc AND def")
+        || parsedLuceneQueryString.contains("def AND abc");
+    final boolean abcGhi = parsedLuceneQueryString.contains("abc AND ghi")
+        || parsedLuceneQueryString.contains("ghi AND abc");
+    final boolean defGhi = parsedLuceneQueryString.contains("def AND ghi")
+        || parsedLuceneQueryString.contains("ghi AND def");
     assertTrue(abcDef);
     assertTrue(abcGhi);
     assertTrue(defGhi);

@@ -27,12 +27,9 @@ import static com.romeikat.datamessie.core.CommonOperations.insertIntoNamedEntit
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-
 import java.util.List;
-
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
@@ -49,17 +46,20 @@ public class NamedEntityDaoTest extends AbstractDbSetupBasedTest {
     final NamedEntity namedEntity1 = new NamedEntity(1, "NamedEntity1");
     final NamedEntity namedEntity2 = new NamedEntity(2, "NamedEntity2");
 
-    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE, insertIntoNamedEntity(namedEntity1),
-        insertIntoNamedEntity(namedEntity2));
+    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
+        insertIntoNamedEntity(namedEntity1), insertIntoNamedEntity(namedEntity2));
   }
 
   @Test
   public void getOrCreateNamedEntity_new() {
-    final long namedEntityId = namedEntityDao.getOrCreate(sessionProvider.getStatelessSession(), "NamedEntity1");
-    final NamedEntity namedEntity = namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityId);
+    final long namedEntityId =
+        namedEntityDao.getOrCreate(sessionProvider.getStatelessSession(), "NamedEntity1");
+    final NamedEntity namedEntity =
+        namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityId);
     assertEquals("NamedEntity1", namedEntity.getName());
 
-    final List<NamedEntity> all = namedEntityDao.getAllEntites(sessionProvider.getStatelessSession());
+    final List<NamedEntity> all =
+        namedEntityDao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(2, all.size());
 
     dbSetupTracker.skipNextLaunch();
@@ -67,17 +67,21 @@ public class NamedEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void getOrCreateNamedEntity_existing() {
-    final long namedEntityId = namedEntityDao.getOrCreate(sessionProvider.getStatelessSession(), "NamedEntity-1");
-    final NamedEntity namedEntity = namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityId);
+    final long namedEntityId =
+        namedEntityDao.getOrCreate(sessionProvider.getStatelessSession(), "NamedEntity-1");
+    final NamedEntity namedEntity =
+        namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityId);
     assertEquals("NamedEntity-1", namedEntity.getName());
 
-    final List<NamedEntity> all = namedEntityDao.getAllEntites(sessionProvider.getStatelessSession());
+    final List<NamedEntity> all =
+        namedEntityDao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(3, all.size());
   }
 
   @Test
   public void invalidatesCache() {
-    final NamedEntity namedEntity = namedEntityDao.get(sessionProvider.getStatelessSession(), "NamedEntity3");
+    final NamedEntity namedEntity =
+        namedEntityDao.get(sessionProvider.getStatelessSession(), "NamedEntity3");
     assertNull(namedEntity);
 
     NamedEntity namedEntity3 = new NamedEntity();

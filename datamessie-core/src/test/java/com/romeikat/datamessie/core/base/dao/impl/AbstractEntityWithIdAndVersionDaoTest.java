@@ -26,15 +26,12 @@ import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Lists;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
@@ -49,13 +46,15 @@ public class AbstractEntityWithIdAndVersionDaoTest extends AbstractDbSetupBasedT
   protected Operation initDb() {
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
         insertInto("fooEntityWithGeneratedIdAndVersion").columns("id", "version", "name", "active")
-            .values(1L, 0l, "Foo1", true).values(2L, 0l, "Foo2", true).values(3L, 0l, "Foo3", false).build());
+            .values(1L, 0l, "Foo1", true).values(2L, 0l, "Foo2", true).values(3L, 0l, "Foo3", false)
+            .build());
   }
 
   @Test
   public void getIdsWithVersion_ids() {
     Collection<Long> ids = Lists.newArrayList();
-    Map<Long, Long> idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), ids);
+    Map<Long, Long> idsWithVersion =
+        dao.getIdsWithVersion(sessionProvider.getStatelessSession(), ids);
     assertEquals(0, idsWithVersion.size());
     assertTrue(CollectionUtils.isEqualCollection(ids, idsWithVersion.keySet()));
 
@@ -69,7 +68,8 @@ public class AbstractEntityWithIdAndVersionDaoTest extends AbstractDbSetupBasedT
 
   @Test
   public void getIdsWithVersion_firstResult_maxResults() {
-    Map<Long, Long> idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 0, 1);
+    Map<Long, Long> idsWithVersion =
+        dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 0, 1);
     Collection<Long> expected = Arrays.asList(1l);
     assertTrue(CollectionUtils.isEqualCollection(expected, idsWithVersion.keySet()));
 

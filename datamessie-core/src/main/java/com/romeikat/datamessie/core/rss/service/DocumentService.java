@@ -22,12 +22,10 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.time.LocalDateTime;
-
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
@@ -48,9 +46,10 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
   @Qualifier("namedEntityOccurrenceDao")
   private NamedEntityOccurrenceDao namedEntityOccurrenceDao;
 
-  public Document createDocument(final StatelessSession statelessSession, final String title, final String url,
-      final String description, final LocalDateTime published, final LocalDateTime downloaded,
-      final DocumentProcessingState state, final Integer statusCode, final Long crawlingId, final Long sourceId) {
+  public Document createDocument(final StatelessSession statelessSession, final String title,
+      final String url, final String description, final LocalDateTime published,
+      final LocalDateTime downloaded, final DocumentProcessingState state, final Integer statusCode,
+      final Long crawlingId, final Long sourceId) {
     // Create
     final Document document = new Document();
     document.setTitle(title);
@@ -68,8 +67,8 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
     return document;
   }
 
-  public RawContent createOrUpdateContent(final StatelessSession statelessSession, final String content,
-      final long documentId) {
+  public RawContent createOrUpdateContent(final StatelessSession statelessSession,
+      final String content, final long documentId) {
     RawContent rawContent = rawContentDao.getEntity(statelessSession, documentId);
 
     // Create
@@ -87,10 +86,10 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
     return rawContent;
   }
 
-  public void updateDocument(final StatelessSession statelessSession, final Document document, final long documentId,
-      final String title, final String url, final String description, final LocalDateTime published,
-      final LocalDateTime downloaded, final DocumentProcessingState state, final Integer statusCode,
-      final long crawlingId) {
+  public void updateDocument(final StatelessSession statelessSession, final Document document,
+      final long documentId, final String title, final String url, final String description,
+      final LocalDateTime published, final LocalDateTime downloaded,
+      final DocumentProcessingState state, final Integer statusCode, final long crawlingId) {
     if (document == null) {
       return;
     }

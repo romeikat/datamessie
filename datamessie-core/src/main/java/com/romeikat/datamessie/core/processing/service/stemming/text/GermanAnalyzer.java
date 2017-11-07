@@ -28,7 +28,6 @@ License along with this program.  If not, see
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
@@ -62,8 +61,9 @@ public final class GermanAnalyzer extends StopwordAnalyzerBase {
 
     static {
       try {
-        DEFAULT_SET = WordlistLoader.getSnowballWordSet(
-            IOUtils.getDecodingReader(SnowballFilter.class, DEFAULT_STOPWORD_FILE, StandardCharsets.UTF_8));
+        DEFAULT_SET =
+            WordlistLoader.getSnowballWordSet(IOUtils.getDecodingReader(SnowballFilter.class,
+                DEFAULT_STOPWORD_FILE, StandardCharsets.UTF_8));
       } catch (final IOException ex) {
         // default set should always be present as it is part of the
         // distribution (JAR)

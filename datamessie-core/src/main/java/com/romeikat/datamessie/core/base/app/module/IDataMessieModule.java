@@ -25,10 +25,8 @@ License along with this program.  If not, see
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.util.convert.IConverter;
-
 import com.romeikat.datamessie.core.base.app.shared.ISharedBean;
 import com.romeikat.datamessie.core.base.ui.component.NavigationLink;
 import com.romeikat.datamessie.core.base.ui.panel.SidePanel;

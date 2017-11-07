@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.io.Serializable;
 import java.util.Comparator;
-
 import com.romeikat.datamessie.core.base.app.shared.ISharedBean;
 
 public class SharedBeanOrderComparator implements Comparator<ISharedBean>, Serializable {

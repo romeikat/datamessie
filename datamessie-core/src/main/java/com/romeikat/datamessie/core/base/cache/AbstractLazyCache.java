@@ -28,13 +28,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.hibernate.SharedSessionContract;
-
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
 
-public abstract class AbstractLazyCache<K, V, S extends SharedSessionContract> implements ILazyCache<K, V, S> {
+public abstract class AbstractLazyCache<K, V, S extends SharedSessionContract>
+    implements ILazyCache<K, V, S> {
 
   private final LinkedHashMapWithMaxSize<K, V> cachedMappings;
   private final HashMultimap<Long, K> dependencies;

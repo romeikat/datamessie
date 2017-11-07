@@ -24,16 +24,17 @@ License along with this program.  If not, see
 
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryUniqueObjectExecutor;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 
-public class EntityWithIdQueryUniqueObjectExecutor<E extends EntityWithId> extends EntityQueryUniqueObjectExecutor<E> {
+public class EntityWithIdQueryUniqueObjectExecutor<E extends EntityWithId>
+    extends EntityQueryUniqueObjectExecutor<E> {
 
   private final IdRestrictionsDecider idRestrictionsDecider;
 
-  public EntityWithIdQueryUniqueObjectExecutor(final SharedSessionContract ssc, final EntityWithIdQuery<E> query) {
+  public EntityWithIdQueryUniqueObjectExecutor(final SharedSessionContract ssc,
+      final EntityWithIdQuery<E> query) {
     super(ssc, query);
 
     idRestrictionsDecider = new IdRestrictionsDecider(query);

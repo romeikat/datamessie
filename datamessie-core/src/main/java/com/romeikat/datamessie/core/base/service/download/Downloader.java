@@ -32,7 +32,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.HttpStatusException;
@@ -45,7 +44,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.util.XmlUtil;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.SyndFeedInput;
@@ -124,7 +122,8 @@ public class Downloader {
         metaTagsHtmlHeadLink = jsoupDocument.select("html head link");
         for (final Element metaTag : metaTagsHtmlHeadLink) {
           final Attributes metaTagAttributes = metaTag.attributes();
-          if (metaTagAttributes.hasKey("rel") && metaTagAttributes.get("rel").equalsIgnoreCase("canonical")
+          if (metaTagAttributes.hasKey("rel")
+              && metaTagAttributes.get("rel").equalsIgnoreCase("canonical")
               && metaTagAttributes.hasKey("href")) {
             final String redirectedUrl = metaTagAttributes.get("href").trim();
             if (isValidRedirection(url, redirectedUrl)) {
@@ -142,7 +141,8 @@ public class Downloader {
         metaTagsHtmlHeadMeta = jsoupDocument.select("html head meta");
         for (final Element metaTag : metaTagsHtmlHeadMeta) {
           final Attributes metaTagAttributes = metaTag.attributes();
-          if (metaTagAttributes.hasKey("http-equiv") && metaTagAttributes.get("http-equiv").equalsIgnoreCase("refresh")
+          if (metaTagAttributes.hasKey("http-equiv")
+              && metaTagAttributes.get("http-equiv").equalsIgnoreCase("refresh")
               && metaTagAttributes.hasKey("content")) {
             final String[] parts = metaTagAttributes.get("content").replace(" ", "").split("=", 2);
             if (parts.length > 1) {
@@ -151,7 +151,8 @@ public class Downloader {
                 originalUrl = url;
                 url = redirectedUrl;
                 jsoupDocument = null;
-                LOG.debug("Redirection (<meta http-equiv=\"refresh\" .../>): {} -> {}", originalUrl, url);
+                LOG.debug("Redirection (<meta http-equiv=\"refresh\" .../>): {} -> {}", originalUrl,
+                    url);
                 break;
               }
             }
@@ -162,14 +163,16 @@ public class Downloader {
       if (originalUrl == null) {
         for (final Element metaTag : metaTagsHtmlHeadMeta) {
           final Attributes metaTagAttributes = metaTag.attributes();
-          if (metaTagAttributes.hasKey("property") && metaTagAttributes.get("property").equalsIgnoreCase("og:url")
+          if (metaTagAttributes.hasKey("property")
+              && metaTagAttributes.get("property").equalsIgnoreCase("og:url")
               && metaTagAttributes.hasKey("content")) {
             final String redirectedUrl = metaTagAttributes.get("content").trim();
             if (isValidRedirection(url, redirectedUrl)) {
               originalUrl = url;
               url = redirectedUrl;
               jsoupDocument = null;
-              LOG.debug("Redirection (<meta property=\"og:url\" .../>): {} -> {}", originalUrl, url);
+              LOG.debug("Redirection (<meta property=\"og:url\" .../>): {} -> {}", originalUrl,
+                  url);
               break;
             }
           }
@@ -252,11 +255,12 @@ public class Downloader {
     return urlConnection;
   }
 
-  private InputStream asInputStream(final URLConnection urlConnection, final boolean stripNonValidXMLCharacters,
-      final boolean unescapeHtml4) throws Exception {
+  private InputStream asInputStream(final URLConnection urlConnection,
+      final boolean stripNonValidXMLCharacters, final boolean unescapeHtml4) throws Exception {
     final InputStream urlInputStream = urlConnection.getInputStream();
     final Charset urlCharset = getCharset(urlConnection);
-    final InputStreamReader urlInputStreamReader = new InputStreamReader(urlInputStream, urlCharset);
+    final InputStreamReader urlInputStreamReader =
+        new InputStreamReader(urlInputStream, urlCharset);
     final BufferedReader urlBufferedReader = new BufferedReader(urlInputStreamReader);
     // Read lines
     final StringBuilder sb = new StringBuilder();
@@ -302,7 +306,9 @@ public class Downloader {
     try {
       charset = Charset.forName(encoding);
     } catch (final Exception ex) {
-      LOG.warn("Unsupported encoding " + encoding + " by " + urlConnection.getURL().toExternalForm(), ex);
+      LOG.warn(
+          "Unsupported encoding " + encoding + " by " + urlConnection.getURL().toExternalForm(),
+          ex);
     }
     // Fallback
     if (charset == null) {
@@ -322,7 +328,8 @@ public class Downloader {
     return responseUrl;
   }
 
-  private String getRedirectedUrl(final String url, final String responseUrl) throws MalformedURLException {
+  private String getRedirectedUrl(final String url, final String responseUrl)
+      throws MalformedURLException {
     String result = responseUrl;
 
     // Prepend host, if necessary

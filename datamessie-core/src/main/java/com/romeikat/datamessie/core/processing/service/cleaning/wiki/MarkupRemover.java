@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import org.springframework.stereotype.Service;
-
 import info.bliki.wiki.filter.ITextConverter;
 import info.bliki.wiki.filter.PlainTextConverter;
 import info.bliki.wiki.model.WikiModel;

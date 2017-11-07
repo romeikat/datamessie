@@ -30,7 +30,8 @@ public class ExternalLinkPanel extends Panel {
 
   private static final long serialVersionUID = 1L;
 
-  public ExternalLinkPanel(final String id, final IModel<String> hrefModel, final IModel<String> labelModel) {
+  public ExternalLinkPanel(final String id, final IModel<String> hrefModel,
+      final IModel<String> labelModel) {
     super(id);
 
     final ExternalLink externalLink = new ExternalLink("link", hrefModel, labelModel);

@@ -24,12 +24,10 @@ License along with this program.  If not, see
 
 import java.time.LocalDate;
 import java.util.Date;
-
 import org.apache.wicket.datetime.DateConverter;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-
 import com.romeikat.datamessie.core.base.util.DateUtil;
 
 public class LocalDateTextField extends DateTextField {
@@ -38,12 +36,14 @@ public class LocalDateTextField extends DateTextField {
 
   private IModel<Date> dateModel;
 
-  public LocalDateTextField(final String id, final LocalDate localDate, final DateConverter converter) {
+  public LocalDateTextField(final String id, final LocalDate localDate,
+      final DateConverter converter) {
     this(id, new Model<LocalDate>(), converter);
     setModelObject(localDate);
   }
 
-  public LocalDateTextField(final String id, final IModel<LocalDate> localDateModel, final DateConverter converter) {
+  public LocalDateTextField(final String id, final IModel<LocalDate> localDateModel,
+      final DateConverter converter) {
     super(id, converter);
 
     // Converting model

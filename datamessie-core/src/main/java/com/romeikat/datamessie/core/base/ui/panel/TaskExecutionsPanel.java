@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
@@ -34,7 +33,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.wicketstuff.modalx.ModalContentWindow;
-
 import com.romeikat.datamessie.core.base.service.TaskExecutionService;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.domain.dto.TaskExecutionDto;
@@ -80,7 +78,8 @@ public class TaskExecutionsPanel extends Panel {
 
           @Override
           public void onClick(final AjaxRequestTarget target) {
-            final ModalContentWindow modalContentWindow = TaskExecutionsPanel.this.allocateModalWindow();
+            final ModalContentWindow modalContentWindow =
+                TaskExecutionsPanel.this.allocateModalWindow();
             if (modalContentWindow != null) {
               final TaskExecutionWorksPanel detailsPanel =
                   new TaskExecutionWorksPanel(modalContentWindow, taskExecutionModel);

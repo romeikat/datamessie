@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
-
 import org.apache.wicket.markup.html.panel.Panel;
 
 public class SidePanel implements Serializable {

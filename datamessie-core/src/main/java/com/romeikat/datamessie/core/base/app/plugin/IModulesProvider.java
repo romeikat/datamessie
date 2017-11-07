@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import com.romeikat.datamessie.core.base.app.module.IDataMessieModule;
 
 public interface IModulesProvider {

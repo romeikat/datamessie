@@ -24,7 +24,6 @@ License along with this program.  If not, see
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -33,7 +32,6 @@ import org.hibernate.SharedSessionContract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
@@ -90,7 +88,8 @@ public class LocalStatisticsManager implements IStatisticsManager {
     final StatisticsDto dto = new StatisticsDto();
 
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
-    final Collection<Long> sourceIds = sourceDao.getIds(sessionProvider.getStatelessSession(), projectId, null);
+    final Collection<Long> sourceIds =
+        sourceDao.getIds(sessionProvider.getStatelessSession(), projectId, null);
 
     LocalDate to;
     LocalDate from;
@@ -104,11 +103,13 @@ public class LocalStatisticsManager implements IStatisticsManager {
 
 
     // All documents
-    DocumentProcessingState[] states = DocumentProcessingState.getWithout(DocumentProcessingState.TECHNICAL_ERROR,
-        DocumentProcessingState.TO_BE_DELETED);
-    GetNumberOfDocumentsFunction getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(states);
-    final SparseSingleTable<Long, LocalDate, Long> allDocumentsStatistics = statisticsService
-        .getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction, getNumberOfDocumentsFunction);
+    DocumentProcessingState[] states = DocumentProcessingState
+        .getWithout(DocumentProcessingState.TECHNICAL_ERROR, DocumentProcessingState.TO_BE_DELETED);
+    GetNumberOfDocumentsFunction getNumberOfDocumentsFunction =
+        new GetNumberOfDocumentsFunction(states);
+    final SparseSingleTable<Long, LocalDate, Long> allDocumentsStatistics =
+        statisticsService.getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction,
+            getNumberOfDocumentsFunction);
     final Function<Pair<Long, Long>, Long> mergeFunction = new Function<Pair<Long, Long>, Long>() {
       @Override
       public Long apply(final Pair<Long, Long> from) {
@@ -122,17 +123,20 @@ public class LocalStatisticsManager implements IStatisticsManager {
     states = DocumentProcessingState.getWithout(DocumentProcessingState.DOWNLOAD_ERROR,
         DocumentProcessingState.REDIRECTING_ERROR, DocumentProcessingState.TECHNICAL_ERROR);
     getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(states);
-    final SparseSingleTable<Long, LocalDate, Long> downloadedDocumentsStatistics = statisticsService
-        .getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction, getNumberOfDocumentsFunction);
+    final SparseSingleTable<Long, LocalDate, Long> downloadedDocumentsStatistics =
+        statisticsService.getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction,
+            getNumberOfDocumentsFunction);
     final Long downloadedDocuments = downloadedDocumentsStatistics.mergeAllValues(mergeFunction);
     dto.setDownloadedDocuments(downloadedDocuments);
 
     // Preprocessed documents
-    getNumberOfDocumentsFunction =
-        new GetNumberOfDocumentsFunction(DocumentProcessingState.getWith(DocumentProcessingState.STEMMED));
-    final SparseSingleTable<Long, LocalDate, Long> preprocessedDocumentsStatistics = statisticsService
-        .getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction, getNumberOfDocumentsFunction);
-    final Long preprocessedDocuments = preprocessedDocumentsStatistics.mergeAllValues(mergeFunction);
+    getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(
+        DocumentProcessingState.getWith(DocumentProcessingState.STEMMED));
+    final SparseSingleTable<Long, LocalDate, Long> preprocessedDocumentsStatistics =
+        statisticsService.getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction,
+            getNumberOfDocumentsFunction);
+    final Long preprocessedDocuments =
+        preprocessedDocumentsStatistics.mergeAllValues(mergeFunction);
     dto.setPreprocessedDocuments(preprocessedDocuments);
 
     // Download success
@@ -145,29 +149,34 @@ public class LocalStatisticsManager implements IStatisticsManager {
     dto.setDownloadSuccess(downloadSuccess);
 
     // Preprocessing success
-    getNumberOfDocumentsFunction =
-        new GetNumberOfDocumentsFunction(DocumentProcessingState.getWith(DocumentProcessingState.CLEANED,
+    getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(
+        DocumentProcessingState.getWith(DocumentProcessingState.CLEANED,
             DocumentProcessingState.CLEANING_ERROR, DocumentProcessingState.STEMMED));
-    final SparseSingleTable<Long, LocalDate, Long> preprocessingAttemtedDocumentsStatistics = statisticsService
-        .getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction, getNumberOfDocumentsFunction);
-    final Long preprocessingAttemtedDocuments = preprocessingAttemtedDocumentsStatistics.mergeAllValues(mergeFunction);
+    final SparseSingleTable<Long, LocalDate, Long> preprocessingAttemtedDocumentsStatistics =
+        statisticsService.getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction,
+            getNumberOfDocumentsFunction);
+    final Long preprocessingAttemtedDocuments =
+        preprocessingAttemtedDocumentsStatistics.mergeAllValues(mergeFunction);
 
     final Double preprocessingSuccess;
     if (preprocessedDocuments == null || preprocessingAttemtedDocuments == null
         || preprocessingAttemtedDocuments == 0) {
       preprocessingSuccess = null;
     } else {
-      preprocessingSuccess = (double) preprocessedDocuments / (double) preprocessingAttemtedDocuments;
+      preprocessingSuccess =
+          (double) preprocessedDocuments / (double) preprocessingAttemtedDocuments;
     }
     dto.setPreprocessingSuccess(preprocessingSuccess);
 
     // Documents to be preprocessed
-    getNumberOfDocumentsFunction =
-        new GetNumberOfDocumentsFunction(DocumentProcessingState.getWith(DocumentProcessingState.DOWNLOADED,
+    getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(
+        DocumentProcessingState.getWith(DocumentProcessingState.DOWNLOADED,
             DocumentProcessingState.REDIRECTED, DocumentProcessingState.CLEANED));
-    final SparseSingleTable<Long, LocalDate, Long> documentsToBePreprocessedStatistics = statisticsService
-        .getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction, getNumberOfDocumentsFunction);
-    final Long documentsToBePreprocessed = documentsToBePreprocessedStatistics.mergeAllValues(mergeFunction);
+    final SparseSingleTable<Long, LocalDate, Long> documentsToBePreprocessedStatistics =
+        statisticsService.getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction,
+            getNumberOfDocumentsFunction);
+    final Long documentsToBePreprocessed =
+        documentsToBePreprocessedStatistics.mergeAllValues(mergeFunction);
     dto.setDocumentsToBePreprocessed(documentsToBePreprocessed);
 
     // Done
@@ -176,21 +185,22 @@ public class LocalStatisticsManager implements IStatisticsManager {
   }
 
   @Override
-  public <T> SparseSingleTable<Long, LocalDate, T> getStatistics(final Collection<Long> sourceIds, final LocalDate from,
-      final LocalDate to, final Function<LocalDate, LocalDate> transformDateFunction,
+  public <T> SparseSingleTable<Long, LocalDate, T> getStatistics(final Collection<Long> sourceIds,
+      final LocalDate from, final LocalDate to,
+      final Function<LocalDate, LocalDate> transformDateFunction,
       final Function<DocumentsPerState, T> transformValueFunction) {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     final StatisticsSparseTable baseStatistics =
         getBaseStatistics(sessionProvider.getStatelessSession(), sourceIds, from, to);
     sessionProvider.closeStatelessSession();
 
-    final SparseSingleTable<Long, LocalDate, T> statistics = statisticsService.getStatistics(baseStatistics, sourceIds,
-        from, to, transformDateFunction, transformValueFunction);
+    final SparseSingleTable<Long, LocalDate, T> statistics = statisticsService.getStatistics(
+        baseStatistics, sourceIds, from, to, transformDateFunction, transformValueFunction);
     return statistics;
   }
 
-  private StatisticsSparseTable getBaseStatistics(final SharedSessionContract ssc, final Collection<Long> sourceIds,
-      final LocalDate from, final LocalDate to) {
+  private StatisticsSparseTable getBaseStatistics(final SharedSessionContract ssc,
+      final Collection<Long> sourceIds, final LocalDate from, final LocalDate to) {
     final StatisticsSparseTable statistics = new StatisticsSparseTable();
 
     if (CollectionUtils.isEmpty(sourceIds) || from == null || to == null) {

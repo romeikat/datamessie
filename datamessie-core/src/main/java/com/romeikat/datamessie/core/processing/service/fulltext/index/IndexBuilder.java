@@ -23,19 +23,16 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.Search;
 import org.hibernate.search.batchindexing.impl.SimpleIndexingProgressMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.util.Waiter;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-
 import edu.stanford.nlp.util.StringUtils;
 
 public class IndexBuilder {
@@ -52,8 +49,8 @@ public class IndexBuilder {
 
   private boolean isBuildingComplete;
 
-  public IndexBuilder(final HibernateSessionProvider sessionProvider, final Class<?>[] classesToIndex,
-      final int batchSize, final int numberOfThreads) {
+  public IndexBuilder(final HibernateSessionProvider sessionProvider,
+      final Class<?>[] classesToIndex, final int batchSize, final int numberOfThreads) {
     this.sessionProvider = sessionProvider;
     this.classesToIndex = classesToIndex;
     this.batchSize = batchSize;

@@ -23,14 +23,11 @@ License along with this program.  If not, see
  */
 
 import static org.junit.Assert.assertEquals;
-
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
@@ -49,7 +46,8 @@ public class ParallelProcessingTest extends AbstractTest {
     final ConcurrentMap<Integer, Object> indicesMap = new ConcurrentHashMap<Integer, Object>();
     new ParallelProcessing<Integer>(null, indices) {
       @Override
-      public void doProcessing(final HibernateSessionProvider sessionProvider, final Integer index) {
+      public void doProcessing(final HibernateSessionProvider sessionProvider,
+          final Integer index) {
         indicesMap.put(index, index);
       }
     };
@@ -68,7 +66,8 @@ public class ParallelProcessingTest extends AbstractTest {
     final ConcurrentMap<Integer, Object> indicesMap = new ConcurrentHashMap<Integer, Object>();
     new ParallelProcessing<Integer>(null, indexes) {
       @Override
-      public void doProcessing(final HibernateSessionProvider sessionProvider, final Integer index) {
+      public void doProcessing(final HibernateSessionProvider sessionProvider,
+          final Integer index) {
         // Null values in a ConcurrentHashMap cause a NullPointerException
         indicesMap.put(index, null);
       }

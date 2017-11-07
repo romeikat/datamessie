@@ -23,15 +23,14 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.execute.AbstractEntityQueryExecutor;
 import com.romeikat.datamessie.core.domain.entity.Entity;
 
-public class EntityQueryListIdsExecutor<E extends Entity> extends AbstractEntityQueryExecutor<E, List<Long>> {
+public class EntityQueryListIdsExecutor<E extends Entity>
+    extends AbstractEntityQueryExecutor<E, List<Long>> {
 
   public EntityQueryListIdsExecutor(final SharedSessionContract ssc, final EntityQuery<E> query) {
     super(ssc, query);

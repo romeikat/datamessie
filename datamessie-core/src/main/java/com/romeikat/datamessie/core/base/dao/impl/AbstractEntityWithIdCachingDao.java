@@ -22,17 +22,15 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.Collection;
-
 import org.hibernate.StatelessSession;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.cache.ILazyCache;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdCachingDao;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 
 @Repository
-public abstract class AbstractEntityWithIdCachingDao<E extends EntityWithId> extends AbstractEntityWithIdDao<E>
-    implements EntityWithIdCachingDao<E> {
+public abstract class AbstractEntityWithIdCachingDao<E extends EntityWithId>
+    extends AbstractEntityWithIdDao<E> implements EntityWithIdCachingDao<E> {
 
   public AbstractEntityWithIdCachingDao(final Class<E> entityClass) {
     super(entityClass);

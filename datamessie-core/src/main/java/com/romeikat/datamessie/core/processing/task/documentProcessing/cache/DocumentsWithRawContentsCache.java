@@ -23,17 +23,15 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import org.hibernate.SharedSessionContract;
-
 import com.romeikat.datamessie.core.base.dao.EntityWithIdDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 
 public class DocumentsWithRawContentsCache extends AbstractDocumentsCache<RawContent> {
 
-  public DocumentsWithRawContentsCache(final SharedSessionContract ssc, final EntityWithIdDao<RawContent> dao,
-      final Collection<Document> documents) {
+  public DocumentsWithRawContentsCache(final SharedSessionContract ssc,
+      final EntityWithIdDao<RawContent> dao, final Collection<Document> documents) {
     super(ssc, dao, documents);
   }
 

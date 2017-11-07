@@ -26,7 +26,8 @@ import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 public class DocumentProcessingStateConverter extends AbstractConverter<DocumentProcessingState> {
 
-  public static final DocumentProcessingStateConverter INSTANCE = new DocumentProcessingStateConverter();
+  public static final DocumentProcessingStateConverter INSTANCE =
+      new DocumentProcessingStateConverter();
 
   private static final long serialVersionUID = 1L;
 

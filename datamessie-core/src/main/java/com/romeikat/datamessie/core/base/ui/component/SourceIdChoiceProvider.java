@@ -23,12 +23,10 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
@@ -56,7 +54,8 @@ public class SourceIdChoiceProvider extends AbstractIdBasedChoiceProvider<Source
   protected List<SourceOverviewDto> provideChoices() {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     final DocumentsFilterSettings documentsFilterSetting = dfsModel.getObject();
-    final Long projectId = documentsFilterSetting == null ? null : documentsFilterSetting.getProjectId();
+    final Long projectId =
+        documentsFilterSetting == null ? null : documentsFilterSetting.getProjectId();
     final List<SourceOverviewDto> choices =
         sourceDao.getAsOverviewDtos(sessionProvider.getStatelessSession(), projectId, true);
     sessionProvider.closeStatelessSession();

@@ -24,9 +24,7 @@ License along with this program.  If not, see
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
-
 import com.google.common.collect.Lists;
 
 public class FullTextMatch {
@@ -41,7 +39,8 @@ public class FullTextMatch {
     this(0, 0, Lists.<String>newLinkedList());
   }
 
-  public FullTextMatch(final long id, final long luceneDocumentId, final List<String> matchingTerms) {
+  public FullTextMatch(final long id, final long luceneDocumentId,
+      final List<String> matchingTerms) {
     this.id = id;
     this.luceneDocumentId = luceneDocumentId;
     this.matchingTerms = matchingTerms;

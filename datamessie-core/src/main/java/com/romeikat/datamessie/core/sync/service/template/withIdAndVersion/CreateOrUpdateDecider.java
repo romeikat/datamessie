@@ -33,7 +33,8 @@ public class CreateOrUpdateDecider {
 
   private final CreateOrUpdateDecisionResults result;
 
-  public CreateOrUpdateDecider(final Map<Long, Long> lhsIdsWithVersion, final Map<Long, Long> rhsIdsWithVersion) {
+  public CreateOrUpdateDecider(final Map<Long, Long> lhsIdsWithVersion,
+      final Map<Long, Long> rhsIdsWithVersion) {
     this.lhsIdsWithVersion = lhsIdsWithVersion;
     this.rhsIdsWithVersion = rhsIdsWithVersion;
 

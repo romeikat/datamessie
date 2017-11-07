@@ -26,14 +26,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.hibernate.search.FullTextSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.util.Counter;
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
 
@@ -45,8 +43,9 @@ public class OutOfQueryExecutor {
   @Autowired
   private LuceneQueryExecutor luceneQueryExecutor;
 
-  public FullTextResult executeQuery(final OutOfQuery outOfQuery, final FullTextSession fullTextSession,
-      final Analyzer analyzer, final Class<?> clazz, final String field) {
+  public FullTextResult executeQuery(final OutOfQuery outOfQuery,
+      final FullTextSession fullTextSession, final Analyzer analyzer, final Class<?> clazz,
+      final String field) {
     // Old solution: transform into Lucene query
     // final LuceneQuery luceneQuery = parseUtil.toLuceneQuery(outOfQuery, analyzer);
     // return execute(luceneQuery, fullTextSession, analyzer);
@@ -79,8 +78,8 @@ public class OutOfQueryExecutor {
     return mergedResult;
   }
 
-  private FullTextResult mergeFullTextResults(final Collection<FullTextResult> singleFullTextResults,
-      final Collection<Long> ids) {
+  private FullTextResult mergeFullTextResults(
+      final Collection<FullTextResult> singleFullTextResults, final Collection<Long> ids) {
     final FullTextResult mergedResult = new FullTextResult();
     // Process the single results
     for (final FullTextResult singleFullTextResult : singleFullTextResults) {

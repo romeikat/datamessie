@@ -23,10 +23,8 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 
@@ -44,7 +42,8 @@ public class NavigationLink<T extends Page> implements Serializable {
 
   private final DataMessieRoles roles;
 
-  public NavigationLink(final String label, final int order, final Class<T> pageClass, final String... roles) {
+  public NavigationLink(final String label, final int order, final Class<T> pageClass,
+      final String... roles) {
     this(label, order, pageClass, null, roles);
   }
 

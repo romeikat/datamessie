@@ -26,12 +26,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 
 @Entity
 @Table(name = NamedEntityCategory.TABLE_NAME,
-    uniqueConstraints = {@UniqueConstraint(name = "namedEntityCategory_id_version", columnNames = {"id", "version"}),
+    uniqueConstraints = {
+        @UniqueConstraint(name = "namedEntityCategory_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "namedEntityCategory_namedEntity_id_categoryNamedEntity_id",
             columnNames = {"namedEntity_id", "categoryNamedEntity_id"})})
 public class NamedEntityCategory extends AbstractEntityWithGeneratedIdAndVersion {
@@ -44,7 +44,8 @@ public class NamedEntityCategory extends AbstractEntityWithGeneratedIdAndVersion
 
   public NamedEntityCategory() {}
 
-  public NamedEntityCategory(final long id, final long namedEntityId, final long categoryNamedEntityId) {
+  public NamedEntityCategory(final long id, final long namedEntityId,
+      final long categoryNamedEntityId) {
     super(id);
     this.namedEntityId = namedEntityId;
     this.categoryNamedEntityId = categoryNamedEntityId;

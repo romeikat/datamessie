@@ -26,7 +26,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
@@ -93,7 +91,8 @@ public class StatisticsRebuilder {
 
     if (rebuildAllAtStartup) {
       // Determine all published dates
-      final List<LocalDate> publishedDates = getPublishedDates(taskExecution, sessionProvider.getStatelessSession());
+      final List<LocalDate> publishedDates =
+          getPublishedDates(taskExecution, sessionProvider.getStatelessSession());
 
       // Process from maximum to minimum published date
       for (final LocalDate publishedDate : publishedDates) {
@@ -115,7 +114,8 @@ public class StatisticsRebuilder {
       // Rebuild statistics
       final Long sourceId = sourceAndPublished.getSourceId();
       final LocalDate publishedDate = sourceAndPublished.getPublished();
-      final String msg = "Rebuilding statistics for " + printSourceAndPublished(sourceId, publishedDate);
+      final String msg =
+          "Rebuilding statistics for " + printSourceAndPublished(sourceId, publishedDate);
       work = taskExecution.reportWorkStart(msg);
       new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
         @Override
@@ -125,7 +125,8 @@ public class StatisticsRebuilder {
 
         @Override
         protected void onException(final Exception e) {
-          final String msg = "Could not rebuild statistics for " + printSourceAndPublished(sourceId, publishedDate);
+          final String msg = "Could not rebuild statistics for "
+              + printSourceAndPublished(sourceId, publishedDate);
           LOG.error(msg, e);
         };
       }.execute();

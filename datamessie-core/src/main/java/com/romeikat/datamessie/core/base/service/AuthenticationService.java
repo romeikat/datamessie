@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +45,8 @@ public class AuthenticationService {
     return false;
   }
 
-  public DataMessieRoles getRoles(final String username, final String passwordHash, final boolean signedIn) {
+  public DataMessieRoles getRoles(final String username, final String passwordHash,
+      final boolean signedIn) {
     if (username == null || !signedIn) {
       return DataMessieRoles.getEmptyRoles();
     }
@@ -76,7 +76,8 @@ public class AuthenticationService {
     return providedPassword.equals(expectedPassword);
   }
 
-  private boolean checkPasswordHash(final String providedPasswordHash, final String expectedPassword) {
+  private boolean checkPasswordHash(final String providedPasswordHash,
+      final String expectedPassword) {
     if (providedPasswordHash == null || expectedPassword == null) {
       return false;
     }

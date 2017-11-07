@@ -28,12 +28,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.request.IRequestParameters;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
-
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.ui.panel.DocumentsFilterPanel;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
@@ -68,7 +66,8 @@ public abstract class AbstractDocumentsFilterPage extends AbstractAuthenticatedP
     return documentsFilterPanel;
   }
 
-  private StringValue getParameterValue(final IRequestParameters requestParameters, final String parameterName) {
+  private StringValue getParameterValue(final IRequestParameters requestParameters,
+      final String parameterName) {
     final Set<String> requestParameterNames = requestParameters.getParameterNames();
     if (!requestParameterNames.contains(parameterName)) {
       return null;
@@ -114,7 +113,8 @@ public abstract class AbstractDocumentsFilterPage extends AbstractAuthenticatedP
     // Document IDs are not processed as they are not included in the URL
     // States
     final StringValue statesParameter = getParameterValue(requestParameters, "states");
-    final Collection<DocumentProcessingState> states = statesParameter == null ? null : parseStates(statesParameter);
+    final Collection<DocumentProcessingState> states =
+        statesParameter == null ? null : parseStates(statesParameter);
     dfs.setStates(states);
   }
 

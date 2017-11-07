@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -34,15 +33,16 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Entity
 @Table(name = Document.TABLE_NAME,
-    uniqueConstraints = @UniqueConstraint(name = "document_id_version", columnNames = {"id", "version"}),
+    uniqueConstraints = @UniqueConstraint(name = "document_id_version",
+        columnNames = {"id", "version"}),
     indexes = {@Index(name = "document_downloaded", columnList = "downloaded"),
-        @Index(name = "document_published_source_id_state", columnList = "published, source_id, state"),
+        @Index(name = "document_published_source_id_state",
+            columnList = "published, source_id, state"),
         @Index(name = "FK_document_crawling_id", columnList = "crawling_id")})
 public class Document extends AbstractEntityWithGeneratedIdAndVersion {
 

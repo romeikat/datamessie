@@ -31,12 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
@@ -155,7 +153,8 @@ public class SparseMultiTable<X, Y, Z> implements IMultiTable<X, Y, Z>, Serializ
     for (int i = 1; i < allValues.size(); i++) {
       final Z previousValue = mergedValue;
       final Z currentValue = allValues.get(i);
-      final Pair<Z, Z> previousAndCurrentValue = new ImmutablePair<Z, Z>(previousValue, currentValue);
+      final Pair<Z, Z> previousAndCurrentValue =
+          new ImmutablePair<Z, Z>(previousValue, currentValue);
       mergedValue = mergeFunction.apply(previousAndCurrentValue);
     }
 
@@ -173,7 +172,8 @@ public class SparseMultiTable<X, Y, Z> implements IMultiTable<X, Y, Z>, Serializ
   }
 
   @Override
-  public List<TableRow<X, Y, List<Z>>> getTableRows(final Comparator<? super X> rowHeaderComparator) {
+  public List<TableRow<X, Y, List<Z>>> getTableRows(
+      final Comparator<? super X> rowHeaderComparator) {
     return innerTable.getTableRows(rowHeaderComparator);
   }
 
@@ -189,7 +189,8 @@ public class SparseMultiTable<X, Y, Z> implements IMultiTable<X, Y, Z>, Serializ
 
   @Override
   public synchronized SortedMap<Y, List<Z>> getRowSorted(final X rowHeader,
-      final Comparator<? super Y> rowHeaderComparator, final Comparator<? super List<Z>> rowValueComparator) {
+      final Comparator<? super Y> rowHeaderComparator,
+      final Comparator<? super List<Z>> rowValueComparator) {
     return innerTable.getRowSorted(rowHeader, rowHeaderComparator, rowValueComparator);
   }
 
@@ -215,7 +216,8 @@ public class SparseMultiTable<X, Y, Z> implements IMultiTable<X, Y, Z>, Serializ
   }
 
   @Override
-  public List<X> getRowHeadersSorted(final Y columnHeader, final Comparator<? super X> rowHeaderComparator,
+  public List<X> getRowHeadersSorted(final Y columnHeader,
+      final Comparator<? super X> rowHeaderComparator,
       final Comparator<? super List<Z>> columnValueComparator) {
     return innerTable.getRowHeadersSorted(columnHeader, rowHeaderComparator, columnValueComparator);
   }
@@ -233,7 +235,8 @@ public class SparseMultiTable<X, Y, Z> implements IMultiTable<X, Y, Z>, Serializ
   }
 
   @Override
-  public synchronized List<Z> getRowValuesSorted(final Y columnHeader, final Comparator<? super Z> rowValueComparator) {
+  public synchronized List<Z> getRowValuesSorted(final Y columnHeader,
+      final Comparator<? super Z> rowValueComparator) {
     final List<Z> collectedRowValuesSorted = Lists.newLinkedList();
 
     final Collection<List<Z>> rowValues = innerTable.getRowValues(columnHeader);
@@ -252,7 +255,8 @@ public class SparseMultiTable<X, Y, Z> implements IMultiTable<X, Y, Z>, Serializ
   }
 
   @Override
-  public List<TableColumn<X, Y, List<Z>>> getTableColumns(final Comparator<? super Y> columnHeaderComparator) {
+  public List<TableColumn<X, Y, List<Z>>> getTableColumns(
+      final Comparator<? super Y> columnHeaderComparator) {
     return innerTable.getTableColumns(columnHeaderComparator);
   }
 
@@ -268,7 +272,8 @@ public class SparseMultiTable<X, Y, Z> implements IMultiTable<X, Y, Z>, Serializ
 
   @Override
   public synchronized SortedMap<X, List<Z>> getColumnSorted(final Y columnHeader,
-      final Comparator<? super X> columnHeaderComparator, final Comparator<? super List<Z>> columnValueComparator) {
+      final Comparator<? super X> columnHeaderComparator,
+      final Comparator<? super List<Z>> columnValueComparator) {
     return innerTable.getColumnSorted(columnHeader, columnHeaderComparator, columnValueComparator);
   }
 
@@ -294,7 +299,8 @@ public class SparseMultiTable<X, Y, Z> implements IMultiTable<X, Y, Z>, Serializ
   }
 
   @Override
-  public List<Y> getColumnHeadersSorted(final X rowHeader, final Comparator<? super Y> columnHeaderComparator,
+  public List<Y> getColumnHeadersSorted(final X rowHeader,
+      final Comparator<? super Y> columnHeaderComparator,
       final Comparator<? super List<Z>> rowValueComparator) {
     return innerTable.getColumnHeadersSorted(rowHeader, columnHeaderComparator, rowValueComparator);
   }

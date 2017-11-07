@@ -23,13 +23,13 @@ License along with this program.  If not, see
  */
 
 import java.util.Comparator;
-
 import com.romeikat.datamessie.core.base.util.DocumentWithDownloads;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 public class MasterDocumentWithDownloadsComparator implements Comparator<DocumentWithDownloads> {
 
-  public final static MasterDocumentWithDownloadsComparator INSTANCE = new MasterDocumentWithDownloadsComparator();
+  public final static MasterDocumentWithDownloadsComparator INSTANCE =
+      new MasterDocumentWithDownloadsComparator();
 
   private MasterDocumentWithDownloadsComparator() {}
 

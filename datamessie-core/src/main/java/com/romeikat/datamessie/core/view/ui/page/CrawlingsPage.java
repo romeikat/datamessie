@@ -26,7 +26,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -37,7 +36,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
@@ -96,7 +94,8 @@ public class CrawlingsPage extends AbstractAuthenticatedPage {
             new Label("startedLabel", new PropertyModel<LocalDateTime>(crawlingModel, "started"));
         item.add(startedLabel);
         // Duration
-        final Label durationLabel = new Label("durationLabel", new PropertyModel<Duration>(crawlingModel, "duration"));
+        final Label durationLabel =
+            new Label("durationLabel", new PropertyModel<Duration>(crawlingModel, "duration"));
         durationLabel.setVisible(!crawlingInProgress);
         item.add(durationLabel);
         // Ongoing

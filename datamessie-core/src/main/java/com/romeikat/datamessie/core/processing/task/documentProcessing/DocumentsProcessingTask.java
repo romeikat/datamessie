@@ -7,9 +7,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
 import javax.annotation.PostConstruct;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -18,7 +16,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -40,14 +37,12 @@ License along with this program.  If not, see
 <http://www.gnu.org/licenses/gpl-3.0.html>.
  * =============================LICENSE_END=============================
  */
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
@@ -161,14 +156,15 @@ public class DocumentsProcessingTask implements Task {
     final MutableObject<LocalDate> downloadedDate = new MutableObject<LocalDate>(minDownloadedDate);
     while (true) {
       // Load
-      final List<Document> documentsToProcess = documentsLoader.loadDocumentsToProcess(
-          sessionProvider.getStatelessSession(), taskExecution, downloadedDate.getValue(), failedDocumentIds);
+      final List<Document> documentsToProcess =
+          documentsLoader.loadDocumentsToProcess(sessionProvider.getStatelessSession(),
+              taskExecution, downloadedDate.getValue(), failedDocumentIds);
 
       // Process
       if (CollectionUtils.isNotEmpty(documentsToProcess)) {
         final String singularPlural = documentsToProcess.size() == 1 ? "document" : "documents";
-        final TaskExecutionWork work =
-            taskExecution.reportWorkStart(String.format("Processing %s %s", documentsToProcess.size(), singularPlural));
+        final TaskExecutionWork work = taskExecution.reportWorkStart(
+            String.format("Processing %s %s", documentsToProcess.size(), singularPlural));
 
         final DocumentsProcessor documentsProcessor = new DocumentsProcessor(ctx);
         documentsProcessor.processDocuments(documentsToProcess);
@@ -209,19 +205,22 @@ public class DocumentsProcessingTask implements Task {
   }
 
   private void rebuildStatistics(final StatisticsRebuildingSparseTable statisticsToBeRebuilt) {
-    final IStatisticsManager statisticsManager = sharedBeanProvider.getSharedBean(IStatisticsManager.class);
+    final IStatisticsManager statisticsManager =
+        sharedBeanProvider.getSharedBean(IStatisticsManager.class);
     if (statisticsManager != null) {
       statisticsManager.rebuildStatistics(statisticsToBeRebuilt);
     }
   }
 
   private void reindexDocuments(final List<Document> documents) throws TaskCancelledException {
-    final Collection<Long> documentIds = Collections2.transform(documents, new EntityWithIdToIdFunction());
+    final Collection<Long> documentIds =
+        Collections2.transform(documents, new EntityWithIdToIdFunction());
     documentsReindexer.toBeReindexed(documentIds);
   }
 
-  private void prepareForNextIteration(final TaskExecution taskExecution, final MutableObject<LocalDate> downloadedDate,
-      final List<Document> documentsToProcess) throws TaskCancelledException {
+  private void prepareForNextIteration(final TaskExecution taskExecution,
+      final MutableObject<LocalDate> downloadedDate, final List<Document> documentsToProcess)
+      throws TaskCancelledException {
     // No documents to process due to an error while loading
     final boolean errorOccurred = documentsToProcess == null;
     if (errorOccurred) {

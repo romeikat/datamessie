@@ -23,11 +23,11 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
-
 import com.google.common.base.Function;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
-public class GetNumberOfDocumentsRateFunction implements Function<DocumentsPerState, Double>, Serializable {
+public class GetNumberOfDocumentsRateFunction
+    implements Function<DocumentsPerState, Double>, Serializable {
 
   private static final long serialVersionUID = 1L;
 
@@ -49,7 +49,8 @@ public class GetNumberOfDocumentsRateFunction implements Function<DocumentsPerSt
 
     final long numberOfDocumentsNumerator = getNumberOfDocuments(documentsPerState, states1);
 
-    final double numberOfDocumentsRate = (double) numberOfDocumentsNumerator / (double) numberOfDocumentsDenominator;
+    final double numberOfDocumentsRate =
+        (double) numberOfDocumentsNumerator / (double) numberOfDocumentsDenominator;
     return numberOfDocumentsRate;
   }
 

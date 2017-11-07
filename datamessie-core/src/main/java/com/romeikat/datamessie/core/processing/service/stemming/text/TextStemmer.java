@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -36,7 +35,6 @@ import org.apache.lucene.analysis.util.CharArraySet;
 import org.hibernate.SharedSessionContract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.util.DataMessieException;
@@ -88,7 +86,8 @@ public class TextStemmer {
   private String replaceNamedEntity(final SharedSessionContract ssc, final String textUnderStemming,
       final String namedEntityName) {
     // Determine replacement
-    final Pair<String, String> replacingAndReplacement = getReplacingAndReplacement(ssc, namedEntityName);
+    final Pair<String, String> replacingAndReplacement =
+        getReplacingAndReplacement(ssc, namedEntityName);
     if (replacingAndReplacement == null) {
       return textUnderStemming;
     }
@@ -114,7 +113,8 @@ public class TextStemmer {
     return new ImmutablePair<String, String>(replacing, replacement);
   }
 
-  private List<String> getNamedEntityOccurrencesOrderedByNumberOfWords(final Collection<String> namedEntityNames) {
+  private List<String> getNamedEntityOccurrencesOrderedByNumberOfWords(
+      final Collection<String> namedEntityNames) {
     // Comparator
     final Comparator<String> numberOfWordsComparator = new Comparator<String>() {
       @Override
@@ -145,9 +145,11 @@ public class TextStemmer {
 
     final Analyzer analyzer;
     if (language == Language.DE) {
-      analyzer = new GermanAnalyzer(GermanAnalyzer.getDefaultStopSet(), CharArraySet.copy(singleWords));
+      analyzer =
+          new GermanAnalyzer(GermanAnalyzer.getDefaultStopSet(), CharArraySet.copy(singleWords));
     } else if (language == Language.EN) {
-      analyzer = new EnglishAnalyzer(EnglishAnalyzer.getDefaultStopSet(), CharArraySet.copy(singleWords));
+      analyzer =
+          new EnglishAnalyzer(EnglishAnalyzer.getDefaultStopSet(), CharArraySet.copy(singleWords));
     } else {
       throw new DataMessieException("");
     }

@@ -22,7 +22,6 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
@@ -31,7 +30,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
@@ -50,7 +48,8 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
 
   public List<TagSelectingRule> getOfSource(final SharedSessionContract ssc, final long sourceId) {
     // Query: TagSelectingRule
-    final EntityQuery<TagSelectingRule> tagSelectingRuleQuery = new EntityQuery<>(TagSelectingRule.class);
+    final EntityQuery<TagSelectingRule> tagSelectingRuleQuery =
+        new EntityQuery<>(TagSelectingRule.class);
     tagSelectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
     tagSelectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -62,10 +61,12 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
 
   public List<TagSelectingRuleDto> getAsDtos(final SharedSessionContract ssc, final long sourceId) {
     // Query: TagSelectingRule
-    final EntityQuery<TagSelectingRule> tagSelectingRuleQuery = new EntityQuery<>(TagSelectingRule.class);
+    final EntityQuery<TagSelectingRule> tagSelectingRuleQuery =
+        new EntityQuery<>(TagSelectingRule.class);
     tagSelectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
-    tagSelectingRuleQuery.setResultTransformer(new AliasToBeanResultTransformer(TagSelectingRuleDto.class));
+    tagSelectingRuleQuery
+        .setResultTransformer(new AliasToBeanResultTransformer(TagSelectingRuleDto.class));
 
     // Done
     final ProjectionList projectionList = Projections.projectionList();

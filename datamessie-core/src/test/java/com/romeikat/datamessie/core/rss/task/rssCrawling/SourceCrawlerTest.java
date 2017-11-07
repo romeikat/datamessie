@@ -31,10 +31,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.hibernate.StatelessSession;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +40,6 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-
 import com.google.common.collect.Lists;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
@@ -117,23 +114,29 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime now = LocalDateTime.now();
     // Document1 with download success
     final LocalDateTime published1 = now.minusDays(1);
-    final Document document1 = new Document(1, crawling1.getId(), source1.getId()).setTitle("Title1")
-        .setUrl("http://www.document1.de/").setDescription("Description1").setPublished(published1).setDownloaded(now)
-        .setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
+    final Document document1 = new Document(1, crawling1.getId(), source1.getId())
+        .setTitle("Title1").setUrl("http://www.document1.de/").setDescription("Description1")
+        .setPublished(published1).setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED)
+        .setStatusCode(200);
     final Download download1 = new Download(1, 1, 1, true).setUrl("http://www.url1.de/");
     final RawContent rawContent1 = new RawContent(document1.getId(), "RawContent1");
     // Document2 without download success
     final LocalDateTime published2 = now.minusDays(2);
-    final Document document2 = new Document(2, crawling1.getId(), source1.getId()).setTitle("Title2")
-        .setUrl("http://www.document2.de/").setDescription("Description2").setPublished(published2).setDownloaded(now)
+    final Document document2 = new Document(2, crawling1.getId(), source1.getId())
+        .setTitle("Title2").setUrl("http://www.document2.de/").setDescription("Description2")
+        .setPublished(published2).setDownloaded(now)
         .setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);
     final Download download2 = new Download(2, 1, 2, false).setUrl("http://www.url2.de/");
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
-        sequenceOf(CommonOperations.insertIntoProject(project1), CommonOperations.insertIntoSource(source1),
-            CommonOperations.insertIntoCrawling(crawling1), CommonOperations.insertIntoDocument(document1),
-            CommonOperations.insertIntoDocument(document2), CommonOperations.insertIntoDownload(download1),
-            CommonOperations.insertIntoDownload(download2), CommonOperations.insertIntoRawContent(rawContent1)));
+        sequenceOf(CommonOperations.insertIntoProject(project1),
+            CommonOperations.insertIntoSource(source1),
+            CommonOperations.insertIntoCrawling(crawling1),
+            CommonOperations.insertIntoDocument(document1),
+            CommonOperations.insertIntoDocument(document2),
+            CommonOperations.insertIntoDownload(download1),
+            CommonOperations.insertIntoDownload(download2),
+            CommonOperations.insertIntoRawContent(rawContent1)));
   }
 
   @Override
@@ -168,7 +171,8 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
 
     // Mock download result
-    final DownloadResult downloadResult3 = new DownloadResult(null, url3, newRawContent3, newDownloaded3, null);
+    final DownloadResult downloadResult3 =
+        new DownloadResult(null, url3, newRawContent3, newDownloaded3, null);
     doReturn(downloadResult3).when(downloader).downloadContent(eq(url3));
 
     // Crawl
@@ -179,16 +183,19 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(3, count);
 
     // Download date is set
-    final Document document3 =
-        documentDao.getForUrlAndSource(sessionProvider.getStatelessSession(), url3, source1.getId());
+    final Document document3 = documentDao.getForUrlAndSource(sessionProvider.getStatelessSession(),
+        url3, source1.getId());
     assertEquals(newDownloaded3, document3.getDownloaded());
     // Content is set
-    final RawContent rawContent3 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), document3.getId());
+    final RawContent rawContent3 =
+        rawContentDao.getEntity(sessionProvider.getStatelessSession(), document3.getId());
     assertEquals(newRawContent3, rawContent3.getContent());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document3.getSourceId(), document3.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document3.getSourceId(), document3.getPublishedDate()));
   }
 
   @Test
@@ -214,7 +221,8 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
 
     // Mock download result
-    final DownloadResult downloadResult3 = new DownloadResult(null, url3, newRawContent3, newDownloaded3, null);
+    final DownloadResult downloadResult3 =
+        new DownloadResult(null, url3, newRawContent3, newDownloaded3, null);
     doReturn(downloadResult3).when(downloader).downloadContent(eq(url3));
 
     // Crawl
@@ -225,16 +233,19 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(3, count);
 
     // Download date is set
-    final Document document3 =
-        documentDao.getForUrlAndSource(sessionProvider.getStatelessSession(), url3, source1.getId());
+    final Document document3 = documentDao.getForUrlAndSource(sessionProvider.getStatelessSession(),
+        url3, source1.getId());
     assertEquals(newDownloaded3, document3.getDownloaded());
     // Content is set
-    final RawContent rawContent3 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), document3.getId());
+    final RawContent rawContent3 =
+        rawContentDao.getEntity(sessionProvider.getStatelessSession(), document3.getId());
     assertEquals(newRawContent3, rawContent3.getContent());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document3.getSourceId(), document3.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document3.getSourceId(), document3.getPublishedDate()));
   }
 
   @Test
@@ -244,7 +255,8 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
 
     Document document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     final LocalDateTime oldDownloaded1 = document1.getDownloaded();
-    RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), document1.getId());
+    RawContent rawContent1 =
+        rawContentDao.getEntity(sessionProvider.getStatelessSession(), document1.getId());
     final String oldContent1 = rawContent1.getContent();
 
     final String url1 = "http://www.url1.de/";
@@ -261,7 +273,8 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
 
     // Mock download result
-    final DownloadResult downloadResult1 = new DownloadResult(null, url1, newRawContent1, newDownloaded1, null);
+    final DownloadResult downloadResult1 =
+        new DownloadResult(null, url1, newRawContent1, newDownloaded1, null);
     doReturn(downloadResult1).when(downloader).downloadContent(eq(url1));
 
     // Crawl
@@ -279,8 +292,10 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(oldContent1, rawContent1.getContent());
 
     // Statistics are not rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertNull(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertNull(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
   }
 
   @Test
@@ -302,7 +317,8 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
 
     // Mock download result
-    final DownloadResult downloadResult2 = new DownloadResult(null, url2, newRawContent2, newDownloaded2, null);
+    final DownloadResult downloadResult2 =
+        new DownloadResult(null, url2, newRawContent2, newDownloaded2, null);
     doReturn(downloadResult2).when(downloader).downloadContent(eq(url2));
 
     // Crawl
@@ -316,12 +332,15 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     final Document document2 = documentDao.getEntity(sessionProvider.getStatelessSession(), 2);
     assertEquals(newDownloaded2, document2.getDownloaded());
     // Content is set
-    final RawContent rawContent2 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), document2.getId());
+    final RawContent rawContent2 =
+        rawContentDao.getEntity(sessionProvider.getStatelessSession(), document2.getId());
     assertEquals(newRawContent2, rawContent2.getContent());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
   }
 
   @Test
@@ -347,9 +366,10 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
 
     // Mock download results (3 fails, 4 works)
-    doThrow(Exception.class).when(downloadService).existsWithDownloadSuccess(any(StatelessSession.class), eq(url3),
-        any(Long.class));
-    final DownloadResult downloadResult4 = new DownloadResult(null, url4, newRawContent4, newDownloaded4, null);
+    doThrow(Exception.class).when(downloadService)
+        .existsWithDownloadSuccess(any(StatelessSession.class), eq(url3), any(Long.class));
+    final DownloadResult downloadResult4 =
+        new DownloadResult(null, url4, newRawContent4, newDownloaded4, null);
     doReturn(downloadResult4).when(downloader).downloadContent(eq(url4));
 
     // Crawl
@@ -360,7 +380,8 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(3, count);
 
     // Statistics are not rebuilt for document 3, but for document 4
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
     assertNull(statisticsToBeRebuilt.getValue(source1.getId(), newPublished3.toLocalDate()));
     assertTrue(statisticsToBeRebuilt.getValue(source1.getId(), newPublished4.toLocalDate()));
   }
@@ -389,7 +410,8 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doThrow(Exception.class).when(downloader).downloadContent(eq(url3));
     final LocalDateTime newDownloaded4 = LocalDateTime.now();
     final String newRawContent4 = "Content4-new";
-    final DownloadResult downloadResult4 = new DownloadResult(null, url4, newRawContent4, newDownloaded4, null);
+    final DownloadResult downloadResult4 =
+        new DownloadResult(null, url4, newRawContent4, newDownloaded4, null);
     doReturn(downloadResult4).when(downloader).downloadContent(eq(url4));
 
     // Crawl
@@ -400,7 +422,8 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(3, count);
 
     // Statistics are not rebuilt for document 3, but for document 4
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
     assertNull(statisticsToBeRebuilt.getValue(source1.getId(), newPublished3.toLocalDate()));
     assertTrue(statisticsToBeRebuilt.getValue(source1.getId(), newPublished4.toLocalDate()));
   }
@@ -430,14 +453,17 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
 
     // Mock download results
-    final DownloadResult downloadResult3 = new DownloadResult(null, url3, newRawContent3, newDownloaded3, null);
+    final DownloadResult downloadResult3 =
+        new DownloadResult(null, url3, newRawContent3, newDownloaded3, null);
     doReturn(downloadResult3).when(downloader).downloadContent(eq(url3));
-    final DownloadResult downloadResult4 = new DownloadResult(null, url4, newRawContent4, newDownloaded4, null);
+    final DownloadResult downloadResult4 =
+        new DownloadResult(null, url4, newRawContent4, newDownloaded4, null);
     doReturn(downloadResult4).when(downloader).downloadContent(eq(url4));
 
     // Crawl (3 fails, 4 works)
-    doThrow(Exception.class).when(documentCrawler).performCrawling(any(StatelessSession.class), anyString(),
-        anyString(), any(LocalDateTime.class), eq(downloadResult3), any(Long.class), any(Long.class));
+    doThrow(Exception.class).when(documentCrawler).performCrawling(any(StatelessSession.class),
+        anyString(), anyString(), any(LocalDateTime.class), eq(downloadResult3), any(Long.class),
+        any(Long.class));
     sourceCrawler.performCrawling(sessionProvider, taskExecution, crawling1, source1);
 
     // Only one new document is created
@@ -445,7 +471,8 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(3, count);
 
     // Statistics are not rebuilt for document 3, but for document 4
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
     assertNull(statisticsToBeRebuilt.getValue(source1.getId(), newPublished3.toLocalDate()));
     assertTrue(statisticsToBeRebuilt.getValue(source1.getId(), newPublished4.toLocalDate()));
   }

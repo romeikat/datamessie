@@ -28,12 +28,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.util.FileUtil;
@@ -219,13 +217,14 @@ public class TaskManager {
     return null;
   }
 
-  public List<TaskExecution> getTaskExecutions(final String name, final TaskExecutionStatus... taskExecutionStatus) {
+  public List<TaskExecution> getTaskExecutions(final String name,
+      final TaskExecutionStatus... taskExecutionStatus) {
     final List<TaskExecution> result = new LinkedList<TaskExecution>();
     final List<TaskExecutionStatus> taskExecutionStatusAsList = Arrays.asList(taskExecutionStatus);
     synchronized (taskExecutions) {
       for (final TaskExecution taskExecution : taskExecutions) {
-        final boolean statusMatches =
-            taskExecutionStatus == null || taskExecutionStatusAsList.contains(taskExecution.getStatus());
+        final boolean statusMatches = taskExecutionStatus == null
+            || taskExecutionStatusAsList.contains(taskExecution.getStatus());
         final boolean nameMatches = name == null || taskExecution.getName().equals(name);
         if (statusMatches && nameMatches) {
           result.add(taskExecution);
@@ -235,12 +234,13 @@ public class TaskManager {
     return result;
   }
 
-  public boolean hasTaskExecutions(final String name, final TaskExecutionStatus taskExecutionStatus) {
+  public boolean hasTaskExecutions(final String name,
+      final TaskExecutionStatus taskExecutionStatus) {
     final List<TaskExecutionStatus> taskExecutionStatusAsList = Arrays.asList(taskExecutionStatus);
     synchronized (taskExecutions) {
       for (final TaskExecution taskExecution : taskExecutions) {
-        final boolean statusMatches =
-            taskExecutionStatus == null || taskExecutionStatusAsList.contains(taskExecution.getStatus());
+        final boolean statusMatches = taskExecutionStatus == null
+            || taskExecutionStatusAsList.contains(taskExecution.getStatus());
         final boolean nameMatches = name == null || taskExecution.getName().equals(name);
         if (statusMatches && nameMatches) {
           return true;
@@ -279,8 +279,8 @@ public class TaskManager {
   private TaskExecution getFirstRequestedTask(final int prio) {
     synchronized (taskExecutions) {
       for (final TaskExecution taskExecution : taskExecutions) {
-        if (taskExecution.getStatus() == TaskExecutionStatus.EXECUTION_REQUESTED && taskExecution.getPriority() != null
-            && taskExecution.getPriority() == prio) {
+        if (taskExecution.getStatus() == TaskExecutionStatus.EXECUTION_REQUESTED
+            && taskExecution.getPriority() != null && taskExecution.getPriority() == prio) {
           return taskExecution;
         }
       }
@@ -291,8 +291,8 @@ public class TaskManager {
   private TaskExecution getFirstPausingTask(final int prio) {
     synchronized (taskExecutions) {
       for (final TaskExecution taskExecution : taskExecutions) {
-        if (taskExecution.getStatus() == TaskExecutionStatus.PAUSING && taskExecution.getPriority() != null
-            && taskExecution.getPriority() == prio) {
+        if (taskExecution.getStatus() == TaskExecutionStatus.PAUSING
+            && taskExecution.getPriority() != null && taskExecution.getPriority() == prio) {
           return taskExecution;
         }
       }
@@ -304,8 +304,8 @@ public class TaskManager {
     synchronized (taskExecutions) {
       for (final TaskExecution taskExecution : taskExecutions) {
         if ((taskExecution.getStatus() == TaskExecutionStatus.EXECUTING
-            || taskExecution.getStatus() == TaskExecutionStatus.IDLE) && taskExecution.getPriority() != null
-            && taskExecution.getPriority() < prio) {
+            || taskExecution.getStatus() == TaskExecutionStatus.IDLE)
+            && taskExecution.getPriority() != null && taskExecution.getPriority() < prio) {
           return true;
         }
       }
@@ -318,8 +318,8 @@ public class TaskManager {
     synchronized (taskExecutions) {
       for (final TaskExecution taskExecution : taskExecutions) {
         if ((taskExecution.getStatus() == TaskExecutionStatus.EXECUTING
-            || taskExecution.getStatus() == TaskExecutionStatus.IDLE) && taskExecution.getPriority() != null
-            && taskExecution.getPriority() > prio) {
+            || taskExecution.getStatus() == TaskExecutionStatus.IDLE)
+            && taskExecution.getPriority() != null && taskExecution.getPriority() > prio) {
           lessImportantActiveTasks.add(taskExecution);
         }
       }

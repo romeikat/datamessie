@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 

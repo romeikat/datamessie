@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-
 import com.google.common.base.Function;
 
 public class GetFirstDayOfMonthFunction implements Function<LocalDate, LocalDate>, Serializable {

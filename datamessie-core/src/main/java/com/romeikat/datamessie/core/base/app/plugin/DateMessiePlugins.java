@@ -24,9 +24,7 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Map;
-
 import org.springframework.context.ApplicationContext;
-
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.util.ApplicationContentProvider;
 

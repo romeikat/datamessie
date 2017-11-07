@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.service.DocumentService;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
@@ -54,7 +53,8 @@ public class DocumentsDeprocessingTask implements Task {
   @Autowired
   private SessionFactory sessionFactory;
 
-  private DocumentsDeprocessingTask(final long sourceId, final DocumentProcessingState targetState) {
+  private DocumentsDeprocessingTask(final long sourceId,
+      final DocumentProcessingState targetState) {
     this.sourceId = sourceId;
     this.targetState = targetState;
   }
@@ -78,8 +78,8 @@ public class DocumentsDeprocessingTask implements Task {
   public void execute(final TaskExecution taskExecution) throws TaskCancelledException {
     // Deprocess documents of source
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
-    documentService.deprocessDocumentsOfSource(sessionProvider.getStatelessSession(), taskExecution, sourceId,
-        targetState);
+    documentService.deprocessDocumentsOfSource(sessionProvider.getStatelessSession(), taskExecution,
+        sourceId, targetState);
     sessionProvider.closeStatelessSession();
   }
 

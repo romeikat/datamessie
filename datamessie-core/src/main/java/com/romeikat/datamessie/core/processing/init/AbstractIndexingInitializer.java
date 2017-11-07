@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import javax.annotation.PostConstruct;
-
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.processing.service.fulltext.index.IndexBuilder;
@@ -52,8 +51,8 @@ public abstract class AbstractIndexingInitializer {
   protected abstract Class<?>[] getClassesToIndex();
 
   public void startIndexing() {
-    indexBuilder =
-        new IndexBuilder(getHibernateSessionProvider(), getClassesToIndex(), getBatchSize(), getNumberOfThreads());
+    indexBuilder = new IndexBuilder(getHibernateSessionProvider(), getClassesToIndex(),
+        getBatchSize(), getNumberOfThreads());
     indexBuilder.startBuildingIndex();
   }
 

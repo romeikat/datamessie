@@ -23,10 +23,8 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-
 import com.romeikat.datamessie.core.base.ui.panel.DynamicListViewPanel;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
 
@@ -34,12 +32,14 @@ public class TagSelectingRulesPanel extends DynamicListViewPanel<TagSelectingRul
 
   private static final long serialVersionUID = 1L;
 
-  public TagSelectingRulesPanel(final String id, final IModel<List<TagSelectingRuleDto>> itemsModel) {
+  public TagSelectingRulesPanel(final String id,
+      final IModel<List<TagSelectingRuleDto>> itemsModel) {
     super(id, itemsModel);
   }
 
   @Override
-  protected Panel getItemPanel(final String id, final IModel<TagSelectingRuleDto> tagSelectingRuleModel) {
+  protected Panel getItemPanel(final String id,
+      final IModel<TagSelectingRuleDto> tagSelectingRuleModel) {
     final Panel tagSelectingRulePanel = new TagSelectingRulePanel(id, tagSelectingRuleModel);
     return tagSelectingRulePanel;
   }

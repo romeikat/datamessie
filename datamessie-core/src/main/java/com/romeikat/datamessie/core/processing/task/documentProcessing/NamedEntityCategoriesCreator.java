@@ -27,13 +27,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.app.plugin.DateMessiePlugins;
 import com.romeikat.datamessie.core.base.app.plugin.INamedEntityCategoryProider;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
@@ -41,7 +39,6 @@ import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
-
 import jersey.repackaged.com.google.common.collect.Sets;
 
 @Service
@@ -82,7 +79,8 @@ public class NamedEntityCategoriesCreator {
     }
   }
 
-  private Collection<NamedEntity> getNamedEntitiesForCategoriesCreation(final StatelessSession statelessSession,
+  private Collection<NamedEntity> getNamedEntitiesForCategoriesCreation(
+      final StatelessSession statelessSession,
       final Collection<NamedEntityOccurrence> namedEntityOccurrences) {
     final Set<Long> namedEntityIds = Sets.newHashSet();
     // Collect named entities for which categories should be created
@@ -91,21 +89,24 @@ public class NamedEntityCategoriesCreator {
       namedEntityIds.add(namedEntityId);
     }
     // Load named entities
-    final Collection<NamedEntity> namedEntities = namedEntityDao.getEntities(statelessSession, namedEntityIds);
+    final Collection<NamedEntity> namedEntities =
+        namedEntityDao.getEntities(statelessSession, namedEntityIds);
     // Done
     return namedEntities;
   }
 
-  private void createNamedEntityCategories(final StatelessSession statelessSession, final NamedEntity namedEntity) {
+  private void createNamedEntityCategories(final StatelessSession statelessSession,
+      final NamedEntity namedEntity) {
     final Set<String> namedEntityCategoryNames = getNamedEntityCategoryNames(namedEntity);
     for (final String namedEntityCategoryName : namedEntityCategoryNames) {
       createNamedEntityCategory(statelessSession, namedEntity, namedEntityCategoryName);
     }
   }
 
-  private void createNamedEntityCategory(final StatelessSession statelessSession, final NamedEntity namedEntity,
-      final String namedEntityCategoryName) {
-    final long categoryNamedEntityId = namedEntityDao.getOrCreate(statelessSession, namedEntityCategoryName);
+  private void createNamedEntityCategory(final StatelessSession statelessSession,
+      final NamedEntity namedEntity, final String namedEntityCategoryName) {
+    final long categoryNamedEntityId =
+        namedEntityDao.getOrCreate(statelessSession, namedEntityCategoryName);
     final NamedEntityCategory namedEntityCategory = new NamedEntityCategory();
     namedEntityCategory.setNamedEntityId(namedEntity.getId());
     namedEntityCategory.setCategoryNamedEntityId(categoryNamedEntityId);
@@ -126,7 +127,8 @@ public class NamedEntityCategoriesCreator {
     // Translate categories into names for named entities
     final Set<String> categoriesAsNamedEntityNames = new HashSet<String>();
     for (final String namedEntityCategoryName : namedEntityCategoryNames) {
-      final String namedEntityCategoryNameAsMultipleWords = NamedEntity.getAsMultipleWords(namedEntityCategoryName);
+      final String namedEntityCategoryNameAsMultipleWords =
+          NamedEntity.getAsMultipleWords(namedEntityCategoryName);
       categoriesAsNamedEntityNames.add(namedEntityCategoryNameAsMultipleWords);
     }
 

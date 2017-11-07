@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
-
 import com.romeikat.datamessie.core.base.util.comparator.AscendingComparator;
 
 public class ComparableSparseSingleTable<X extends Comparable<? super X>, Y extends Comparable<? super Y>, Z extends Comparable<? super Z>>
@@ -52,7 +51,8 @@ public class ComparableSparseSingleTable<X extends Comparable<? super X>, Y exte
   }
 
   public synchronized SortedMap<X, Z> getColumnSorted(final Y columnHeader) {
-    return getColumnSorted(columnHeader, new AscendingComparator<X>(), new AscendingComparator<Z>());
+    return getColumnSorted(columnHeader, new AscendingComparator<X>(),
+        new AscendingComparator<Z>());
   }
 
   public synchronized List<Y> getColumnHeadersSorted() {

@@ -27,9 +27,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
-
 import org.apache.commons.lang3.BooleanUtils;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.util.comparator.DescendingComparator;
 import com.romeikat.datamessie.core.base.util.sparsetable.Cell;
@@ -113,8 +111,8 @@ public class StatisticsToBeRebuilt {
 
     // Prio 3: source and published date
     // In this case, use highest published date for all sources
-    final List<LocalDate> publishedDates =
-        sourcesAndPublishedTatesToBeRebuilt.getColumnHeadersSorted(new DescendingComparator<LocalDate>());
+    final List<LocalDate> publishedDates = sourcesAndPublishedTatesToBeRebuilt
+        .getColumnHeadersSorted(new DescendingComparator<LocalDate>());
     final Iterator<LocalDate> publishedDatesIt = publishedDates.iterator();
     if (!publishedDatesIt.hasNext()) {
       return null;

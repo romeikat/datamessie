@@ -26,7 +26,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -39,7 +38,6 @@ import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.ui.behavior.FutureUpdateBehavior;
 
 public abstract class AsynchronousUpdatePanel<T> extends Panel {
@@ -124,7 +122,8 @@ public abstract class AsynchronousUpdatePanel<T> extends Panel {
   // http://javathoughts.capesugarbird.com/2008/03/ajax-button-with-overlay-div-and-wait.html
   private Label createLoadingLabel(final String id) {
     final CharSequence url = RequestCycle.get().urlFor(LOADING_RESOURCE_BAR, null);
-    final String loading = "<img style='vertical-align:middle;' alt=\"Loading...\" src=\"" + url + "\"/>";
+    final String loading =
+        "<img style='vertical-align:middle;' alt=\"Loading...\" src=\"" + url + "\"/>";
     final Label label = new Label(id, loading);
     label.setEscapeModelStrings(false);
     return label;

@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.io.File;
-
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;

@@ -26,13 +26,10 @@ import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-
 import java.util.Collection;
 import java.util.List;
-
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
@@ -45,8 +42,9 @@ public class AbstractEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Override
   protected Operation initDb() {
-    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE, insertInto("fooEntity").columns("name", "active")
-        .values("Foo1", true).values("Foo2", true).values("Foo3", false).build());
+    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
+        insertInto("fooEntity").columns("name", "active").values("Foo1", true).values("Foo2", true)
+            .values("Foo3", false).build());
   }
 
   @Test
@@ -68,7 +66,8 @@ public class AbstractEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void getEntitesByProperty_unique() {
-    final Collection<FooEntity> foos = dao.getEntitesByProperty(sessionProvider.getStatelessSession(), "active", false);
+    final Collection<FooEntity> foos =
+        dao.getEntitesByProperty(sessionProvider.getStatelessSession(), "active", false);
     assertEquals(1, foos.size());
 
     dbSetupTracker.skipNextLaunch();
@@ -76,7 +75,8 @@ public class AbstractEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void getEntitesByProperty_multiple() {
-    final Collection<FooEntity> foos = dao.getEntitesByProperty(sessionProvider.getStatelessSession(), "active", true);
+    final Collection<FooEntity> foos =
+        dao.getEntitesByProperty(sessionProvider.getStatelessSession(), "active", true);
     assertEquals(2, foos.size());
 
     dbSetupTracker.skipNextLaunch();
@@ -84,7 +84,8 @@ public class AbstractEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void getEntitesByProperty_none() {
-    final Collection<FooEntity> foos = dao.getEntitesByProperty(sessionProvider.getStatelessSession(), "name", "Foo-1");
+    final Collection<FooEntity> foos =
+        dao.getEntitesByProperty(sessionProvider.getStatelessSession(), "name", "Foo-1");
     assertEquals(0, foos.size());
 
     dbSetupTracker.skipNextLaunch();
@@ -102,7 +103,8 @@ public class AbstractEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void getUniqueEntityByProperty_unique() {
-    final FooEntity foo = dao.getUniqueEntityByProperty(sessionProvider.getStatelessSession(), "active", false);
+    final FooEntity foo =
+        dao.getUniqueEntityByProperty(sessionProvider.getStatelessSession(), "active", false);
     assertEquals("Foo3", foo.getName());
 
     dbSetupTracker.skipNextLaunch();
@@ -115,7 +117,8 @@ public class AbstractEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void getUniqueEntityByProperty_nonExisting() {
-    final FooEntity foo = dao.getUniqueEntityByProperty(sessionProvider.getStatelessSession(), "name", "Foo-1");
+    final FooEntity foo =
+        dao.getUniqueEntityByProperty(sessionProvider.getStatelessSession(), "name", "Foo-1");
     assertNull(foo);
 
     dbSetupTracker.skipNextLaunch();
@@ -131,7 +134,8 @@ public class AbstractEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Test(expected = Exception.class)
   public void insert_stateless_existing() {
-    final FooEntity foo = dao.getUniqueEntityByProperty(sessionProvider.getStatelessSession(), "name", "Foo1");
+    final FooEntity foo =
+        dao.getUniqueEntityByProperty(sessionProvider.getStatelessSession(), "name", "Foo1");
     dao.insert(sessionProvider.getStatelessSession(), foo);
   }
 
@@ -150,12 +154,14 @@ public class AbstractEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void update_stateless_existing() {
-    final FooEntity foo = dao.getUniqueEntityByProperty(sessionProvider.getStatelessSession(), "name", "Foo1");
+    final FooEntity foo =
+        dao.getUniqueEntityByProperty(sessionProvider.getStatelessSession(), "name", "Foo1");
     foo.setActive(false);
     dao.update(sessionProvider.getStatelessSession(), foo);
     sessionProvider.closeStatelessSession();
 
-    Collection<FooEntity> foos = dao.getEntitesByProperty(sessionProvider.getStatelessSession(), "active", true);
+    Collection<FooEntity> foos =
+        dao.getEntitesByProperty(sessionProvider.getStatelessSession(), "active", true);
     assertEquals(1, foos.size());
     foos = dao.getEntitesByProperty(sessionProvider.getStatelessSession(), "active", false);
     assertEquals(2, foos.size());
@@ -176,7 +182,8 @@ public class AbstractEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Test
   public void delete_stateless_existing() {
-    final FooEntity foo = dao.getUniqueEntityByProperty(sessionProvider.getStatelessSession(), "name", "Foo1");
+    final FooEntity foo =
+        dao.getUniqueEntityByProperty(sessionProvider.getStatelessSession(), "name", "Foo1");
     dao.delete(sessionProvider.getStatelessSession(), foo);
     sessionProvider.closeStatelessSession();
 

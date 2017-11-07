@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Set;
-
 import org.hibernate.SharedSessionContract;
 
 public interface ILazyCache<K, V, S extends SharedSessionContract> {

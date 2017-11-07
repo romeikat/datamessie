@@ -23,12 +23,12 @@ License along with this program.  If not, see
  */
 
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.dao.impl.AbstractEntityDao;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithoutIdAndVersion;
 
 @Repository
-public class FooEntityWithoutGeneratedIdAndVersionDao extends AbstractEntityDao<FooEntityWithoutIdAndVersion> {
+public class FooEntityWithoutGeneratedIdAndVersionDao
+    extends AbstractEntityDao<FooEntityWithoutIdAndVersion> {
 
   public FooEntityWithoutGeneratedIdAndVersionDao() {
     super(FooEntityWithoutIdAndVersion.class);

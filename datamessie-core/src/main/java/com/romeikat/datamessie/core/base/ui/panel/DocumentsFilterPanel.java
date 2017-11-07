@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.datetime.StyleDateConverter;
 import org.apache.wicket.extensions.yui.calendar.DatePicker;
@@ -44,7 +43,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
@@ -103,72 +101,74 @@ public class DocumentsFilterPanel extends Panel {
   }
 
   private void initialize() {
-    final IModel<DocumentsFilterSettings> dfsModel = DataMessieSession.get().getDocumentsFilterSettingsModel();
+    final IModel<DocumentsFilterSettings> dfsModel =
+        DataMessieSession.get().getDocumentsFilterSettingsModel();
     // Form
-    final Form<DocumentsFilterSettings> filterForm = new Form<DocumentsFilterSettings>("filterForm", dfsModel) {
-      private static final long serialVersionUID = 1L;
+    final Form<DocumentsFilterSettings> filterForm =
+        new Form<DocumentsFilterSettings>("filterForm", dfsModel) {
+          private static final long serialVersionUID = 1L;
 
-      @Override
-      protected void onError() {
-        super.onError();
-      }
-
-      @Override
-      protected void onSubmit() {
-        final PageParameters pageParameters = getPage().getPageParameters();
-        // Source
-        final Long selectedSourceId = getSelectedSourceId();
-        if (selectedSourceId == null) {
-          pageParameters.remove("source");
-        } else {
-          pageParameters.set("source", selectedSourceId);
-        }
-        // Source type
-        final Collection<Long> selectedSourceTypeIds = getSelectedSourceTypeIds();
-        if (selectedSourceTypeIds == null || selectedSourceTypeIds.isEmpty()) {
-          pageParameters.remove("sourcetypes");
-        } else {
-          pageParameters.set("sourcetypes", StringUtils.join(selectedSourceTypeIds, ","));
-        }
-        // Crawling
-        final Long selectedCrawlingId = getSelectedCrawlingId();
-        if (selectedCrawlingId == null) {
-          pageParameters.remove("crawling");
-        } else {
-          pageParameters.set("crawling", selectedCrawlingId);
-        }
-        // From date
-        final LocalDate selectedFromDate = getSelectedFromDate();
-        final String fromDate = formatLocalDate(selectedFromDate);
-        if (fromDate == null) {
-          pageParameters.remove("from");
-        } else {
-          pageParameters.set("from", fromDate);
-        }
-        // To date
-        final LocalDate selectedToDate = getSelectedToDate();
-        final String toDate = formatLocalDate(selectedToDate);
-        if (toDate == null) {
-          pageParameters.remove("to");
-        } else {
-          pageParameters.set("to", toDate);
-        }
-        // Cleaned content is not processed as it is not included in the URL
-        // Document IDs are not processed as they are not included in the URL
-        // States
-        final Collection<DocumentProcessingState> selectedStates = getSelectedStates();
-        if (selectedStates == null || selectedStates.isEmpty()) {
-          pageParameters.remove("states");
-        } else {
-          final List<Integer> statesOrdinals = new ArrayList<Integer>(selectedStates.size());
-          for (final DocumentProcessingState selectedState : selectedStates) {
-            statesOrdinals.add(selectedState.ordinal());
+          @Override
+          protected void onError() {
+            super.onError();
           }
-          Collections.sort(statesOrdinals);
-          pageParameters.set("states", StringUtils.join(statesOrdinals, ","));
-        }
-      }
-    };
+
+          @Override
+          protected void onSubmit() {
+            final PageParameters pageParameters = getPage().getPageParameters();
+            // Source
+            final Long selectedSourceId = getSelectedSourceId();
+            if (selectedSourceId == null) {
+              pageParameters.remove("source");
+            } else {
+              pageParameters.set("source", selectedSourceId);
+            }
+            // Source type
+            final Collection<Long> selectedSourceTypeIds = getSelectedSourceTypeIds();
+            if (selectedSourceTypeIds == null || selectedSourceTypeIds.isEmpty()) {
+              pageParameters.remove("sourcetypes");
+            } else {
+              pageParameters.set("sourcetypes", StringUtils.join(selectedSourceTypeIds, ","));
+            }
+            // Crawling
+            final Long selectedCrawlingId = getSelectedCrawlingId();
+            if (selectedCrawlingId == null) {
+              pageParameters.remove("crawling");
+            } else {
+              pageParameters.set("crawling", selectedCrawlingId);
+            }
+            // From date
+            final LocalDate selectedFromDate = getSelectedFromDate();
+            final String fromDate = formatLocalDate(selectedFromDate);
+            if (fromDate == null) {
+              pageParameters.remove("from");
+            } else {
+              pageParameters.set("from", fromDate);
+            }
+            // To date
+            final LocalDate selectedToDate = getSelectedToDate();
+            final String toDate = formatLocalDate(selectedToDate);
+            if (toDate == null) {
+              pageParameters.remove("to");
+            } else {
+              pageParameters.set("to", toDate);
+            }
+            // Cleaned content is not processed as it is not included in the URL
+            // Document IDs are not processed as they are not included in the URL
+            // States
+            final Collection<DocumentProcessingState> selectedStates = getSelectedStates();
+            if (selectedStates == null || selectedStates.isEmpty()) {
+              pageParameters.remove("states");
+            } else {
+              final List<Integer> statesOrdinals = new ArrayList<Integer>(selectedStates.size());
+              for (final DocumentProcessingState selectedState : selectedStates) {
+                statesOrdinals.add(selectedState.ordinal());
+              }
+              Collections.sort(statesOrdinals);
+              pageParameters.set("states", StringUtils.join(statesOrdinals, ","));
+            }
+          }
+        };
     add(filterForm);
 
     // Submit link
@@ -188,8 +188,8 @@ public class DocumentsFilterPanel extends Panel {
     filterForm.add(crawlingIdFilter);
 
     // From date
-    fromDateFilter = new LocalDateTextField("fromDateFilter", new PropertyModel<LocalDate>(dfsModel, "fromDate"),
-        new StyleDateConverter("M-", false));
+    fromDateFilter = new LocalDateTextField("fromDateFilter",
+        new PropertyModel<LocalDate>(dfsModel, "fromDate"), new StyleDateConverter("M-", false));
     filterForm.add(fromDateFilter);
     // From date picker
     final DatePicker fromDatePicker = new DatePicker();
@@ -202,8 +202,8 @@ public class DocumentsFilterPanel extends Panel {
     filterForm.add(toLabel);
 
     // To date
-    toDateFilter = new LocalDateTextField("toDateFilter", new PropertyModel<LocalDate>(dfsModel, "toDate"),
-        new StyleDateConverter("M-", false));
+    toDateFilter = new LocalDateTextField("toDateFilter",
+        new PropertyModel<LocalDate>(dfsModel, "toDate"), new StyleDateConverter("M-", false));
     filterForm.add(toDateFilter);
     // To date picker
     final DatePicker toDatePicker = new DatePicker();

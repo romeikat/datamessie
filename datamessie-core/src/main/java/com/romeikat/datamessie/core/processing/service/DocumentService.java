@@ -22,12 +22,10 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.time.LocalDateTime;
-
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -39,8 +37,9 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
   @Qualifier("documentDao")
   private DocumentDao documentDao;
 
-  public void updateDocument(final StatelessSession statelessSession, final Document document, final String url,
-      final LocalDateTime downloaded, final DocumentProcessingState state, final Integer statusCode) {
+  public void updateDocument(final StatelessSession statelessSession, final Document document,
+      final String url, final LocalDateTime downloaded, final DocumentProcessingState state,
+      final Integer statusCode) {
     if (document == null) {
       return;
     }

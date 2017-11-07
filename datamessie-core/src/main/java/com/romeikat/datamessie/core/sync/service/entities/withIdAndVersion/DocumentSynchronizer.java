@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
@@ -59,7 +58,8 @@ public class DocumentSynchronizer extends EntityWithIdAndVersionSynchronizer<Doc
     final DocumentProcessingState sourceState = source.getState();
     if (syncData.shouldUpdateOriginalData()) {
       DocumentProcessingState targetState = sourceState;
-      if (targetState == DocumentProcessingState.CLEANED || targetState == DocumentProcessingState.STEMMED) {
+      if (targetState == DocumentProcessingState.CLEANED
+          || targetState == DocumentProcessingState.STEMMED) {
         targetState = DocumentProcessingState.REDIRECTED;
       }
       target.setState(targetState);

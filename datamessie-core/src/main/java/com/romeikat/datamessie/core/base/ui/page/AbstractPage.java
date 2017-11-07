@@ -26,7 +26,6 @@ import org.apache.wicket.Application;
 import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-
 import com.romeikat.datamessie.core.base.app.DataMessieApplication;
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
 

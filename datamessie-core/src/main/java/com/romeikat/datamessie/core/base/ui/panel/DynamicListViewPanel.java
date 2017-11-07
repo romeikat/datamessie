@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;

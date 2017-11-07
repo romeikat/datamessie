@@ -30,13 +30,11 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.util.convert.IConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.app.shared.IFullTextSearcher;
 import com.romeikat.datamessie.core.base.app.shared.ISharedBean;
@@ -56,7 +54,6 @@ import com.romeikat.datamessie.core.base.util.converter.TaskExecutionStatusConve
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 
 @Component
@@ -108,17 +105,20 @@ public class DataMessieBaseModule extends AbstractDataMessieModule {
     converters.put(LocalDateTime.class, LocalDateTimeConverter.INSTANCE_UI);
     converters.put(Duration.class, DurationConverter.INSTANCE);
     converters.put(TaskExecutionStatus.class, TaskExecutionStatusConverter.INSTANCE);
-    converters.put(DocumentProcessingStateConverter.class, DocumentProcessingStateConverter.INSTANCE);
+    converters.put(DocumentProcessingStateConverter.class,
+        DocumentProcessingStateConverter.INSTANCE);
     converters.put(Language.class, LanguageConverter.INSTANCE);
     return converters;
   }
 
   @Override
   public List<NavigationLink<? extends Page>> getNavigationLinks() {
-    final List<NavigationLink<? extends Page>> navigationLinks = new LinkedList<NavigationLink<? extends Page>>();
+    final List<NavigationLink<? extends Page>> navigationLinks =
+        new LinkedList<NavigationLink<? extends Page>>();
     // Statistics
     final NavigationLink<StatisticsPage> statisticsNavigationLink =
-        new NavigationLink<StatisticsPage>("Statistics", 1, StatisticsPage.class, DataMessieRoles.STATISTICS_PAGE);
+        new NavigationLink<StatisticsPage>("Statistics", 1, StatisticsPage.class,
+            DataMessieRoles.STATISTICS_PAGE);
     navigationLinks.add(statisticsNavigationLink);
     // Done
     return navigationLinks;

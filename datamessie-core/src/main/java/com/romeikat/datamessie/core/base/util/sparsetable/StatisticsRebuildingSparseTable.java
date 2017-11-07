@@ -24,7 +24,8 @@ License along with this program.  If not, see
 
 import java.time.LocalDate;
 
-public class StatisticsRebuildingSparseTable extends ComparableSparseSingleTable<Long, LocalDate, Boolean> {
+public class StatisticsRebuildingSparseTable
+    extends ComparableSparseSingleTable<Long, LocalDate, Boolean> {
 
   private static final long serialVersionUID = 1L;
 

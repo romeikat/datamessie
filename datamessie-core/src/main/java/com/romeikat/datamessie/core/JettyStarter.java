@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.io.File;
-
 import org.apache.wicket.util.time.Duration;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;

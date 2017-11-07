@@ -25,14 +25,12 @@ License along with this program.  If not, see
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.dao.impl.StatisticsDao;
@@ -67,17 +65,19 @@ public class StatisticsService {
     statisticsDao.deleteStatistics(statelessSession, sourceId, published);
 
     // Calculate new statistics
-    final StatisticsSparseTable statistics = calculateStatistics(statelessSession, sourceId, published);
+    final StatisticsSparseTable statistics =
+        calculateStatistics(statelessSession, sourceId, published);
 
     // Save new statistics
     statisticsDao.saveStatistics(statelessSession, statistics);
   }
 
-  private StatisticsSparseTable calculateStatistics(final SharedSessionContract ssc, final Long sourceId,
-      final LocalDate published) {
+  private StatisticsSparseTable calculateStatistics(final SharedSessionContract ssc,
+      final Long sourceId, final LocalDate published) {
     final StatisticsSparseTable statistics = new StatisticsSparseTable();
 
-    final List<DocumentStatisticsDto> dtos = documentDao.getAsDocumentStatisticsDtos(ssc, sourceId, published);
+    final List<DocumentStatisticsDto> dtos =
+        documentDao.getAsDocumentStatisticsDtos(ssc, sourceId, published);
     for (final DocumentStatisticsDto dto : dtos) {
       final DocumentsPerState documentForState = new DocumentsPerState();
       documentForState.put(dto.getState(), 1l);
@@ -87,11 +87,13 @@ public class StatisticsService {
     return statistics;
   }
 
-  public <T> SparseSingleTable<Long, LocalDate, T> getStatistics(final StatisticsSparseTable baseStatistics,
-      final Collection<Long> sourceIds, final LocalDate from, final LocalDate to,
+  public <T> SparseSingleTable<Long, LocalDate, T> getStatistics(
+      final StatisticsSparseTable baseStatistics, final Collection<Long> sourceIds,
+      final LocalDate from, final LocalDate to,
       final Function<LocalDate, LocalDate> transformDateFunction,
       final Function<DocumentsPerState, T> transformValueFunction) {
-    final MergeNumberOfDocumentsFunction mergeNumberOfDocumentsFunction = new MergeNumberOfDocumentsFunction();
+    final MergeNumberOfDocumentsFunction mergeNumberOfDocumentsFunction =
+        new MergeNumberOfDocumentsFunction();
     final ITableExtractor<Long, LocalDate, DocumentsPerState, T> tableExtractor =
         new ITableExtractor<Long, LocalDate, DocumentsPerState, T>() {
 
@@ -120,7 +122,8 @@ public class StatisticsService {
           public DocumentsPerState mergeValues(final DocumentsPerState documentsPerState1,
               final DocumentsPerState documentsPerState2) {
             return mergeNumberOfDocumentsFunction
-                .apply(new ImmutablePair<DocumentsPerState, DocumentsPerState>(documentsPerState1, documentsPerState2));
+                .apply(new ImmutablePair<DocumentsPerState, DocumentsPerState>(documentsPerState1,
+                    documentsPerState2));
           }
 
           @Override
@@ -130,7 +133,8 @@ public class StatisticsService {
 
         };
 
-    final SparseSingleTable<Long, LocalDate, T> extractedStatistics = baseStatistics.extract(tableExtractor);
+    final SparseSingleTable<Long, LocalDate, T> extractedStatistics =
+        baseStatistics.extract(tableExtractor);
 
     // extractedStatistics only contains row headers for source IDs that were reported within the
     // time period; in order to cover all source IDs, we add all (remaining) source IDs
@@ -139,7 +143,8 @@ public class StatisticsService {
     // extractedStatistics only contains column headers for dates that were reported within the time
     // period; in order to cover all dates, we add all (remaining) dates
     final List<LocalDate> publishedDates = DateUtil.getLocalDatesBetween(from, to);
-    final List<LocalDate> transformedPublishedDates = Lists.transform(publishedDates, transformDateFunction);
+    final List<LocalDate> transformedPublishedDates =
+        Lists.transform(publishedDates, transformDateFunction);
     extractedStatistics.addColumnHeaders(transformedPublishedDates);
 
     return extractedStatistics;

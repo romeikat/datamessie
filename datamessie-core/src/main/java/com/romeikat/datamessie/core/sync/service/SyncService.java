@@ -24,11 +24,9 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.app.plugin.DateMessiePlugins;
 import com.romeikat.datamessie.core.base.app.plugin.ISynchronizersProvider;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
@@ -51,7 +49,6 @@ import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.TagSe
 import com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion.Project2SourceSynchronizer;
 import com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion.Source2SourceTypeSynchronizer;
 import com.romeikat.datamessie.core.sync.service.template.ISynchronizer;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 
 @Service

@@ -23,13 +23,10 @@ License along with this program.  If not, see
  */
 
 import static org.junit.Assert.assertEquals;
-
 import java.util.LinkedList;
 import java.util.List;
-
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 

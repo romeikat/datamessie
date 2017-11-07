@@ -24,14 +24,14 @@ License along with this program.  If not, see
 
 import java.util.ArrayList;
 import java.util.List;
-
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
 
 public class NamedEntityDetectionsUniqueList {
 
-  private final List<NamedEntityDetectionDto> namedEntityDetections = new ArrayList<NamedEntityDetectionDto>();
+  private final List<NamedEntityDetectionDto> namedEntityDetections =
+      new ArrayList<NamedEntityDetectionDto>();
 
   private final List<NamedEntityDetectionDto> buffer = new ArrayList<NamedEntityDetectionDto>();
 
@@ -70,7 +70,8 @@ public class NamedEntityDetectionsUniqueList {
       final String oldName = mergedNamedEntityDetection.getName();
       final String oldParentName = mergedNamedEntityDetection.getParentName();
       final String newName = oldName + " " + furtherNamedEntityDetection.getName();
-      final String newParentName = oldParentName + " " + furtherNamedEntityDetection.getParentName();
+      final String newParentName =
+          oldParentName + " " + furtherNamedEntityDetection.getParentName();
       mergedNamedEntityDetection.setName(newName).setParentName(newParentName);
     }
     // Clear buffer
@@ -83,7 +84,8 @@ public class NamedEntityDetectionsUniqueList {
     // Compare with the existing named entity detections
     for (final NamedEntityDetectionDto existingNamedEntityDetection : namedEntityDetections) {
       // Existing named entity detection has a different type => skip
-      final boolean typeMatch = existingNamedEntityDetection.getType().equals(newNamedEntityDetection.getType());
+      final boolean typeMatch =
+          existingNamedEntityDetection.getType().equals(newNamedEntityDetection.getType());
       if (!typeMatch) {
         continue;
       }
@@ -99,8 +101,10 @@ public class NamedEntityDetectionsUniqueList {
       }
       // Existing named entity detection is a part of new one => mark new one as parent of
       // existing one
-      final List<String> existingWordList = NamedEntity.getWordList(existingNamedEntityDetection.getParentName());
-      final List<String> newWordList = NamedEntity.getWordList(newNamedEntityDetection.getParentName());
+      final List<String> existingWordList =
+          NamedEntity.getWordList(existingNamedEntityDetection.getParentName());
+      final List<String> newWordList =
+          NamedEntity.getWordList(newNamedEntityDetection.getParentName());
       final boolean existingIsPartOfNew = newWordList.containsAll(existingWordList);
       if (existingIsPartOfNew) {
         existingNamedEntityDetection.setParentName(newNamedEntityDetection.getParentName());

@@ -23,22 +23,22 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDate;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 import com.romeikat.datamessie.core.domain.util.StringHashProvider;
 
 @Entity
 @Table(name = TagSelectingRule.TABLE_NAME,
-    uniqueConstraints = @UniqueConstraint(name = "tagSelectingRule_id_version", columnNames = {"id", "version"}),
+    uniqueConstraints = @UniqueConstraint(name = "tagSelectingRule_id_version",
+        columnNames = {"id", "version"}),
     indexes = @Index(name = "FK_tagSelectingRule_source_id", columnList = "source_id"))
-public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion implements StringHashProvider {
+public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
+    implements StringHashProvider {
 
   public static final String TABLE_NAME = "tagSelectingRule";
 

@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.io.Serializable;
 import java.util.Comparator;
-
 import com.romeikat.datamessie.core.base.ui.component.NavigationLink;
 
 public class NavigationLinkOrderComparator implements Comparator<NavigationLink<?>>, Serializable {
@@ -36,7 +35,8 @@ public class NavigationLinkOrderComparator implements Comparator<NavigationLink<
   private NavigationLinkOrderComparator() {}
 
   @Override
-  public int compare(final NavigationLink<?> navigationLink1, final NavigationLink<?> navigationLink2) {
+  public int compare(final NavigationLink<?> navigationLink1,
+      final NavigationLink<?> navigationLink2) {
     return navigationLink1.getOrder() - navigationLink2.getOrder();
   }
 

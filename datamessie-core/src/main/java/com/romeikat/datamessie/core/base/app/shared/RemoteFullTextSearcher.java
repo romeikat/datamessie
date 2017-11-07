@@ -25,11 +25,9 @@ License along with this program.  If not, see
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
 
 @Service

@@ -23,17 +23,15 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import org.hibernate.SharedSessionContract;
-
 import com.romeikat.datamessie.core.base.dao.EntityWithIdDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 
 public class DocumentsWithSourcesCache extends AbstractDocumentsCache<Source> {
 
-  public DocumentsWithSourcesCache(final SharedSessionContract ssc, final EntityWithIdDao<Source> dao,
-      final Collection<Document> documents) {
+  public DocumentsWithSourcesCache(final SharedSessionContract ssc,
+      final EntityWithIdDao<Source> dao, final Collection<Document> documents) {
     super(ssc, dao, documents);
   }
 

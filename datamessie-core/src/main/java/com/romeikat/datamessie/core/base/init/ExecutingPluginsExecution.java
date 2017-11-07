@@ -23,15 +23,12 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.app.plugin.DateMessiePlugins;
 import com.romeikat.datamessie.core.base.app.plugin.IExecutingPlugin;
 
@@ -51,7 +48,8 @@ public class ExecutingPluginsExecution {
       try {
         plugin.execute();
       } catch (final Exception e) {
-        final String msg = String.format("Could not execute plugin %s", plugin.getClass().getName());
+        final String msg =
+            String.format("Could not execute plugin %s", plugin.getClass().getName());
         LOG.error(msg, e);
       }
     }

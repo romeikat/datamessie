@@ -23,9 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.hibernate.SessionFactory;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
@@ -33,8 +31,9 @@ import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 public abstract class ListPublishedDateSequenceLoadingStrategy<T>
     extends PublishedDateSequenceLoadingStrategy<List<T>> {
 
-  public ListPublishedDateSequenceLoadingStrategy(final DocumentsFilterSettings dfs, final long first, final long count,
-      final SessionFactory sessionFactory, final SharedBeanProvider sharedBeanProvider) {
+  public ListPublishedDateSequenceLoadingStrategy(final DocumentsFilterSettings dfs,
+      final long first, final long count, final SessionFactory sessionFactory,
+      final SharedBeanProvider sharedBeanProvider) {
     super(dfs, first, count, sessionFactory, sharedBeanProvider);
   }
 

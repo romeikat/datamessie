@@ -27,9 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -37,7 +35,6 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
@@ -79,7 +76,8 @@ public class ProjectCrawlerTest extends AbstractDbSetupBasedTest {
     final Project2Source project2Source = new Project2Source(1, 1);
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
-        sequenceOf(CommonOperations.insertIntoProject(project1), CommonOperations.insertIntoSource(source1),
+        sequenceOf(CommonOperations.insertIntoProject(project1),
+            CommonOperations.insertIntoSource(source1),
             CommonOperations.insertIntoProject2Source(project2Source)));
   }
 
@@ -98,11 +96,13 @@ public class ProjectCrawlerTest extends AbstractDbSetupBasedTest {
     final Project project1 = projectDao.getEntity(sessionProvider.getStatelessSession(), 1);
 
     // Crawl
-    doNothing().when(sourceCrawler).performCrawling(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any());
+    doNothing().when(sourceCrawler).performCrawling(Matchers.any(), Matchers.any(), Matchers.any(),
+        Matchers.any());
     projectCrawler.performCrawling(taskExecution, project1);
 
     // New crawling is created
-    final List<Crawling> crawlings = crawlingDao.getForProject(sessionProvider.getStatelessSession(), project1.getId());
+    final List<Crawling> crawlings =
+        crawlingDao.getForProject(sessionProvider.getStatelessSession(), project1.getId());
     assertEquals(1, crawlings.size());
 
     // Completed is set
@@ -115,12 +115,13 @@ public class ProjectCrawlerTest extends AbstractDbSetupBasedTest {
     final Project project1 = projectDao.getEntity(sessionProvider.getStatelessSession(), 1);
 
     // Crawl
-    doThrow(Exception.class).when(sourceCrawler).performCrawling(Matchers.any(), Matchers.any(), Matchers.any(),
-        Matchers.any());
+    doThrow(Exception.class).when(sourceCrawler).performCrawling(Matchers.any(), Matchers.any(),
+        Matchers.any(), Matchers.any());
     projectCrawler.performCrawling(taskExecution, project1);
 
     // New crawling is created
-    final List<Crawling> crawlings = crawlingDao.getForProject(sessionProvider.getStatelessSession(), project1.getId());
+    final List<Crawling> crawlings =
+        crawlingDao.getForProject(sessionProvider.getStatelessSession(), project1.getId());
     assertEquals(1, crawlings.size());
 
     // Completed is set

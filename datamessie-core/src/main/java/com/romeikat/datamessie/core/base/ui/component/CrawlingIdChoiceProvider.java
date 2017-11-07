@@ -25,12 +25,10 @@ License along with this program.  If not, see
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
-
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateTimeConverter;
@@ -59,7 +57,8 @@ public class CrawlingIdChoiceProvider extends AbstractIdBasedChoiceProvider<Craw
   protected List<CrawlingOverviewDto> provideChoices() {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     final DocumentsFilterSettings documentsFilterSetting = dfsModel.getObject();
-    final Long projectId = documentsFilterSetting == null ? null : documentsFilterSetting.getProjectId();
+    final Long projectId =
+        documentsFilterSetting == null ? null : documentsFilterSetting.getProjectId();
     final List<CrawlingOverviewDto> choices =
         crawlingDao.getAsOverviewDtos(sessionProvider.getStatelessSession(), projectId);
     sessionProvider.closeStatelessSession();
@@ -83,23 +82,24 @@ public class CrawlingIdChoiceProvider extends AbstractIdBasedChoiceProvider<Craw
   @Override
   protected Comparator<CrawlingOverviewDto> getComparator() {
     // Sorting by started (descending)
-    final Comparator<CrawlingOverviewDto> displayTextComparator = new Comparator<CrawlingOverviewDto>() {
-      @Override
-      public int compare(final CrawlingOverviewDto choice1, final CrawlingOverviewDto choice2) {
-        final LocalDateTime started1 = choice1.getStarted();
-        final LocalDateTime started2 = choice2.getStarted();
-        if (started1 == null && started2 == null) {
-          return 0;
-        }
-        if (started1 == null) {
-          return -1;
-        }
-        if (started2 == null) {
-          return 1;
-        }
-        return started2.compareTo(started1);
-      }
-    };
+    final Comparator<CrawlingOverviewDto> displayTextComparator =
+        new Comparator<CrawlingOverviewDto>() {
+          @Override
+          public int compare(final CrawlingOverviewDto choice1, final CrawlingOverviewDto choice2) {
+            final LocalDateTime started1 = choice1.getStarted();
+            final LocalDateTime started2 = choice2.getStarted();
+            if (started1 == null && started2 == null) {
+              return 0;
+            }
+            if (started1 == null) {
+              return -1;
+            }
+            if (started2 == null) {
+              return 1;
+            }
+            return started2.compareTo(started1);
+          }
+        };
     return displayTextComparator;
   }
 

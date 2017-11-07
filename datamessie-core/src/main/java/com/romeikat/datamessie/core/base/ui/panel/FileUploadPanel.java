@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.basic.Label;
@@ -44,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wicketstuff.modalx.ModalContentPanel;
 import org.wicketstuff.modalx.ModalContentWindow;
-
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.base.util.FileProcessingException;
 
@@ -109,23 +107,24 @@ public abstract class FileUploadPanel extends ModalContentPanel {
       fileUploadNumbers.add(i);
     }
     fileUploadFields = new FileUploadField[numberOfFileUploads];
-    final ListView<Integer> fileUploadList = new ListView<Integer>("fileUploadList", fileUploadNumbers) {
-      private static final long serialVersionUID = 1L;
+    final ListView<Integer> fileUploadList =
+        new ListView<Integer>("fileUploadList", fileUploadNumbers) {
+          private static final long serialVersionUID = 1L;
 
-      @Override
-      protected void populateItem(final ListItem<Integer> item) {
-        final int numberOfFileUpload = item.getModelObject();
-        // Label
-        final String fileUploadLabelText = fileUploadLabels[numberOfFileUpload] + ":";
-        final Label fileUploadLabel = new Label("fileUploadLabel", fileUploadLabelText);
-        fileUploadLabel.setVisible(fileUploadLabelText != null);
-        item.add(fileUploadLabel);
-        // File upload
-        final FileUploadField fileUploadField = new FileUploadField("fileUploadField");
-        fileUploadFields[numberOfFileUpload] = fileUploadField;
-        item.add(fileUploadField);
-      }
-    };
+          @Override
+          protected void populateItem(final ListItem<Integer> item) {
+            final int numberOfFileUpload = item.getModelObject();
+            // Label
+            final String fileUploadLabelText = fileUploadLabels[numberOfFileUpload] + ":";
+            final Label fileUploadLabel = new Label("fileUploadLabel", fileUploadLabelText);
+            fileUploadLabel.setVisible(fileUploadLabelText != null);
+            item.add(fileUploadLabel);
+            // File upload
+            final FileUploadField fileUploadField = new FileUploadField("fileUploadField");
+            fileUploadFields[numberOfFileUpload] = fileUploadField;
+            item.add(fileUploadField);
+          }
+        };
     uploadForm.add(fileUploadList);
 
     feedbackTextArea = new TextArea<String>("feedbackTextArea", feedbackModel);

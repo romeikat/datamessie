@@ -23,11 +23,8 @@ License along with this program.  If not, see
  */
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.Resource;
-
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;

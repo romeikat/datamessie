@@ -24,14 +24,15 @@ License along with this program.  If not, see
 
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.execute.AbstractEntityQueryExecutor;
 import com.romeikat.datamessie.core.domain.entity.Entity;
 
-public class EntityQueryUniqueObjectExecutor<E extends Entity> extends AbstractEntityQueryExecutor<E, E> {
+public class EntityQueryUniqueObjectExecutor<E extends Entity>
+    extends AbstractEntityQueryExecutor<E, E> {
 
-  public EntityQueryUniqueObjectExecutor(final SharedSessionContract ssc, final EntityQuery<E> query) {
+  public EntityQueryUniqueObjectExecutor(final SharedSessionContract ssc,
+      final EntityQuery<E> query) {
     super(ssc, query);
   }
 

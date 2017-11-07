@@ -25,12 +25,10 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.util.convert.IConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import com.romeikat.datamessie.core.base.app.module.AbstractDataMessieModule;
 import com.romeikat.datamessie.core.base.app.shared.ISharedBean;
 import com.romeikat.datamessie.core.base.ui.component.NavigationLink;
@@ -55,7 +53,8 @@ public class DataMessieSyncModule extends AbstractDataMessieModule {
 
   @Override
   public Integer getNumberOfRequiredDbConnections() {
-    final int numberOfRequiredDbConnectionsToDataMessie = ParallelProcessing.getNumberOfThreads(parallelismFactor);
+    final int numberOfRequiredDbConnectionsToDataMessie =
+        ParallelProcessing.getNumberOfThreads(parallelismFactor);
     return numberOfRequiredDbConnectionsToDataMessie;
   }
 

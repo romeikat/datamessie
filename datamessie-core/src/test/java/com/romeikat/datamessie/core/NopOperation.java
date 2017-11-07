@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.sql.Connection;
-
 import com.ninja_squad.dbsetup.bind.BinderConfiguration;
 import com.ninja_squad.dbsetup.operation.Operation;
 

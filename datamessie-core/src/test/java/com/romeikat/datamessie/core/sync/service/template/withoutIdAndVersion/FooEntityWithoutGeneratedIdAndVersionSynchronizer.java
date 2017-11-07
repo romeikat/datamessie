@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.FooEntityWithoutGeneratedIdAndVersionDao;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithoutIdAndVersion;
@@ -43,7 +42,8 @@ public class FooEntityWithoutGeneratedIdAndVersionSynchronizer
   }
 
   @Override
-  protected void copyProperties(final FooEntityWithoutIdAndVersion source, final FooEntityWithoutIdAndVersion target) {
+  protected void copyProperties(final FooEntityWithoutIdAndVersion source,
+      final FooEntityWithoutIdAndVersion target) {
     target.setName(source.getName());
   }
 

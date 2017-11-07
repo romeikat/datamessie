@@ -27,7 +27,6 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.Locale;
-
 import com.google.common.base.Function;
 
 public class GetFirstDayOfWeekFunction implements Function<LocalDate, LocalDate>, Serializable {

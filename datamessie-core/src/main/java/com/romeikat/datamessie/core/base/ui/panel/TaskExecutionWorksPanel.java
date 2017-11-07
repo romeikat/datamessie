@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
@@ -36,7 +35,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.wicketstuff.modalx.ModalContentPanel;
 import org.wicketstuff.modalx.ModalContentWindow;
-
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.base.ui.component.AjaxConfirmationLink;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
@@ -86,42 +84,45 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
         if (taskExecutionWorksSize <= MAX_TASK_EXECUTION_WORKS) {
           return taskExecutionWorks;
         }
-        return taskExecutionWorks.subList(taskExecutionWorksSize - MAX_TASK_EXECUTION_WORKS, taskExecutionWorksSize);
+        return taskExecutionWorks.subList(taskExecutionWorksSize - MAX_TASK_EXECUTION_WORKS,
+            taskExecutionWorksSize);
       }
     };
 
     // Task execution works
-    taskExecutionsWorkList = new ListView<TaskExecutionWorkDto>("worksList", taskExecutionWorksModel) {
-      private static final long serialVersionUID = 1L;
+    taskExecutionsWorkList =
+        new ListView<TaskExecutionWorkDto>("worksList", taskExecutionWorksModel) {
+          private static final long serialVersionUID = 1L;
 
-      @Override
-      protected void populateItem(final ListItem<TaskExecutionWorkDto> item) {
-        final IModel<TaskExecutionWorkDto> taskExecutionWorkModel = item.getModel();
-        final TaskExecutionWorkDto taskExecutionWork = taskExecutionWorkModel.getObject();
-        final StringBuilder workLabelContent = new StringBuilder();
-        final boolean empty = taskExecutionWork.getMessage() == null;
-        if (!empty) {
-          // Start
-          if (taskExecutionWork.getStart() != null) {
-            workLabelContent.append(DateConverter.INSTANCE_UI.convertToString(new Date(taskExecutionWork.getStart())));
-            workLabelContent.append(": ");
+          @Override
+          protected void populateItem(final ListItem<TaskExecutionWorkDto> item) {
+            final IModel<TaskExecutionWorkDto> taskExecutionWorkModel = item.getModel();
+            final TaskExecutionWorkDto taskExecutionWork = taskExecutionWorkModel.getObject();
+            final StringBuilder workLabelContent = new StringBuilder();
+            final boolean empty = taskExecutionWork.getMessage() == null;
+            if (!empty) {
+              // Start
+              if (taskExecutionWork.getStart() != null) {
+                workLabelContent.append(DateConverter.INSTANCE_UI
+                    .convertToString(new Date(taskExecutionWork.getStart())));
+                workLabelContent.append(": ");
+              }
+              // Message
+              if (taskExecutionWork.getMessage() != null) {
+                workLabelContent.append(taskExecutionWork.getMessage());
+              }
+              // Duration
+              if (taskExecutionWork.getDuration() != null) {
+                final long seconds = Math.round(taskExecutionWork.getDuration() / 1000d);
+                workLabelContent.append(" (");
+                workLabelContent.append(seconds);
+                workLabelContent.append(" s)");
+              }
+            }
+            final Label workLabel = new Label("workLabel", workLabelContent.toString());
+            item.add(workLabel);
           }
-          // Message
-          if (taskExecutionWork.getMessage() != null) {
-            workLabelContent.append(taskExecutionWork.getMessage());
-          }
-          // Duration
-          if (taskExecutionWork.getDuration() != null) {
-            final long seconds = Math.round(taskExecutionWork.getDuration() / 1000d);
-            workLabelContent.append(" (");
-            workLabelContent.append(seconds);
-            workLabelContent.append(" s)");
-          }
-        }
-        final Label workLabel = new Label("workLabel", workLabelContent.toString());
-        item.add(workLabel);
-      }
-    };
+        };
     taskExecutionsWorkList.setOutputMarkupId(true);
     add(taskExecutionsWorkList);
 
@@ -131,7 +132,8 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
       @Override
       public void onConfigure() {
         super.onConfigure();
-        final TaskExecutionDto taskExecution = TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
+        final TaskExecutionDto taskExecution =
+            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
         final boolean visible = taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
             && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
             && taskExecution.getStatus() != TaskExecutionStatus.FAILED;
@@ -153,7 +155,8 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
       @Override
       public void onConfigure() {
         super.onConfigure();
-        final TaskExecutionDto taskExecution = TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
+        final TaskExecutionDto taskExecution =
+            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
         final boolean visible = taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
             && taskExecution.getStatus() != TaskExecutionStatus.CANCEL_REQUESTED
             && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
@@ -163,7 +166,8 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
 
       @Override
       public void onClick(final AjaxRequestTarget target) {
-        final TaskExecutionDto taskExecution = TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
+        final TaskExecutionDto taskExecution =
+            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
         taskManager.cancelTask(taskExecution.getId());
         target.add(TaskExecutionWorksPanel.this);
         target.add(((AbstractAuthenticatedPage) getPage()).getTaskExecutionsPanel());

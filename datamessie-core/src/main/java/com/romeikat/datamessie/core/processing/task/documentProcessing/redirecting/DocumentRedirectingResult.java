@@ -30,7 +30,8 @@ public class DocumentRedirectingResult {
 
   private final DownloadResult redirectedDownloadResult;
 
-  public DocumentRedirectingResult(final String redirectedUrl, final DownloadResult redirectedDownloadResult) {
+  public DocumentRedirectingResult(final String redirectedUrl,
+      final DownloadResult redirectedDownloadResult) {
     this.redirectedUrl = redirectedUrl;
     this.redirectedDownloadResult = redirectedDownloadResult;
   }

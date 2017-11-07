@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -133,14 +132,16 @@ public abstract class AbstractPageableTablePanel<T extends Serializable> extends
     add(numberOfRowsLabel);
   }
 
-  private void addToTable(final ListItem<ITableColumn<T>> tableColumnItem, final ITableComponent tableComponent) {
+  private void addToTable(final ListItem<ITableColumn<T>> tableColumnItem,
+      final ITableComponent tableComponent) {
     if (tableComponent instanceof TableLabel) {
       final TableLabel tableLabel = (TableLabel) tableComponent;
       final TableLabelPanel tableLabelPanel = new TableLabelPanel("columnValue", tableLabel);
       tableColumnItem.add(tableLabelPanel);
     } else if (tableComponent instanceof TableBookmarkablePageLink) {
       final TableBookmarkablePageLink<?> link = (TableBookmarkablePageLink<?>) tableComponent;
-      final TableBookmarkablePageLinkPanel tableLabelPanel = new TableBookmarkablePageLinkPanel("columnValue", link);
+      final TableBookmarkablePageLinkPanel tableLabelPanel =
+          new TableBookmarkablePageLinkPanel("columnValue", link);
       tableColumnItem.add(tableLabelPanel);
     }
 

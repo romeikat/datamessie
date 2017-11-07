@@ -23,16 +23,13 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithoutIdAndVersion;
 
 @Entity

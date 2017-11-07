@@ -26,12 +26,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.util.IdBasedMap;
@@ -50,8 +48,9 @@ public class NamedEntityOccurrencesUpdater {
   @Qualifier("namedEntityOccurrenceDao")
   private NamedEntityOccurrenceDao namedEntityOccurrenceDao;
 
-  public Set<NamedEntityOccurrence> updateNamedEntityOccurrences(final StatelessSession statelessSession,
-      final long documentId, final Collection<NamedEntityDetectionDto> namedEntityDetections) {
+  public Set<NamedEntityOccurrence> updateNamedEntityOccurrences(
+      final StatelessSession statelessSession, final long documentId,
+      final Collection<NamedEntityDetectionDto> namedEntityDetections) {
     // Delete old named entity occurrences
     deleteNamedEntityOccurrences(statelessSession, documentId);
     if (namedEntityDetections == null) {
@@ -67,7 +66,8 @@ public class NamedEntityOccurrencesUpdater {
     return savedNamedEntityOccurrences.values();
   }
 
-  private void deleteNamedEntityOccurrences(final StatelessSession statelessSession, final long documentId) {
+  private void deleteNamedEntityOccurrences(final StatelessSession statelessSession,
+      final long documentId) {
     final List<NamedEntityOccurrence> oldNamedEntityOccurrences =
         namedEntityOccurrenceDao.getByDocument(statelessSession, documentId);
     for (final NamedEntityOccurrence oldNamedEntityOccurrence : oldNamedEntityOccurrences) {
@@ -75,12 +75,15 @@ public class NamedEntityOccurrencesUpdater {
     }
   }
 
-  private Collection<NamedEntityOccurrence> createNamedEntityOccurrences(final StatelessSession statelessSession,
-      final long documentId, final Collection<NamedEntityDetectionDto> namedEntityDetections) {
-    final List<NamedEntityOccurrence> namedEntityOccurrences = new ArrayList<NamedEntityOccurrence>();
+  private Collection<NamedEntityOccurrence> createNamedEntityOccurrences(
+      final StatelessSession statelessSession, final long documentId,
+      final Collection<NamedEntityDetectionDto> namedEntityDetections) {
+    final List<NamedEntityOccurrence> namedEntityOccurrences =
+        new ArrayList<NamedEntityOccurrence>();
     for (final NamedEntityDetectionDto namedEntityDetection : namedEntityDetections) {
       // Transform detection
-      final long namedEntityId = namedEntityDao.getOrCreate(statelessSession, namedEntityDetection.getName());
+      final long namedEntityId =
+          namedEntityDao.getOrCreate(statelessSession, namedEntityDetection.getName());
       final long parentNamedEntityId =
           namedEntityDao.getOrCreate(statelessSession, namedEntityDetection.getParentName());
       final NamedEntityType type = namedEntityDetection.getType();
@@ -97,8 +100,9 @@ public class NamedEntityOccurrencesUpdater {
     return namedEntityOccurrences;
   }
 
-  private IdBasedMap<NamedEntityOccurrence> saveNamedEntityOccurrences(final StatelessSession statelessSession,
-      final long documentId, final Collection<NamedEntityOccurrence> namedEntityOccurrences) {
+  private IdBasedMap<NamedEntityOccurrence> saveNamedEntityOccurrences(
+      final StatelessSession statelessSession, final long documentId,
+      final Collection<NamedEntityOccurrence> namedEntityOccurrences) {
     final IdBasedMap<NamedEntityOccurrence> savedNamedEntityOccurrences = new IdBasedMap<>();
 
     // Create new named entity occurrences

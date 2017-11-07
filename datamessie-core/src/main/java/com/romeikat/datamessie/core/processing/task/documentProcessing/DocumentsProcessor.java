@@ -23,12 +23,10 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.apache.wicket.util.collections.ConcurrentHashSet;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
@@ -53,8 +51,8 @@ public class DocumentsProcessor {
     this.ctx = ctx;
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
 
-    processingParallelismFactor =
-        Double.parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
+    processingParallelismFactor = Double
+        .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
 
     statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
     failedDocumentIds = new ConcurrentHashSet<Long>();
@@ -66,14 +64,17 @@ public class DocumentsProcessor {
   }
 
   private void doProcessing() throws TaskCancelledException {
-    final DocumentsProcessingCache documentsProcessingCache = new DocumentsProcessingCache(documents, ctx);
+    final DocumentsProcessingCache documentsProcessingCache =
+        new DocumentsProcessingCache(documents, ctx);
     new ParallelProcessing<Document>(sessionFactory, documents, processingParallelismFactor) {
       @Override
-      public void doProcessing(final HibernateSessionProvider sessionProvider, final Document document) {
+      public void doProcessing(final HibernateSessionProvider sessionProvider,
+          final Document document) {
         new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
           @Override
           protected void execute(final StatelessSession statelessSession) {
-            final DocumentProcessor documentProcessor = createDocumentProcessor(ctx, documentsProcessingCache);
+            final DocumentProcessor documentProcessor =
+                createDocumentProcessor(ctx, documentsProcessingCache);
             documentProcessor.processDocument(sessionProvider.getStatelessSession(), document);
             statisticsToBeRebuilt.putValues(documentProcessor.getStatisticsToBeRebuilt());
             failedDocumentIds.addAll(documentProcessor.getFailedDocumentIds());

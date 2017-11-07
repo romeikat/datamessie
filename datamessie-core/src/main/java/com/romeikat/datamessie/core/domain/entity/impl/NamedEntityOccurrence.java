@@ -30,16 +30,16 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 
 @Entity
-@Table(name = NamedEntityOccurrence.TABLE_NAME,
-    uniqueConstraints = {@UniqueConstraint(name = "namedEntityOccurrence_id_version", columnNames = {"id", "version"}),
-        @UniqueConstraint(name = "namedEntityOccurrence_namedEntity_type_document_id",
-            columnNames = {"namedEntity_id", "type", "document_id"})},
-    indexes = {@Index(name = "namedEntityOccurrence_type_document_id", columnList = "type, document_id"),
+@Table(name = NamedEntityOccurrence.TABLE_NAME, uniqueConstraints = {
+    @UniqueConstraint(name = "namedEntityOccurrence_id_version", columnNames = {"id", "version"}),
+    @UniqueConstraint(name = "namedEntityOccurrence_namedEntity_type_document_id",
+        columnNames = {"namedEntity_id", "type", "document_id"})},
+    indexes = {
+        @Index(name = "namedEntityOccurrence_type_document_id", columnList = "type, document_id"),
         @Index(name = "FK_namedEntityOccurrence_namedEntity_id", columnList = "namedEntity_id"),
         @Index(name = "FK_namedEntityOccurrence_document_id", columnList = "document_id")})
 public class NamedEntityOccurrence extends AbstractEntityWithGeneratedIdAndVersion {
@@ -58,8 +58,9 @@ public class NamedEntityOccurrence extends AbstractEntityWithGeneratedIdAndVersi
 
   public NamedEntityOccurrence() {}
 
-  public NamedEntityOccurrence(final long id, final long namedEntityId, final long parentNamedEntityId,
-      final NamedEntityType type, final int quantity, final long documentId) {
+  public NamedEntityOccurrence(final long id, final long namedEntityId,
+      final long parentNamedEntityId, final NamedEntityType type, final int quantity,
+      final long documentId) {
     super(id);
     this.namedEntityId = namedEntityId;
     this.parentNamedEntityId = parentNamedEntityId;

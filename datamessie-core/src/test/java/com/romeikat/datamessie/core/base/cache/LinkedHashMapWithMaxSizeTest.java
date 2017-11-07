@@ -24,9 +24,7 @@ License along with this program.  If not, see
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-
 import org.junit.Test;
-
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.cache.LinkedHashMapWithMaxSize;
 
@@ -36,7 +34,8 @@ public class LinkedHashMapWithMaxSizeTest extends AbstractTest {
 
   @Test
   public void add_removesEldestEntry() {
-    final LinkedHashMapWithMaxSize<Integer, Object> map = new LinkedHashMapWithMaxSize<Integer, Object>(MAX_SIZE);
+    final LinkedHashMapWithMaxSize<Integer, Object> map =
+        new LinkedHashMapWithMaxSize<Integer, Object>(MAX_SIZE);
 
     // Fill up map
     for (int i = 1; i <= MAX_SIZE; i++) {

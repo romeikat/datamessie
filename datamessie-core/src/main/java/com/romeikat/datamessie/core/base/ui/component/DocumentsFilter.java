@@ -27,11 +27,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.IModel;
-
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 
 public class DocumentsFilter extends TextArea<String> {

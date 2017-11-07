@@ -26,15 +26,12 @@ import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Collection;
 import java.util.List;
-
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import com.google.common.collect.Lists;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
@@ -68,7 +65,8 @@ public class EntityWithoutIdAndVersionSynchronizerStressTest extends AbstractDbS
   protected Operation initDb() {
     final List<Operation> operations = Lists.newArrayListWithExpectedSize(NUMBER_OF_ENTITIES);
     for (final String name : getNames()) {
-      operations.add(insertInto("fooEntityWithoutIdAndVersion").columns("name").values(name).build());
+      operations
+          .add(insertInto("fooEntityWithoutIdAndVersion").columns("name").values(name).build());
     }
     final Operation initDb = sequenceOf(operations);
 
@@ -80,7 +78,8 @@ public class EntityWithoutIdAndVersionSynchronizerStressTest extends AbstractDbS
   protected Operation initDbSyncSource() {
     final List<Operation> operations = Lists.newArrayListWithExpectedSize(NUMBER_OF_ENTITIES);
     for (final String name : getNames()) {
-      operations.add(insertInto("fooEntityWithoutIdAndVersion").columns("name").values(name).build());
+      operations
+          .add(insertInto("fooEntityWithoutIdAndVersion").columns("name").values(name).build());
     }
     final Operation initDb = sequenceOf(operations);
 
@@ -98,7 +97,8 @@ public class EntityWithoutIdAndVersionSynchronizerStressTest extends AbstractDbS
     assertEquals(NUMBER_OF_ENTITIES, lhs.size());
 
     // RHS
-    final Collection<FooEntityWithoutIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithoutIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(NUMBER_OF_ENTITIES, rhs.size());
   }
 
@@ -106,14 +106,16 @@ public class EntityWithoutIdAndVersionSynchronizerStressTest extends AbstractDbS
   public void sync_create() throws Exception {
     // LHS
     for (int i = 1; i <= NUMBER_OF_ENTITIES; i++) {
-      final FooEntityWithoutIdAndVersion lhsEntity = new FooEntityWithoutIdAndVersion("New Foo" + i);
+      final FooEntityWithoutIdAndVersion lhsEntity =
+          new FooEntityWithoutIdAndVersion("New Foo" + i);
       dao.insert(syncSourceSessionProvider.getStatelessSession(), lhsEntity);
     }
 
     new FooEntityWithoutGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // RHS
-    final Collection<FooEntityWithoutIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithoutIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(2 * NUMBER_OF_ENTITIES, rhs.size());
   }
 
@@ -121,15 +123,16 @@ public class EntityWithoutIdAndVersionSynchronizerStressTest extends AbstractDbS
   public void sync_delete() throws Exception {
     // LHS
     for (final String name : getNames()) {
-      final FooEntityWithoutIdAndVersion lhsEntity =
-          dao.getUniqueEntityByProperty(syncSourceSessionProvider.getStatelessSession(), "name", name);
+      final FooEntityWithoutIdAndVersion lhsEntity = dao
+          .getUniqueEntityByProperty(syncSourceSessionProvider.getStatelessSession(), "name", name);
       dao.delete(syncSourceSessionProvider.getStatelessSession(), lhsEntity);
     }
 
     new FooEntityWithoutGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // RHS
-    final Collection<FooEntityWithoutIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithoutIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertTrue(rhs.isEmpty());
   }
 

@@ -23,10 +23,8 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-
 import com.romeikat.datamessie.core.base.ui.panel.DynamicListViewPanel;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 
@@ -39,7 +37,8 @@ public class RedirectingRulesPanel extends DynamicListViewPanel<RedirectingRuleD
   }
 
   @Override
-  protected Panel getItemPanel(final String id, final IModel<RedirectingRuleDto> redirectingRuleDtoModel) {
+  protected Panel getItemPanel(final String id,
+      final IModel<RedirectingRuleDto> redirectingRuleDtoModel) {
     final Panel redirectingRulePanel = new RedirectingRulePanel(id, redirectingRuleDtoModel);
     return redirectingRulePanel;
   }

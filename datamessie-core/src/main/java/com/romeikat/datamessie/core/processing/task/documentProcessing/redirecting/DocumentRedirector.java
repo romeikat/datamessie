@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StatelessSession;
 import org.jsoup.Jsoup;
@@ -40,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.service.download.Downloader;
@@ -62,8 +60,8 @@ public class DocumentRedirector {
 
   private DocumentRedirector() {}
 
-  public DocumentRedirectingResult redirect(final StatelessSession statelessSession, final Document document,
-      final RawContent rawContent) throws Exception {
+  public DocumentRedirectingResult redirect(final StatelessSession statelessSession,
+      final Document document, final RawContent rawContent) throws Exception {
     // Prio 1: Use hard-coded redirecting rule
     String redirectedUrl = applyHardCodedRedirectingRule(rawContent);
 
@@ -122,8 +120,8 @@ public class DocumentRedirector {
     return null;
   }
 
-  private String applyUserDefinedRedirectingRules(final StatelessSession statelessSession, final Document document,
-      final RawContent rawContent) {
+  private String applyUserDefinedRedirectingRules(final StatelessSession statelessSession,
+      final Document document, final RawContent rawContent) {
     // Determine rules
     final List<RedirectingRule> redirectingRules = getRedirectingRules(statelessSession, document);
 
@@ -139,7 +137,8 @@ public class DocumentRedirector {
     return null;
   }
 
-  private List<RedirectingRule> getRedirectingRules(final StatelessSession statelessSession, final Document document) {
+  private List<RedirectingRule> getRedirectingRules(final StatelessSession statelessSession,
+      final Document document) {
     // Rules of source
     final List<RedirectingRule> redirectingRules =
         redirectingRuleDao.getOfSource(statelessSession, document.getSourceId());

@@ -28,20 +28,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithGeneratedId;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 
 public class AbstractEntityWithGeneratedIdDaoTest extends AbstractDbSetupBasedTest {
@@ -54,8 +50,8 @@ public class AbstractEntityWithGeneratedIdDaoTest extends AbstractDbSetupBasedTe
   @Override
   protected Operation initDb() {
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
-        insertInto("fooEntityWithGeneratedId").columns("id", "name", "active").values(1L, "Foo1", true)
-            .values(2L, "Foo2", true).values(3L, "Foo3", false).build());
+        insertInto("fooEntityWithGeneratedId").columns("id", "name", "active")
+            .values(1L, "Foo1", true).values(2L, "Foo2", true).values(3L, "Foo3", false).build());
   }
 
   @Test
@@ -77,7 +73,8 @@ public class AbstractEntityWithGeneratedIdDaoTest extends AbstractDbSetupBasedTe
   @Test
   public void getEntities() {
     final Collection<Long> ids = Lists.newArrayList(1l, 2l, 3l, NEW_ID);
-    final Collection<FooEntityWithGeneratedId> foos = dao.getEntities(sessionProvider.getStatelessSession(), ids);
+    final Collection<FooEntityWithGeneratedId> foos =
+        dao.getEntities(sessionProvider.getStatelessSession(), ids);
     assertEquals(3, foos.size());
 
     dbSetupTracker.skipNextLaunch();
@@ -176,7 +173,8 @@ public class AbstractEntityWithGeneratedIdDaoTest extends AbstractDbSetupBasedTe
     assertEquals(NEW_ID, foo.getId());
     sessionProvider.closeStatelessSession();
 
-    final Collection<FooEntityWithGeneratedId> foos = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithGeneratedId> foos =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(4, foos.size());
     foo = dao.getEntity(sessionProvider.getStatelessSession(), NEW_ID);
     assertNotNull(foo);

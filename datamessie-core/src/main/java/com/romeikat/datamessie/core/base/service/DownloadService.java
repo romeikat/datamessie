@@ -25,13 +25,11 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
@@ -56,7 +54,8 @@ public class DownloadService {
 
   private DownloadService() {}
 
-  public boolean existsWithDownloadSuccess(final SharedSessionContract ssc, final String url, final long sourceId) {
+  public boolean existsWithDownloadSuccess(final SharedSessionContract ssc, final String url,
+      final long sourceId) {
     final Download download = downloadDao.getForUrlAndSource(ssc, url, sourceId);
     if (download == null) {
       return false;
@@ -65,13 +64,15 @@ public class DownloadService {
     return download.getSuccess();
   }
 
-  public List<DocumentWithDownloads> getDocumentsWithDownloads(final SharedSessionContract ssc, final long sourceId,
-      final Set<String> urls) {
-    final List<DocumentWithDownloads> documentsWithDownloads = Lists.newArrayListWithExpectedSize(urls.size());
+  public List<DocumentWithDownloads> getDocumentsWithDownloads(final SharedSessionContract ssc,
+      final long sourceId, final Set<String> urls) {
+    final List<DocumentWithDownloads> documentsWithDownloads =
+        Lists.newArrayListWithExpectedSize(urls.size());
 
     final Set<Long> processedDocumentIds = Sets.newHashSetWithExpectedSize(urls.size());
     for (final String url : urls) {
-      final DocumentWithDownloads documentWithDownloads = getDocumentWithDownloads(ssc, sourceId, url);
+      final DocumentWithDownloads documentWithDownloads =
+          getDocumentWithDownloads(ssc, sourceId, url);
       if (documentWithDownloads == null) {
         continue;
       }
@@ -88,8 +89,8 @@ public class DownloadService {
     return documentsWithDownloads;
   }
 
-  public DocumentWithDownloads getDocumentWithDownloads(final SharedSessionContract ssc, final long sourceId,
-      final String url) {
+  public DocumentWithDownloads getDocumentWithDownloads(final SharedSessionContract ssc,
+      final long sourceId, final String url) {
     if (url == null) {
       return null;
     }
@@ -105,10 +106,12 @@ public class DownloadService {
     return documentWithDownloads;
   }
 
-  public DocumentWithDownloads getDocumentWithDownloads(final SharedSessionContract ssc, final long documentId) {
+  public DocumentWithDownloads getDocumentWithDownloads(final SharedSessionContract ssc,
+      final long documentId) {
     final Document document = documentDao.getEntity(ssc, documentId);
 
-    final DocumentWithDownloads documentWithDownloads = new DocumentWithDownloads(documentId, document.getState());
+    final DocumentWithDownloads documentWithDownloads =
+        new DocumentWithDownloads(documentId, document.getState());
 
     final Collection<Download> downloads = downloadDao.getForDocument(ssc, documentId);
     documentWithDownloads.addDownloads(downloads);
@@ -116,8 +119,8 @@ public class DownloadService {
     return documentWithDownloads;
   }
 
-  public void insertOrUpdateDownloadForUrl(final StatelessSession statelessSession, final String url,
-      final long sourceId, final long documentId, final boolean downloadSuccess) {
+  public void insertOrUpdateDownloadForUrl(final StatelessSession statelessSession,
+      final String url, final long sourceId, final long documentId, final boolean downloadSuccess) {
     if (url == null) {
       return;
     }
@@ -140,8 +143,8 @@ public class DownloadService {
     }
   }
 
-  public void reassignDownloadsToDocument(final StatelessSession statelessSession, final Collection<Long> downloadIds,
-      final long targetDocumentId) {
+  public void reassignDownloadsToDocument(final StatelessSession statelessSession,
+      final Collection<Long> downloadIds, final long targetDocumentId) {
     for (final long downloadId : downloadIds) {
       final Download download = downloadDao.getEntity(statelessSession, downloadId);
       if (download != null) {
@@ -154,8 +157,9 @@ public class DownloadService {
     }
   }
 
-  public void mergeSlaveDocumentsIntoMasterDocument(final long sourceId, final StatelessSession statelessSession,
-      final long masterDocumentId, final Collection<Long> slaveDownloadIds, final Collection<Document> slaveDocuments) {
+  public void mergeSlaveDocumentsIntoMasterDocument(final long sourceId,
+      final StatelessSession statelessSession, final long masterDocumentId,
+      final Collection<Long> slaveDownloadIds, final Collection<Document> slaveDocuments) {
     // Reassign existing slave downloads
     reassignDownloadsToDocument(statelessSession, slaveDownloadIds, masterDocumentId);
 

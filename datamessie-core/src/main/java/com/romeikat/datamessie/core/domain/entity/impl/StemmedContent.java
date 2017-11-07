@@ -29,12 +29,12 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithIdAndVersion;
 
 @Entity
 @Table(name = StemmedContent.TABLE_NAME,
-    uniqueConstraints = @UniqueConstraint(name = "stemmedContent_id_version", columnNames = {"document_id", "version"}))
+    uniqueConstraints = @UniqueConstraint(name = "stemmedContent_id_version",
+        columnNames = {"document_id", "version"}))
 public class StemmedContent extends AbstractEntityWithIdAndVersion {
 
   public static final String TABLE_NAME = "stemmedContent";

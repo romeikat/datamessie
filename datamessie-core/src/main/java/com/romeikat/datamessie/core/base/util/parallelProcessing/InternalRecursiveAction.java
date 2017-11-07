@@ -25,10 +25,8 @@ License along with this program.  If not, see
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveAction;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 
@@ -105,9 +103,11 @@ class InternalRecursiveAction<T> extends RecursiveAction {
 
   private void divideAndInvoke() {
     // Divide
-    final List<List<T>> subLists = CollectionUtil.splitIntoSubListsByNumber(objectsToBeProcessed, numberOfThreads);
+    final List<List<T>> subLists =
+        CollectionUtil.splitIntoSubListsByNumber(objectsToBeProcessed, numberOfThreads);
     final int numberOfSubLists = subLists.size();
-    final List<InternalRecursiveAction<T>> subActions = new ArrayList<InternalRecursiveAction<T>>(numberOfSubLists);
+    final List<InternalRecursiveAction<T>> subActions =
+        new ArrayList<InternalRecursiveAction<T>>(numberOfSubLists);
     for (final List<T> subList : subLists) {
       final InternalRecursiveAction<T> subAction =
           new InternalRecursiveAction<T>(subList, numberOfThreads, parallelProcessing, false);

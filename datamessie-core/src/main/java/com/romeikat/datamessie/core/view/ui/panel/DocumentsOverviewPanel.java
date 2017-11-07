@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDateTime;
-
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
@@ -39,7 +38,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
@@ -87,53 +85,57 @@ public class DocumentsOverviewPanel extends Panel {
     setOutputMarkupId(true);
 
     // Documents list
-    documentsOverviewDataProvider = new DocumentsOverviewDataProvider(dfsModel, documentDao, sessionFactory);
-    documentsOverviewList = new DataView<DocumentOverviewDto>("documentsOverviewList", documentsOverviewDataProvider) {
-      private static final long serialVersionUID = 1L;
+    documentsOverviewDataProvider =
+        new DocumentsOverviewDataProvider(dfsModel, documentDao, sessionFactory);
+    documentsOverviewList =
+        new DataView<DocumentOverviewDto>("documentsOverviewList", documentsOverviewDataProvider) {
+          private static final long serialVersionUID = 1L;
 
-      @Override
-      protected void populateItem(final Item<DocumentOverviewDto> item) {
-        final IModel<DocumentOverviewDto> documentModel = item.getModel();
-        final DocumentOverviewDto document = item.getModelObject();
-        // Published
-        final Label publishedLabel =
-            new Label("publishedLabel", new PropertyModel<LocalDateTime>(documentModel, "published"));
-        item.add(publishedLabel);
-        // Link to source
-        final PageParameters sourcePageParameters =
-            ((AbstractAuthenticatedPage) getPage()).createProjectPageParameters();
-        sourcePageParameters.set("id", document.getSourceId());
-        final Label sourceNameLabel =
-            new Label("sourceNameLabel", new PropertyModel<String>(documentModel, "sourceName"));
-        final Link<SourcePage> sourceLink =
-            new BookmarkablePageLink<SourcePage>("sourceLink", SourcePage.class, sourcePageParameters);
-        sourceLink.add(sourceNameLabel);
-        item.add(sourceLink);
-        // Link to document
-        final PageParameters pageParameters = ((AbstractAuthenticatedPage) getPage()).createProjectPageParameters();
-        pageParameters.set("id", document.getId());
-        final Label documentTitleLabel =
-            new Label("documentTitleLabel", new PropertyModel<String>(documentModel, "title"));
-        final Link<DocumentPage> documentLink =
-            new BookmarkablePageLink<DocumentPage>("documentLink", DocumentPage.class, pageParameters);
-        documentLink.add(documentTitleLabel);
-        item.add(documentLink);
-      }
-    };
+          @Override
+          protected void populateItem(final Item<DocumentOverviewDto> item) {
+            final IModel<DocumentOverviewDto> documentModel = item.getModel();
+            final DocumentOverviewDto document = item.getModelObject();
+            // Published
+            final Label publishedLabel = new Label("publishedLabel",
+                new PropertyModel<LocalDateTime>(documentModel, "published"));
+            item.add(publishedLabel);
+            // Link to source
+            final PageParameters sourcePageParameters =
+                ((AbstractAuthenticatedPage) getPage()).createProjectPageParameters();
+            sourcePageParameters.set("id", document.getSourceId());
+            final Label sourceNameLabel = new Label("sourceNameLabel",
+                new PropertyModel<String>(documentModel, "sourceName"));
+            final Link<SourcePage> sourceLink = new BookmarkablePageLink<SourcePage>("sourceLink",
+                SourcePage.class, sourcePageParameters);
+            sourceLink.add(sourceNameLabel);
+            item.add(sourceLink);
+            // Link to document
+            final PageParameters pageParameters =
+                ((AbstractAuthenticatedPage) getPage()).createProjectPageParameters();
+            pageParameters.set("id", document.getId());
+            final Label documentTitleLabel =
+                new Label("documentTitleLabel", new PropertyModel<String>(documentModel, "title"));
+            final Link<DocumentPage> documentLink = new BookmarkablePageLink<DocumentPage>(
+                "documentLink", DocumentPage.class, pageParameters);
+            documentLink.add(documentTitleLabel);
+            item.add(documentLink);
+          }
+        };
     documentsOverviewList.setItemsPerPage(DOCUMENTS_PER_PAGE);
     add(documentsOverviewList);
 
     // Documents navigator
-    documentsOverviewNavigator = new AjaxPagingNavigator("documentsOverviewNavigator", documentsOverviewList) {
-      private static final long serialVersionUID = 1L;
+    documentsOverviewNavigator =
+        new AjaxPagingNavigator("documentsOverviewNavigator", documentsOverviewList) {
+          private static final long serialVersionUID = 1L;
 
-      @Override
-      public void onConfigure() {
-        super.onConfigure();
-        final long pageCount = getPageable().getPageCount();
-        setVisible(pageCount > 1);
-      }
-    };
+          @Override
+          public void onConfigure() {
+            super.onConfigure();
+            final long pageCount = getPageable().getPageCount();
+            setVisible(pageCount > 1);
+          }
+        };
     documentsOverviewNavigator.setOutputMarkupId(true);
     add(documentsOverviewNavigator);
 
@@ -145,11 +147,13 @@ public class DocumentsOverviewPanel extends Panel {
       protected String load() {
         final long numberOfDocuments = documentsOverviewDataProvider.size();
         final String suffix = numberOfDocuments == 1 ? " document" : " documents";
-        final String numberOfDocumentsString = stringUtil.formatAsInteger(numberOfDocuments) + suffix;
+        final String numberOfDocumentsString =
+            stringUtil.formatAsInteger(numberOfDocuments) + suffix;
         return numberOfDocumentsString;
       }
     };
-    final Label numberOfDocumentsLabel = new Label("numberOfDocumentsLabel", numberOfDocumentsLabelModel);
+    final Label numberOfDocumentsLabel =
+        new Label("numberOfDocumentsLabel", numberOfDocumentsLabelModel);
     add(numberOfDocumentsLabel);
   }
 

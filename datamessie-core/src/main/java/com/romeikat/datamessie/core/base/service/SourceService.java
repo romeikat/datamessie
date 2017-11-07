@@ -23,13 +23,11 @@ License along with this program.  If not, see
  */
 import java.util.Collection;
 import java.util.List;
-
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
 import com.romeikat.datamessie.core.base.dao.impl.Source2SourceTypeDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
@@ -107,21 +105,23 @@ public class SourceService {
     // If the rules have changed, trigger deprocessing of respective documents
     if (wereRedirectingRulesUpdated) {
       // Only trigger if no task targeting the same source is being active
-      final boolean taskAlreadyActive =
-          isTaskActive(DocumentsDeprocessingTask.NAME, source.getId(), DocumentProcessingState.DOWNLOADED);
+      final boolean taskAlreadyActive = isTaskActive(DocumentsDeprocessingTask.NAME, source.getId(),
+          DocumentProcessingState.DOWNLOADED);
       if (!taskAlreadyActive) {
-        final DocumentsDeprocessingTask task = (DocumentsDeprocessingTask) ctx
-            .getBean(DocumentsDeprocessingTask.BEAN_NAME, source.getId(), DocumentProcessingState.DOWNLOADED);
+        final DocumentsDeprocessingTask task =
+            (DocumentsDeprocessingTask) ctx.getBean(DocumentsDeprocessingTask.BEAN_NAME,
+                source.getId(), DocumentProcessingState.DOWNLOADED);
         taskManager.addTask(task);
       }
     }
     if (wereTagSelectingRulesUpdated) {
       // Only trigger if no task targeting the same source is being active
-      final boolean taskAlreadyActive =
-          isTaskActive(DocumentsDeprocessingTask.NAME, source.getId(), DocumentProcessingState.REDIRECTED);
+      final boolean taskAlreadyActive = isTaskActive(DocumentsDeprocessingTask.NAME, source.getId(),
+          DocumentProcessingState.REDIRECTED);
       if (!taskAlreadyActive) {
-        final DocumentsDeprocessingTask task = (DocumentsDeprocessingTask) ctx
-            .getBean(DocumentsDeprocessingTask.BEAN_NAME, source.getId(), DocumentProcessingState.REDIRECTED);
+        final DocumentsDeprocessingTask task =
+            (DocumentsDeprocessingTask) ctx.getBean(DocumentsDeprocessingTask.BEAN_NAME,
+                source.getId(), DocumentProcessingState.REDIRECTED);
         taskManager.addTask(task);
       }
     }
@@ -131,8 +131,10 @@ public class SourceService {
       final List<RedirectingRuleDto> redirectingRuleDtos, final long sourceId) {
     boolean updated = false;
 
-    final Collection<RedirectingRule> redirectingRules = redirectingRuleDao.getOfSource(statelessSession, sourceId);
-    final EntitiesById<RedirectingRule> redirectingRulesById = new EntitiesWithIdById<>(redirectingRules);
+    final Collection<RedirectingRule> redirectingRules =
+        redirectingRuleDao.getOfSource(statelessSession, sourceId);
+    final EntitiesById<RedirectingRule> redirectingRulesById =
+        new EntitiesWithIdById<>(redirectingRules);
     for (final RedirectingRuleDto redirectingRuleDto : redirectingRuleDtos) {
       RedirectingRule redirectingRule = redirectingRulesById.poll(redirectingRuleDto.getId());
 
@@ -144,7 +146,8 @@ public class SourceService {
       }
 
       // Update rule
-      final UpdateTracker<RedirectingRule> updateTracker = new UpdateTracker<>(redirectingRule).beginUpdate();
+      final UpdateTracker<RedirectingRule> updateTracker =
+          new UpdateTracker<>(redirectingRule).beginUpdate();
       redirectingRule.setRegex(redirectingRuleDto.getRegex());
       redirectingRule.setRegexGroup(redirectingRuleDto.getRegexGroup());
       redirectingRule.setActiveFrom(redirectingRuleDto.getActiveFrom());
@@ -170,8 +173,10 @@ public class SourceService {
       final List<TagSelectingRuleDto> tagSelectingRuleDtos, final long sourceId) {
     boolean updated = false;
 
-    final Collection<TagSelectingRule> tagSelectingRules = tagSelectingRuleDao.getOfSource(statelessSession, sourceId);
-    final EntitiesById<TagSelectingRule> tagSelectingRulesById = new EntitiesWithIdById<>(tagSelectingRules);
+    final Collection<TagSelectingRule> tagSelectingRules =
+        tagSelectingRuleDao.getOfSource(statelessSession, sourceId);
+    final EntitiesById<TagSelectingRule> tagSelectingRulesById =
+        new EntitiesWithIdById<>(tagSelectingRules);
     for (final TagSelectingRuleDto tagSelectingRuleDto : tagSelectingRuleDtos) {
       TagSelectingRule tagSelectingRule = tagSelectingRulesById.poll(tagSelectingRuleDto.getId());
 
@@ -183,7 +188,8 @@ public class SourceService {
       }
 
       // Update rule
-      final UpdateTracker<TagSelectingRule> updateTracker = new UpdateTracker<>(tagSelectingRule).beginUpdate();
+      final UpdateTracker<TagSelectingRule> updateTracker =
+          new UpdateTracker<>(tagSelectingRule).beginUpdate();
       tagSelectingRule.setTagSelector(tagSelectingRuleDto.getTagSelector());
       tagSelectingRule.setActiveFrom(tagSelectingRuleDto.getActiveFrom());
       tagSelectingRule.setActiveTo(tagSelectingRuleDto.getActiveTo());
@@ -204,14 +210,16 @@ public class SourceService {
     return updated;
   }
 
-  private boolean isTaskActive(final String name, final long sourceId, final DocumentProcessingState targetState) {
-    final List<TaskExecution> taskExecutions =
-        taskManager.getTaskExecutions(name, TaskExecutionStatus.EXECUTION_REQUESTED, TaskExecutionStatus.EXECUTING,
-            TaskExecutionStatus.PAUSE_REQUESTED, TaskExecutionStatus.PAUSING, TaskExecutionStatus.IDLE);
+  private boolean isTaskActive(final String name, final long sourceId,
+      final DocumentProcessingState targetState) {
+    final List<TaskExecution> taskExecutions = taskManager.getTaskExecutions(name,
+        TaskExecutionStatus.EXECUTION_REQUESTED, TaskExecutionStatus.EXECUTING,
+        TaskExecutionStatus.PAUSE_REQUESTED, TaskExecutionStatus.PAUSING, TaskExecutionStatus.IDLE);
     for (final TaskExecution taskExecution : taskExecutions) {
       final Task task = taskExecution.getTask();
       if (task instanceof DocumentsDeprocessingTask) {
-        final DocumentsDeprocessingTask documentsDeprocessingTask = (DocumentsDeprocessingTask) task;
+        final DocumentsDeprocessingTask documentsDeprocessingTask =
+            (DocumentsDeprocessingTask) task;
         if (documentsDeprocessingTask.getSourceId() == sourceId
             && documentsDeprocessingTask.getTargetState() == targetState) {
           return true;
@@ -221,7 +229,8 @@ public class SourceService {
     return false;
   }
 
-  public void setVisible(final StatelessSession statelessSession, final long id, final Boolean visible) {
+  public void setVisible(final StatelessSession statelessSession, final long id,
+      final Boolean visible) {
     if (visible == null) {
       return;
     }
@@ -246,7 +255,8 @@ public class SourceService {
 
   private void setTypes(final StatelessSession statelessSession, final long sourceId,
       final Collection<SourceTypeDto> sourceTypeDtos) {
-    final List<Source2SourceType> assignments = source2SourceTypeDao.getForSourceId(statelessSession, sourceId);
+    final List<Source2SourceType> assignments =
+        source2SourceTypeDao.getForSourceId(statelessSession, sourceId);
     final EntitiesById<Source2SourceType> assignmentsBySourceTypeId =
         new EntitiesById<>(assignments, e -> e.getSourceTypeId());
 

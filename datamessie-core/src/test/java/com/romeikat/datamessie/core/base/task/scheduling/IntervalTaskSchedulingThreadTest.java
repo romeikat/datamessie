@@ -23,16 +23,13 @@ License along with this program.  If not, see
  */
 
 import static org.junit.Assert.assertEquals;
-
 import java.time.LocalDateTime;
-
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
@@ -85,8 +82,8 @@ public class IntervalTaskSchedulingThreadTest extends AbstractTest {
     run(50, 50, false, true);
   }
 
-  private void run(final int taskExecutionInterval, final long taskExecutionDuration, final boolean allowOverlap,
-      final boolean throwException) throws Exception {
+  private void run(final int taskExecutionInterval, final long taskExecutionDuration,
+      final boolean allowOverlap, final boolean throwException) throws Exception {
 
     final MutableInt numberOfTaskExecutions = new MutableInt(0);
     final MutableInt numberOfTaskTriggerings = new MutableInt(0);
@@ -103,9 +100,11 @@ public class IntervalTaskSchedulingThreadTest extends AbstractTest {
     final String taskName = task.getName();
 
     // Schedule task for multiple execution
-    final MutableObject<LocalDateTime> startOfLatestCompletedTask = new MutableObject<LocalDateTime>();
+    final MutableObject<LocalDateTime> startOfLatestCompletedTask =
+        new MutableObject<LocalDateTime>();
     final FooIntervalTaskSchedulingThread intervalTaskSchedulingThread =
-        new FooIntervalTaskSchedulingThread(task, taskName, taskExecutionInterval, allowOverlap, taskManager) {
+        new FooIntervalTaskSchedulingThread(task, taskName, taskExecutionInterval, allowOverlap,
+            taskManager) {
           @Override
           protected boolean shouldStopTaskExecution() {
             return numberOfTaskTriggerings.intValue() == NUMBER_OF_TASK_EXECUTIONS;

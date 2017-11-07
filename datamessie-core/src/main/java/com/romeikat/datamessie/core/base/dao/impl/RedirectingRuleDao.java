@@ -22,7 +22,6 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
@@ -31,7 +30,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
@@ -50,7 +48,8 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
 
   public List<RedirectingRule> getOfSource(final SharedSessionContract ssc, final long sourceId) {
     // Query: RedirectingRule
-    final EntityQuery<RedirectingRule> redirectingRuleQuery = new EntityQuery<>(RedirectingRule.class);
+    final EntityQuery<RedirectingRule> redirectingRuleQuery =
+        new EntityQuery<>(RedirectingRule.class);
     redirectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
     redirectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -62,10 +61,12 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
 
   public List<RedirectingRuleDto> getAsDtos(final SharedSessionContract ssc, final long sourceId) {
     // Query: RedirectingRule
-    final EntityQuery<RedirectingRule> redirectingRuleQuery = new EntityQuery<>(RedirectingRule.class);
+    final EntityQuery<RedirectingRule> redirectingRuleQuery =
+        new EntityQuery<>(RedirectingRule.class);
     redirectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
-    redirectingRuleQuery.setResultTransformer(new AliasToBeanResultTransformer(RedirectingRuleDto.class));
+    redirectingRuleQuery
+        .setResultTransformer(new AliasToBeanResultTransformer(RedirectingRuleDto.class));
 
     // Done
     final ProjectionList projectionList = Projections.projectionList();

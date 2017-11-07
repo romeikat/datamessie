@@ -31,7 +31,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
-
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -75,7 +74,8 @@ public abstract class AbstractTest {
     return spy;
   }
 
-  protected <T> void injectSpy(final Object objectContainingSpy, final String fieldNameContainingSpy, final T spy) {
+  protected <T> void injectSpy(final Object objectContainingSpy,
+      final String fieldNameContainingSpy, final T spy) {
     // Inject spy
     ReflectionTestUtils.setField(objectContainingSpy, fieldNameContainingSpy, spy);
   }

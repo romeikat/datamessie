@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Criterion;
@@ -34,7 +33,6 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ListMultimap;
@@ -65,7 +63,6 @@ import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 import jersey.repackaged.com.google.common.collect.Sets;
 
@@ -101,7 +98,8 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
   }
 
   public DocumentFilterSettingsQuery(final DocumentsFilterSettings dfs, final Class<E> targetClass,
-      final Integer firstResult, final Integer maxResults, final SharedBeanProvider sharedBeanProvider) {
+      final Integer firstResult, final Integer maxResults,
+      final SharedBeanProvider sharedBeanProvider) {
     this.dfs = dfs;
     this.targetClass = targetClass;
     this.firstResult = firstResult;
@@ -124,7 +122,8 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     return addRestriction(targetClass, restriction);
   }
 
-  public DocumentFilterSettingsQuery<E> addRestriction(final Class<?> clazz, final Criterion restriction) {
+  public DocumentFilterSettingsQuery<E> addRestriction(final Class<?> clazz,
+      final Criterion restriction) {
     restrictions.put(clazz, restriction);
 
     return this;
@@ -196,7 +195,8 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     for (final Entry<Class<?>, Order> entry : orders.entries()) {
       final Class<?> clazz = entry.getKey();
       if (clazz != targetClass) {
-        LOG.warn("Order for class {} cannot be applied to target class {}", clazz.getName(), targetClass.getName());
+        LOG.warn("Order for class {} cannot be applied to target class {}", clazz.getName(),
+            targetClass.getName());
         continue;
       }
 
@@ -293,7 +293,8 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     processedClasses.clear();
 
     if (overallQuery == null) {
-      final String msg = String.format("No path available to target class %s", targetClass.getName());
+      final String msg =
+          String.format("No path available to target class %s", targetClass.getName());
       throw new IllegalArgumentException(msg);
     }
 
@@ -324,7 +325,8 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
 
   private EntityWithIdQuery<SourceType> processSourceTypeQuery(final SharedSessionContract ssc) {
     final EntityWithIdQuery<SourceType> inputQuery = sourceTypeQuery;
-    final EntityWithIdQuery<SourceType> processedQuery = new EntityWithIdQuery<SourceType>(inputQuery);
+    final EntityWithIdQuery<SourceType> processedQuery =
+        new EntityWithIdQuery<SourceType>(inputQuery);
 
     processedClasses.add(SourceType.class);
 
@@ -336,7 +338,8 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       final Source2SourceTypeQuery source2SourceTypeQuery = new Source2SourceTypeQuery();
       source2SourceTypeQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
       addInRestrictionForIds(source2SourceTypeQuery, "sourceId", sourceIds);
-      final Collection<Long> sourceTypeIds = source2SourceTypeQuery.listIdsForProperty(ssc, "sourceTypeId");
+      final Collection<Long> sourceTypeIds =
+          source2SourceTypeQuery.listIdsForProperty(ssc, "sourceTypeId");
       // ...to SourceType
       addInRestrictionForIds(processedQuery, "id", sourceTypeIds);
     }
@@ -395,7 +398,8 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     if (!processedClasses.contains(Document.class)) {
       // Document to Crawling
       final EntityWithIdQuery<Document> processedDocumentQuery = processDocumentQuery(ssc);
-      final Collection<Long> crawlingIds = processedDocumentQuery.listIdsForProperty(ssc, "crawlingId");
+      final Collection<Long> crawlingIds =
+          processedDocumentQuery.listIdsForProperty(ssc, "crawlingId");
       addInRestrictionForIds(processedQuery, "id", crawlingIds);
     }
 
@@ -425,21 +429,26 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     if (!processedClasses.contains(RawContent.class)) {
       // RawContent to Document
       final EntityWithIdQuery<RawContent> processedRawContentQuery = processRawContentQuery(ssc);
-      final Collection<Long> documentIds = processedRawContentQuery.listIdsForProperty(ssc, "documentId");
+      final Collection<Long> documentIds =
+          processedRawContentQuery.listIdsForProperty(ssc, "documentId");
       addInRestrictionForIds(processedQuery, "id", documentIds);
     }
 
     if (!processedClasses.contains(CleanedContent.class)) {
       // CleanedContent to Document
-      final EntityWithIdQuery<CleanedContent> processedCleanedContentQuery = processCleanedContentQuery(ssc);
-      final Collection<Long> documentIds = processedCleanedContentQuery.listIdsForProperty(ssc, "documentId");
+      final EntityWithIdQuery<CleanedContent> processedCleanedContentQuery =
+          processCleanedContentQuery(ssc);
+      final Collection<Long> documentIds =
+          processedCleanedContentQuery.listIdsForProperty(ssc, "documentId");
       addInRestrictionForIds(processedQuery, "id", documentIds);
     }
 
     if (!processedClasses.contains(StemmedContent.class)) {
       // StemmedContent to Document
-      final EntityWithIdQuery<StemmedContent> processedStemmedContentQuery = processStemmedContentQuery(ssc);
-      final Collection<Long> documentIds = processedStemmedContentQuery.listIdsForProperty(ssc, "documentId");
+      final EntityWithIdQuery<StemmedContent> processedStemmedContentQuery =
+          processStemmedContentQuery(ssc);
+      final Collection<Long> documentIds =
+          processedStemmedContentQuery.listIdsForProperty(ssc, "documentId");
       addInRestrictionForIds(processedQuery, "id", documentIds);
     }
 
@@ -450,7 +459,8 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     processedClasses.add(RawContent.class);
 
     final EntityWithIdQuery<RawContent> inputQuery = rawContentQuery;
-    final EntityWithIdQuery<RawContent> processedQuery = new EntityWithIdQuery<RawContent>(inputQuery);
+    final EntityWithIdQuery<RawContent> processedQuery =
+        new EntityWithIdQuery<RawContent>(inputQuery);
 
     if (!processedClasses.contains(Document.class)) {
       // Document to RawContent
@@ -462,11 +472,13 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     return processedQuery;
   }
 
-  private EntityWithIdQuery<CleanedContent> processCleanedContentQuery(final SharedSessionContract ssc) {
+  private EntityWithIdQuery<CleanedContent> processCleanedContentQuery(
+      final SharedSessionContract ssc) {
     processedClasses.add(CleanedContent.class);
 
     final EntityWithIdQuery<CleanedContent> inputQuery = cleanedContentQuery;
-    final EntityWithIdQuery<CleanedContent> processedQuery = new EntityWithIdQuery<CleanedContent>(inputQuery);
+    final EntityWithIdQuery<CleanedContent> processedQuery =
+        new EntityWithIdQuery<CleanedContent>(inputQuery);
 
     if (!processedClasses.contains(Document.class)) {
       // Document to RawContent
@@ -478,11 +490,13 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     return processedQuery;
   }
 
-  private EntityWithIdQuery<StemmedContent> processStemmedContentQuery(final SharedSessionContract ssc) {
+  private EntityWithIdQuery<StemmedContent> processStemmedContentQuery(
+      final SharedSessionContract ssc) {
     processedClasses.add(StemmedContent.class);
 
     final EntityWithIdQuery<StemmedContent> inputQuery = stemmedContentQuery;
-    final EntityWithIdQuery<StemmedContent> processedQuery = new EntityWithIdQuery<StemmedContent>(inputQuery);
+    final EntityWithIdQuery<StemmedContent> processedQuery =
+        new EntityWithIdQuery<StemmedContent>(inputQuery);
 
     if (!processedClasses.contains(Document.class)) {
       // Document to StemmedContent
@@ -494,7 +508,8 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     return processedQuery;
   }
 
-  private EntityWithIdQuery<NamedEntityOccurrence> processNamedEntityOccurrenceQuery(final SharedSessionContract ssc) {
+  private EntityWithIdQuery<NamedEntityOccurrence> processNamedEntityOccurrenceQuery(
+      final SharedSessionContract ssc) {
     processedClasses.add(NamedEntityOccurrence.class);
 
     final EntityWithIdQuery<NamedEntityOccurrence> inputQuery = namedEntityOccurrenceQuery;

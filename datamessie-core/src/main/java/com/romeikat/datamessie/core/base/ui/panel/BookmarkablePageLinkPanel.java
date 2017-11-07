@@ -33,11 +33,12 @@ public class BookmarkablePageLinkPanel<T extends Page> extends Panel {
 
   private static final long serialVersionUID = 1L;
 
-  public BookmarkablePageLinkPanel(final String id, final Class<T> pageClass, final PageParameters pageParameters,
-      final IModel<?> labelModel) {
+  public BookmarkablePageLinkPanel(final String id, final Class<T> pageClass,
+      final PageParameters pageParameters, final IModel<?> labelModel) {
     super(id);
 
-    final BookmarkablePageLink<T> bookmarkablePageLink = new BookmarkablePageLink<T>("link", pageClass, pageParameters);
+    final BookmarkablePageLink<T> bookmarkablePageLink =
+        new BookmarkablePageLink<T>("link", pageClass, pageParameters);
     final Label bookmarkablePageLinkLabel = new Label("label", labelModel);
     bookmarkablePageLink.add(bookmarkablePageLinkLabel);
     add(bookmarkablePageLink);

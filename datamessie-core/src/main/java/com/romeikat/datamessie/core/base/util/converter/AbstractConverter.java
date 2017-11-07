@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.Locale;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.convert.IConverter;
 

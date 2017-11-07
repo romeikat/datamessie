@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 
@@ -43,7 +42,8 @@ public abstract class CountPublishedDateParallelLoadingStrategy
   }
 
   @Override
-  protected void mergeResults(final MutableObject<Long> previousResult, final MutableObject<Long> nextResult) {
+  protected void mergeResults(final MutableObject<Long> previousResult,
+      final MutableObject<Long> nextResult) {
     final long previousValue = previousResult.getValue();
     final long nextValue = nextResult.getValue();
     final long mergedValue = previousValue + nextValue;

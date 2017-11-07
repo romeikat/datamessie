@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.wicket.Application;
 import org.apache.wicket.ConverterLocator;
 import org.apache.wicket.IConverterLocator;
@@ -43,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.app.module.DataMessieModuleProvider;
 import com.romeikat.datamessie.core.base.app.module.IDataMessieModule;
@@ -87,8 +85,10 @@ public class DataMessieApplication extends AuthenticatedWebApplication {
 
   private void checkDbConnectionPool() {
     int totalNumberOfRequiredDbConnections = 0;
-    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider.getActiveDataMessieModules()) {
-      final Integer numberOfRequiredDbConnections = dataMessieModule.getNumberOfRequiredDbConnections();
+    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider
+        .getActiveDataMessieModules()) {
+      final Integer numberOfRequiredDbConnections =
+          dataMessieModule.getNumberOfRequiredDbConnections();
       if (numberOfRequiredDbConnections == null) {
         continue;
       }
@@ -105,12 +105,15 @@ public class DataMessieApplication extends AuthenticatedWebApplication {
   }
 
   private void setTimeout() {
-    getRequestCycleSettings().setTimeout(org.apache.wicket.util.time.Duration.minutes(requestTimeout));
+    getRequestCycleSettings()
+        .setTimeout(org.apache.wicket.util.time.Duration.minutes(requestTimeout));
   }
 
   private void mountPages() {
-    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider.getActiveDataMessieModules()) {
-      final Map<String, Class<? extends Page>> pagesToBeMounted = dataMessieModule.getPagesToBeMounted();
+    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider
+        .getActiveDataMessieModules()) {
+      final Map<String, Class<? extends Page>> pagesToBeMounted =
+          dataMessieModule.getPagesToBeMounted();
       if (pagesToBeMounted != null) {
         for (final String path : pagesToBeMounted.keySet()) {
           final Class<? extends Page> clazz = pagesToBeMounted.get(path);
@@ -123,7 +126,8 @@ public class DataMessieApplication extends AuthenticatedWebApplication {
   @Override
   protected IConverterLocator newConverterLocator() {
     final ConverterLocator converterLocator = (ConverterLocator) super.newConverterLocator();
-    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider.getActiveDataMessieModules()) {
+    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider
+        .getActiveDataMessieModules()) {
       final Map<Class<?>, IConverter<?>> converters = dataMessieModule.getConverters();
       if (converters != null) {
         for (final Class<?> clazz : converters.keySet()) {
@@ -154,7 +158,8 @@ public class DataMessieApplication extends AuthenticatedWebApplication {
   @Override
   public Class<? extends Page> getHomePage() {
     final List<Class<? extends Page>> homePages = Lists.newLinkedList();
-    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider.getActiveDataMessieModules()) {
+    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider
+        .getActiveDataMessieModules()) {
       final Class<? extends Page> homePage = dataMessieModule.getHomePage();
       if (homePage != null) {
         homePages.add(homePage);
@@ -169,9 +174,12 @@ public class DataMessieApplication extends AuthenticatedWebApplication {
   }
 
   public List<NavigationLink<? extends Page>> getNavigationLinks() {
-    final List<NavigationLink<? extends Page>> navigationLinks = new LinkedList<NavigationLink<? extends Page>>();
-    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider.getActiveDataMessieModules()) {
-      final List<NavigationLink<? extends Page>> moduleNavigationLinks = dataMessieModule.getNavigationLinks();
+    final List<NavigationLink<? extends Page>> navigationLinks =
+        new LinkedList<NavigationLink<? extends Page>>();
+    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider
+        .getActiveDataMessieModules()) {
+      final List<NavigationLink<? extends Page>> moduleNavigationLinks =
+          dataMessieModule.getNavigationLinks();
       if (moduleNavigationLinks != null) {
         navigationLinks.addAll(moduleNavigationLinks);
       }
@@ -182,7 +190,8 @@ public class DataMessieApplication extends AuthenticatedWebApplication {
 
   public List<SidePanel> getSidePanels() {
     final List<SidePanel> sidePanels = new LinkedList<SidePanel>();
-    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider.getActiveDataMessieModules()) {
+    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider
+        .getActiveDataMessieModules()) {
       final List<? extends SidePanel> moduleSidePanels = dataMessieModule.getSidePanels();
       if (moduleSidePanels != null) {
         sidePanels.addAll(moduleSidePanels);

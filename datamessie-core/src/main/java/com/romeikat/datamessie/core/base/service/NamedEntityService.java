@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SharedSessionContract;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
@@ -61,10 +59,12 @@ public class NamedEntityService {
   @Qualifier("namedEntityCategoryDao")
   private NamedEntityCategoryDao namedEntityCategoryDao;
 
-  public List<NamedEntityDto> getAsDtosByDocument(final SharedSessionContract ssc, final long documentId) {
+  public List<NamedEntityDto> getAsDtosByDocument(final SharedSessionContract ssc,
+      final long documentId) {
     final List<NamedEntityDto> dtos = new ArrayList<NamedEntityDto>();
     // Determine named entity occurrences for the document
-    final List<NamedEntityOccurrence> namedEntityOccurrences = namedEntityOccurrenceDao.getByDocument(ssc, documentId);
+    final List<NamedEntityOccurrence> namedEntityOccurrences =
+        namedEntityOccurrenceDao.getByDocument(ssc, documentId);
 
     // Load named entities
     final Map<Long, NamedEntity> namedEntitiesById =
@@ -72,14 +72,17 @@ public class NamedEntityService {
 
     // Process each occurrence
     for (final NamedEntityOccurrence namedEntityOccurrence : namedEntityOccurrences) {
-      final NamedEntity namedEntity = namedEntitiesById.get(namedEntityOccurrence.getNamedEntityId());
+      final NamedEntity namedEntity =
+          namedEntitiesById.get(namedEntityOccurrence.getNamedEntityId());
       if (namedEntity == null) {
         LOG.warn("No named entity with ID {} found", namedEntityOccurrence.getNamedEntityId());
         continue;
       }
-      final NamedEntity parentNamedEntity = namedEntitiesById.get(namedEntityOccurrence.getParentNamedEntityId());
+      final NamedEntity parentNamedEntity =
+          namedEntitiesById.get(namedEntityOccurrence.getParentNamedEntityId());
       if (parentNamedEntity == null) {
-        LOG.warn("No parent named entity with ID {} found", namedEntityOccurrence.getParentNamedEntityId());
+        LOG.warn("No parent named entity with ID {} found",
+            namedEntityOccurrence.getParentNamedEntityId());
         continue;
       }
 
@@ -97,7 +100,8 @@ public class NamedEntityService {
     for (final NamedEntityDto dto : dtos) {
       final Set<String> namedEntityCategoryNames =
           namedEntityCategoryDao.getNamedEntityCategoryNames(ssc, dto.getName());
-      final List<String> namedEntityCategoryNamesSorted = Lists.newArrayList(namedEntityCategoryNames);
+      final List<String> namedEntityCategoryNamesSorted =
+          Lists.newArrayList(namedEntityCategoryNames);
       Collections.sort(namedEntityCategoryNamesSorted, CollatorComparator.INSTANCE);
       final String categories = StringUtils.join(namedEntityCategoryNamesSorted, "/");
       dto.setCategories(categories);

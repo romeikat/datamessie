@@ -23,15 +23,14 @@ License along with this program.  If not, see
  */
 
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.publishedDates.PublishedDateStrategy;
 
 public abstract class PublishedDateProcessingStrategy extends PublishedDateStrategy {
 
-  public PublishedDateProcessingStrategy(final DocumentsFilterSettings dfs, final SessionFactory sessionFactory,
-      final SharedBeanProvider sharedBeanProvider) {
+  public PublishedDateProcessingStrategy(final DocumentsFilterSettings dfs,
+      final SessionFactory sessionFactory, final SharedBeanProvider sharedBeanProvider) {
     super(dfs, sessionFactory, sharedBeanProvider);
   }
 

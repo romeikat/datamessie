@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;

@@ -26,12 +26,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 
 @Entity
 @Table(name = SourceType.TABLE_NAME,
-    uniqueConstraints = {@UniqueConstraint(name = "sourceType_id_version", columnNames = {"id", "version"}),
+    uniqueConstraints = {
+        @UniqueConstraint(name = "sourceType_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "sourceType_name", columnNames = {"name"})})
 public class SourceType extends AbstractEntityWithGeneratedIdAndVersion {
 

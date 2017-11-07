@@ -24,26 +24,27 @@ License along with this program.  If not, see
 
 import java.time.LocalDate;
 import java.util.List;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionContract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.base.util.publishedDates.loading.PublishedDateLoadingStrategy;
 
-public abstract class PublishedDateParallelLoadingStrategy<T> extends PublishedDateLoadingStrategy<T> {
+public abstract class PublishedDateParallelLoadingStrategy<T>
+    extends PublishedDateLoadingStrategy<T> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PublishedDateParallelLoadingStrategy.class);
+  private static final Logger LOG =
+      LoggerFactory.getLogger(PublishedDateParallelLoadingStrategy.class);
 
   @Override
   protected abstract T initializeEmptyResult();
 
-  protected abstract T load(SharedSessionContract ssc, DocumentsFilterSettings dfsWithPublishedDate);
+  protected abstract T load(SharedSessionContract ssc,
+      DocumentsFilterSettings dfsWithPublishedDate);
 
   @Override
   protected abstract void mergeResults(T previousResult, T nextResult);
@@ -51,8 +52,9 @@ public abstract class PublishedDateParallelLoadingStrategy<T> extends PublishedD
   private final SessionFactory sessionFactory;
   private final Double parallelismFactor;
 
-  public PublishedDateParallelLoadingStrategy(final DocumentsFilterSettings dfs, final SessionFactory sessionFactory,
-      final SharedBeanProvider sharedBeanProvider, final Double parallelismFactor) {
+  public PublishedDateParallelLoadingStrategy(final DocumentsFilterSettings dfs,
+      final SessionFactory sessionFactory, final SharedBeanProvider sharedBeanProvider,
+      final Double parallelismFactor) {
     super(dfs, sessionFactory, sharedBeanProvider);
 
     this.sessionFactory = sessionFactory;
@@ -67,11 +69,13 @@ public abstract class PublishedDateParallelLoadingStrategy<T> extends PublishedD
     final List<LocalDate> publishedDates = getPublishedDates();
     new ParallelProcessing<LocalDate>(sessionFactory, publishedDates, parallelismFactor) {
       @Override
-      public void doProcessing(final HibernateSessionProvider sessionProvider, final LocalDate publishedDate) {
+      public void doProcessing(final HibernateSessionProvider sessionProvider,
+          final LocalDate publishedDate) {
         LOG.debug("Loading data for publishedDate {}", publishedDate);
 
         // Load result for published date
-        final T nextResult = loadForPublishedDate(sessionProvider.getStatelessSession(), publishedDate);
+        final T nextResult =
+            loadForPublishedDate(sessionProvider.getStatelessSession(), publishedDate);
         if (nextResult == null) {
           return;
         }

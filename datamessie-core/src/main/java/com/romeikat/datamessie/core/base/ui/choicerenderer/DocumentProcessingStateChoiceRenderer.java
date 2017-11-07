@@ -24,7 +24,8 @@ License along with this program.  If not, see
 
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
-public class DocumentProcessingStateChoiceRenderer extends EnumChoiceRenderer<DocumentProcessingState> {
+public class DocumentProcessingStateChoiceRenderer
+    extends EnumChoiceRenderer<DocumentProcessingState> {
 
   private static final long serialVersionUID = 1L;
 

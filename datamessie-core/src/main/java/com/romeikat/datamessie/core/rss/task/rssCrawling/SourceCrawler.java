@@ -29,14 +29,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -77,20 +75,21 @@ public class SourceCrawler {
     downloadService = ctx.getBean(DownloadService.class);
     downloader = ctx.getBean(Downloader.class);
     htmlUtil = ctx.getBean(HtmlUtil.class);
-    statisticsManager = ctx.getBean(SharedBeanProvider.class).getSharedBean(IStatisticsManager.class);
+    statisticsManager =
+        ctx.getBean(SharedBeanProvider.class).getSharedBean(IStatisticsManager.class);
 
     documentCrawler = new DocumentCrawler(ctx);
 
-    documentsParallelismFactor =
-        Double.parseDouble(SpringUtil.getPropertyValue(ctx, "crawling.documents.parallelism.factor"));
+    documentsParallelismFactor = Double
+        .parseDouble(SpringUtil.getPropertyValue(ctx, "crawling.documents.parallelism.factor"));
 
     statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
   }
 
-  public void performCrawling(final HibernateSessionProvider sessionProvider, final TaskExecution taskExecution,
-      final Crawling crawling, final Source source) {
-    final TaskExecutionWork work =
-        taskExecution.reportWorkStart(String.format("Performing crawling for source %s", source.getId()));
+  public void performCrawling(final HibernateSessionProvider sessionProvider,
+      final TaskExecution taskExecution, final Crawling crawling, final Source source) {
+    final TaskExecutionWork work = taskExecution
+        .reportWorkStart(String.format("Performing crawling for source %s", source.getId()));
 
     // Download RSS feed
     final SyndFeed syndFeed = downloadFeed(source);
@@ -123,8 +122,8 @@ public class SourceCrawler {
     return syndFeed;
   }
 
-  private void processFeed(final HibernateSessionProvider sessionProvider, final Crawling crawling, final Source source,
-      final SyndFeed feed) {
+  private void processFeed(final HibernateSessionProvider sessionProvider, final Crawling crawling,
+      final Source source, final SyndFeed feed) {
     LOG.debug("Crawling documents of source {}", source.getId());
 
     // Determine which URLs to download
@@ -150,15 +149,16 @@ public class SourceCrawler {
         continue;
       }
 
-      processUrl(sessionProvider.getStatelessSession(), downloadedUrl, entry, downloadResult, crawling.getId(),
-          source.getId());
+      processUrl(sessionProvider.getStatelessSession(), downloadedUrl, entry, downloadResult,
+          crawling.getId(), source.getId());
     }
 
     sessionProvider.closeStatelessSession();
   }
 
-  private void processUrl(final StatelessSession statelessSession, final String url, final SyndEntry entry,
-      final DownloadResult downloadResult, final long crawlingId, final long sourceId) {
+  private void processUrl(final StatelessSession statelessSession, final String url,
+      final SyndEntry entry, final DownloadResult downloadResult, final long crawlingId,
+      final long sourceId) {
     new ExecuteWithTransaction(statelessSession) {
       @Override
       protected void execute(final StatelessSession statelessSession) {
@@ -166,8 +166,8 @@ public class SourceCrawler {
         final String description = getDescription(entry);
         final LocalDateTime published = getPublished(entry);
 
-        documentCrawler.performCrawling(statelessSession, title, description, published, downloadResult, crawlingId,
-            sourceId);
+        documentCrawler.performCrawling(statelessSession, title, description, published,
+            downloadResult, crawlingId, sourceId);
         statisticsToBeRebuilt.putValues(documentCrawler.getStatisticsToBeRebuilt());
       }
 
@@ -178,8 +178,9 @@ public class SourceCrawler {
     }.execute();
   }
 
-  private Map<String, SyndEntry> getEntriesToBeDownloaded(final HibernateSessionProvider sessionProvider,
-      final Long sourceId, final SyndFeed syndFeed) {
+  private Map<String, SyndEntry> getEntriesToBeDownloaded(
+      final HibernateSessionProvider sessionProvider, final Long sourceId,
+      final SyndFeed syndFeed) {
     final Map<String, SyndEntry> entriesPerUrl = getUniqueEntriesPerUrl(sourceId, syndFeed);
 
     // Filter URLs that should be downloaded
@@ -218,8 +219,8 @@ public class SourceCrawler {
     return entriesPerUrl;
   }
 
-  private boolean shouldUrlBeDownloaded(final HibernateSessionProvider sessionProvider, final Long sourceId,
-      final String url) {
+  private boolean shouldUrlBeDownloaded(final HibernateSessionProvider sessionProvider,
+      final Long sourceId, final String url) {
     try {
       // Validate URL
       final boolean isUrlValid = isUrlValid(url);
@@ -229,8 +230,8 @@ public class SourceCrawler {
       }
 
       // Skip if URL has already been successfully downloaded
-      final boolean existsWithDownloadSuccess =
-          downloadService.existsWithDownloadSuccess(sessionProvider.getStatelessSession(), url, sourceId);
+      final boolean existsWithDownloadSuccess = downloadService
+          .existsWithDownloadSuccess(sessionProvider.getStatelessSession(), url, sourceId);
       if (existsWithDownloadSuccess) {
         LOG.debug("URL {} has already been downloaded for source {}", url, sourceId);
         return false;
@@ -254,7 +255,8 @@ public class SourceCrawler {
   }
 
   private ConcurrentMap<String, DownloadResult> downloadEntries(final Set<String> urls) {
-    final ConcurrentMap<String, DownloadResult> downloadResults = new ConcurrentHashMap<String, DownloadResult>();
+    final ConcurrentMap<String, DownloadResult> downloadResults =
+        new ConcurrentHashMap<String, DownloadResult>();
 
     final List<String> urlsList = Lists.newArrayList(urls);
     new ParallelProcessing<String>(null, urlsList, documentsParallelismFactor) {

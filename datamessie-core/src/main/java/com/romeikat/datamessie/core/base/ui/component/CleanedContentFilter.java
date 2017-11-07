@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 
 public class CleanedContentFilter extends TextArea<String> {

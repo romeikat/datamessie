@@ -24,14 +24,12 @@ License along with this program.  If not, see
 
 import java.time.LocalDate;
 import java.util.Collection;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.util.sparsetable.SparseSingleTable;
@@ -102,8 +100,9 @@ public class RemoteStatisticsManager implements IStatisticsManager {
   }
 
   @Override
-  public <T> SparseSingleTable<Long, LocalDate, T> getStatistics(final Collection<Long> sourceIds, final LocalDate from,
-      final LocalDate to, final Function<LocalDate, LocalDate> transformDateFunction,
+  public <T> SparseSingleTable<Long, LocalDate, T> getStatistics(final Collection<Long> sourceIds,
+      final LocalDate from, final LocalDate to,
+      final Function<LocalDate, LocalDate> transformDateFunction,
       final Function<DocumentsPerState, T> transformValueFunction) {
     if (!isHttpStatisticsManagerConfigured()) {
       return new SparseSingleTable<Long, LocalDate, T>();
@@ -112,8 +111,8 @@ public class RemoteStatisticsManager implements IStatisticsManager {
     // Get via buffer
     try {
       final Collection<Long> sourceIdsSerializable = Sets.newHashSet(sourceIds);
-      return httpStatisticsManager.getStatistics(sourceIdsSerializable, from, to, transformDateFunction,
-          transformValueFunction);
+      return httpStatisticsManager.getStatistics(sourceIdsSerializable, from, to,
+          transformDateFunction, transformValueFunction);
     } catch (final Exception e) {
       LOG.error(REMOTE_ERROR_MSG, e);
       return new SparseSingleTable<Long, LocalDate, T>();

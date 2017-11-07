@@ -23,13 +23,11 @@ License along with this program.  If not, see
  */
 
 import javax.sql.DataSource;
-
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.ninja_squad.dbsetup.DbSetup;
 import com.ninja_squad.dbsetup.DbSetupTracker;
 import com.ninja_squad.dbsetup.destination.DataSourceDestination;
@@ -90,7 +88,8 @@ public abstract class AbstractDbSetupBasedTest extends AbstractTest {
     if (operationSyncSource == null) {
       operationSyncSource = NopOperation.INSTANCE;
     }
-    final DbSetup dbSetupSyncSource = new DbSetup(new DataSourceDestination(dataSourceSyncSource), operationSyncSource);
+    final DbSetup dbSetupSyncSource =
+        new DbSetup(new DataSourceDestination(dataSourceSyncSource), operationSyncSource);
     dbSetupSyncSource.launch();
 
     // Clear caches

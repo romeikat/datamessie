@@ -25,12 +25,10 @@ License along with this program.  If not, see
 import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
@@ -51,14 +49,16 @@ public class EntityWithIdAndVersionSynchronizerTest2 extends AbstractDbSetupBase
 
   @Override
   protected Operation initDb() {
-    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE, insertInto("fooEntityWithGeneratedIdAndVersion")
-        .columns("id", "version", "name", "active").values(1L, 0L, "Foo1", true).values(2L, 0L, "Foo2", true).build());
+    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
+        insertInto("fooEntityWithGeneratedIdAndVersion").columns("id", "version", "name", "active")
+            .values(1L, 0L, "Foo1", true).values(2L, 0L, "Foo2", true).build());
   }
 
   @Override
   protected Operation initDbSyncSource() {
-    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE, insertInto("fooEntityWithGeneratedIdAndVersion")
-        .columns("id", "version", "name", "active").values(1L, 0L, "Foo1", true).values(2L, 0L, "Foo2", true).build());
+    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
+        insertInto("fooEntityWithGeneratedIdAndVersion").columns("id", "version", "name", "active")
+            .values(1L, 0L, "Foo1", true).values(2L, 0L, "Foo2", true).build());
   }
 
   @Test
@@ -66,15 +66,19 @@ public class EntityWithIdAndVersionSynchronizerTest2 extends AbstractDbSetupBase
     new FooEntityWithGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // LHS
-    final FooEntityWithGeneratedIdAndVersion lhs1 = dao.getEntity(syncSourceSessionProvider.getStatelessSession(), 1);
+    final FooEntityWithGeneratedIdAndVersion lhs1 =
+        dao.getEntity(syncSourceSessionProvider.getStatelessSession(), 1);
     assertEquals("Foo1", lhs1.getName());
-    final FooEntityWithGeneratedIdAndVersion lhs2 = dao.getEntity(syncSourceSessionProvider.getStatelessSession(), 2);
+    final FooEntityWithGeneratedIdAndVersion lhs2 =
+        dao.getEntity(syncSourceSessionProvider.getStatelessSession(), 2);
     assertEquals("Foo2", lhs2.getName());
 
     // RHS
-    FooEntityWithGeneratedIdAndVersion rhs1 = dao.getEntity(sessionProvider.getStatelessSession(), 1);
+    FooEntityWithGeneratedIdAndVersion rhs1 =
+        dao.getEntity(sessionProvider.getStatelessSession(), 1);
     assertEquals("Foo1", rhs1.getName());
-    FooEntityWithGeneratedIdAndVersion rhs2 = dao.getEntity(sessionProvider.getStatelessSession(), 2);
+    FooEntityWithGeneratedIdAndVersion rhs2 =
+        dao.getEntity(sessionProvider.getStatelessSession(), 2);
     assertEquals("Foo2", rhs2.getName());
 
     // LHS: switch names

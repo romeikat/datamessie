@@ -24,13 +24,11 @@ License along with this program.  If not, see
 
 import java.util.List;
 import java.util.Set;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projection;
 import org.hibernate.transform.ResultTransformer;
-
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryCountExecutor;
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryListForProjectionExecutor;
@@ -40,7 +38,6 @@ import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQuery
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryUniqueIdOfPropertyExecutor;
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryUniqueObjectExecutor;
 import com.romeikat.datamessie.core.domain.entity.Entity;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 
 

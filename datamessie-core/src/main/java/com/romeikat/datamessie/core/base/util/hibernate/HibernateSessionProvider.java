@@ -23,10 +23,8 @@ License along with this program.  If not, see
  */
 
 import java.lang.reflect.Field;
-
 import javax.persistence.Column;
 import javax.persistence.Table;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;

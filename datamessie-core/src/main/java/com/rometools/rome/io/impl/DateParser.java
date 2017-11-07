@@ -64,16 +64,17 @@ public class DateParser {
   // order is like this because the SimpleDateFormat.parse does not fail with exception if it can
   // parse a valid date out of a substring of the full string given the mask so we have to check
   // the most complete format first, then it fails with exception
-  private static final String[] RFC822_MASKS =
-      {"EEE, dd MMM yy HH:mm:ss z", "EEE, dd MMM yy HH:mm z", "dd MMM yy HH:mm:ss z", "dd MMM yy HH:mm z"};
+  private static final String[] RFC822_MASKS = {"EEE, dd MMM yy HH:mm:ss z",
+      "EEE, dd MMM yy HH:mm z", "dd MMM yy HH:mm:ss z", "dd MMM yy HH:mm z"};
 
   // order is like this because the SimpleDateFormat.parse does not fail with exception if it can
   // parse a valid date out of a substring of the full string given the mask so we have to check
   // the most complete format first, then it fails with exception
   private static final String[] W3CDATETIME_MASKS =
       {"yyyy-MM-dd'T'HH:mm:ss.SSSz", "yyyy-MM-dd't'HH:mm:ss.SSSz", "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-          "yyyy-MM-dd't'HH:mm:ss.SSS'z'", "yyyy-MM-dd'T'HH:mm:ssz", "yyyy-MM-dd't'HH:mm:ssz", "yyyy-MM-dd'T'HH:mm:ssZ",
-          "yyyy-MM-dd't'HH:mm:ssZ", "yyyy-MM-dd'T'HH:mm:ss'Z'", "yyyy-MM-dd't'HH:mm:ss'z'", "yyyy-MM-dd'T'HH:mmz", // together
+          "yyyy-MM-dd't'HH:mm:ss.SSS'z'", "yyyy-MM-dd'T'HH:mm:ssz", "yyyy-MM-dd't'HH:mm:ssz",
+          "yyyy-MM-dd'T'HH:mm:ssZ", "yyyy-MM-dd't'HH:mm:ssZ", "yyyy-MM-dd'T'HH:mm:ss'Z'",
+          "yyyy-MM-dd't'HH:mm:ss'z'", "yyyy-MM-dd'T'HH:mmz", // together
           // with
           // logic
           // in
@@ -82,8 +83,8 @@ public class DateParser {
           // they
           "yyyy-MM'T'HH:mmz", // handle W3C dates without time forcing them to
           // be GMT
-          "yyyy'T'HH:mmz", "yyyy-MM-dd't'HH:mmz", "yyyy-MM-dd'T'HH:mm'Z'", "yyyy-MM-dd't'HH:mm'z'", "yyyy-MM-dd",
-          "yyyy-MM", "yyyy"};
+          "yyyy'T'HH:mmz", "yyyy-MM-dd't'HH:mmz", "yyyy-MM-dd'T'HH:mm'Z'", "yyyy-MM-dd't'HH:mm'z'",
+          "yyyy-MM-dd", "yyyy-MM", "yyyy"};
 
   /**
    * The masks used to validate and parse the input to this Atom date. These are a lot more
@@ -102,7 +103,8 @@ public class DateParser {
       "yyyy-MM-dd", "yyyy-MM", "yyyy"};
 
   static {
-    ADDITIONAL_MASKS = PropertiesLoader.getPropertiesLoader().getTokenizedProperty("datetime.extra.masks", "|");
+    ADDITIONAL_MASKS =
+        PropertiesLoader.getPropertiesLoader().getTokenizedProperty("datetime.extra.masks", "|");
   }
 
   /**
@@ -183,14 +185,15 @@ public class DateParser {
     return sDate;
   }
 
-  private static String replaceLastOccurrence(final String original, final String target, final String replacement) {
+  private static String replaceLastOccurrence(final String original, final String target,
+      final String replacement) {
     final int lastIndexOfTarget = original.lastIndexOf(target);
 
     if (lastIndexOfTarget == -1) {
       return original;
     } else {
-      return new StringBuilder(original).replace(lastIndexOfTarget, lastIndexOfTarget + target.length(), replacement)
-          .toString();
+      return new StringBuilder(original)
+          .replace(lastIndexOfTarget, lastIndexOfTarget + target.length(), replacement).toString();
     }
   }
 
@@ -278,7 +281,8 @@ public class DateParser {
    *
    */
   public static String formatRFC822(final Date date, final Locale locale) {
-    final SimpleDateFormat dateFormater = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", locale);
+    final SimpleDateFormat dateFormater =
+        new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss 'GMT'", locale);
     dateFormater.setTimeZone(TimeZone.getTimeZone("GMT"));
     return dateFormater.format(date);
   }

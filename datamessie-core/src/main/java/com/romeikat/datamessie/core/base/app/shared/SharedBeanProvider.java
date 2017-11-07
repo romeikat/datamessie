@@ -25,12 +25,10 @@ License along with this program.  If not, see
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.app.module.DataMessieModuleProvider;
 import com.romeikat.datamessie.core.base.app.module.IDataMessieModule;
 import com.romeikat.datamessie.core.base.util.comparator.SharedBeanOrderComparator;
@@ -40,14 +38,16 @@ public class SharedBeanProvider {
 
   private static final Logger LOG = LoggerFactory.getLogger(SharedBeanProvider.class);
 
-  private static final SharedBeanOrderComparator ORDER_COMPARATOR = SharedBeanOrderComparator.INSTANCE;
+  private static final SharedBeanOrderComparator ORDER_COMPARATOR =
+      SharedBeanOrderComparator.INSTANCE;
 
   @Autowired
   private DataMessieModuleProvider dataMessieModuleProvider;
 
   public <T extends ISharedBean> T getSharedBean(final Class<T> clazz) {
     final List<T> sharedBeans = new LinkedList<T>();
-    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider.getActiveDataMessieModules()) {
+    for (final IDataMessieModule dataMessieModule : dataMessieModuleProvider
+        .getActiveDataMessieModules()) {
       final T moduleSharedBean = dataMessieModule.getSharedBean(clazz);
       if (moduleSharedBean != null) {
         sharedBeans.add(moduleSharedBean);

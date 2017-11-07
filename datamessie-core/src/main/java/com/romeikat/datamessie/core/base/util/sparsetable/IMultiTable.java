@@ -61,7 +61,8 @@ public interface IMultiTable<X, Y, Z> extends ITable<X, Y, Z> {
   List<Y> getColumnHeadersSorted(X rowHeader, Comparator<? super Y> columnHeaderComparator,
       Comparator<? super List<Z>> rowValueComparator);
 
-  SortedMap<X, List<Z>> getColumnSorted(Y columnHeader, Comparator<? super X> columnHeaderComparator,
+  SortedMap<X, List<Z>> getColumnSorted(Y columnHeader,
+      Comparator<? super X> columnHeaderComparator,
       Comparator<? super List<Z>> columnValueComparator);
 
   Set<Cell<X, Y, List<Z>>> getCells();

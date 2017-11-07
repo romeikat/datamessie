@@ -22,7 +22,6 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.List;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
@@ -30,7 +29,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
@@ -61,11 +59,13 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
     projectionList.add(Projections.property("crawlingInterval"), "crawlingInterval");
     projectionList.add(Projections.property("preprocessingEnabled"), "preprocessingEnabled");
     @SuppressWarnings("unchecked")
-    final List<ProjectDto> dtos = (List<ProjectDto>) projectQuery.listForProjection(ssc, projectionList);
+    final List<ProjectDto> dtos =
+        (List<ProjectDto>) projectQuery.listForProjection(ssc, projectionList);
     return dtos;
   }
 
-  public ProjectDto getAsDto(final SharedSessionContract sharedSessionContract, final long projectId) {
+  public ProjectDto getAsDto(final SharedSessionContract sharedSessionContract,
+      final long projectId) {
     // Query: Project
     final EntityQuery<Project> projectQuery = new EntityQuery<>(Project.class);
     projectQuery.addRestriction(Restrictions.idEq(projectId));
@@ -79,7 +79,8 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
     projectionList.add(Projections.property("crawlingEnabled"), "crawlingEnabled");
     projectionList.add(Projections.property("crawlingInterval"), "crawlingInterval");
     projectionList.add(Projections.property("preprocessingEnabled"), "preprocessingEnabled");
-    final ProjectDto dto = (ProjectDto) projectQuery.uniqueForProjection(sharedSessionContract, projectionList);
+    final ProjectDto dto =
+        (ProjectDto) projectQuery.uniqueForProjection(sharedSessionContract, projectionList);
     return dto;
   }
 

@@ -26,7 +26,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
 import org.apache.wicket.util.time.Duration;
 
-public abstract class SwitchingFrequencyAjaxSelfUpdatingTimerBehavior extends AjaxSelfUpdatingTimerBehavior {
+public abstract class SwitchingFrequencyAjaxSelfUpdatingTimerBehavior
+    extends AjaxSelfUpdatingTimerBehavior {
 
   private static final long serialVersionUID = 1L;
 

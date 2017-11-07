@@ -24,14 +24,12 @@ License along with this program.  If not, see
 
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.domain.dto.DocumentOverviewDto;
@@ -48,8 +46,8 @@ public class DocumentsOverviewDataProvider implements IDataProvider<DocumentOver
 
   private final IModel<Long> numberOfDocumentsModel;
 
-  public DocumentsOverviewDataProvider(final IModel<DocumentsFilterSettings> dfsModel, final DocumentDao documentDao,
-      final SessionFactory sessionFactory) {
+  public DocumentsOverviewDataProvider(final IModel<DocumentsFilterSettings> dfsModel,
+      final DocumentDao documentDao, final SessionFactory sessionFactory) {
     this.dfsModel = dfsModel;
     this.documentDao = documentDao;
     this.sessionFactory = sessionFactory;
@@ -60,7 +58,8 @@ public class DocumentsOverviewDataProvider implements IDataProvider<DocumentOver
 
       @Override
       public Long load() {
-        final Long numberOfDocuments = documentDao.count(sessionFactory.getCurrentSession(), dfsModel.getObject());
+        final Long numberOfDocuments =
+            documentDao.count(sessionFactory.getCurrentSession(), dfsModel.getObject());
         return numberOfDocuments;
       }
     };
@@ -68,8 +67,8 @@ public class DocumentsOverviewDataProvider implements IDataProvider<DocumentOver
 
   @Override
   public Iterator<? extends DocumentOverviewDto> iterator(final long first, final long count) {
-    final List<DocumentOverviewDto> documents =
-        documentDao.getAsOverviewDtos(sessionFactory.getCurrentSession(), dfsModel.getObject(), first, count);
+    final List<DocumentOverviewDto> documents = documentDao
+        .getAsOverviewDtos(sessionFactory.getCurrentSession(), dfsModel.getObject(), first, count);
     return documents.iterator();
   }
 

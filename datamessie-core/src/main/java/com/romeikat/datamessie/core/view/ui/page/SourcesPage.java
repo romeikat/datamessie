@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
@@ -41,7 +40,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
-
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.service.SourceService;
@@ -94,7 +92,8 @@ public class SourcesPage extends AbstractAuthenticatedPage {
         if (activeProject == null) {
           return Collections.emptyList();
         }
-        final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
+        final HibernateSessionProvider sessionProvider =
+            new HibernateSessionProvider(sessionFactory);
         final List<SourceDto> dtos =
             sourceDao.getAsDtos(sessionProvider.getStatelessSession(), activeProject.getId(), null);
         sessionProvider.closeStatelessSession();
@@ -113,24 +112,25 @@ public class SourcesPage extends AbstractAuthenticatedPage {
         final PageParameters sourcePageParameters = createProjectPageParameters();
         sourcePageParameters.set("id", source.getId());
         final Label nameLabel = new Label("name", new PropertyModel<String>(sourceModel, "name"));
-        final Link<SourcePage> sourceLink =
-            new BookmarkablePageLink<SourcePage>("sourceLink", SourcePage.class, sourcePageParameters);
+        final Link<SourcePage> sourceLink = new BookmarkablePageLink<SourcePage>("sourceLink",
+            SourcePage.class, sourcePageParameters);
         sourceLink.add(nameLabel);
         item.add(sourceLink);
         // Language
-        final Label languageLabel = new Label("language", new PropertyModel<String>(sourceModel, "language"));
+        final Label languageLabel =
+            new Label("language", new PropertyModel<String>(sourceModel, "language"));
         item.add(languageLabel);
         // Types
-        final SourceTypeChoice typesChoice =
-            new SourceTypeChoice("types", new PropertyModel<Collection<SourceTypeDto>>(sourceModel, "types"))
-                .setWidth(300);
+        final SourceTypeChoice typesChoice = new SourceTypeChoice("types",
+            new PropertyModel<Collection<SourceTypeDto>>(sourceModel, "types")).setWidth(300);
         typesChoice.add(new ModelUpdatingBehavior() {
           private static final long serialVersionUID = 1L;
 
           @Override
           protected void onUpdate(final AjaxRequestTarget target) {
             final Collection<SourceTypeDto> newSelection = typesChoice.getModelObject();
-            final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
+            final HibernateSessionProvider sessionProvider =
+                new HibernateSessionProvider(sessionFactory);
             new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
               @Override
               protected void execute(final StatelessSession statelessSession) {
@@ -142,7 +142,8 @@ public class SourcesPage extends AbstractAuthenticatedPage {
         });
         item.add(typesChoice);
         // Visibility
-        final CheckBox visibleCheckBox = new CheckBox("visible", new PropertyModel<Boolean>(sourceModel, "visible"));
+        final CheckBox visibleCheckBox =
+            new CheckBox("visible", new PropertyModel<Boolean>(sourceModel, "visible"));
         // Updating behavior to save visibility immediately on change
         visibleCheckBox.add(new ModelUpdatingBehavior() {
           private static final long serialVersionUID = 1L;
@@ -150,7 +151,8 @@ public class SourcesPage extends AbstractAuthenticatedPage {
           @Override
           protected void onUpdate(final AjaxRequestTarget target) {
             final Boolean newSelection = visibleCheckBox.getModelObject();
-            final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
+            final HibernateSessionProvider sessionProvider =
+                new HibernateSessionProvider(sessionFactory);
             new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
               @Override
               protected void execute(final StatelessSession statelessSession) {

@@ -23,11 +23,9 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.apache.wicket.injection.Injector;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.dao.impl.SourceTypeDao;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
@@ -50,7 +48,8 @@ public class SourceTypeIdChoiceProvider extends AbstractIdBasedChoiceProvider<So
   @Override
   protected List<SourceTypeDto> provideChoices() {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
-    final List<SourceTypeDto> choices = sourceTypeDao.getAsDtos(sessionProvider.getStatelessSession());
+    final List<SourceTypeDto> choices =
+        sourceTypeDao.getAsDtos(sessionProvider.getStatelessSession());
     sessionProvider.closeStatelessSession();
     return choices;
   }

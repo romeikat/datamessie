@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
@@ -91,10 +89,12 @@ public class DocumentsReindexer {
     }
   }
 
-  private void updateFullTextIndex(final HibernateSessionProvider sessionProvider, final TaskExecution taskExecution,
-      final Collection<Long> documentIds) throws TaskCancelledException {
+  private void updateFullTextIndex(final HibernateSessionProvider sessionProvider,
+      final TaskExecution taskExecution, final Collection<Long> documentIds)
+      throws TaskCancelledException {
     final String singularPlural = documentIds.size() == 1 ? "document" : "documents";
-    work = taskExecution.reportWorkStart(String.format("Reindexing %s %s", documentIds.size(), singularPlural));
+    work = taskExecution
+        .reportWorkStart(String.format("Reindexing %s %s", documentIds.size(), singularPlural));
 
     try {
       final Collection<CleanedContent> cleanedContents =

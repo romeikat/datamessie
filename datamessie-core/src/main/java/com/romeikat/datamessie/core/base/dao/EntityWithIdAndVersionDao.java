@@ -24,15 +24,15 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Map;
-
 import org.hibernate.SharedSessionContract;
-
 import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
 
 
-public interface EntityWithIdAndVersionDao<E extends EntityWithIdAndVersion> extends EntityWithIdDao<E> {
+public interface EntityWithIdAndVersionDao<E extends EntityWithIdAndVersion>
+    extends EntityWithIdDao<E> {
 
-  Map<Long, Long> getIdsWithVersion(SharedSessionContract ssc, Integer firstResult, Integer maxResults);
+  Map<Long, Long> getIdsWithVersion(SharedSessionContract ssc, Integer firstResult,
+      Integer maxResults);
 
   Map<Long, Long> getIdsWithVersion(SharedSessionContract ssc, Collection<Long> ids);
 

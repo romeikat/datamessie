@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDateTime;
-
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.base.task.scheduling.IntervalTaskSchedulingThread;
@@ -40,8 +39,9 @@ public class FooIntervalTaskSchedulingThread extends IntervalTaskSchedulingThrea
 
   private final TaskManager taskManager;
 
-  public FooIntervalTaskSchedulingThread(final Task task, final String taskName, final Integer taskExecutionInterval,
-      final boolean allowOverlap, final TaskManager taskManager) {
+  public FooIntervalTaskSchedulingThread(final Task task, final String taskName,
+      final Integer taskExecutionInterval, final boolean allowOverlap,
+      final TaskManager taskManager) {
     this.task = task;
     this.taskName = taskName;
     this.taskExecutionInterval = taskExecutionInterval;

@@ -28,7 +28,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
@@ -59,7 +58,8 @@ public class StatisticsPeriodPanel extends Panel {
         if (activeProject == null) {
           return StatisticsDto.emptyStatistics();
         }
-        final IStatisticsManager statisticsManager = sharedBeanProvider.getSharedBean(IStatisticsManager.class);
+        final IStatisticsManager statisticsManager =
+            sharedBeanProvider.getSharedBean(IStatisticsManager.class);
         if (statisticsManager == null) {
           return StatisticsDto.emptyStatistics();
         }
@@ -68,8 +68,8 @@ public class StatisticsPeriodPanel extends Panel {
     };
 
     // All documents
-    final Label allDocumentsLabel =
-        new Label("allDocuments", new LongModel(new PropertyModel<Long>(statisticsModel, "allDocuments")));
+    final Label allDocumentsLabel = new Label("allDocuments",
+        new LongModel(new PropertyModel<Long>(statisticsModel, "allDocuments")));
     add(allDocumentsLabel);
     // Downloaded documents
     final Label downloadedDocumentsLabel = new Label("downloadedDocuments",

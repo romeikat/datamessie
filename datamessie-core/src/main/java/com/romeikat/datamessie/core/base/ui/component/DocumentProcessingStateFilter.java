@@ -23,12 +23,10 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.wicketstuff.select2.Select2MultiChoice;
 import org.wicketstuff.select2.Settings;
-
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
@@ -38,7 +36,8 @@ public class DocumentProcessingStateFilter extends Select2MultiChoice<DocumentPr
 
   private final IModel<Collection<DocumentProcessingState>> selectedStatesModel;
 
-  public DocumentProcessingStateFilter(final String id, final IModel<DocumentsFilterSettings> model) {
+  public DocumentProcessingStateFilter(final String id,
+      final IModel<DocumentsFilterSettings> model) {
     super(id);
 
     // Choice Provider

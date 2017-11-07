@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDateTime;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -39,7 +38,6 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.StringValue;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
@@ -101,7 +99,8 @@ public class DocumentPage extends AbstractAuthenticatedPage {
     final Label idLabel = new Label("idLabel", new PropertyModel<Long>(documentModel, "id"));
     documentWmc.add(idLabel);
     // Title
-    final Label titleLabel = new Label("titleLabel", new PropertyModel<String>(documentModel, "title"));
+    final Label titleLabel =
+        new Label("titleLabel", new PropertyModel<String>(documentModel, "title"));
     documentWmc.add(titleLabel);
     // Stemmed title
     final Label stemmedTitleLabel =
@@ -117,8 +116,8 @@ public class DocumentPage extends AbstractAuthenticatedPage {
         new Label("descriptionLabel", new PropertyModel<String>(documentModel, "description"));
     documentWmc.add(descriptionLabel);
     // Stemmed description
-    final Label stemmedDescriptionLabel =
-        new Label("stemmedDescriptionLabel", new PropertyModel<String>(documentModel, "stemmedDescription"));
+    final Label stemmedDescriptionLabel = new Label("stemmedDescriptionLabel",
+        new PropertyModel<String>(documentModel, "stemmedDescription"));
     documentWmc.add(stemmedDescriptionLabel);
     // Published
     final Label publishedLabel =
@@ -131,33 +130,35 @@ public class DocumentPage extends AbstractAuthenticatedPage {
     // Link to source
     final PageParameters sourcePageParameters = createProjectPageParameters();
     sourcePageParameters.set("id", document.getSourceId());
-    final Label sourceNameLabel = new Label("sourceNameLabel", new PropertyModel<String>(documentModel, "sourceName"));
+    final Label sourceNameLabel =
+        new Label("sourceNameLabel", new PropertyModel<String>(documentModel, "sourceName"));
     final Link<SourcePage> sourceLink =
         new BookmarkablePageLink<SourcePage>("sourceLink", SourcePage.class, sourcePageParameters);
     sourceLink.add(sourceNameLabel);
     documentWmc.add(sourceLink);
     // Status code
-    final Label statusCodeLabel = new Label("statusCodeLabel", new PropertyModel<Integer>(documentModel, "statusCode"));
+    final Label statusCodeLabel =
+        new Label("statusCodeLabel", new PropertyModel<Integer>(documentModel, "statusCode"));
     documentWmc.add(statusCodeLabel);
     // State
     final Label stateLabel =
         new Label("stateLabel", new PropertyModel<DocumentProcessingState>(documentModel, "state"));
     documentWmc.add(stateLabel);
     // Raw content
-    final TextArea<String> rawContentTextArea =
-        new TextArea<String>("rawContentTextArea", new PropertyModel<String>(documentModel, "rawContent"));
+    final TextArea<String> rawContentTextArea = new TextArea<String>("rawContentTextArea",
+        new PropertyModel<String>(documentModel, "rawContent"));
     documentWmc.add(rawContentTextArea);
     // Cleaned content
-    final TextArea<String> cleanedContentTextArea =
-        new TextArea<String>("cleanedContentTextArea", new PropertyModel<String>(documentModel, "cleanedContent"));
+    final TextArea<String> cleanedContentTextArea = new TextArea<String>("cleanedContentTextArea",
+        new PropertyModel<String>(documentModel, "cleanedContent"));
     documentWmc.add(cleanedContentTextArea);
     // Stemmed content
-    final TextArea<String> stemmedContentTextArea =
-        new TextArea<String>("stemmedContentTextArea", new PropertyModel<String>(documentModel, "stemmedContent"));
+    final TextArea<String> stemmedContentTextArea = new TextArea<String>("stemmedContentTextArea",
+        new PropertyModel<String>(documentModel, "stemmedContent"));
     documentWmc.add(stemmedContentTextArea);
     // Named entities
-    final TextArea<String> namedEntitiesTextArea =
-        new TextArea<String>("namedEntitiesTextArea", new PropertyModel<String>(documentModel, "namedEntities"));
+    final TextArea<String> namedEntitiesTextArea = new TextArea<String>("namedEntitiesTextArea",
+        new PropertyModel<String>(documentModel, "namedEntities"));
     documentWmc.add(namedEntitiesTextArea);
   }
 

@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
 
 public class DocumentStemmingResult {
@@ -36,8 +35,8 @@ public class DocumentStemmingResult {
 
   private final List<NamedEntityDetectionDto> namedEntityDetections;
 
-  public DocumentStemmingResult(final String stemmedTitle, final String stemmedDescription, final String stemmedContent,
-      final List<NamedEntityDetectionDto> namedEntityDetections) {
+  public DocumentStemmingResult(final String stemmedTitle, final String stemmedDescription,
+      final String stemmedContent, final List<NamedEntityDetectionDto> namedEntityDetections) {
     this.stemmedTitle = stemmedTitle;
     this.stemmedDescription = stemmedDescription;
     this.stemmedContent = stemmedContent;

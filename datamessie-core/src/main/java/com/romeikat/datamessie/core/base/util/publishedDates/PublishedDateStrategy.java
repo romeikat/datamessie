@@ -28,14 +28,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -52,8 +50,8 @@ public abstract class PublishedDateStrategy {
   private DocumentsFilterSettings dfs;
   private final List<LocalDate> publishedDates;
 
-  public PublishedDateStrategy(final DocumentsFilterSettings dfs, final SessionFactory sessionFactory,
-      final SharedBeanProvider sharedBeanProvider) {
+  public PublishedDateStrategy(final DocumentsFilterSettings dfs,
+      final SessionFactory sessionFactory, final SharedBeanProvider sharedBeanProvider) {
     this.dfs = dfs;
 
     // Modify DFS in order to determine document IDs only once
@@ -96,7 +94,8 @@ public abstract class PublishedDateStrategy {
           return fromDateMatch && toDateMatch;
         }
       };
-      final Collection<LocalDate> publishedDates = Collections2.filter(allPublishedDates, publishedDatePredicate);
+      final Collection<LocalDate> publishedDates =
+          Collections2.filter(allPublishedDates, publishedDatePredicate);
       // Sort descending
       final List<LocalDate> publishedDatesSorted = Lists.newArrayList(publishedDates);
       Collections.sort(publishedDatesSorted);

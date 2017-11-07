@@ -29,14 +29,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import org.hibernate.annotations.GenericGenerator;
-
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 
 @Entity
-@Table(name = FooEntityWithGeneratedId.TABLE_NAME,
-    uniqueConstraints = {@UniqueConstraint(name = "fooEntityWithGeneratedId_name", columnNames = {"name"})})
+@Table(name = FooEntityWithGeneratedId.TABLE_NAME, uniqueConstraints = {
+    @UniqueConstraint(name = "fooEntityWithGeneratedId_name", columnNames = {"name"})})
 public class FooEntityWithGeneratedId implements EntityWithId {
 
   public static final String TABLE_NAME = "fooEntityWithGeneratedId";

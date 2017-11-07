@@ -26,15 +26,12 @@ import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Collection;
 import java.util.List;
-
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import com.google.common.collect.Lists;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
@@ -68,8 +65,8 @@ public class EntityWithIdAndVersionSynchronizerStressTest extends AbstractDbSetu
   protected Operation initDb() {
     final List<Operation> operations = Lists.newArrayListWithExpectedSize(NUMBER_OF_ENTITIES);
     for (final long id : getIds()) {
-      operations.add(insertInto("fooEntityWithGeneratedIdAndVersion").columns("id", "version", "name", "active")
-          .values(id, 0L, "Foo" + id, true).build());
+      operations.add(insertInto("fooEntityWithGeneratedIdAndVersion")
+          .columns("id", "version", "name", "active").values(id, 0L, "Foo" + id, true).build());
     }
     final Operation initFoo = sequenceOf(operations);
 
@@ -82,8 +79,8 @@ public class EntityWithIdAndVersionSynchronizerStressTest extends AbstractDbSetu
     // Document and content for each ID
     final List<Operation> operations = Lists.newArrayListWithExpectedSize(NUMBER_OF_ENTITIES);
     for (final long id : getIds()) {
-      operations.add(insertInto("fooEntityWithGeneratedIdAndVersion").columns("id", "version", "name", "active")
-          .values(id, 0L, "Foo" + id, true).build());
+      operations.add(insertInto("fooEntityWithGeneratedIdAndVersion")
+          .columns("id", "version", "name", "active").values(id, 0L, "Foo" + id, true).build());
     }
     final Operation initFoo = sequenceOf(operations);
 
@@ -101,7 +98,8 @@ public class EntityWithIdAndVersionSynchronizerStressTest extends AbstractDbSetu
     assertEquals(NUMBER_OF_ENTITIES, lhs.size());
 
     // RHS
-    final Collection<FooEntityWithGeneratedIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithGeneratedIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(NUMBER_OF_ENTITIES, rhs.size());
   }
 
@@ -117,7 +115,8 @@ public class EntityWithIdAndVersionSynchronizerStressTest extends AbstractDbSetu
     new FooEntityWithGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // RHS
-    final Collection<FooEntityWithGeneratedIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithGeneratedIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(2 * NUMBER_OF_ENTITIES, rhs.size());
   }
 
@@ -134,11 +133,13 @@ public class EntityWithIdAndVersionSynchronizerStressTest extends AbstractDbSetu
     new FooEntityWithGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // RHS
-    final Collection<FooEntityWithGeneratedIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithGeneratedIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(NUMBER_OF_ENTITIES, rhs.size());
 
     for (final long id : getIds()) {
-      final FooEntityWithGeneratedIdAndVersion rhsEntity = dao.getEntity(sessionProvider.getStatelessSession(), id);
+      final FooEntityWithGeneratedIdAndVersion rhsEntity =
+          dao.getEntity(sessionProvider.getStatelessSession(), id);
       assertTrue(rhsEntity.getName().endsWith(" updated"));
     }
   }
@@ -155,7 +156,8 @@ public class EntityWithIdAndVersionSynchronizerStressTest extends AbstractDbSetu
     new FooEntityWithGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // RHS
-    final Collection<FooEntityWithGeneratedIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithGeneratedIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertTrue(rhs.isEmpty());
   }
 

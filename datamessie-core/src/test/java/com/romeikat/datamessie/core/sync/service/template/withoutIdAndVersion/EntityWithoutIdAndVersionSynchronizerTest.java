@@ -26,14 +26,11 @@ import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-
 import java.util.Collection;
-
 import org.junit.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
@@ -77,7 +74,8 @@ public class EntityWithoutIdAndVersionSynchronizerTest extends AbstractDbSetupBa
     assertEquals("Foo1", lhs1.getName());
 
     // RHS
-    final Collection<FooEntityWithoutIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithoutIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(1, rhs.size());
 
     final FooEntityWithoutIdAndVersion rhs1 =
@@ -94,7 +92,8 @@ public class EntityWithoutIdAndVersionSynchronizerTest extends AbstractDbSetupBa
     new FooEntityWithoutGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // RHS
-    final Collection<FooEntityWithoutIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithoutIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(2, rhs.size());
 
     final FooEntityWithoutIdAndVersion rhs2 =
@@ -112,7 +111,8 @@ public class EntityWithoutIdAndVersionSynchronizerTest extends AbstractDbSetupBa
     new FooEntityWithoutGeneratedIdAndVersionSynchronizer(ctx).synchronize(taskExecution);
 
     // RHS
-    final Collection<FooEntityWithoutIdAndVersion> rhs = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithoutIdAndVersion> rhs =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(0, rhs.size());
 
     final FooEntityWithoutIdAndVersion rhs1 =

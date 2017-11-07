@@ -28,7 +28,6 @@ import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 
@@ -44,8 +43,8 @@ public class QueryExecutor {
   @Autowired
   private QueryUtil queryUtil;
 
-  public int executeCount(final HibernateSessionProvider sessionProvider, final String luceneQueryString,
-      final Class<?> clazz, final String field) {
+  public int executeCount(final HibernateSessionProvider sessionProvider,
+      final String luceneQueryString, final Class<?> clazz, final String field) {
     final Session session = sessionProvider.getSession();
     final FullTextSession fullTextSession = Search.getFullTextSession(session);
     final SearchFactory searchFactory = fullTextSession.getSearchFactory();
@@ -56,12 +55,13 @@ public class QueryExecutor {
     int count;
     if (query instanceof LuceneQuery) {
       // Use efficient count
-      count = luceneQueryExecutor.executeCount((LuceneQuery) query, fullTextSession, analyzer, field);
+      count =
+          luceneQueryExecutor.executeCount((LuceneQuery) query, fullTextSession, analyzer, field);
 
     } else if (query instanceof OutOfQuery) {
       // Execute full query and count results
-      final FullTextResult fullTextResult =
-          outOfQueryExecutor.executeQuery((OutOfQuery) query, fullTextSession, analyzer, clazz, field);
+      final FullTextResult fullTextResult = outOfQueryExecutor.executeQuery((OutOfQuery) query,
+          fullTextSession, analyzer, clazz, field);
       count = fullTextResult.size();
     } else {
       // Unsupported query
@@ -72,8 +72,8 @@ public class QueryExecutor {
     return count;
   }
 
-  public FullTextResult executeQuery(final HibernateSessionProvider sessionProvider, final String luceneQueryString,
-      final Class<?> clazz, final String field) {
+  public FullTextResult executeQuery(final HibernateSessionProvider sessionProvider,
+      final String luceneQueryString, final Class<?> clazz, final String field) {
     final Session session = sessionProvider.getSession();
     final FullTextSession fullTextSession = Search.getFullTextSession(session);
     final SearchFactory searchFactory = fullTextSession.getSearchFactory();
@@ -83,10 +83,12 @@ public class QueryExecutor {
     final FullTextQuery query = queryUtil.parseQuery(luceneQueryString, analyzer);
     FullTextResult fullTextResult;
     if (query instanceof LuceneQuery) {
-      fullTextResult = luceneQueryExecutor.executeQuery((LuceneQuery) query, fullTextSession, analyzer, clazz, field);
+      fullTextResult = luceneQueryExecutor.executeQuery((LuceneQuery) query, fullTextSession,
+          analyzer, clazz, field);
 
     } else if (query instanceof OutOfQuery) {
-      fullTextResult = outOfQueryExecutor.executeQuery((OutOfQuery) query, fullTextSession, analyzer, clazz, field);
+      fullTextResult = outOfQueryExecutor.executeQuery((OutOfQuery) query, fullTextSession,
+          analyzer, clazz, field);
     } else {
       // Unsupported query
       fullTextResult = new FullTextResult();

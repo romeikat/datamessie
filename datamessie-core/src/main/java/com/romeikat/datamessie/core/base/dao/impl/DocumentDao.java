@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.wicket.util.lang.Objects;
 import org.hibernate.SessionFactory;
@@ -45,7 +44,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -96,7 +94,8 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     return null;
   }
 
-  public Document getForUrlAndSource(final SharedSessionContract ssc, final String url, final long sourceId) {
+  public Document getForUrlAndSource(final SharedSessionContract ssc, final String url,
+      final long sourceId) {
     // Query: Download
     final EntityWithIdQuery<Download> downloadQuery = new EntityWithIdQuery<>(Download.class);
     downloadQuery.addRestriction(Restrictions.eq("url", url));
@@ -113,10 +112,11 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     return document;
   }
 
-  public List<Document> getForSourceAndDownloaded(final SharedSessionContract ssc, final long sourceId,
-      final LocalDate downloaded) {
+  public List<Document> getForSourceAndDownloaded(final SharedSessionContract ssc,
+      final long sourceId, final LocalDate downloaded) {
     final LocalDateTime minDownloaded = LocalDateTime.of(downloaded, LocalTime.MIDNIGHT);
-    final LocalDateTime maxDownloaded = LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
+    final LocalDateTime maxDownloaded =
+        LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
 
     // Query: Document
     final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
@@ -132,7 +132,8 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   public Map<RawContent, Document> getForRawContents(final SharedSessionContract ssc,
       final Collection<RawContent> rawContents) {
     // Query for documents
-    final Set<Long> documentIds = rawContents.stream().map(c -> c.getDocumentId()).collect(Collectors.toSet());
+    final Set<Long> documentIds =
+        rawContents.stream().map(c -> c.getDocumentId()).collect(Collectors.toSet());
     final Map<Long, Document> documentsById = getIdsWithEntities(ssc, documentIds);
 
     // Map rawContents -> documents
@@ -147,11 +148,13 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   public Map<CleanedContent, Document> getForCleanedContents(final SharedSessionContract ssc,
       final Collection<CleanedContent> cleanedContents) {
     // Query for documents
-    final Set<Long> documentIds = cleanedContents.stream().map(c -> c.getDocumentId()).collect(Collectors.toSet());
+    final Set<Long> documentIds =
+        cleanedContents.stream().map(c -> c.getDocumentId()).collect(Collectors.toSet());
     final Map<Long, Document> documentsById = getIdsWithEntities(ssc, documentIds);
 
     // Map cleanedContents -> documents
-    final Map<CleanedContent, Document> result = Maps.newHashMapWithExpectedSize(cleanedContents.size());
+    final Map<CleanedContent, Document> result =
+        Maps.newHashMapWithExpectedSize(cleanedContents.size());
     for (final CleanedContent cleanedContent : cleanedContents) {
       final Document document = documentsById.get(cleanedContent.getDocumentId());
       result.put(cleanedContent, document);
@@ -162,11 +165,13 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   public Map<StemmedContent, Document> getForStemmedContents(final SharedSessionContract ssc,
       final Collection<StemmedContent> stemmedContents) {
     // Query for documents
-    final Set<Long> documentIds = stemmedContents.stream().map(c -> c.getDocumentId()).collect(Collectors.toSet());
+    final Set<Long> documentIds =
+        stemmedContents.stream().map(c -> c.getDocumentId()).collect(Collectors.toSet());
     final Map<Long, Document> documentsById = getIdsWithEntities(ssc, documentIds);
 
     // Map rawContents -> documents
-    final Map<StemmedContent, Document> result = Maps.newHashMapWithExpectedSize(stemmedContents.size());
+    final Map<StemmedContent, Document> result =
+        Maps.newHashMapWithExpectedSize(stemmedContents.size());
     for (final StemmedContent stemmedContent : stemmedContents) {
       final Document document = documentsById.get(stemmedContent.getDocumentId());
       result.put(stemmedContent, document);
@@ -176,7 +181,8 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
 
   public Long count(final SharedSessionContract ssc, final DocumentsFilterSettings dfs) {
     final CountPublishedDateParallelLoadingStrategy loadingStrategy =
-        new CountPublishedDateParallelLoadingStrategy(dfs, sessionFactory, sharedBeanProvider, parallelismFactor) {
+        new CountPublishedDateParallelLoadingStrategy(dfs, sessionFactory, sharedBeanProvider,
+            parallelismFactor) {
 
           @Override
           protected MutableObject<Long> load(final SharedSessionContract ssc,
@@ -203,12 +209,14 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     final RawContent rawContent = rawContentQuery.uniqueObject(ssc);
 
     // Query: CleanedContent
-    final EntityWithIdQuery<CleanedContent> cleanedContentQuery = new EntityWithIdQuery<>(CleanedContent.class);
+    final EntityWithIdQuery<CleanedContent> cleanedContentQuery =
+        new EntityWithIdQuery<>(CleanedContent.class);
     cleanedContentQuery.addRestriction(Restrictions.eq("documentId", document.getId()));
     final CleanedContent cleanedContent = cleanedContentQuery.uniqueObject(ssc);
 
     // Query: StemmedContent
-    final EntityWithIdQuery<StemmedContent> stemmedContentQuery = new EntityWithIdQuery<>(StemmedContent.class);
+    final EntityWithIdQuery<StemmedContent> stemmedContentQuery =
+        new EntityWithIdQuery<>(StemmedContent.class);
     stemmedContentQuery.addRestriction(Restrictions.eq("documentId", document.getId()));
     final StemmedContent stemmedContent = stemmedContentQuery.uniqueObject(ssc);
 
@@ -273,17 +281,18 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     return namedEntitiesSB.toString();
   }
 
-  public List<DocumentOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc, final DocumentsFilterSettings dfs,
-      final long first, final long count) {
+  public List<DocumentOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
+      final DocumentsFilterSettings dfs, final long first, final long count) {
     Assert.isTrue(first <= Integer.MAX_VALUE, "first must be within int range");
     Assert.isTrue(count <= Integer.MAX_VALUE, "count must be within int range");
 
     final ListPublishedDateSequenceLoadingStrategy<DocumentOverviewDto> loadingStrategy =
-        new ListPublishedDateSequenceLoadingStrategy<DocumentOverviewDto>(dfs, first, count, sessionFactory,
-            sharedBeanProvider) {
+        new ListPublishedDateSequenceLoadingStrategy<DocumentOverviewDto>(dfs, first, count,
+            sessionFactory, sharedBeanProvider) {
 
           @Override
-          protected long count(final SharedSessionContract ssc, final DocumentsFilterSettings dfsWithPublishedDate) {
+          protected long count(final SharedSessionContract ssc,
+              final DocumentsFilterSettings dfsWithPublishedDate) {
             return countInternal(ssc, dfsWithPublishedDate);
           }
 
@@ -291,7 +300,8 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
           protected List<DocumentOverviewDto> load(final SharedSessionContract ssc,
               final DocumentsFilterSettings dfsWithPublishedDate, final long firstForPublishedDate,
               final long countForPublishedDate) {
-            return getAsOverviewDtosInternal(ssc, dfsWithPublishedDate, firstForPublishedDate, countForPublishedDate);
+            return getAsOverviewDtosInternal(ssc, dfsWithPublishedDate, firstForPublishedDate,
+                countForPublishedDate);
           }
 
         };
@@ -309,8 +319,8 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   private List<DocumentOverviewDto> getAsOverviewDtosInternal(final SharedSessionContract ssc,
       final DocumentsFilterSettings dfs, final long first, final long count) {
     // Query for documents
-    final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, (int) first, (int) count, sharedBeanProvider);
+    final DocumentFilterSettingsQuery<Document> query = new DocumentFilterSettingsQuery<Document>(
+        dfs, Document.class, (int) first, (int) count, sharedBeanProvider);
     query.addOrder(Order.desc("published"));
     query.addOrder(Order.asc("sourceId"));
     query.addOrder(Order.asc("id"));
@@ -320,25 +330,26 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     final Map<Document, Source> sources = sourceDao.getForDocuments(ssc, documents);
 
     // Transform
-    final List<DocumentOverviewDto> dtos = Lists.transform(documents, new Function<Document, DocumentOverviewDto>() {
-      @Override
-      public DocumentOverviewDto apply(final Document document) {
-        final DocumentOverviewDto dto = new DocumentOverviewDto();
-        final Source source = sources.get(document);
+    final List<DocumentOverviewDto> dtos =
+        Lists.transform(documents, new Function<Document, DocumentOverviewDto>() {
+          @Override
+          public DocumentOverviewDto apply(final Document document) {
+            final DocumentOverviewDto dto = new DocumentOverviewDto();
+            final Source source = sources.get(document);
 
-        dto.setId(document.getId());
-        dto.setTitle(document.getTitle());
-        dto.setUrl(document.getUrl());
-        dto.setPublished(document.getPublished());
-        dto.setDownloaded(document.getDownloaded());
+            dto.setId(document.getId());
+            dto.setTitle(document.getTitle());
+            dto.setUrl(document.getUrl());
+            dto.setPublished(document.getPublished());
+            dto.setDownloaded(document.getDownloaded());
 
-        dto.setSourceId(source.getId());
-        dto.setSourceName(source.getName());
-        dto.setSourceUrl(source.getUrl());
+            dto.setSourceId(source.getId());
+            dto.setSourceName(source.getName());
+            dto.setSourceUrl(source.getUrl());
 
-        return dto;
-      }
-    });
+            return dto;
+          }
+        });
     return dtos;
   }
 
@@ -383,7 +394,8 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
 
     // Done
     final Projection projection = Projections.max("downloaded");
-    final LocalDateTime maxDownloaded = (LocalDateTime) documentQuery.uniqueForProjection(ssc, projection);
+    final LocalDateTime maxDownloaded =
+        (LocalDateTime) documentQuery.uniqueForProjection(ssc, projection);
     return maxDownloaded;
   }
 

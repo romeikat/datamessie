@@ -25,10 +25,8 @@ License along with this program.  If not, see
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.util.FileUtil;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
@@ -319,7 +317,8 @@ public class TaskExecution {
     }
     // Update work
     work.setEnd(System.currentTimeMillis());
-    LOG.debug("Work {} - {} ended (duration {} ms)", task.getName(), work.getMessage(), work.getDuration());
+    LOG.debug("Work {} - {} ended (duration {} ms)", task.getName(), work.getMessage(),
+        work.getDuration());
     // No output to logfile as output that started later might have been appended already
   }
 

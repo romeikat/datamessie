@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
-
 import com.romeikat.datamessie.core.domain.enums.Language;
 
 public class SourceOverviewDto implements Serializable {

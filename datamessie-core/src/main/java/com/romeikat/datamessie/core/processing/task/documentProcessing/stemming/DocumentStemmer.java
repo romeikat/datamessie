@@ -24,11 +24,9 @@ License along with this program.  If not, see
 
 import java.util.Collections;
 import java.util.List;
-
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.util.HtmlUtil;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.Language;
@@ -50,8 +48,9 @@ public class DocumentStemmer {
 
   private DocumentStemmer() {}
 
-  public DocumentStemmingResult stem(final StatelessSession statelessSession, final Document document,
-      final String cleanedContent, final Language language) throws Exception {
+  public DocumentStemmingResult stem(final StatelessSession statelessSession,
+      final Document document, final String cleanedContent, final Language language)
+      throws Exception {
     // Stem title
     final String titleWithoutTags = htmlUtil.removeTags(document.getTitle());
     final String stemmedTitle =
@@ -59,17 +58,20 @@ public class DocumentStemmer {
 
     // Stem description
     final String descriptionWithoutTags = htmlUtil.removeTags(document.getDescription());
-    final String stemmedDescription =
-        textStemmer.stemText(statelessSession, descriptionWithoutTags, Collections.emptySet(), language);
+    final String stemmedDescription = textStemmer.stemText(statelessSession, descriptionWithoutTags,
+        Collections.emptySet(), language);
 
     // Stem content
     final List<NamedEntityDetectionDto> namedEntityDetections =
         namedEntitiesDetector.detectNamedEntities(cleanedContent);
-    final List<String> namedEntityNames = namedEntitiesDetector.getNamedEntityNames(namedEntityDetections);
-    final String stemmedContent = textStemmer.stemText(statelessSession, cleanedContent, namedEntityNames, language);
+    final List<String> namedEntityNames =
+        namedEntitiesDetector.getNamedEntityNames(namedEntityDetections);
+    final String stemmedContent =
+        textStemmer.stemText(statelessSession, cleanedContent, namedEntityNames, language);
 
     // Done
-    return new DocumentStemmingResult(stemmedTitle, stemmedDescription, stemmedContent, namedEntityDetections);
+    return new DocumentStemmingResult(stemmedTitle, stemmedDescription, stemmedContent,
+        namedEntityDetections);
   }
 
 }

@@ -25,12 +25,9 @@ License along with this program.  If not, see
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoNamedEntity;
 import static org.junit.Assert.assertEquals;
-
 import java.util.Set;
-
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
@@ -48,14 +45,14 @@ public class NamedEntityCategoryDaoTest extends AbstractDbSetupBasedTest {
     final NamedEntity namedEntity1 = new NamedEntity(1, "NamedEntity1");
     final NamedEntity namedEntity2 = new NamedEntity(2, "NamedEntity2");
 
-    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE, insertIntoNamedEntity(namedEntity1),
-        insertIntoNamedEntity(namedEntity2));
+    return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
+        insertIntoNamedEntity(namedEntity1), insertIntoNamedEntity(namedEntity2));
   }
 
   @Test
   public void invalidatesCache() {
-    Set<String> namedEntityCategoryNames =
-        namedEntityCategoryDao.getNamedEntityCategoryNames(sessionProvider.getStatelessSession(), "NamedEntity1");
+    Set<String> namedEntityCategoryNames = namedEntityCategoryDao
+        .getNamedEntityCategoryNames(sessionProvider.getStatelessSession(), "NamedEntity1");
     assertEquals(0, namedEntityCategoryNames.size());
 
     final NamedEntityCategory namedEntityCategory = new NamedEntityCategory();
@@ -63,8 +60,8 @@ public class NamedEntityCategoryDaoTest extends AbstractDbSetupBasedTest {
     namedEntityCategory.setCategoryNamedEntityId(2l);
     namedEntityCategoryDao.insert(sessionProvider.getStatelessSession(), namedEntityCategory);
 
-    namedEntityCategoryNames =
-        namedEntityCategoryDao.getNamedEntityCategoryNames(sessionProvider.getStatelessSession(), "NamedEntity1");
+    namedEntityCategoryNames = namedEntityCategoryDao
+        .getNamedEntityCategoryNames(sessionProvider.getStatelessSession(), "NamedEntity1");
     assertEquals(1, namedEntityCategoryNames.size());
   }
 

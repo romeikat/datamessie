@@ -23,14 +23,12 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDate;
-
 import org.apache.wicket.datetime.StyleDateConverter;
 import org.apache.wicket.extensions.yui.calendar.DatePicker;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-
 import com.romeikat.datamessie.core.base.ui.behavior.ModelUpdatingBehavior;
 import com.romeikat.datamessie.core.base.ui.component.LocalDateTextField;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
@@ -39,12 +37,14 @@ public class RedirectingRulePanel extends Panel {
 
   private static final long serialVersionUID = 1L;
 
-  public RedirectingRulePanel(final String id, final IModel<RedirectingRuleDto> redirectingRuleModel) {
+  public RedirectingRulePanel(final String id,
+      final IModel<RedirectingRuleDto> redirectingRuleModel) {
     super(id, redirectingRuleModel);
 
     // Active from
     final LocalDateTextField activeFromTextField = new LocalDateTextField("activeFrom",
-        new PropertyModel<LocalDate>(redirectingRuleModel, "activeFrom"), new StyleDateConverter("M-", false));
+        new PropertyModel<LocalDate>(redirectingRuleModel, "activeFrom"),
+        new StyleDateConverter("M-", false));
     add(activeFromTextField);
     activeFromTextField.add(new ModelUpdatingBehavior());
     // Active from date picker
@@ -55,7 +55,8 @@ public class RedirectingRulePanel extends Panel {
 
     // Active to
     final LocalDateTextField activeToTextField = new LocalDateTextField("activeTo",
-        new PropertyModel<LocalDate>(redirectingRuleModel, "activeTo"), new StyleDateConverter("M-", false));
+        new PropertyModel<LocalDate>(redirectingRuleModel, "activeTo"),
+        new StyleDateConverter("M-", false));
     add(activeToTextField);
     activeToTextField.add(new ModelUpdatingBehavior());
     // Active to date picker
@@ -70,8 +71,8 @@ public class RedirectingRulePanel extends Panel {
     add(regexTextField);
     regexTextField.add(new ModelUpdatingBehavior());
     // Regex group
-    final TextField<String> regexGroupTextField =
-        new TextField<String>("regexGroup", new PropertyModel<String>(redirectingRuleModel, "regexGroup"));
+    final TextField<String> regexGroupTextField = new TextField<String>("regexGroup",
+        new PropertyModel<String>(redirectingRuleModel, "regexGroup"));
     add(regexGroupTextField);
     regexGroupTextField.add(new ModelUpdatingBehavior());
   }

@@ -22,12 +22,10 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.time.LocalDateTime;
-
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
@@ -39,8 +37,8 @@ public class CrawlingService {
   @Qualifier("rssCrawlingDao")
   private CrawlingDao crawlingDao;
 
-  public Crawling createCrawling(final StatelessSession statelessSession, final LocalDateTime started,
-      final Project project) {
+  public Crawling createCrawling(final StatelessSession statelessSession,
+      final LocalDateTime started, final Project project) {
     // Create
     final Crawling crawling = new Crawling();
     crawling.setStarted(started);

@@ -1,10 +1,8 @@
 package com.romeikat.datamessie.core.base.util;
 
 import java.util.Objects;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -26,7 +24,6 @@ License along with this program.  If not, see
 <http://www.gnu.org/licenses/gpl-3.0.html>.
  * =============================LICENSE_END=============================
  */
-
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -53,7 +50,8 @@ public class SpringUtil {
     throw new IllegalArgumentException(msg);
   }
 
-  public static String getPropertyValueFromApplication(final ApplicationContext ctx, final String property) {
+  public static String getPropertyValueFromApplication(final ApplicationContext ctx,
+      final String property) {
     if (ctx instanceof ConfigurableApplicationContext) {
       final ConfigurableApplicationContext confCtx = (ConfigurableApplicationContext) ctx;
       final ConfigurableListableBeanFactory beanFactory = confCtx.getBeanFactory();
@@ -66,7 +64,8 @@ public class SpringUtil {
           return propertyValue;
         }
       } catch (final Exception e) {
-        LOG.debug("Property {} not found in application context {}", property, ctx.getDisplayName());
+        LOG.debug("Property {} not found in application context {}", property,
+            ctx.getDisplayName());
       }
     }
 
@@ -78,7 +77,8 @@ public class SpringUtil {
     }
   }
 
-  public static String getPropertyValueFromEnvironment(final ApplicationContext ctx, final String property) {
+  public static String getPropertyValueFromEnvironment(final ApplicationContext ctx,
+      final String property) {
     final Environment env = ctx.getEnvironment();
     final String propertyValue = env.getProperty(property);
     if (propertyValue != null) {

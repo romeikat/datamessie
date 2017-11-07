@@ -24,15 +24,14 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Map;
-
 import org.wicketstuff.select2.Response;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
-public class DocumentProcessingStateChoiceProvider extends AbstractChoiceProvider<DocumentProcessingState> {
+public class DocumentProcessingStateChoiceProvider
+    extends AbstractChoiceProvider<DocumentProcessingState> {
 
   private static final long serialVersionUID = 1L;
 
@@ -47,7 +46,8 @@ public class DocumentProcessingStateChoiceProvider extends AbstractChoiceProvide
   }
 
   @Override
-  public void query(final String term, final int page, final Response<DocumentProcessingState> response) {
+  public void query(final String term, final int page,
+      final Response<DocumentProcessingState> response) {
     for (final DocumentProcessingState state : getStates().values()) {
       final String existingTerm = state.getName().toLowerCase();
       final String searchTerm = term.toLowerCase();
@@ -69,14 +69,16 @@ public class DocumentProcessingStateChoiceProvider extends AbstractChoiceProvide
           }
 
         };
-    final Collection<DocumentProcessingState> choices = Collections2.transform(ids, toChoicesFunction);
+    final Collection<DocumentProcessingState> choices =
+        Collections2.transform(ids, toChoicesFunction);
     return choices;
   }
 
   private Map<Integer, DocumentProcessingState> getStates() {
     final DocumentProcessingState[] states = DocumentProcessingState.values();
 
-    final Map<Integer, DocumentProcessingState> statesMap = Maps.newHashMapWithExpectedSize(states.length);
+    final Map<Integer, DocumentProcessingState> statesMap =
+        Maps.newHashMapWithExpectedSize(states.length);
     for (final DocumentProcessingState state : states) {
       statesMap.put(state.ordinal(), state);
     }

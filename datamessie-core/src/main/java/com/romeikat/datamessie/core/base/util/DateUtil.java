@@ -30,7 +30,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
 import com.google.common.collect.Lists;
 
 public class DateUtil {
@@ -92,7 +91,8 @@ public class DateUtil {
     return delayInMillis;
   }
 
-  public static List<LocalDate> getLocalDatesBetween(final LocalDate localDate1, final LocalDate localDate2) {
+  public static List<LocalDate> getLocalDatesBetween(final LocalDate localDate1,
+      final LocalDate localDate2) {
     if (localDate1 == null || localDate2 == null) {
       return Collections.emptyList();
     }

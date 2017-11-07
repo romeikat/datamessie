@@ -27,11 +27,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-
 import org.hibernate.annotations.GenericGenerator;
 
 @MappedSuperclass
-public abstract class AbstractEntityWithGeneratedIdAndVersion extends AbstractEntityWithIdAndVersion {
+public abstract class AbstractEntityWithGeneratedIdAndVersion
+    extends AbstractEntityWithIdAndVersion {
 
   private long id;
 

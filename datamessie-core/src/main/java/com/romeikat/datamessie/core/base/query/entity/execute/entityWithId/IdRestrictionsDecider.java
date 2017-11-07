@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Set;
-
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 

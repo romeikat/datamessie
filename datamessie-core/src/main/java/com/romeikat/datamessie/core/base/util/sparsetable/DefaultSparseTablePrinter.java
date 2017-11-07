@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.Comparator;
-
 import com.romeikat.datamessie.core.base.util.comparator.AscendingComparator;
 
 public class DefaultSparseTablePrinter<X extends Comparable<? super X>, Y extends Comparable<? super Y>, Z>

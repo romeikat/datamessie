@@ -23,10 +23,8 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
@@ -39,7 +37,8 @@ import com.romeikat.datamessie.core.sync.service.template.ISynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 import com.romeikat.datamessie.core.sync.util.SyncMode;
 
-public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity> implements ISynchronizer {
+public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
+    implements ISynchronizer {
 
   private final Class<E> clazz;
   private final EntityDao<E> entityDao;
@@ -79,17 +78,20 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity> im
     final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
     // Load
-    final Collection<E> lhsEntities =
-        SyncService.MAX_RESULTS == null ? entityDao.getAllEntites(lhsSessionProvider.getStatelessSession())
-            : entityDao.getEntites(lhsSessionProvider.getStatelessSession(), 0, SyncService.MAX_RESULTS);
-    final Collection<E> rhsEntities = entityDao.getAllEntites(rhsSessionProvider.getStatelessSession());
+    final Collection<E> lhsEntities = SyncService.MAX_RESULTS == null
+        ? entityDao.getAllEntites(lhsSessionProvider.getStatelessSession())
+        : entityDao.getEntites(lhsSessionProvider.getStatelessSession(), 0,
+            SyncService.MAX_RESULTS);
+    final Collection<E> rhsEntities =
+        entityDao.getAllEntites(rhsSessionProvider.getStatelessSession());
 
     // Decide
     final DecisionResults<E> decisionResults =
         new Decider<E>(lhsEntities, rhsEntities).makeDecisions().getDecisionResults();
 
     // Execute
-    new Executor<E>(decisionResults, syncMode, entityDao, clazz, sessionFactory, parallelismFactor) {
+    new Executor<E>(decisionResults, syncMode, entityDao, clazz, sessionFactory,
+        parallelismFactor) {
       @Override
       protected void copyProperties(final E source, final E target) {
         EntityWithoutIdAndVersionSynchronizer.this.copyProperties(source, target);

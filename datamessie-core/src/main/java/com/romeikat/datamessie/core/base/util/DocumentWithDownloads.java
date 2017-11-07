@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Set;
-
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -36,7 +35,8 @@ public class DocumentWithDownloads {
   private final Set<Long> downloadIds;
   private boolean success;
 
-  public DocumentWithDownloads(final long documentId, final DocumentProcessingState documentProcessingState) {
+  public DocumentWithDownloads(final long documentId,
+      final DocumentProcessingState documentProcessingState) {
     this.documentId = documentId;
     this.documentProcessingState = documentProcessingState;
     downloadIds = Sets.newHashSet();

@@ -24,15 +24,12 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
-
 import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
@@ -53,7 +50,8 @@ public class NamedEntitiesDetector {
       return null;
     }
 
-    final NamedEntityDetectionsUniqueList namedEntityDetections = new NamedEntityDetectionsUniqueList();
+    final NamedEntityDetectionsUniqueList namedEntityDetections =
+        new NamedEntityDetectionsUniqueList();
     // Create empty Annotation with the content
     final Annotation annotation = new Annotation(text);
     // Run annotators on the content
@@ -74,13 +72,15 @@ public class NamedEntitiesDetector {
         // Create named entity detection
         final String word = token.get(TextAnnotation.class).toLowerCase();
         final NamedEntityDetectionDto namedEntityDetection = new NamedEntityDetectionDto();
-        namedEntityDetection.setName(word).setParentName(word).setType(namedEntityType).setQuantity(1);
+        namedEntityDetection.setName(word).setParentName(word).setType(namedEntityType)
+            .setQuantity(1);
         // Add named entity detection
         namedEntityDetections.add(namedEntityDetection);
       }
     }
     // Done
-    final List<NamedEntityDetectionDto> namedEntityDetectionsAsList = namedEntityDetections.asList();
+    final List<NamedEntityDetectionDto> namedEntityDetectionsAsList =
+        namedEntityDetections.asList();
     return namedEntityDetectionsAsList;
   }
 
@@ -106,7 +106,8 @@ public class NamedEntitiesDetector {
     }
   }
 
-  public List<String> getNamedEntityNames(final List<NamedEntityDetectionDto> namedEntityDetections) {
+  public List<String> getNamedEntityNames(
+      final List<NamedEntityDetectionDto> namedEntityDetections) {
     final Function<NamedEntityDetectionDto, String> namedEntityDetectionToNamedEntityNameFunction =
         new Function<NamedEntityDetectionDto, String>() {
           @Override

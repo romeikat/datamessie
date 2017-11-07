@@ -23,14 +23,12 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.base.ui.choicerenderer.ProjectsChoiceRenderer;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;

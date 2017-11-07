@@ -25,13 +25,10 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
-
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 
 public abstract class ParallelProcessing<T> {
@@ -48,16 +45,18 @@ public abstract class ParallelProcessing<T> {
 
   private final List<T> objectsToBeProcessed;
 
-  public ParallelProcessing(final SessionFactory sessionFactory, final Collection<T> objectsToBeProcessed) {
+  public ParallelProcessing(final SessionFactory sessionFactory,
+      final Collection<T> objectsToBeProcessed) {
     this(sessionFactory, Lists.newArrayList(objectsToBeProcessed));
   }
 
-  public ParallelProcessing(final SessionFactory sessionFactory, final Collection<T> objectsToBeProcessed,
-      final Double parallelismFactor) {
+  public ParallelProcessing(final SessionFactory sessionFactory,
+      final Collection<T> objectsToBeProcessed, final Double parallelismFactor) {
     this(sessionFactory, Lists.newArrayList(objectsToBeProcessed), DEFAULT_PARALLELISM_FACTOR);
   }
 
-  public ParallelProcessing(final SessionFactory sessionFactory, final List<T> objectsToBeProcessed) {
+  public ParallelProcessing(final SessionFactory sessionFactory,
+      final List<T> objectsToBeProcessed) {
     this(sessionFactory, objectsToBeProcessed, DEFAULT_PARALLELISM_FACTOR);
   }
 
@@ -99,7 +98,8 @@ public abstract class ParallelProcessing<T> {
 
   protected void onBeforeProcessing(final HibernateSessionProvider sessionProvider) {}
 
-  public abstract void doProcessing(HibernateSessionProvider sessionProvider, T objectToBeProcessed);
+  public abstract void doProcessing(HibernateSessionProvider sessionProvider,
+      T objectToBeProcessed);
 
   protected void onAfterProcessing(final HibernateSessionProvider sessionProvider) {}
 

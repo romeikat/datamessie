@@ -24,12 +24,10 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.query.Query;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
@@ -44,8 +42,8 @@ public class DeleteExecutor<E extends EntityWithIdAndVersion> {
   private final SessionFactory sessionFactory;
   private final Double parallelismFactor;
 
-  public DeleteExecutor(final DeleteDecisionResults decisionResults, final int batchSizeEntities, final Class<E> clazz,
-      final SessionFactory sessionFactory, final Double parallelismFactor) {
+  public DeleteExecutor(final DeleteDecisionResults decisionResults, final int batchSizeEntities,
+      final Class<E> clazz, final SessionFactory sessionFactory, final Double parallelismFactor) {
     this.decisionResults = decisionResults;
     this.batchSizeEntities = batchSizeEntities;
     this.clazz = clazz;
@@ -65,12 +63,14 @@ public class DeleteExecutor<E extends EntityWithIdAndVersion> {
     final List<List<Long>> rhsIdsBatches = Lists.partition(rhsIds, batchSizeEntities);
     new ParallelProcessing<List<Long>>(sessionFactory, rhsIdsBatches, parallelismFactor) {
       @Override
-      public void doProcessing(final HibernateSessionProvider rhsSessionProvider, final List<Long> rhsIdsBatch) {
+      public void doProcessing(final HibernateSessionProvider rhsSessionProvider,
+          final List<Long> rhsIdsBatch) {
         new ExecuteWithTransaction(rhsSessionProvider.getStatelessSession()) {
 
           @Override
           protected void execute(final StatelessSession statelessSession) {
-            final int numberOfDeletedEntitiesBatch = delete(rhsSessionProvider.getStatelessSession(), rhsIdsBatch);
+            final int numberOfDeletedEntitiesBatch =
+                delete(rhsSessionProvider.getStatelessSession(), rhsIdsBatch);
             synchronized (numberOfDeletedEntities) {
               numberOfDeletedEntities.add(numberOfDeletedEntitiesBatch);
             }

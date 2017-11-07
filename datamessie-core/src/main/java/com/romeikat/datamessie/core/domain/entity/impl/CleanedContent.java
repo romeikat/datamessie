@@ -29,18 +29,17 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.TermVector;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithIdAndVersion;
 import com.romeikat.datamessie.core.processing.service.fulltext.query.FullTextIndexingAnalyzer;
 
 @Entity
 @Table(name = CleanedContent.TABLE_NAME,
-    uniqueConstraints = @UniqueConstraint(name = "cleanedContent_id_version", columnNames = {"document_id", "version"}))
+    uniqueConstraints = @UniqueConstraint(name = "cleanedContent_id_version",
+        columnNames = {"document_id", "version"}))
 @Indexed
 @Analyzer(impl = FullTextIndexingAnalyzer.class)
 public class CleanedContent extends AbstractEntityWithIdAndVersion {

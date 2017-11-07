@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -36,7 +35,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
@@ -149,7 +147,8 @@ public class StatisticsPage extends AbstractTablePage {
       return LocalDate.now();
     }
 
-    final StatisticsInterval statisticsInterval = DataMessieSession.get().getStatisticsIntervalModel().getObject();
+    final StatisticsInterval statisticsInterval =
+        DataMessieSession.get().getStatisticsIntervalModel().getObject();
     if (statisticsInterval == null) {
       return LocalDate.now();
     }
@@ -183,8 +182,8 @@ public class StatisticsPage extends AbstractTablePage {
     final StatisticsType statisticsType = statisticsTypeSelector.getModelObject();
     switch (statisticsType) {
       case ALL_DOCUMENTS:
-        return getStatisticsPanelForStates(id, DocumentProcessingState
-            .getWithout(DocumentProcessingState.TECHNICAL_ERROR, DocumentProcessingState.TO_BE_DELETED));
+        return getStatisticsPanelForStates(id, DocumentProcessingState.getWithout(
+            DocumentProcessingState.TECHNICAL_ERROR, DocumentProcessingState.TO_BE_DELETED));
       case DOWNLOADED_DOCUMENTS:
         return getStatisticsPanelForStates(id,
             DocumentProcessingState.getWithout(DocumentProcessingState.DOWNLOAD_ERROR,
@@ -198,18 +197,23 @@ public class StatisticsPage extends AbstractTablePage {
             DocumentProcessingState.getWithout(DocumentProcessingState.TECHNICAL_ERROR,
                 DocumentProcessingState.TO_BE_DELETED));
       case PREPROCESSED_DOCUMENTS:
-        return getStatisticsPanelForStates(id, DocumentProcessingState.getWith(DocumentProcessingState.STEMMED));
+        return getStatisticsPanelForStates(id,
+            DocumentProcessingState.getWith(DocumentProcessingState.STEMMED));
       case PREPROCESSING_SUCCESS_RATE:
-        return getStatisticsPanelForStatesRate(id, DocumentProcessingState.getWith(DocumentProcessingState.STEMMED),
-            DocumentProcessingState.getWith(DocumentProcessingState.CLEANED, DocumentProcessingState.CLEANING_ERROR,
-                DocumentProcessingState.STEMMED));
+        return getStatisticsPanelForStatesRate(id,
+            DocumentProcessingState.getWith(DocumentProcessingState.STEMMED),
+            DocumentProcessingState.getWith(DocumentProcessingState.CLEANED,
+                DocumentProcessingState.CLEANING_ERROR, DocumentProcessingState.STEMMED));
       case TO_BE_PREPROCESSED:
-        return getStatisticsPanelForStates(id, DocumentProcessingState.getWith(DocumentProcessingState.DOWNLOADED,
-            DocumentProcessingState.REDIRECTED, DocumentProcessingState.CLEANED));
+        return getStatisticsPanelForStates(id,
+            DocumentProcessingState.getWith(DocumentProcessingState.DOWNLOADED,
+                DocumentProcessingState.REDIRECTED, DocumentProcessingState.CLEANED));
       case DOWNLOAD_ERRORS:
-        return getStatisticsPanelForStates(id, DocumentProcessingState.getWith(DocumentProcessingState.DOWNLOAD_ERROR));
+        return getStatisticsPanelForStates(id,
+            DocumentProcessingState.getWith(DocumentProcessingState.DOWNLOAD_ERROR));
       case CLEANING_ERRORS:
-        return getStatisticsPanelForStates(id, DocumentProcessingState.getWith(DocumentProcessingState.CLEANING_ERROR));
+        return getStatisticsPanelForStates(id,
+            DocumentProcessingState.getWith(DocumentProcessingState.CLEANING_ERROR));
       default:
         return getEmptyStatisticsPanel(id);
     }
@@ -220,7 +224,8 @@ public class StatisticsPage extends AbstractTablePage {
       private static final long serialVersionUID = 1L;
 
       @Override
-      protected SparseSingleTable<Long, LocalDate, Long> getStatistics(final Collection<Long> sourceIds) {
+      protected SparseSingleTable<Long, LocalDate, Long> getStatistics(
+          final Collection<Long> sourceIds) {
         return new SparseSingleTable<Long, LocalDate, Long>();
       }
 
@@ -238,24 +243,27 @@ public class StatisticsPage extends AbstractTablePage {
       private static final long serialVersionUID = 1L;
 
       @Override
-      protected SparseSingleTable<Long, LocalDate, Long> getStatistics(final Collection<Long> sourceIds) {
+      protected SparseSingleTable<Long, LocalDate, Long> getStatistics(
+          final Collection<Long> sourceIds) {
         final Function<LocalDate, LocalDate> transformDateFunction = getTransformDateFunction();
-        final GetNumberOfDocumentsFunction transformValueFunction = new GetNumberOfDocumentsFunction(states);
-        final IStatisticsManager statisticsManager = sharedBeanProvider.getSharedBean(IStatisticsManager.class);
+        final GetNumberOfDocumentsFunction transformValueFunction =
+            new GetNumberOfDocumentsFunction(states);
+        final IStatisticsManager statisticsManager =
+            sharedBeanProvider.getSharedBean(IStatisticsManager.class);
         if (statisticsManager == null) {
           return new SparseSingleTable<Long, LocalDate, Long>();
         }
 
         final LocalDate fromDate = getFromDate();
         final LocalDate toDate = getToDate();
-        final SparseSingleTable<Long, LocalDate, Long> statistics =
-            statisticsManager.getStatistics(sourceIds, fromDate, toDate, transformDateFunction, transformValueFunction);
+        final SparseSingleTable<Long, LocalDate, Long> statistics = statisticsManager.getStatistics(
+            sourceIds, fromDate, toDate, transformDateFunction, transformValueFunction);
         return statistics;
       }
 
       @Override
-      protected Component getValueComponent(final String componentId, final Long sourceId, final LocalDate date,
-          final IModel<String> valueModel) {
+      protected Component getValueComponent(final String componentId, final Long sourceId,
+          final LocalDate date, final IModel<String> valueModel) {
         final PageParameters pageParameters = new PageParameters();
         // Project
         pageParameters.set("project", ((AbstractAuthenticatedPage) getPage()).getActiveProjectId());
@@ -275,7 +283,8 @@ public class StatisticsPage extends AbstractTablePage {
         pageParameters.set("states", StringUtils.join(statesOrdinals, ","));
         // Link
         final BookmarkablePageLinkPanel<DocumentsPage> documentsLink =
-            new BookmarkablePageLinkPanel<DocumentsPage>(componentId, DocumentsPage.class, pageParameters, valueModel);
+            new BookmarkablePageLinkPanel<DocumentsPage>(componentId, DocumentsPage.class,
+                pageParameters, valueModel);
         return documentsLink;
       }
 
@@ -314,17 +323,20 @@ public class StatisticsPage extends AbstractTablePage {
     return DocumentsFilterPanel.formatLocalDate(toDate);
   }
 
-  private AbstractTablePanel<Long, LocalDate, Double> getStatisticsPanelForStatesRate(final String id,
-      final DocumentProcessingState[] states1, final DocumentProcessingState[] states2) {
+  private AbstractTablePanel<Long, LocalDate, Double> getStatisticsPanelForStatesRate(
+      final String id, final DocumentProcessingState[] states1,
+      final DocumentProcessingState[] states2) {
     return new AbstractStatisticsPanel<Double>(id, this) {
       private static final long serialVersionUID = 1L;
 
       @Override
-      protected SparseSingleTable<Long, LocalDate, Double> getStatistics(final Collection<Long> sourceIds) {
+      protected SparseSingleTable<Long, LocalDate, Double> getStatistics(
+          final Collection<Long> sourceIds) {
         final Function<LocalDate, LocalDate> transformDateFunction = getTransformDateFunction();
         final GetNumberOfDocumentsRateFunction transformValueFunction =
             new GetNumberOfDocumentsRateFunction(states1, states2);
-        final IStatisticsManager statisticsManager = sharedBeanProvider.getSharedBean(IStatisticsManager.class);
+        final IStatisticsManager statisticsManager =
+            sharedBeanProvider.getSharedBean(IStatisticsManager.class);
         if (statisticsManager == null) {
           return new SparseSingleTable<Long, LocalDate, Double>();
         }
@@ -332,7 +344,8 @@ public class StatisticsPage extends AbstractTablePage {
         final LocalDate fromDate = getFromDate();
         final LocalDate toDate = getToDate();
         final SparseSingleTable<Long, LocalDate, Double> statistics =
-            statisticsManager.getStatistics(sourceIds, fromDate, toDate, transformDateFunction, transformValueFunction);
+            statisticsManager.getStatistics(sourceIds, fromDate, toDate, transformDateFunction,
+                transformValueFunction);
         return statistics;
       }
 

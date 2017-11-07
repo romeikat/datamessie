@@ -26,10 +26,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
@@ -40,7 +38,8 @@ public abstract class DaytimeTaskSchedulingThread extends Thread {
 
   private static final Logger LOG = LoggerFactory.getLogger(DaytimeTaskSchedulingThread.class);
 
-  private static final DateTimeFormatter DATE_TIME_FPRMATTER = DateTimeFormatter.ofPattern("dd.MM.yyy HH:mm:ss");
+  private static final DateTimeFormatter DATE_TIME_FPRMATTER =
+      DateTimeFormatter.ofPattern("dd.MM.yyy HH:mm:ss");
 
   private TaskExecution latestTaskExecution = null;
 
@@ -72,7 +71,8 @@ public abstract class DaytimeTaskSchedulingThread extends Thread {
       // Determine task execution daytime
       final LocalTime taskExecutionDaytime = getTaskExecutionDaytime();
       if (taskExecutionDaytime == null) {
-        LOG.warn("No more scheduling task \"{}\" as task execution daytime is not available", getTaskName());
+        LOG.warn("No more scheduling task \"{}\" as task execution daytime is not available",
+            getTaskName());
         break;
       }
 
@@ -85,7 +85,9 @@ public abstract class DaytimeTaskSchedulingThread extends Thread {
         // If latest task execution has not yet finished, wait a full interval
         final boolean hasLatestTaskExecutionFinished = hasLatestTaskExecutionFinished();
         if (!hasLatestTaskExecutionFinished) {
-          LOG.info("Skippig task execution as latest task execution for \"{}\" has not yet finished", getTaskName());
+          LOG.info(
+              "Skippig task execution as latest task execution for \"{}\" has not yet finished",
+              getTaskName());
           waitMillis(1000);
           continue;
         }
@@ -129,7 +131,8 @@ public abstract class DaytimeTaskSchedulingThread extends Thread {
     if (delay == 0) {
       LOG.info("Scheduling task \"{}\" to be executed immediately", getTaskName());
     } else {
-      LOG.info("Scheduling task \"{}\" to be executed at {}", getTaskName(), DATE_TIME_FPRMATTER.format(nextStart));
+      LOG.info("Scheduling task \"{}\" to be executed at {}", getTaskName(),
+          DATE_TIME_FPRMATTER.format(nextStart));
       waitMillis(delay);
     }
   }
@@ -148,10 +151,10 @@ public abstract class DaytimeTaskSchedulingThread extends Thread {
   }
 
   private boolean hasLatestTaskExecutionFinished() {
-    final boolean isLatestTaskExecutionFinished =
-        latestTaskExecution == null || latestTaskExecution.getStatus() == TaskExecutionStatus.COMPLETED
-            || latestTaskExecution.getStatus() == TaskExecutionStatus.CANCELLED
-            || latestTaskExecution.getStatus() == TaskExecutionStatus.FAILED;
+    final boolean isLatestTaskExecutionFinished = latestTaskExecution == null
+        || latestTaskExecution.getStatus() == TaskExecutionStatus.COMPLETED
+        || latestTaskExecution.getStatus() == TaskExecutionStatus.CANCELLED
+        || latestTaskExecution.getStatus() == TaskExecutionStatus.FAILED;
     return isLatestTaskExecutionFinished;
   }
 

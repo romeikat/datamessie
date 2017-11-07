@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.processing.service.cleaning.boilerpipe.BoilerplateRemover;
@@ -45,11 +44,11 @@ public class DocumentCleaner {
   private DocumentCleaner() {}
 
   public DocumentCleaningResult clean(final StatelessSession statelessSession,
-      final DocumentsProcessingCache documentsProcessingCache, final Document document, final RawContent rawContent)
-      throws Exception {
+      final DocumentsProcessingCache documentsProcessingCache, final Document document,
+      final RawContent rawContent) throws Exception {
     // Extract
-    final String extractedContent =
-        tagExctractor.extractContent(statelessSession, documentsProcessingCache, rawContent, document);
+    final String extractedContent = tagExctractor.extractContent(statelessSession,
+        documentsProcessingCache, rawContent, document);
 
     // Remove boilerplate
     String cleanedContent = boilerplateRemover.removeBoilerplate(extractedContent);

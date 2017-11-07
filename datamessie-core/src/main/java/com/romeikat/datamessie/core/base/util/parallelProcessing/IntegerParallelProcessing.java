@@ -24,17 +24,17 @@ License along with this program.  If not, see
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.hibernate.SessionFactory;
 
 public abstract class IntegerParallelProcessing extends ParallelProcessing<Integer> {
 
-  public IntegerParallelProcessing(final SessionFactory sessionFactory, final int start, final int end) {
+  public IntegerParallelProcessing(final SessionFactory sessionFactory, final int start,
+      final int end) {
     super(sessionFactory, getList(start, end));
   }
 
-  public IntegerParallelProcessing(final SessionFactory sessionFactory, final int start, final int end,
-      final Double parallelismFactor) {
+  public IntegerParallelProcessing(final SessionFactory sessionFactory, final int start,
+      final int end, final Double parallelismFactor) {
     super(sessionFactory, getList(start, end), parallelismFactor);
   }
 

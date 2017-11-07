@@ -25,7 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.hibernate.StatelessSession;
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
@@ -83,8 +81,8 @@ public class DocumentService {
   @Qualifier("sourceDao")
   private SourceDao sourceDao;
 
-  public void createUpdateOrDeleteRawContent(final StatelessSession statelessSession, final long documentId,
-      final String content) {
+  public void createUpdateOrDeleteRawContent(final StatelessSession statelessSession,
+      final long documentId, final String content) {
     RawContent rawContent = rawContentDao.getEntity(statelessSession, documentId);
 
     // Create or update
@@ -106,8 +104,8 @@ public class DocumentService {
     }
   }
 
-  public void createUpdateOrDeleteCleanedContent(final StatelessSession statelessSession, final long documentId,
-      final String content) {
+  public void createUpdateOrDeleteCleanedContent(final StatelessSession statelessSession,
+      final long documentId, final String content) {
     CleanedContent cleanedContent = cleanedContentDao.getEntity(statelessSession, documentId);
 
     // Create or update
@@ -129,8 +127,8 @@ public class DocumentService {
     }
   }
 
-  public void createUpdateOrDeleteStemmedContent(final StatelessSession statelessSession, final long documentId,
-      final String content) {
+  public void createUpdateOrDeleteStemmedContent(final StatelessSession statelessSession,
+      final long documentId, final String content) {
     StemmedContent stemmedContent = stemmedContentDao.getEntity(statelessSession, documentId);
 
     // Create or update
@@ -152,13 +150,15 @@ public class DocumentService {
     }
   }
 
-  public void markDocumentsToBeDeleted(final StatelessSession statelessSession, final Collection<Document> documents) {
+  public void markDocumentsToBeDeleted(final StatelessSession statelessSession,
+      final Collection<Document> documents) {
     for (final Document document : documents) {
       markDocumentToBeDeleted(statelessSession, document);
     }
   }
 
-  private void markDocumentToBeDeleted(final StatelessSession statelessSession, final Document document) {
+  private void markDocumentToBeDeleted(final StatelessSession statelessSession,
+      final Document document) {
     if (document == null) {
       return;
     }
@@ -168,12 +168,14 @@ public class DocumentService {
     documentDao.update(statelessSession, document);
   }
 
-  public void deprocessDocumentsOfSource(final StatelessSession statelessSession, final TaskExecution taskExecution,
-      final long sourceId, final DocumentProcessingState targetState) throws TaskCancelledException {
+  public void deprocessDocumentsOfSource(final StatelessSession statelessSession,
+      final TaskExecution taskExecution, final long sourceId,
+      final DocumentProcessingState targetState) throws TaskCancelledException {
     // Initialize
-    final TaskExecutionWork work = taskExecution.reportWorkStart(
-        String.format("Deprocessing documents of source %s to state %s", sourceId, targetState.getName()));
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
+    final TaskExecutionWork work = taskExecution.reportWorkStart(String.format(
+        "Deprocessing documents of source %s to state %s", sourceId, targetState.getName()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        new StatisticsRebuildingSparseTable();
 
     // Determine minimum downloaded date
     final LocalDate minDownloadedDate = getMinDownloadedDate(statelessSession);
@@ -182,8 +184,8 @@ public class DocumentService {
     final MutableObject<LocalDate> downloadedDate = new MutableObject<LocalDate>(minDownloadedDate);
     while (downloadedDate.getValue() != null) {
       // Deprocess
-      deprocessDocumentsOfSourceAndDownloadDate(statelessSession, taskExecution, sourceId, targetState, statisticsToBeRebuilt,
-          downloadedDate.getValue());
+      deprocessDocumentsOfSourceAndDownloadDate(statelessSession, taskExecution, sourceId,
+          targetState, statisticsToBeRebuilt, downloadedDate.getValue());
 
       // Prepare for next iteration
       final LocalDate nextDownloadedDate = getNextDownloadedDate(downloadedDate.getValue());
@@ -191,7 +193,8 @@ public class DocumentService {
     }
 
     // Rebuild statistics
-    final IStatisticsManager statisticsManager = sharedBeanProvider.getSharedBean(IStatisticsManager.class);
+    final IStatisticsManager statisticsManager =
+        sharedBeanProvider.getSharedBean(IStatisticsManager.class);
     if (statisticsManager != null) {
       statisticsManager.rebuildStatistics(statisticsToBeRebuilt);
     }
@@ -210,8 +213,9 @@ public class DocumentService {
     return minDownloadedDate;
   }
 
-  private void deprocessDocumentsOfSourceAndDownloadDate(final StatelessSession statelessSession, final TaskExecution taskExecution,
-      final long sourceId, final DocumentProcessingState targetState,
+  private void deprocessDocumentsOfSourceAndDownloadDate(final StatelessSession statelessSession,
+      final TaskExecution taskExecution, final long sourceId,
+      final DocumentProcessingState targetState,
       final StatisticsRebuildingSparseTable statisticsToBeRebuilt, final LocalDate downloadedDate)
       throws TaskCancelledException {
     final TaskExecutionWork work2 =
@@ -219,7 +223,8 @@ public class DocumentService {
             LocalDateConverter.INSTANCE_UI.convertToString(downloadedDate)));
 
     // Load
-    final List<Document> documents = documentDao.getForSourceAndDownloaded(statelessSession, sourceId, downloadedDate);
+    final List<Document> documents =
+        documentDao.getForSourceAndDownloaded(statelessSession, sourceId, downloadedDate);
 
     // Deprocess
     deprocessDocuments(statelessSession, documents, targetState, statisticsToBeRebuilt);
@@ -228,8 +233,9 @@ public class DocumentService {
     taskExecution.checkpoint();
   }
 
-  private void deprocessDocuments(final StatelessSession statelessSession, final Collection<Document> documents,
-      final DocumentProcessingState targetState, final StatisticsRebuildingSparseTable statisticsToBeRebuilt) {
+  private void deprocessDocuments(final StatelessSession statelessSession,
+      final Collection<Document> documents, final DocumentProcessingState targetState,
+      final StatisticsRebuildingSparseTable statisticsToBeRebuilt) {
     for (final Document document : documents) {
       LOG.debug("Deprocessing document {}", document.getId());
       // Update state
@@ -263,14 +269,18 @@ public class DocumentService {
       case REDIRECTING_ERROR:
         return targetState == DocumentProcessingState.DOWNLOADED;
       case CLEANED:
-        return targetState == DocumentProcessingState.DOWNLOADED || targetState == DocumentProcessingState.REDIRECTED;
+        return targetState == DocumentProcessingState.DOWNLOADED
+            || targetState == DocumentProcessingState.REDIRECTED;
       case CLEANING_ERROR:
       case STEMMED:
-        return targetState == DocumentProcessingState.DOWNLOADED || targetState == DocumentProcessingState.REDIRECTED
+        return targetState == DocumentProcessingState.DOWNLOADED
+            || targetState == DocumentProcessingState.REDIRECTED
             || targetState == DocumentProcessingState.CLEANED;
       case TECHNICAL_ERROR:
-        return targetState == DocumentProcessingState.DOWNLOADED || targetState == DocumentProcessingState.REDIRECTED
-            || targetState == DocumentProcessingState.CLEANED || targetState == DocumentProcessingState.STEMMED;
+        return targetState == DocumentProcessingState.DOWNLOADED
+            || targetState == DocumentProcessingState.REDIRECTED
+            || targetState == DocumentProcessingState.CLEANED
+            || targetState == DocumentProcessingState.STEMMED;
       case TO_BE_DELETED:
         return false;
     }

@@ -24,20 +24,20 @@ License along with this program.  If not, see
 
 import java.time.LocalDate;
 import java.util.List;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionContract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.publishedDates.loading.PublishedDateLoadingStrategy;
 
-public abstract class PublishedDateSequenceLoadingStrategy<T> extends PublishedDateLoadingStrategy<T> {
+public abstract class PublishedDateSequenceLoadingStrategy<T>
+    extends PublishedDateLoadingStrategy<T> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(PublishedDateSequenceLoadingStrategy.class);
+  private static final Logger LOG =
+      LoggerFactory.getLogger(PublishedDateSequenceLoadingStrategy.class);
 
   @Override
   protected abstract T initializeEmptyResult();
@@ -45,7 +45,8 @@ public abstract class PublishedDateSequenceLoadingStrategy<T> extends PublishedD
   protected abstract T load(SharedSessionContract ssc, DocumentsFilterSettings dfsWithPublishedDate,
       long firstForPublishedDate, final long countForPublishedDate);
 
-  protected abstract long count(SharedSessionContract ssc, DocumentsFilterSettings dfsWithPublishedDate);
+  protected abstract long count(SharedSessionContract ssc,
+      DocumentsFilterSettings dfsWithPublishedDate);
 
   @Override
   protected abstract void mergeResults(T previousResult, T nextResult);
@@ -56,8 +57,9 @@ public abstract class PublishedDateSequenceLoadingStrategy<T> extends PublishedD
   private final long count;
   private final HibernateSessionProvider sessionProvider;
 
-  public PublishedDateSequenceLoadingStrategy(final DocumentsFilterSettings dfs, final long first, final long count,
-      final SessionFactory sessionFactory, final SharedBeanProvider sharedBeanProvider) {
+  public PublishedDateSequenceLoadingStrategy(final DocumentsFilterSettings dfs, final long first,
+      final long count, final SessionFactory sessionFactory,
+      final SharedBeanProvider sharedBeanProvider) {
     super(dfs, sessionFactory, sharedBeanProvider);
 
     this.first = first;
@@ -85,8 +87,8 @@ public abstract class PublishedDateSequenceLoadingStrategy<T> extends PublishedD
       if (firstForPublishedDate == 0) {
         // Load result for published date
         LOG.debug("Loading data for publishedDate {}", publishedDate);
-        final T nextResult = loadForPublishedDate(sessionProvider.getStatelessSession(), publishedDate,
-            firstForPublishedDate, countForPublishedDate);
+        final T nextResult = loadForPublishedDate(sessionProvider.getStatelessSession(),
+            publishedDate, firstForPublishedDate, countForPublishedDate);
         if (nextResult == null) {
           // Skip whole published date
           continue;
@@ -103,7 +105,8 @@ public abstract class PublishedDateSequenceLoadingStrategy<T> extends PublishedD
 
       // Results to be skipped
       else {
-        final long toBeSkipped = countForPublishedDate(sessionProvider.getStatelessSession(), publishedDate);
+        final long toBeSkipped =
+            countForPublishedDate(sessionProvider.getStatelessSession(), publishedDate);
         // Skip whole published date
         if (toBeSkipped < firstForPublishedDate) {
           // Reduce remaining number
@@ -113,8 +116,8 @@ public abstract class PublishedDateSequenceLoadingStrategy<T> extends PublishedD
         else {
           // Load result for published date
           LOG.debug("Loading data for publishedDate {}", publishedDate);
-          final T nextResult = loadForPublishedDate(sessionProvider.getStatelessSession(), publishedDate,
-              firstForPublishedDate, countForPublishedDate);
+          final T nextResult = loadForPublishedDate(sessionProvider.getStatelessSession(),
+              publishedDate, firstForPublishedDate, countForPublishedDate);
 
           // Merge with previous results
           synchronized (result) {
@@ -143,11 +146,13 @@ public abstract class PublishedDateSequenceLoadingStrategy<T> extends PublishedD
     dfsForQuery.setFromDate(publishedDate);
     dfsForQuery.setToDate(publishedDate);
 
-    final T resultForPublishedDate = load(ssc, dfsForQuery, firstForPublishedDate, countForPublishedDate);
+    final T resultForPublishedDate =
+        load(ssc, dfsForQuery, firstForPublishedDate, countForPublishedDate);
     return resultForPublishedDate;
   }
 
-  private long countForPublishedDate(final SharedSessionContract ssc, final LocalDate publishedDate) {
+  private long countForPublishedDate(final SharedSessionContract ssc,
+      final LocalDate publishedDate) {
     final DocumentsFilterSettings dfs = getDocumentsFilterSettings();
 
     // Restrict filter settings to the provided published date

@@ -23,14 +23,12 @@ License along with this program.  If not, see
  */
 
 import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingTask;
 
@@ -67,7 +65,8 @@ public class DocumentsProcessingInitializer {
   }
 
   private void startProcessing() {
-    final DocumentsProcessingTask task = (DocumentsProcessingTask) ctx.getBean(DocumentsProcessingTask.BEAN_NAME);
+    final DocumentsProcessingTask task =
+        (DocumentsProcessingTask) ctx.getBean(DocumentsProcessingTask.BEAN_NAME);
     taskManager.addTask(task, pause);
   }
 

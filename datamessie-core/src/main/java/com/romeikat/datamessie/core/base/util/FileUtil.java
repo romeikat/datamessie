@@ -43,7 +43,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.wicket.request.IRequestHandler;
@@ -55,7 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.domain.dto.FileDto;
 
 @Service
@@ -82,7 +80,8 @@ public class FileUtil {
 
   public synchronized String createTargetDir() {
     try {
-      final String dirName = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+      final String dirName =
+          LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
       Path dir = Paths.get(exportDir, dirName);
       dir = getNonExisting(dir);
       Files.createDirectories(dir);
@@ -124,7 +123,8 @@ public class FileUtil {
       Files.createFile(file);
       if (content != null && !content.isEmpty()) {
         final FileOutputStream fileOutputStream = new FileOutputStream(file.toFile(), false);
-        final BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(fileOutputStream));
+        final BufferedWriter bufferedWriter =
+            new BufferedWriter(new OutputStreamWriter(fileOutputStream));
         bufferedWriter.write(content);
         bufferedWriter.close();
         fileOutputStream.close();
@@ -140,7 +140,8 @@ public class FileUtil {
     return createXlsxFile(exportDir, filename, xlsxWorkbook);
   }
 
-  public synchronized File createXlsxFile(final String dir, String filename, final SXSSFWorkbook xlsxWorkbook) {
+  public synchronized File createXlsxFile(final String dir, String filename,
+      final SXSSFWorkbook xlsxWorkbook) {
     try {
       filename = normalizeFilename(filename);
       Path file = Paths.get(dir, filename + ".xlsx");
@@ -156,7 +157,8 @@ public class FileUtil {
     }
   }
 
-  public synchronized Path createXlsxFile(final Path dir, final String filename, final SXSSFWorkbook xlsxWorkbook) {
+  public synchronized Path createXlsxFile(final Path dir, final String filename,
+      final SXSSFWorkbook xlsxWorkbook) {
     return Paths.get(createXlsxFile(dir.toString(), filename, xlsxWorkbook).getAbsolutePath());
   }
 
@@ -166,12 +168,13 @@ public class FileUtil {
     return createTxtFilesAndZip(prefixFilename, fileDtos);
   }
 
-  public synchronized File createTxtFilesAndZip(final String filename, final Collection<? extends FileDto> fileDtos) {
+  public synchronized File createTxtFilesAndZip(final String filename,
+      final Collection<? extends FileDto> fileDtos) {
     return createTxtFilesAndZip(filename, fileDtos, null);
   }
 
-  public synchronized File createTxtFilesAndZip(String filename, final Collection<? extends FileDto> fileDtos,
-      final SXSSFWorkbook summaryWorkbook) {
+  public synchronized File createTxtFilesAndZip(String filename,
+      final Collection<? extends FileDto> fileDtos, final SXSSFWorkbook summaryWorkbook) {
     try {
       filename = normalizeFilename(filename);
       // Create temporary directory
@@ -198,8 +201,8 @@ public class FileUtil {
     }
   }
 
-  private List<Path> createTempFiles(final Path tempDir, final Collection<? extends FileDto> fileDtos)
-      throws IOException {
+  private List<Path> createTempFiles(final Path tempDir,
+      final Collection<? extends FileDto> fileDtos) throws IOException {
     // For each DTO...
     final List<Path> tempFiles = new ArrayList<Path>();
     for (final FileDto fileDto : fileDtos) {
@@ -220,7 +223,8 @@ public class FileUtil {
     return tempFiles;
   }
 
-  private Path createZipFile(final String dir, String filename, final List<Path> files) throws IOException {
+  private Path createZipFile(final String dir, String filename, final List<Path> files)
+      throws IOException {
     filename = normalizeFilename(filename);
     // Create ZIP file
     Path zipFile = Paths.get(dir, filename + ".zip");
@@ -246,7 +250,8 @@ public class FileUtil {
   public synchronized void appendToFile(final File file, final String content) {
     final Path path = FileSystems.getDefault().getPath(file.getAbsolutePath());
     final Charset charset = Charset.defaultCharset();
-    try (BufferedWriter writer = Files.newBufferedWriter(path, charset, StandardOpenOption.APPEND)) {
+    try (
+        BufferedWriter writer = Files.newBufferedWriter(path, charset, StandardOpenOption.APPEND)) {
       writer.write(String.format("%s%n", content));
     } catch (final Exception e) {
       LOG.error("Could not apennd to file " + file.getAbsolutePath(), e);

@@ -35,12 +35,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -71,7 +69,8 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
     return new HashMap<K, V>();
   }
 
-  public synchronized <Z2> SparseSingleTable<X, Y, Z2> extract(final ITableExtractor<X, Y, Z, Z2> tableExtractor) {
+  public synchronized <Z2> SparseSingleTable<X, Y, Z2> extract(
+      final ITableExtractor<X, Y, Z, Z2> tableExtractor) {
     // Merge
     final SparseSingleTable<X, Y, Z> merged = new SparseSingleTable<X, Y, Z>();
     for (final Cell<X, Y, Z> cell : getCells()) {
@@ -342,7 +341,8 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
     for (int i = 1; i < allValues.size(); i++) {
       final Z previousValue = mergedValue;
       final Z currentValue = allValues.get(i);
-      final Pair<Z, Z> previousAndCurrentValue = new ImmutablePair<Z, Z>(previousValue, currentValue);
+      final Pair<Z, Z> previousAndCurrentValue =
+          new ImmutablePair<Z, Z>(previousValue, currentValue);
       mergedValue = mergeFunction.apply(previousAndCurrentValue);
     }
 
@@ -373,7 +373,8 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
   }
 
   @Override
-  public synchronized List<TableRow<X, Y, Z>> getTableRows(final Comparator<? super X> rowHeaderComparator) {
+  public synchronized List<TableRow<X, Y, Z>> getTableRows(
+      final Comparator<? super X> rowHeaderComparator) {
     final List<X> rowHeaders = getRowHeadersSorted(rowHeaderComparator);
     return getTableRows(rowHeaders);
   }
@@ -402,7 +403,8 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
 
   @Override
   public synchronized SortedMap<Y, Z> getRowSorted(final X rowHeader,
-      final Comparator<? super Y> columnHeaderComparator, final Comparator<? super Z> rowValueComparator) {
+      final Comparator<? super Y> columnHeaderComparator,
+      final Comparator<? super Z> rowValueComparator) {
     final Map<Y, Z> row = rows.get(rowHeader);
     // Sort column headers by values
     final Comparator<Y> valueComparator =
@@ -461,9 +463,11 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
   }
 
   @Override
-  public synchronized List<X> getRowHeadersSorted(final Y columnHeader, final Comparator<? super X> rowHeaderComparator,
+  public synchronized List<X> getRowHeadersSorted(final Y columnHeader,
+      final Comparator<? super X> rowHeaderComparator,
       final Comparator<? super Z> columnValueComparator) {
-    final SortedMap<X, Z> columnSorted = getColumnSorted(columnHeader, rowHeaderComparator, columnValueComparator);
+    final SortedMap<X, Z> columnSorted =
+        getColumnSorted(columnHeader, rowHeaderComparator, columnValueComparator);
     final List<X> rowHeadersSorted = Lists.newArrayList(columnSorted.keySet());
     // Done
     return rowHeadersSorted;
@@ -483,7 +487,8 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
   }
 
   @Override
-  public synchronized List<Z> getRowValuesSorted(final Y columnHeader, final Comparator<? super Z> rowValueComparator) {
+  public synchronized List<Z> getRowValuesSorted(final Y columnHeader,
+      final Comparator<? super Z> rowValueComparator) {
     final Map<X, Z> column = columns.get(columnHeader);
     // If column does not exist, return empty list
     if (column == null) {
@@ -506,14 +511,16 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
   }
 
   @Override
-  public synchronized List<TableColumn<X, Y, Z>> getTableColumns(final Comparator<? super Y> columnHeaderComparator) {
+  public synchronized List<TableColumn<X, Y, Z>> getTableColumns(
+      final Comparator<? super Y> columnHeaderComparator) {
     final List<Y> columnHeaders = getColumnHeadersSorted(columnHeaderComparator);
     return getTableColumns(columnHeaders);
   }
 
   @Override
   public synchronized List<TableColumn<X, Y, Z>> getTableColumns(final List<Y> columnHeaders) {
-    final List<TableColumn<X, Y, Z>> tableColumns = Lists.newArrayListWithExpectedSize(getNumberOfColumns());
+    final List<TableColumn<X, Y, Z>> tableColumns =
+        Lists.newArrayListWithExpectedSize(getNumberOfColumns());
     // Get table columns
     for (final Y columnHeader : columnHeaders) {
       final Map<X, Z> column = getColumn(columnHeader);
@@ -535,7 +542,8 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
 
   @Override
   public synchronized SortedMap<X, Z> getColumnSorted(final Y columnHeader,
-      final Comparator<? super X> rowHeaderComparator, final Comparator<? super Z> columnValueComparator) {
+      final Comparator<? super X> rowHeaderComparator,
+      final Comparator<? super Z> columnValueComparator) {
     final Map<X, Z> column = columns.get(columnHeader);
     // Sort row headers by values
     final Comparator<X> valueComparator =
@@ -595,8 +603,10 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
 
   @Override
   public synchronized List<Y> getColumnHeadersSorted(final X rowHeader,
-      final Comparator<? super Y> columnHeaderComparator, final Comparator<? super Z> rowValueComparator) {
-    final SortedMap<Y, Z> rowSorted = getRowSorted(rowHeader, columnHeaderComparator, rowValueComparator);
+      final Comparator<? super Y> columnHeaderComparator,
+      final Comparator<? super Z> rowValueComparator) {
+    final SortedMap<Y, Z> rowSorted =
+        getRowSorted(rowHeader, columnHeaderComparator, rowValueComparator);
     final List<Y> columnHeadersSorted = Lists.newArrayList(rowSorted.keySet());
     // Done
     return columnHeadersSorted;
@@ -657,7 +667,8 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
     final Set<Cell<X, Y, Z>> cells = getCells();
     for (final Cell<X, Y, Z> cell : cells) {
       final Z oldValue = cell.getValue();
-      final Z newValue = transformer.transform(cell.getRowHeader(), cell.getColumnHeader(), oldValue);
+      final Z newValue =
+          transformer.transform(cell.getRowHeader(), cell.getColumnHeader(), oldValue);
       internalPutValue(cell.getRowHeader(), cell.getColumnHeader(), newValue);
     }
   }
@@ -674,8 +685,8 @@ public class SparseSingleTable<X, Y, Z> implements ISingleTable<X, Y, Z>, Serial
       return false;
     }
     final SparseSingleTable<?, ?, ?> otherTable = (SparseSingleTable<?, ?, ?>) other;
-    final boolean equals =
-        new EqualsBuilder().append(rows, otherTable.rows).append(columns, otherTable.columns).isEquals();
+    final boolean equals = new EqualsBuilder().append(rows, otherTable.rows)
+        .append(columns, otherTable.columns).isEquals();
     return equals;
   }
 

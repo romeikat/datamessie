@@ -24,13 +24,11 @@ License along with this program.  If not, see
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.util.sparsetable.Cell;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Statistics;
@@ -49,7 +47,8 @@ public class StatisticsDao extends AbstractEntityWithIdAndVersionDao<Statistics>
     return null;
   }
 
-  public int deleteStatistics(final SharedSessionContract ssc, final Long sourceId, final LocalDate published) {
+  public int deleteStatistics(final SharedSessionContract ssc, final Long sourceId,
+      final LocalDate published) {
     if (sourceId == null && published == null) {
       return 0;
     }
@@ -80,7 +79,8 @@ public class StatisticsDao extends AbstractEntityWithIdAndVersionDao<Statistics>
     return updated;
   }
 
-  public void saveStatistics(final StatelessSession statelessSession, final StatisticsSparseTable statistics) {
+  public void saveStatistics(final StatelessSession statelessSession,
+      final StatisticsSparseTable statistics) {
     for (final Cell<Long, LocalDate, DocumentsPerState> cell : statistics.getCells()) {
       final long sourceId = cell.getRowHeader();
       final LocalDate published = cell.getColumnHeader();
@@ -92,8 +92,8 @@ public class StatisticsDao extends AbstractEntityWithIdAndVersionDao<Statistics>
     }
   }
 
-  private void saveStatistics(final StatelessSession statelessSession, final long sourceId, final LocalDate published,
-      final DocumentProcessingState state, final long documents) {
+  private void saveStatistics(final StatelessSession statelessSession, final long sourceId,
+      final LocalDate published, final DocumentProcessingState state, final long documents) {
     if (documents == 0) {
       return;
     }
@@ -106,8 +106,8 @@ public class StatisticsDao extends AbstractEntityWithIdAndVersionDao<Statistics>
     insert(statelessSession, statistics);
   }
 
-  public StatisticsSparseTable getStatistics(final SharedSessionContract ssc, final Collection<Long> sourceIds,
-      final LocalDate published) {
+  public StatisticsSparseTable getStatistics(final SharedSessionContract ssc,
+      final Collection<Long> sourceIds, final LocalDate published) {
     if (CollectionUtils.isEmpty(sourceIds) || published == null) {
       return new StatisticsSparseTable();
     }

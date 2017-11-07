@@ -25,12 +25,10 @@ License along with this program.  If not, see
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.util.comparator.AscendingComparator;
 import com.romeikat.datamessie.core.base.util.comparator.DescendingComparator;
@@ -118,7 +116,8 @@ public abstract class AbstractTableDataProvider<X extends Comparable<? super X>,
       final List<X> rowHeadersWithoutValues = table.getRowHeadersSorted(rowHeaderComparator);
       rowHeadersWithoutValues.removeAll(rowHeadersWithValues);
       // All row headers
-      rowHeaders = Lists.newArrayListWithExpectedSize(rowHeadersWithValues.size() + rowHeadersWithoutValues.size());
+      rowHeaders = Lists.newArrayListWithExpectedSize(
+          rowHeadersWithValues.size() + rowHeadersWithoutValues.size());
       rowHeaders.addAll(rowHeadersWithValues);
       rowHeaders.addAll(rowHeadersWithoutValues);
     }

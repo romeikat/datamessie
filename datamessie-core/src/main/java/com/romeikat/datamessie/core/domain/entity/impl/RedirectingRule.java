@@ -23,22 +23,22 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDate;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 import com.romeikat.datamessie.core.domain.util.StringHashProvider;
 
 @Entity
 @Table(name = RedirectingRule.TABLE_NAME,
-    uniqueConstraints = @UniqueConstraint(name = "redirectomgRule_id_version", columnNames = {"id", "version"}),
+    uniqueConstraints = @UniqueConstraint(name = "redirectomgRule_id_version",
+        columnNames = {"id", "version"}),
     indexes = @Index(name = "FK_redirectingRule_source_id", columnList = "source_id"))
-public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion implements StringHashProvider {
+public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion
+    implements StringHashProvider {
 
   public static final String TABLE_NAME = "redirectingRule";
 

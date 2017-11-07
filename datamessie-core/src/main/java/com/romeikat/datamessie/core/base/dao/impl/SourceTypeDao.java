@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 import java.util.Collections;
 import java.util.List;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
@@ -31,7 +30,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
@@ -60,13 +58,15 @@ public class SourceTypeDao extends AbstractEntityWithIdAndVersionDao<SourceType>
     projectionList.add(Projections.property("id"), "id");
     projectionList.add(Projections.property("name"), "name");
     @SuppressWarnings("unchecked")
-    final List<SourceTypeDto> dtos = (List<SourceTypeDto>) sourceQuery.listForProjection(ssc, projectionList);
+    final List<SourceTypeDto> dtos =
+        (List<SourceTypeDto>) sourceQuery.listForProjection(ssc, projectionList);
     return dtos;
   }
 
   public List<SourceTypeDto> getAsDtos(final SharedSessionContract ssc, final long sourceId) {
     // Query: Source2SourceType
-    final EntityQuery<Source2SourceType> project2SourceQuery = new EntityQuery<>(Source2SourceType.class);
+    final EntityQuery<Source2SourceType> project2SourceQuery =
+        new EntityQuery<>(Source2SourceType.class);
     project2SourceQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     final List<Long> sourceTypeIds = project2SourceQuery.listIdsForProperty(ssc, "sourceTypeId");
     if (sourceTypeIds.isEmpty()) {
@@ -84,13 +84,15 @@ public class SourceTypeDao extends AbstractEntityWithIdAndVersionDao<SourceType>
     projectionList.add(Projections.property("id"), "id");
     projectionList.add(Projections.property("name"), "name");
     @SuppressWarnings("unchecked")
-    final List<SourceTypeDto> dtos = (List<SourceTypeDto>) sourceTypeQuery.listForProjection(ssc, projectionList);
+    final List<SourceTypeDto> dtos =
+        (List<SourceTypeDto>) sourceTypeQuery.listForProjection(ssc, projectionList);
     return dtos;
   }
 
   public List<SourceType> getOfSource(final SharedSessionContract ssc, final long sourceId) {
     // Query: Source2SourceType
-    final EntityQuery<Source2SourceType> project2SourceQuery = new EntityQuery<>(Source2SourceType.class);
+    final EntityQuery<Source2SourceType> project2SourceQuery =
+        new EntityQuery<>(Source2SourceType.class);
     project2SourceQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     final List<Long> sourceTypeIds = project2SourceQuery.listIdsForProperty(ssc, "sourceTypeId");
 

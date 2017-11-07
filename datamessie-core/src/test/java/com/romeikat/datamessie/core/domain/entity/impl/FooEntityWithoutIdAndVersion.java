@@ -23,22 +23,20 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithoutIdAndVersion;
 
 @Entity
-@Table(name = FooEntityWithoutIdAndVersion.TABLE_NAME,
-    uniqueConstraints = {@UniqueConstraint(name = "fooEntityWithoutIdAndVersion_name", columnNames = {"name"})})
-public class FooEntityWithoutIdAndVersion extends AbstractEntityWithoutIdAndVersion implements Serializable {
+@Table(name = FooEntityWithoutIdAndVersion.TABLE_NAME, uniqueConstraints = {
+    @UniqueConstraint(name = "fooEntityWithoutIdAndVersion_name", columnNames = {"name"})})
+public class FooEntityWithoutIdAndVersion extends AbstractEntityWithoutIdAndVersion
+    implements Serializable {
 
   public static final String TABLE_NAME = "fooEntityWithoutIdAndVersion";
 

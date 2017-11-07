@@ -26,9 +26,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -38,7 +36,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
@@ -110,7 +107,8 @@ public class RssCrawlingInitializer {
     synchronized (crawlingProjectIds) {
       // Only add project if not yet added
       if (crawlingProjectIds.contains(projectId)) {
-        LOG.debug("Not adding project {} as a crawling has already scheduled for that project", projectId);
+        LOG.debug("Not adding project {} as a crawling has already scheduled for that project",
+            projectId);
         return;
       }
       // Add crawling
@@ -119,10 +117,12 @@ public class RssCrawlingInitializer {
       // Schedule crawlings
       new IntervalTaskSchedulingThread() {
 
-        private final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
+        private final HibernateSessionProvider sessionProvider =
+            new HibernateSessionProvider(sessionFactory);
 
         private Project getProject() {
-          final Project project = projectDao.getEntity(sessionProvider.getStatelessSession(), projectId);
+          final Project project =
+              projectDao.getEntity(sessionProvider.getStatelessSession(), projectId);
           sessionProvider.closeStatelessSession();
           return project;
         }
@@ -133,7 +133,8 @@ public class RssCrawlingInitializer {
           if (project == null) {
             return null;
           }
-          final RssCrawlingTask task = (RssCrawlingTask) ctx.getBean(RssCrawlingTask.BEAN_NAME, project);
+          final RssCrawlingTask task =
+              (RssCrawlingTask) ctx.getBean(RssCrawlingTask.BEAN_NAME, project);
           return task;
         }
 
@@ -164,8 +165,8 @@ public class RssCrawlingInitializer {
           if (project == null) {
             return null;
           }
-          final LocalDateTime latestCrawlingStart =
-              crawlingDao.getStartOfLatestCompletedCrawling(sessionProvider.getStatelessSession(), project.getId());
+          final LocalDateTime latestCrawlingStart = crawlingDao.getStartOfLatestCompletedCrawling(
+              sessionProvider.getStatelessSession(), project.getId());
           sessionProvider.closeStatelessSession();
           return latestCrawlingStart;
         }

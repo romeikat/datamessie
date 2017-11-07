@@ -25,13 +25,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
@@ -71,7 +69,8 @@ public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends Ab
   }
 
   @Override
-  public Map<Long, E> getIdsWithEntities(final SharedSessionContract ssc, final Collection<Long> ids) {
+  public Map<Long, E> getIdsWithEntities(final SharedSessionContract ssc,
+      final Collection<Long> ids) {
     final List<E> objects = getEntities(ssc, ids);
     final Map<Long, E> result = Maps.uniqueIndex(objects, s -> s.getId());
     return result;
@@ -83,7 +82,8 @@ public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends Ab
   }
 
   @Override
-  public List<Long> getIds(final SharedSessionContract ssc, final Integer firstResult, final Integer maxResults) {
+  public List<Long> getIds(final SharedSessionContract ssc, final Integer firstResult,
+      final Integer maxResults) {
     // Query
     final EntityWithIdQuery<E> query = new EntityWithIdQuery<>(getEntityClass());
     query.setFirstResult(firstResult);
@@ -116,8 +116,8 @@ public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends Ab
   }
 
   @Override
-  public List<Long> getIds(final SharedSessionContract ssc, final Collection<Long> ids, final Integer firstResult,
-      final Integer maxResults) {
+  public List<Long> getIds(final SharedSessionContract ssc, final Collection<Long> ids,
+      final Integer firstResult, final Integer maxResults) {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }

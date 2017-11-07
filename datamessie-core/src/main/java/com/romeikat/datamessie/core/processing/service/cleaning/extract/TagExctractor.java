@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StatelessSession;
 import org.jsoup.Jsoup;
@@ -36,7 +35,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
@@ -48,7 +46,8 @@ public class TagExctractor {
   private static final Logger LOG = LoggerFactory.getLogger(TagExctractor.class);
 
   public String extractContent(final StatelessSession statelessSession,
-      final DocumentsProcessingCache documentsProcessingCache, final RawContent rawContent, final Document document) {
+      final DocumentsProcessingCache documentsProcessingCache, final RawContent rawContent,
+      final Document document) {
     if (rawContent == null) {
       return null;
     }
@@ -84,11 +83,13 @@ public class TagExctractor {
     }
     LOG.warn(
         "Could not extract content of document {} ({}) as none of the tag selectors {} of source {} resulted in a unique match",
-        document.getId(), document.getUrl(), StringUtils.join(tagSelectors, ", "), document.getSourceId());
+        document.getId(), document.getUrl(), StringUtils.join(tagSelectors, ", "),
+        document.getSourceId());
     return null;
   }
 
-  private String extractContent(final RawContent rawContent, final Document document, final String tagSelector) {
+  private String extractContent(final RawContent rawContent, final Document document,
+      final String tagSelector) {
     if (tagSelector == null || tagSelector.isEmpty()) {
       return null;
     }
@@ -96,8 +97,9 @@ public class TagExctractor {
     String tagName = null;
     String idName = null;
     List<String> classNames = null;
-    final String warningMessage = "Could not apply tag selecting rule on document " + document.getId() + " ("
-        + document.getUrl() + ") due to malformed tag selector " + tagSelector + " of source " + document.getSourceId();
+    final String warningMessage = "Could not apply tag selecting rule on document "
+        + document.getId() + " (" + document.getUrl() + ") due to malformed tag selector "
+        + tagSelector + " of source " + document.getSourceId();
     try {
       final String[] parts = tagSelector.split("#");
       tagName = parts[0];
@@ -127,7 +129,8 @@ public class TagExctractor {
     final Elements elementsWithTagName = jsoupDocument.getElementsByTag(tagName);
     for (final Element elementWithTagName : elementsWithTagName) {
       final boolean idNameMatches = idName == null || elementWithTagName.id().equals(idName);
-      final boolean classNamesMatch = classNames == null || elementWithTagName.classNames().containsAll(classNames);
+      final boolean classNamesMatch =
+          classNames == null || elementWithTagName.classNames().containsAll(classNames);
       if (idNameMatches && classNamesMatch) {
         matchingElements.add(elementWithTagName);
       }

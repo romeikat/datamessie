@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import static com.ninja_squad.dbsetup.Operations.deleteAllFrom;
 import static com.ninja_squad.dbsetup.Operations.insertInto;
-
 import com.ninja_squad.dbsetup.operation.Insert;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;

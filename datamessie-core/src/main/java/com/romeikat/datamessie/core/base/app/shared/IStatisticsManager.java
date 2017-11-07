@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.time.LocalDate;
 import java.util.Collection;
-
 import com.google.common.base.Function;
 import com.romeikat.datamessie.core.base.util.sparsetable.SparseSingleTable;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
@@ -39,7 +38,8 @@ public interface IStatisticsManager extends ISharedBean {
 
   StatisticsDto getStatistics(long projectId, Integer numberOfDays);
 
-  <T> SparseSingleTable<Long, LocalDate, T> getStatistics(Collection<Long> sourceIds, LocalDate from, LocalDate to,
-      Function<LocalDate, LocalDate> transformDateFunction, Function<DocumentsPerState, T> transformValueFunction);
+  <T> SparseSingleTable<Long, LocalDate, T> getStatistics(Collection<Long> sourceIds,
+      LocalDate from, LocalDate to, Function<LocalDate, LocalDate> transformDateFunction,
+      Function<DocumentsPerState, T> transformValueFunction);
 
 }

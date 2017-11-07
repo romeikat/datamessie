@@ -28,13 +28,13 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 import com.romeikat.datamessie.core.domain.enums.Language;
 
 @Entity
 @Table(name = Source.TABLE_NAME,
-    uniqueConstraints = {@UniqueConstraint(name = "source_id_version", columnNames = {"id", "version"}),
+    uniqueConstraints = {
+        @UniqueConstraint(name = "source_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "source_name_url", columnNames = {"name", "url"})})
 public class Source extends AbstractEntityWithGeneratedIdAndVersion {
 

@@ -25,20 +25,17 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.cache.ILazyCache;
 import com.romeikat.datamessie.core.base.cache.NamedEntityName2NamedEntityIdCache;
 import com.romeikat.datamessie.core.base.service.NamedEntityService;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
-
 import jersey.repackaged.com.google.common.collect.Sets;
 
 @Repository
@@ -74,7 +71,8 @@ public class NamedEntityDao extends AbstractEntityWithIdAndVersionCachingDao<Nam
     invalidateNamedEntityName(statelessSession, namedEntity);
   }
 
-  private void invalidateNamedEntityName(final SharedSessionContract ssc, final NamedEntity namedEntity) {
+  private void invalidateNamedEntityName(final SharedSessionContract ssc,
+      final NamedEntity namedEntity) {
     final String namedEntityName = namedEntity.getName();
     namedEntityName2NamedEntityIdCache.invalidateKey(namedEntityName);
   }
@@ -138,13 +136,15 @@ public class NamedEntityDao extends AbstractEntityWithIdAndVersionCachingDao<Nam
     return namedEntity;
   }
 
-  public Map<Long, NamedEntity> loadForNamedEntityOccurrences(final SharedSessionContract sharedSessionContract,
+  public Map<Long, NamedEntity> loadForNamedEntityOccurrences(
+      final SharedSessionContract sharedSessionContract,
       final Collection<NamedEntityOccurrence> namedEntityOccurrences) {
-    final Set<Long> namedEntityIds =
-        namedEntityOccurrences.stream().map(neo -> neo.getNamedEntityId()).collect(Collectors.toSet());
-    namedEntityIds
-        .addAll(namedEntityOccurrences.stream().map(neo -> neo.getParentNamedEntityId()).collect(Collectors.toSet()));
-    final Map<Long, NamedEntity> namedEntitiesById = getIdsWithEntities(sharedSessionContract, namedEntityIds);
+    final Set<Long> namedEntityIds = namedEntityOccurrences.stream()
+        .map(neo -> neo.getNamedEntityId()).collect(Collectors.toSet());
+    namedEntityIds.addAll(namedEntityOccurrences.stream().map(neo -> neo.getParentNamedEntityId())
+        .collect(Collectors.toSet()));
+    final Map<Long, NamedEntity> namedEntitiesById =
+        getIdsWithEntities(sharedSessionContract, namedEntityIds);
     return namedEntitiesById;
   }
 

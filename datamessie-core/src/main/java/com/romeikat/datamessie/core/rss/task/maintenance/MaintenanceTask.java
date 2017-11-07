@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
@@ -134,7 +132,8 @@ public class MaintenanceTask implements Task {
   private void setCompletedTimestampForIncompleteCrawlings() {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
 
-    final List<Crawling> incompletedCrawlings = crawlingDao.getIncompleted(sessionProvider.getStatelessSession());
+    final List<Crawling> incompletedCrawlings =
+        crawlingDao.getIncompleted(sessionProvider.getStatelessSession());
     for (final Crawling crawling : incompletedCrawlings) {
       try {
         final LocalDateTime maxDownloaded =
@@ -164,9 +163,11 @@ public class MaintenanceTask implements Task {
     for (final List<Long> batch : batches) {
       new ParallelProcessing<Long>(sessionFactory, batch) {
         @Override
-        public void doProcessing(final HibernateSessionProvider sessionProvider, final Long documentId) {
+        public void doProcessing(final HibernateSessionProvider sessionProvider,
+            final Long documentId) {
           // Strip characters
-          final RawContent rawContent = rawContentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+          final RawContent rawContent =
+              rawContentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
           if (rawContent == null) {
             return;
           }
@@ -176,7 +177,8 @@ public class MaintenanceTask implements Task {
           if (!strippedContent.equals(content)) {
             rawContent.setContent(strippedContent);
             rawContentDao.update(sessionProvider.getStatelessSession(), rawContent);
-            final Document document = documentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+            final Document document =
+                documentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
             document.setState(DocumentProcessingState.DOWNLOADED);
             documentDao.update(sessionProvider.getStatelessSession(), document);
             LOG.info("Stripped invalid XML 1.0 characters from content of document {}", documentId);
@@ -187,7 +189,8 @@ public class MaintenanceTask implements Task {
     }
   }
 
-  private void unescapeHtmlCharsFromContent(final TaskExecution taskExecution) throws TaskCancelledException {
+  private void unescapeHtmlCharsFromContent(final TaskExecution taskExecution)
+      throws TaskCancelledException {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     // Get all IDs
     final List<Long> ids = documentDao.getIds(sessionProvider.getStatelessSession());
@@ -197,9 +200,11 @@ public class MaintenanceTask implements Task {
     for (final List<Long> batch : batches) {
       new ParallelProcessing<Long>(sessionFactory, batch) {
         @Override
-        public void doProcessing(final HibernateSessionProvider sessionProvider, final Long documentId) {
+        public void doProcessing(final HibernateSessionProvider sessionProvider,
+            final Long documentId) {
           // Unescape characters
-          final RawContent rawContent = rawContentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+          final RawContent rawContent =
+              rawContentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
           if (rawContent == null) {
             return;
           }
@@ -208,11 +213,12 @@ public class MaintenanceTask implements Task {
           // Remove any preprocessed information
           rawContent.setContent(unescapedContent);
           rawContentDao.update(sessionProvider.getStatelessSession(), rawContent);
-          final Document document = documentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+          final Document document =
+              documentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
           document.setState(DocumentProcessingState.DOWNLOADED);
           documentDao.update(sessionProvider.getStatelessSession(), document);
-          final List<NamedEntityOccurrence> namedEntities =
-              namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), documentId);
+          final List<NamedEntityOccurrence> namedEntities = namedEntityOccurrenceDao
+              .getByDocument(sessionProvider.getStatelessSession(), documentId);
           for (final NamedEntityOccurrence namedEntity : namedEntities) {
             namedEntityOccurrenceDao.delete(sessionProvider.getStatelessSession(), namedEntity);
           }
@@ -223,7 +229,8 @@ public class MaintenanceTask implements Task {
     }
   }
 
-  private void unescapeHtmlCharsFromDocument(final TaskExecution taskExecution) throws TaskCancelledException {
+  private void unescapeHtmlCharsFromDocument(final TaskExecution taskExecution)
+      throws TaskCancelledException {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     // Get all IDs
     final List<Long> ids = documentDao.getIds(sessionProvider.getStatelessSession());
@@ -233,9 +240,11 @@ public class MaintenanceTask implements Task {
     for (final List<Long> batch : batches) {
       new ParallelProcessing<Long>(sessionFactory, batch) {
         @Override
-        public void doProcessing(final HibernateSessionProvider sessionProvider, final Long documentId) {
+        public void doProcessing(final HibernateSessionProvider sessionProvider,
+            final Long documentId) {
           // Unescape characters
-          final Document document = documentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
+          final Document document =
+              documentDao.getEntity(sessionProvider.getStatelessSession(), documentId);
           if (document == null) {
             return;
           }
@@ -245,9 +254,10 @@ public class MaintenanceTask implements Task {
           final String description = document.getDescription();
           final String unescapedDescription = StringEscapeUtils.unescapeHtml4(description);
           document.setDescription(unescapedDescription);
-          final boolean titleChanged = title != null && unescapedTitle != null && !title.equals(unescapedTitle);
-          final boolean descriptionChanged =
-              description != null && unescapedDescription != null && !description.equals(unescapedDescription);
+          final boolean titleChanged =
+              title != null && unescapedTitle != null && !title.equals(unescapedTitle);
+          final boolean descriptionChanged = description != null && unescapedDescription != null
+              && !description.equals(unescapedDescription);
           if (titleChanged || descriptionChanged) {
             documentDao.update(sessionProvider.getStatelessSession(), document);
             LOG.info("Unescaped HTML characters from document {}", documentId);

@@ -24,11 +24,9 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.List;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionContract;
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
@@ -47,14 +45,15 @@ public class DocumentsProcessingCache {
   private final DocumentsWithSourcesCache documentsWithSourcesCache;
   private final SourcesWithTagSelectingRulesCache sourcesWithTagSelectingRulesCache;
 
-  public DocumentsProcessingCache(final Collection<Document> documents, final ApplicationContext ctx) {
+  public DocumentsProcessingCache(final Collection<Document> documents,
+      final ApplicationContext ctx) {
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
     rawContentDao = ctx.getBean(RawContentDao.class);
     sourceDao = ctx.getBean(SourceDao.class);
 
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
-    documentsWithRawContentsCache =
-        new DocumentsWithRawContentsCache(sessionProvider.getStatelessSession(), rawContentDao, documents);
+    documentsWithRawContentsCache = new DocumentsWithRawContentsCache(
+        sessionProvider.getStatelessSession(), rawContentDao, documents);
     documentsWithSourcesCache =
         new DocumentsWithSourcesCache(sessionProvider.getStatelessSession(), sourceDao, documents);
     sourcesWithTagSelectingRulesCache = new SourcesWithTagSelectingRulesCache(ctx);
@@ -69,7 +68,8 @@ public class DocumentsProcessingCache {
     return documentsWithSourcesCache.get(documentId);
   }
 
-  public List<TagSelectingRule> getTagSelectingRules(final SharedSessionContract ssc, final long sourceId) {
+  public List<TagSelectingRule> getTagSelectingRules(final SharedSessionContract ssc,
+      final long sourceId) {
     return sourcesWithTagSelectingRulesCache.getValue(ssc, sourceId);
   }
 

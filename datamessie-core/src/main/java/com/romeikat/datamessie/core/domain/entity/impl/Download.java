@@ -27,12 +27,12 @@ import javax.persistence.Entity;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 
 @Entity
 @Table(name = Download.TABLE_NAME,
-    uniqueConstraints = {@UniqueConstraint(name = "download_id_version", columnNames = {"id", "version"}),
+    uniqueConstraints = {
+        @UniqueConstraint(name = "download_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "download_url_source_id", columnNames = {"url", "source_id"})},
     indexes = @Index(name = "FK_download_document_id", columnList = "document_id"))
 public class Download extends AbstractEntityWithGeneratedIdAndVersion {
@@ -49,7 +49,8 @@ public class Download extends AbstractEntityWithGeneratedIdAndVersion {
 
   public Download() {}
 
-  public Download(final long id, final long sourceId, final long documentId, final boolean success) {
+  public Download(final long id, final long sourceId, final long documentId,
+      final boolean success) {
     super(id);
     this.sourceId = sourceId;
     this.documentId = documentId;

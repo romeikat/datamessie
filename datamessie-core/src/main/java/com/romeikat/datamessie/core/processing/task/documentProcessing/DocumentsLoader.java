@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -61,11 +59,12 @@ public class DocumentsLoader {
   private DocumentsLoader() {}
 
   public List<Document> loadDocumentsToProcess(final StatelessSession statelessSession,
-      final TaskExecution taskExecution, final LocalDate downloadedDate, final Collection<Long> failedDocumentIds)
-      throws TaskCancelledException {
+      final TaskExecution taskExecution, final LocalDate downloadedDate,
+      final Collection<Long> failedDocumentIds) throws TaskCancelledException {
     try {
       // Load documents
-      final List<Document> loadedDocuments = documentDao.getToProcess(statelessSession, downloadedDate, batchSize);
+      final List<Document> loadedDocuments =
+          documentDao.getToProcess(statelessSession, downloadedDate, batchSize);
 
       // Ignore failed documents (TODO: examine why these fail)
       final Predicate<Document> nonFailedDocumentPredicate = new Predicate<Document>() {
@@ -81,8 +80,9 @@ public class DocumentsLoader {
       final boolean wereDocumentsLoaded = !loadedDocuments.isEmpty();
       if (wereDocumentsLoaded) {
         final String singularPlural = loadedDocuments.size() == 1 ? "document" : "documents";
-        work = taskExecution.reportWorkStart(String.format("Loaded %s %s to process with download date %s",
-            loadedDocuments.size(), singularPlural, LocalDateConverter.INSTANCE_UI.convertToString(downloadedDate)));
+        work = taskExecution.reportWorkStart(
+            String.format("Loaded %s %s to process with download date %s", loadedDocuments.size(),
+                singularPlural, LocalDateConverter.INSTANCE_UI.convertToString(downloadedDate)));
         taskExecution.reportWorkEnd(work);
       }
       taskExecution.checkpoint();

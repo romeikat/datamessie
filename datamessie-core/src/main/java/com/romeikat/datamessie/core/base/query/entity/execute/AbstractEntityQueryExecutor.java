@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Criterion;
@@ -33,10 +32,8 @@ import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.ResultTransformer;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.domain.entity.Entity;
-
 import jersey.repackaged.com.google.common.base.Objects;
 
 public abstract class AbstractEntityQueryExecutor<E extends Entity, R> {
@@ -92,7 +89,8 @@ public abstract class AbstractEntityQueryExecutor<E extends Entity, R> {
     }
   }
 
-  public void applyOrderForProperty(final Collection<Order> orders, final String property, final Criteria criteria) {
+  public void applyOrderForProperty(final Collection<Order> orders, final String property,
+      final Criteria criteria) {
     for (final Order order : orders) {
       // Ordering is only supported for the projected property
       if (Objects.equal(order.getPropertyName(), property)) {
@@ -133,7 +131,8 @@ public abstract class AbstractEntityQueryExecutor<E extends Entity, R> {
     criteria.setProjection(Projections.count("id"));
   }
 
-  public void applyResultTransformer(final ResultTransformer resultTransformer, final Criteria criteria) {
+  public void applyResultTransformer(final ResultTransformer resultTransformer,
+      final Criteria criteria) {
     if (resultTransformer != null) {
       criteria.setResultTransformer(resultTransformer);
     }

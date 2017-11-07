@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Projection;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryListForProjectionExecutor;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
@@ -35,8 +34,8 @@ public class EntityWithIdQueryListForProjectionExecutor<E extends EntityWithId>
 
   private final IdRestrictionsDecider idRestrictionsDecider;
 
-  public EntityWithIdQueryListForProjectionExecutor(final SharedSessionContract ssc, final EntityWithIdQuery<E> query,
-      final Projection projection) {
+  public EntityWithIdQueryListForProjectionExecutor(final SharedSessionContract ssc,
+      final EntityWithIdQuery<E> query, final Projection projection) {
     super(ssc, query, projection);
 
     idRestrictionsDecider = new IdRestrictionsDecider(query);

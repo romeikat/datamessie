@@ -25,10 +25,8 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Projection;
-
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.query.entity.execute.entityWithId.EntityWithIdQueryCountExecutor;
 import com.romeikat.datamessie.core.base.query.entity.execute.entityWithId.EntityWithIdQueryListForProjectionExecutor;
@@ -40,7 +38,6 @@ import com.romeikat.datamessie.core.base.query.entity.execute.entityWithId.Entit
 import com.romeikat.datamessie.core.base.query.entity.execute.entityWithId.EntityWithIdQueryUniqueIdOfPropertyExecutor;
 import com.romeikat.datamessie.core.base.query.entity.execute.entityWithId.EntityWithIdQueryUniqueObjectExecutor;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 
 public class EntityWithIdQuery<E extends EntityWithId> extends EntityQuery<E> {

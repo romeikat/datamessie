@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.basic.Label;
@@ -40,7 +39,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.StringValue;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
-
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.service.SourceService;
@@ -85,8 +83,8 @@ public class SourcePage extends AbstractAuthenticatedPage {
 
     // Source
     final StringValue idParameter = getRequest().getRequestParameters().getParameterValue("id");
-    final SourceDto source =
-        idParameter.isNull() ? null : sourceDao.getAsDto(sessionProvider.getStatelessSession(), idParameter.toLong());
+    final SourceDto source = idParameter.isNull() ? null
+        : sourceDao.getAsDto(sessionProvider.getStatelessSession(), idParameter.toLong());
     // Model cannot be a LoadableDetachableModel as the contained DTO will be edited across
     // multiple Ajax requests (by RedirectingRulesPanel and TagSelectingRulesPanel)
     sourceModel = new Model<SourceDto>(source) {
@@ -99,8 +97,10 @@ public class SourcePage extends AbstractAuthenticatedPage {
         final StringValue idParameter = getRequest().getRequestParameters().getParameterValue("id");
         if (!idParameter.isNull() && oldSource != null) {
           if (oldSource.getId() != idParameter.toLong()) {
-            final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
-            final SourceDto newSource = sourceDao.getAsDto(sessionProvider.getStatelessSession(), idParameter.toLong());
+            final HibernateSessionProvider sessionProvider =
+                new HibernateSessionProvider(sessionFactory);
+            final SourceDto newSource =
+                sourceDao.getAsDto(sessionProvider.getStatelessSession(), idParameter.toLong());
             sessionProvider.closeStatelessSession();
             if (newSource != null) {
               return newSource;
@@ -119,7 +119,8 @@ public class SourcePage extends AbstractAuthenticatedPage {
 
           @Override
           protected void onSubmit() {
-            final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
+            final HibernateSessionProvider sessionProvider =
+                new HibernateSessionProvider(sessionFactory);
             new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
               @Override
               protected void execute(final StatelessSession statelessSession) {
@@ -153,7 +154,8 @@ public class SourcePage extends AbstractAuthenticatedPage {
     final TextField<String> urlTextField = new TextField<String>("url");
     sourceForm.add(urlTextField);
     // Link to URL
-    final ExternalLink urlLink = new ExternalLink("urlLink", new PropertyModel<String>(sourceModel, "url"));
+    final ExternalLink urlLink =
+        new ExternalLink("urlLink", new PropertyModel<String>(sourceModel, "url"));
     sourceForm.add(urlLink);
     // URL extracting rules
     final IModel<List<RedirectingRuleDto>> redirectingRulesModel =

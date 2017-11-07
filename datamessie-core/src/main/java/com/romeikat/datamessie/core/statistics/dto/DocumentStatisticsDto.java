@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 public class DocumentStatisticsDto {
@@ -39,8 +38,8 @@ public class DocumentStatisticsDto {
 
   public DocumentStatisticsDto() {}
 
-  public DocumentStatisticsDto(final long documentId, final long sourceId, final LocalDateTime published,
-      final DocumentProcessingState state) {
+  public DocumentStatisticsDto(final long documentId, final long sourceId,
+      final LocalDateTime published, final DocumentProcessingState state) {
     this.documentId = documentId;
     this.sourceId = sourceId;
     this.published = published;

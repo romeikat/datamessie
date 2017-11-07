@@ -22,14 +22,12 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.domain.entity.Entity;
 
@@ -70,7 +68,8 @@ public abstract class AbstractEntityDao<E extends Entity> implements EntityDao<E
    * @return
    */
   @Override
-  public List<E> getEntites(final SharedSessionContract ssc, final Integer firstResult, final Integer maxResults) {
+  public List<E> getEntites(final SharedSessionContract ssc, final Integer firstResult,
+      final Integer maxResults) {
     // Query
     final Criteria criteria = ssc.createCriteria(entityClass);
     final String defaultSortingProperty = defaultSortingProperty();
@@ -98,7 +97,8 @@ public abstract class AbstractEntityDao<E extends Entity> implements EntityDao<E
    * @return
    */
   @Override
-  public List<E> getEntitesByProperty(final SharedSessionContract ssc, final String property, final Object value) {
+  public List<E> getEntitesByProperty(final SharedSessionContract ssc, final String property,
+      final Object value) {
     return getEntitesByProperty(ssc, property, value, null, null);
   }
 
@@ -111,8 +111,8 @@ public abstract class AbstractEntityDao<E extends Entity> implements EntityDao<E
    * @return
    */
   @Override
-  public List<E> getEntitesByProperty(final SharedSessionContract ssc, final String property, final Object value,
-      final Integer firstResult, final Integer maxResults) {
+  public List<E> getEntitesByProperty(final SharedSessionContract ssc, final String property,
+      final Object value, final Integer firstResult, final Integer maxResults) {
     // Query
     final Criteria criteria = ssc.createCriteria(entityClass);
     if (property != null && value != null) {
@@ -143,7 +143,8 @@ public abstract class AbstractEntityDao<E extends Entity> implements EntityDao<E
    * @return
    */
   @Override
-  public E getUniqueEntityByProperty(final SharedSessionContract ssc, final String property, final Object value) {
+  public E getUniqueEntityByProperty(final SharedSessionContract ssc, final String property,
+      final Object value) {
     // Query
     final Criteria criteria = ssc.createCriteria(entityClass);
     if (property != null && value != null) {

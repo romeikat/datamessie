@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.io.File;
-
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.IRequestHandler;
@@ -52,7 +51,8 @@ public abstract class AjaxDownloadBehavior extends AbstractAjaxBehavior {
     final IResourceStream fileRsourceStream = new FileResourceStream(file);
     final IRequestHandler resourceStreamRequestHandler =
         new ResourceStreamRequestHandler(fileRsourceStream, file.getName());
-    getComponent().getRequestCycle().scheduleRequestHandlerAfterCurrent(resourceStreamRequestHandler);
+    getComponent().getRequestCycle()
+        .scheduleRequestHandlerAfterCurrent(resourceStreamRequestHandler);
   }
 
   protected abstract File getFile();

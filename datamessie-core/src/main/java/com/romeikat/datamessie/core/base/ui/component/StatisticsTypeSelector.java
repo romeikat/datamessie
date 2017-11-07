@@ -24,12 +24,10 @@ License along with this program.  If not, see
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.ui.choicerenderer.StatisticsTypesChoiceRenderer;
 import com.romeikat.datamessie.core.domain.enums.StatisticsType;

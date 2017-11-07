@@ -33,16 +33,13 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.util.Function.InvalidValueException;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
-
 import jersey.repackaged.com.google.common.collect.Sets;
 
 @Service
@@ -76,7 +73,8 @@ public class CollectionUtil {
     return result;
   }
 
-  public <T, U> Collection<Pair<T, U>> getPairs(final Collection<T> elements1, final Collection<U> elements2) {
+  public <T, U> Collection<Pair<T, U>> getPairs(final Collection<T> elements1,
+      final Collection<U> elements2) {
     final List<Pair<T, U>> pairs = new LinkedList<Pair<T, U>>();
     for (final T element1 : elements1) {
       for (final U element2 : elements2) {
@@ -90,7 +88,8 @@ public class CollectionUtil {
     return getPairsAsymmetric(elements, false);
   }
 
-  public <T> Collection<Pair<T, T>> getPairsAsymmetric(final Collection<T> elements, final boolean addSelfPairs) {
+  public <T> Collection<Pair<T, T>> getPairsAsymmetric(final Collection<T> elements,
+      final boolean addSelfPairs) {
     final List<T> elementsList = new ArrayList<T>(elements);
     final List<Pair<T, T>> pairs = new LinkedList<Pair<T, T>>();
     final int numberOfElements = elementsList.size();
@@ -114,7 +113,8 @@ public class CollectionUtil {
     return getPairsSymmetric(elements, false);
   }
 
-  public <T> Collection<Pair<T, T>> getPairsSymmetric(final Collection<T> elements, final boolean addSelfPairs) {
+  public <T> Collection<Pair<T, T>> getPairsSymmetric(final Collection<T> elements,
+      final boolean addSelfPairs) {
     final List<T> elementsList = new ArrayList<T>(elements);
     final List<Pair<T, T>> pairs = new LinkedList<Pair<T, T>>();
     final int numberOfElements = elementsList.size();
@@ -169,9 +169,10 @@ public class CollectionUtil {
     return powerSet;
   }
 
-  private <T> List<List<T>> extend(final List<List<T>> toBeProcessed, final T element, final Integer sizeOfSets,
-      final PowerSetCollector<T> powerSetCollector) {
-    final List<List<T>> toBeProcessedAfterExtension = new ArrayList<List<T>>(2 * toBeProcessed.size());
+  private <T> List<List<T>> extend(final List<List<T>> toBeProcessed, final T element,
+      final Integer sizeOfSets, final PowerSetCollector<T> powerSetCollector) {
+    final List<List<T>> toBeProcessedAfterExtension =
+        new ArrayList<List<T>>(2 * toBeProcessed.size());
     // Add previous sets
     toBeProcessedAfterExtension.addAll(toBeProcessed);
     // Add element to all previous sets
@@ -209,8 +210,8 @@ public class CollectionUtil {
     return indexOfMaxValue;
   }
 
-  public <T extends Comparable<? super T>> List<T> getCommonElementsSorted(final Collection<T> elements1,
-      final Collection<T> elements2) {
+  public <T extends Comparable<? super T>> List<T> getCommonElementsSorted(
+      final Collection<T> elements1, final Collection<T> elements2) {
     final List<T> commonElements = new ArrayList<T>(elements1);
     commonElements.retainAll(elements2);
     Collections.sort(commonElements);
@@ -229,7 +230,8 @@ public class CollectionUtil {
     return transformedSet;
   }
 
-  public <K, V1, V2> ConcurrentMap<K, V2> transformMap(final Map<K, V1> map, final Function<V1, V2> transformation) {
+  public <K, V1, V2> ConcurrentMap<K, V2> transformMap(final Map<K, V1> map,
+      final Function<V1, V2> transformation) {
     final List<K> indexes = new ArrayList<K>(map.keySet());
     final ConcurrentMap<K, V2> transformedMap = new ConcurrentHashMap<K, V2>();
     new ParallelProcessing<K>(null, indexes) {
@@ -248,7 +250,8 @@ public class CollectionUtil {
     return transformedMap;
   }
 
-  public static <T> List<List<T>> splitIntoSubListsBySize(final List<T> list, final int sizeOfSublists) {
+  public static <T> List<List<T>> splitIntoSubListsBySize(final List<T> list,
+      final int sizeOfSublists) {
     final List<List<T>> subLists = new ArrayList<List<T>>();
     // Only one sublist
     if (sizeOfSublists < 1) {
@@ -274,7 +277,8 @@ public class CollectionUtil {
     return subLists;
   }
 
-  public static <T> List<List<T>> splitIntoSubListsByNumber(final List<T> list, final int numberOfSublists) {
+  public static <T> List<List<T>> splitIntoSubListsByNumber(final List<T> list,
+      final int numberOfSublists) {
     final int sizeOfSublists = (int) Math.ceil((double) list.size() / (double) numberOfSublists);
     return splitIntoSubListsBySize(list, sizeOfSublists);
   }
@@ -286,7 +290,8 @@ public class CollectionUtil {
     return formattedNumber;
   }
 
-  public SortedMap<String, Double> getFirstItems(final SortedMap<String, Double> map, final int numberOfItems) {
+  public SortedMap<String, Double> getFirstItems(final SortedMap<String, Double> map,
+      final int numberOfItems) {
     if (numberOfItems <= 0) {
       return Collections.emptySortedMap();
     }

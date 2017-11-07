@@ -26,12 +26,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 
 @Entity
 @Table(name = Project.TABLE_NAME,
-    uniqueConstraints = {@UniqueConstraint(name = "project_id_version", columnNames = {"id", "version"}),
+    uniqueConstraints = {
+        @UniqueConstraint(name = "project_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "project_name", columnNames = {"name"}),
         @UniqueConstraint(name = "project_id_version", columnNames = {"id", "version"})})
 public class Project extends AbstractEntityWithGeneratedIdAndVersion {
@@ -48,7 +48,8 @@ public class Project extends AbstractEntityWithGeneratedIdAndVersion {
 
   public Project() {}
 
-  public Project(final long id, final String name, final boolean crawlingEnabled, final boolean preprocessingEnabled) {
+  public Project(final long id, final String name, final boolean crawlingEnabled,
+      final boolean preprocessingEnabled) {
     super(id);
     this.name = name;
     this.crawlingEnabled = crawlingEnabled;

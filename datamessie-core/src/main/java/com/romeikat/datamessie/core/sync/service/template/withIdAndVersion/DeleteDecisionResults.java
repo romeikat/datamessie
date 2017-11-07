@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.List;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 
 public class DeleteDecisionResults {

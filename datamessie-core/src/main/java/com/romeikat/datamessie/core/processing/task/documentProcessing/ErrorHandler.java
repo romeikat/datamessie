@@ -24,13 +24,11 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Collections;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
@@ -52,10 +50,10 @@ public class ErrorHandler {
   private final NamedEntityOccurrencesUpdater namedEntityOccurrencesUpdater;
   private final DocumentDao documentDao;
 
-  public ErrorHandler(final ApplicationContext ctx, final Document document, final boolean deleteRawContent,
-      final boolean deleteCleanedContent, final boolean deleteStemmedContent,
-      final boolean deleteNamedEntityOccurrences, final DocumentProcessingState newState,
-      final Collection<Long> failedDocumentIds) {
+  public ErrorHandler(final ApplicationContext ctx, final Document document,
+      final boolean deleteRawContent, final boolean deleteCleanedContent,
+      final boolean deleteStemmedContent, final boolean deleteNamedEntityOccurrences,
+      final DocumentProcessingState newState, final Collection<Long> failedDocumentIds) {
     this.document = document;
     this.deleteRawContent = deleteRawContent;
     this.deleteCleanedContent = deleteCleanedContent;
@@ -69,7 +67,8 @@ public class ErrorHandler {
     documentDao = ctx.getBean("processingDocumentDao", DocumentDao.class);
   }
 
-  public void handleError(final StatelessSession statelessSession, final String reason, final Exception e) {
+  public void handleError(final StatelessSession statelessSession, final String reason,
+      final Exception e) {
     final StringBuilder msg = new StringBuilder();
     msg.append("An unexpected error occurred while processing document ");
     msg.append(document.getId());

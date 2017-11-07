@@ -26,7 +26,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.wicketstuff.select2.Select2Choice;
 import org.wicketstuff.select2.Settings;
-
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 
 public class SourceIdFilter extends Select2Choice<Long> {

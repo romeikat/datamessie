@@ -23,11 +23,9 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
@@ -45,8 +43,9 @@ public abstract class Executor<E extends Entity> {
   private final SessionFactory sessionFactory;
   private final Double parallelismFactor;;
 
-  public Executor(final DecisionResults<E> decisionResults, final SyncMode syncMode, final EntityDao<E> dao,
-      final Class<E> clazz, final SessionFactory sessionFactory, final Double parallelismFactor) {
+  public Executor(final DecisionResults<E> decisionResults, final SyncMode syncMode,
+      final EntityDao<E> dao, final Class<E> clazz, final SessionFactory sessionFactory,
+      final Double parallelismFactor) {
     this.decisionResults = decisionResults;
     this.syncMode = syncMode;
     this.entityDao = dao;
@@ -78,7 +77,8 @@ public abstract class Executor<E extends Entity> {
       }
 
       @Override
-      public void doProcessing(final HibernateSessionProvider rhsSessionProvider, final E rhsEntity) {
+      public void doProcessing(final HibernateSessionProvider rhsSessionProvider,
+          final E rhsEntity) {
         delete(rhsEntity, rhsSessionProvider);
       }
     };
@@ -97,7 +97,8 @@ public abstract class Executor<E extends Entity> {
       }
 
       @Override
-      public void doProcessing(final HibernateSessionProvider rhsSessionProvider, final E lhsEntity) {
+      public void doProcessing(final HibernateSessionProvider rhsSessionProvider,
+          final E lhsEntity) {
         create(lhsEntity, rhsSessionProvider);
       }
     };

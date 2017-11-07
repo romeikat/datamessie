@@ -24,21 +24,19 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.cache.ILazyCache;
 import com.romeikat.datamessie.core.base.cache.NamedEntityName2CategoriesCache;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
-
 import jersey.repackaged.com.google.common.collect.Sets;
 
 @Repository
-public class NamedEntityCategoryDao extends AbstractEntityWithIdAndVersionCachingDao<NamedEntityCategory> {
+public class NamedEntityCategoryDao
+    extends AbstractEntityWithIdAndVersionCachingDao<NamedEntityCategory> {
 
   // Cache: NamedEntity name -> category NamedEntity names
   private final NamedEntityName2CategoriesCache namedEntityName2CategoriesCache;
@@ -63,7 +61,8 @@ public class NamedEntityCategoryDao extends AbstractEntityWithIdAndVersionCachin
   }
 
   @Override
-  public void insert(final StatelessSession statelessSession, final NamedEntityCategory namedEntityCategory) {
+  public void insert(final StatelessSession statelessSession,
+      final NamedEntityCategory namedEntityCategory) {
     super.insert(statelessSession, namedEntityCategory);
 
     invalidateNamedEntityName(statelessSession, namedEntityCategory);
@@ -77,17 +76,22 @@ public class NamedEntityCategoryDao extends AbstractEntityWithIdAndVersionCachin
     namedEntityName2CategoriesCache.invalidateKey(namedEntityName);
   }
 
-  public boolean hasNamedEntityCategories(final SharedSessionContract ssc, final String namedEntityName) {
-    final Set<String> namedEntityCategoryNames = namedEntityName2CategoriesCache.getValue(ssc, namedEntityName);
+  public boolean hasNamedEntityCategories(final SharedSessionContract ssc,
+      final String namedEntityName) {
+    final Set<String> namedEntityCategoryNames =
+        namedEntityName2CategoriesCache.getValue(ssc, namedEntityName);
     return !namedEntityCategoryNames.isEmpty();
   }
 
-  public Set<String> getNamedEntityCategoryNames(final SharedSessionContract ssc, final String namedEntityName) {
-    final Set<String> namedEntityCategoryNames = namedEntityName2CategoriesCache.getValue(ssc, namedEntityName);
+  public Set<String> getNamedEntityCategoryNames(final SharedSessionContract ssc,
+      final String namedEntityName) {
+    final Set<String> namedEntityCategoryNames =
+        namedEntityName2CategoriesCache.getValue(ssc, namedEntityName);
     return namedEntityCategoryNames;
   }
 
-  public List<NamedEntityCategory> getByNamedEntity(final SharedSessionContract ssc, final NamedEntity namedEntity) {
+  public List<NamedEntityCategory> getByNamedEntity(final SharedSessionContract ssc,
+      final NamedEntity namedEntity) {
     return getEntitesByProperty(ssc, "namedEntityId", namedEntity.getId());
   }
 

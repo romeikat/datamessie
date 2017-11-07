@@ -28,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -61,7 +60,8 @@ public class TextUtil {
     return words;
   }
 
-  public String replaceAllAsWholeWord(final String text, final String replacing, final String replacement) {
+  public String replaceAllAsWholeWord(final String text, final String replacing,
+      final String replacement) {
     if (replacing == null || replacement == null) {
       return text;
     }
@@ -74,7 +74,8 @@ public class TextUtil {
       final String result = text.replaceAll(regex, replacement);
       return result;
     } catch (final Exception e) {
-      final String msg = String.format("Could not replace %s by %s in %s", replacing, replacement, text);
+      final String msg =
+          String.format("Could not replace %s by %s in %s", replacing, replacement, text);
       LOG.error(msg, e);
       return text;
     }

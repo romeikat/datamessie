@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryparser.analyzing.AnalyzingQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -37,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.ParseUtil;
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
@@ -56,12 +54,13 @@ public class LuceneQueryExecutor {
   @Autowired
   private QueryUtil queryUtil;
 
-  public int executeCount(final LuceneQuery luceneQuery, final FullTextSession fullTextSession, final Analyzer analyzer,
-      final String field) {
+  public int executeCount(final LuceneQuery luceneQuery, final FullTextSession fullTextSession,
+      final Analyzer analyzer, final String field) {
     LOG.debug("Executing count: {}", luceneQuery);
 
     try {
-      final FullTextQuery fullTextQuery = createFullTextQuery(luceneQuery, fullTextSession, analyzer, field);
+      final FullTextQuery fullTextQuery =
+          createFullTextQuery(luceneQuery, fullTextSession, analyzer, field);
       fullTextQuery.setProjection(FullTextQuery.ID, FullTextQuery.DOCUMENT_ID);
       final int resultSize = fullTextQuery.getResultSize();
       LOG.debug("Found {} matches", resultSize);
@@ -72,13 +71,15 @@ public class LuceneQueryExecutor {
     }
   }
 
-  public FullTextResult executeQuery(final LuceneQuery luceneQuery, final FullTextSession fullTextSession,
-      final Analyzer analyzer, final Class<?> clazz, final String field) {
+  public FullTextResult executeQuery(final LuceneQuery luceneQuery,
+      final FullTextSession fullTextSession, final Analyzer analyzer, final Class<?> clazz,
+      final String field) {
     LOG.debug("Executing query: {}", luceneQuery);
 
     List<Object[]> queryResult = new LinkedList<Object[]>();
     try {
-      final FullTextQuery fullTextQuery = createFullTextQuery(luceneQuery, fullTextSession, analyzer, field);
+      final FullTextQuery fullTextQuery =
+          createFullTextQuery(luceneQuery, fullTextSession, analyzer, field);
       fullTextQuery.setProjection(FullTextQuery.ID, FullTextQuery.DOCUMENT_ID);
       queryResult = fullTextQuery.list();
       LOG.debug("Found {} matches", queryResult.size());
@@ -88,11 +89,13 @@ public class LuceneQueryExecutor {
     }
     // Generate results
     final FullTextResult fullTextResult = new FullTextResult();
-    final List<String> queryTerms = parseUtil.parseTerms(luceneQuery.getLuceneQueryString(), analyzer, true);
+    final List<String> queryTerms =
+        parseUtil.parseTerms(luceneQuery.getLuceneQueryString(), analyzer, true);
     for (final Object[] fullTextRow : queryResult) {
       final long id = (long) fullTextRow[0];
       final int luceneDocumentId = (int) fullTextRow[1];
-      final List<String> matchingTerms = getMatchingTerms(fullTextSession, queryTerms, luceneDocumentId, clazz, field);
+      final List<String> matchingTerms =
+          getMatchingTerms(fullTextSession, queryTerms, luceneDocumentId, clazz, field);
       // Add to result
       fullTextResult.addFullTextMatch(id, luceneDocumentId, matchingTerms);
     }
@@ -100,8 +103,9 @@ public class LuceneQueryExecutor {
     return fullTextResult;
   }
 
-  private FullTextQuery createFullTextQuery(final LuceneQuery luceneQuery, final FullTextSession fullTextSession,
-      final Analyzer analyzer, final String field) throws ParseException {
+  private FullTextQuery createFullTextQuery(final LuceneQuery luceneQuery,
+      final FullTextSession fullTextSession, final Analyzer analyzer, final String field)
+      throws ParseException {
     BooleanQuery.setMaxClauseCount(Integer.MAX_VALUE);
     final AnalyzingQueryParser queryParser = new AnalyzingQueryParser(field, analyzer);
     final Query query = queryParser.parse(luceneQuery.getLuceneQueryString());
@@ -110,8 +114,9 @@ public class LuceneQueryExecutor {
     return fullTextQuery;
   }
 
-  private List<String> getMatchingTerms(final FullTextSession fullTextSession, final Collection<String> queryTerms,
-      final int luceneDocumentId, final Class<?> clazz, final String field) {
+  private List<String> getMatchingTerms(final FullTextSession fullTextSession,
+      final Collection<String> queryTerms, final int luceneDocumentId, final Class<?> clazz,
+      final String field) {
     // If query was for one term only, this is already the matching term
     if (queryTerms.size() == 1) {
       final List<String> matchingTerms = new ArrayList<String>(1);
@@ -121,8 +126,10 @@ public class LuceneQueryExecutor {
     // Otherwise, the matching terms must be determined via the index
     // (however, this decreases the performance)
     else {
-      final List<String> indexTerms = queryUtil.getIndexTerms(fullTextSession, luceneDocumentId, clazz, field);
-      final List<String> matchingTerms = collectionUtil.getCommonElementsSorted(queryTerms, indexTerms);
+      final List<String> indexTerms =
+          queryUtil.getIndexTerms(fullTextSession, luceneDocumentId, clazz, field);
+      final List<String> matchingTerms =
+          collectionUtil.getCommonElementsSorted(queryTerms, indexTerms);
       return matchingTerms;
 
     }

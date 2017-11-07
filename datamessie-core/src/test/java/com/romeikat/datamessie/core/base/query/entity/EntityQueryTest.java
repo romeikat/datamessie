@@ -29,11 +29,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.apache.commons.collections4.ListUtils;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -41,7 +39,6 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.ResultTransformer;
 import org.junit.Test;
 import org.mockito.Mock;
-
 import com.google.common.collect.Lists;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
@@ -64,8 +61,8 @@ public class EntityQueryTest extends AbstractDbSetupBasedTest {
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
         // Bar entities 1, 2, 3, 4
-        insertIntoBarEntity(barEntity1), insertIntoBarEntity(barEntity2), insertIntoBarEntity(barEntity3),
-        insertIntoBarEntity(barEntity4));
+        insertIntoBarEntity(barEntity1), insertIntoBarEntity(barEntity2),
+        insertIntoBarEntity(barEntity3), insertIntoBarEntity(barEntity4));
   }
 
   @Test
@@ -75,7 +72,8 @@ public class EntityQueryTest extends AbstractDbSetupBasedTest {
 
     final List<BarEntity> objects = query.listObjects(sessionProvider.getStatelessSession());
     final List<String> names = getNames(objects);
-    final List<String> expected = Arrays.asList("BarEntity1", "BarEntity2", "BarEntity3", "BarEntity4");
+    final List<String> expected =
+        Arrays.asList("BarEntity1", "BarEntity2", "BarEntity3", "BarEntity4");
     assertTrue(ListUtils.isEqualList(expected, names));
 
     dbSetupTracker.skipNextLaunch();
@@ -99,9 +97,10 @@ public class EntityQueryTest extends AbstractDbSetupBasedTest {
     query.addOrder(Order.asc("name"));
 
     @SuppressWarnings("unchecked")
-    final List<String> names =
-        (List<String>) query.listForProjection(sessionProvider.getStatelessSession(), Projections.property("name"));
-    final List<String> expected = Arrays.asList("BarEntity1", "BarEntity2", "BarEntity3", "BarEntity4");
+    final List<String> names = (List<String>) query
+        .listForProjection(sessionProvider.getStatelessSession(), Projections.property("name"));
+    final List<String> expected =
+        Arrays.asList("BarEntity1", "BarEntity2", "BarEntity3", "BarEntity4");
     assertTrue(ListUtils.isEqualList(expected, names));
 
     dbSetupTracker.skipNextLaunch();
@@ -134,8 +133,8 @@ public class EntityQueryTest extends AbstractDbSetupBasedTest {
     final EntityQuery<BarEntity> query = new EntityQuery<>(BarEntity.class);
     query.addRestriction(Restrictions.eq("name", "BarEntity1"));
 
-    final String name =
-        (String) query.uniqueForProjection(sessionProvider.getStatelessSession(), Projections.property("name"));
+    final String name = (String) query.uniqueForProjection(sessionProvider.getStatelessSession(),
+        Projections.property("name"));
     assertEquals("BarEntity1", name);
 
     dbSetupTracker.skipNextLaunch();
@@ -187,7 +186,8 @@ public class EntityQueryTest extends AbstractDbSetupBasedTest {
 
     final List<BarEntity> objects = query.listObjects(sessionProvider.getStatelessSession());
     final List<String> names = getNames(objects);
-    final List<String> expected = Arrays.asList("BarEntity4", "BarEntity3", "BarEntity2", "BarEntity1");
+    final List<String> expected =
+        Arrays.asList("BarEntity4", "BarEntity3", "BarEntity2", "BarEntity1");
     assertTrue(ListUtils.isEqualList(expected, names));
 
     dbSetupTracker.skipNextLaunch();

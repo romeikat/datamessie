@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
@@ -39,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.ParseUtil;
@@ -80,7 +78,8 @@ public class QueryUtil {
 
   public LuceneQuery toLuceneQuery(final OutOfQuery query, final Analyzer analyzer) {
     // Generate query string
-    final List<List<String>> permutations = collectionUtil.fromNChooseK(query.getQueryTerms(), query.getK());
+    final List<List<String>> permutations =
+        collectionUtil.fromNChooseK(query.getQueryTerms(), query.getK());
     final List<String> permutationStrings = new ArrayList<String>(permutations.size());
     for (final List<String> permutation : permutations) {
       if (!permutation.isEmpty()) {
@@ -94,9 +93,10 @@ public class QueryUtil {
     return new LuceneQuery(luceneQueryString);
   }
 
-  public List<String> getIndexTerms(final FullTextSession fullTextSession, final int luceneDocumentId,
-      final Class<?> clazz, final String field) {
-    final IndexReader indexReader = fullTextSession.getSearchFactory().getIndexReaderAccessor().open(clazz);
+  public List<String> getIndexTerms(final FullTextSession fullTextSession,
+      final int luceneDocumentId, final Class<?> clazz, final String field) {
+    final IndexReader indexReader =
+        fullTextSession.getSearchFactory().getIndexReaderAccessor().open(clazz);
     try {
       final Terms terms = indexReader.getTermVector(luceneDocumentId, field);
       final List<String> termsList = Lists.newArrayListWithExpectedSize((int) terms.size());

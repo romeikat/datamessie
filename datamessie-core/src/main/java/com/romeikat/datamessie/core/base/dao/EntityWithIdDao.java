@@ -25,9 +25,7 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import org.hibernate.SharedSessionContract;
-
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 
 
@@ -75,7 +73,8 @@ public interface EntityWithIdDao<E extends EntityWithId> extends EntityDao<E> {
    * @param maxResults
    * @return
    */
-  List<Long> getIds(SharedSessionContract ssc, Collection<Long> ids, Integer firstResult, Integer maxResults);
+  List<Long> getIds(SharedSessionContract ssc, Collection<Long> ids, Integer firstResult,
+      Integer maxResults);
 
   /**
    * Provides the ids of all entities.

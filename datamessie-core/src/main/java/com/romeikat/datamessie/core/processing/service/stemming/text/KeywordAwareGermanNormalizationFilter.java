@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.io.IOException;
-
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.de.GermanNormalizationFilter;

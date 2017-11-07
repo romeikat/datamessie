@@ -22,14 +22,12 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.List;
-
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
 
 @Repository
@@ -47,7 +45,8 @@ public class Source2SourceTypeDao extends AbstractEntityDao<Source2SourceType> {
     return null;
   }
 
-  public List<Source2SourceType> getForSourceId(final SharedSessionContract ssc, final long sourceId) {
+  public List<Source2SourceType> getForSourceId(final SharedSessionContract ssc,
+      final long sourceId) {
     // Query
     final Criteria criteria = ssc.createCriteria(Source2SourceType.class);
     criteria.add(Restrictions.eq("sourceId", sourceId));
@@ -57,7 +56,8 @@ public class Source2SourceTypeDao extends AbstractEntityDao<Source2SourceType> {
     return entities;
   }
 
-  public List<Source2SourceType> getForProjectId(final SharedSessionContract ssc, final long projectId) {
+  public List<Source2SourceType> getForProjectId(final SharedSessionContract ssc,
+      final long projectId) {
     // Query
     final Criteria criteria = ssc.createCriteria(Source2SourceType.class);
     criteria.add(Restrictions.eq("projectId", projectId));

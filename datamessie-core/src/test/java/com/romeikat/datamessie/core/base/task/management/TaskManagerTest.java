@@ -23,14 +23,11 @@ License along with this program.  If not, see
  */
 
 import static org.junit.Assert.assertEquals;
-
 import java.util.Collection;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.task.Task;
@@ -60,9 +57,11 @@ public class TaskManagerTest extends AbstractTest {
     executes(5, 5);
   }
 
-  private void executes(final int numberOfSuccessfulTasks, final int numberOfFailingTasks) throws Exception {
+  private void executes(final int numberOfSuccessfulTasks, final int numberOfFailingTasks)
+      throws Exception {
     // Successful tasks
-    final Collection<TaskExecution> successfulTaskExecutions = Sets.newHashSetWithExpectedSize(numberOfSuccessfulTasks);
+    final Collection<TaskExecution> successfulTaskExecutions =
+        Sets.newHashSetWithExpectedSize(numberOfSuccessfulTasks);
     for (int i = 0; i < numberOfSuccessfulTasks; i++) {
       final Task task = Mockito.spy(new FooTask());
       final TaskExecution taskExecution = taskManager.addTask(task);
@@ -70,7 +69,8 @@ public class TaskManagerTest extends AbstractTest {
     }
 
     // Failing tasks
-    final Collection<TaskExecution> failingTaskExecutions = Sets.newHashSetWithExpectedSize(numberOfFailingTasks);
+    final Collection<TaskExecution> failingTaskExecutions =
+        Sets.newHashSetWithExpectedSize(numberOfFailingTasks);
     for (int i = 0; i < numberOfFailingTasks; i++) {
       final Task task = Mockito.spy(new FooTask() {
         @Override

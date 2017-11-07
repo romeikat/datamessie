@@ -23,21 +23,20 @@ License along with this program.  If not, see
  */
 import java.time.LocalDateTime;
 import java.util.List;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 
 @Repository("rssCrawlingDao")
 public class CrawlingDao extends com.romeikat.datamessie.core.base.dao.impl.CrawlingDao {
 
-  public LocalDateTime getStartOfLatestCompletedCrawling(final SharedSessionContract ssc, final long projectId) {
+  public LocalDateTime getStartOfLatestCompletedCrawling(final SharedSessionContract ssc,
+      final long projectId) {
     // Query: Crawling
     final EntityQuery<Crawling> crawlingQuery = new EntityQuery<>(Crawling.class);
     crawlingQuery.addRestriction(Restrictions.eq("projectId", projectId));
@@ -46,7 +45,8 @@ public class CrawlingDao extends com.romeikat.datamessie.core.base.dao.impl.Craw
 
     // Done
     final Projection projection = Projections.max("started");
-    final LocalDateTime maxCompleted = (LocalDateTime) crawlingQuery.uniqueForProjection(ssc, projection);
+    final LocalDateTime maxCompleted =
+        (LocalDateTime) crawlingQuery.uniqueForProjection(ssc, projection);
     return maxCompleted;
   }
 

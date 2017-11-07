@@ -24,17 +24,17 @@ License along with this program.  If not, see
 
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.execute.AbstractEntityQueryExecutor;
 import com.romeikat.datamessie.core.domain.entity.Entity;
 
-public class EntityQueryUniqueIdOfPropertyExecutor<E extends Entity> extends AbstractEntityQueryExecutor<E, Long> {
+public class EntityQueryUniqueIdOfPropertyExecutor<E extends Entity>
+    extends AbstractEntityQueryExecutor<E, Long> {
 
   private final String propertyName;
 
-  public EntityQueryUniqueIdOfPropertyExecutor(final SharedSessionContract ssc, final EntityQuery<E> query,
-      final String propertyName) {
+  public EntityQueryUniqueIdOfPropertyExecutor(final SharedSessionContract ssc,
+      final EntityQuery<E> query, final String propertyName) {
     super(ssc, query);
 
     this.propertyName = propertyName;

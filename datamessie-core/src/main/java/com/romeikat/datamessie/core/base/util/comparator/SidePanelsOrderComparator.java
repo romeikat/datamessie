@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.io.Serializable;
 import java.util.Comparator;
-
 import com.romeikat.datamessie.core.base.ui.panel.SidePanel;
 
 public class SidePanelsOrderComparator implements Comparator<SidePanel>, Serializable {

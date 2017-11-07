@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
@@ -35,7 +34,6 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
-
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.domain.dto.CrawlingDto;
@@ -68,7 +66,8 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
 
   public Map<Document, Crawling> getForDocuments(final SharedSessionContract ssc,
       final Collection<Document> documents) {
-    final Set<Long> crawlingIds = documents.stream().map(d -> d.getCrawlingId()).collect(Collectors.toSet());
+    final Set<Long> crawlingIds =
+        documents.stream().map(d -> d.getCrawlingId()).collect(Collectors.toSet());
     final Map<Long, Crawling> crawlingsById = getIdsWithEntities(ssc, crawlingIds);
 
     final Map<Document, Crawling> result = Maps.newHashMapWithExpectedSize(documents.size());
@@ -104,7 +103,8 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
     projectionList.add(Projections.property("started"), "started");
     projectionList.add(Projections.property("completed"), "completed");
     @SuppressWarnings("unchecked")
-    final List<CrawlingDto> dtos = (List<CrawlingDto>) crawlingQuery.listForProjection(ssc, projectionList);
+    final List<CrawlingDto> dtos =
+        (List<CrawlingDto>) crawlingQuery.listForProjection(ssc, projectionList);
 
     // Set duration
     setDuration(dtos);
@@ -112,7 +112,8 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
     return dtos;
   }
 
-  public List<CrawlingOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc, final Long projectId) {
+  public List<CrawlingOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
+      final Long projectId) {
     // Query: Crawling
     final EntityQuery<Crawling> crawlingQuery = new EntityQuery<>(Crawling.class);
     if (projectId != null) {

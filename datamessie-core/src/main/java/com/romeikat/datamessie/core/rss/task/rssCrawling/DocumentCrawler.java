@@ -28,12 +28,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.service.DownloadService;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
@@ -46,7 +44,6 @@ import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.rss.service.DocumentService;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 import jersey.repackaged.com.google.common.collect.Sets;
 
@@ -70,8 +67,9 @@ public class DocumentCrawler {
     statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
   }
 
-  public void performCrawling(final StatelessSession statelessSession, final String title, final String description,
-      final LocalDateTime published, final DownloadResult downloadResult, final long crawlingId, final long sourceId) {
+  public void performCrawling(final StatelessSession statelessSession, final String title,
+      final String description, final LocalDateTime published, final DownloadResult downloadResult,
+      final long crawlingId, final long sourceId) {
     // Information from download result
     final String originalUrl = downloadResult.getOriginalUrl();
     final String url = downloadResult.getUrl();
@@ -81,20 +79,22 @@ public class DocumentCrawler {
     final DocumentProcessingState state = getState(content);
 
     // Find existing documents for the two URLs
-    final Collection<DocumentWithDownloads> existingDocumentsWithDownloads =
-        downloadService.getDocumentsWithDownloads(statelessSession, sourceId, Sets.newHashSet(originalUrl, url));
+    final Collection<DocumentWithDownloads> existingDocumentsWithDownloads = downloadService
+        .getDocumentsWithDownloads(statelessSession, sourceId, Sets.newHashSet(originalUrl, url));
 
     // No existing documents
     if (existingDocumentsWithDownloads.isEmpty()) {
-      processNewDownload(crawlingId, sourceId, originalUrl, url, downloaded, statusCode, content, title, description,
-          published, state, statelessSession);
+      processNewDownload(crawlingId, sourceId, originalUrl, url, downloaded, statusCode, content,
+          title, description, published, state, statelessSession);
     }
 
     // One existing document
     else if (existingDocumentsWithDownloads.size() == 1) {
-      final DocumentWithDownloads masterDocumentWithDownloads = existingDocumentsWithDownloads.iterator().next();
-      processRepeatedDownload(statelessSession, title, originalUrl, url, description, published, downloaded, state,
-          statusCode, crawlingId, sourceId, content, masterDocumentWithDownloads);
+      final DocumentWithDownloads masterDocumentWithDownloads =
+          existingDocumentsWithDownloads.iterator().next();
+      processRepeatedDownload(statelessSession, title, originalUrl, url, description, published,
+          downloaded, state, statusCode, crawlingId, sourceId, content,
+          masterDocumentWithDownloads);
     }
 
     // Multiple existing documents
@@ -106,21 +106,24 @@ public class DocumentCrawler {
           collectionUtil.getOthers(existingDocumentsWithDownloads, masterDocumentWithDownloads);
 
       // Process master
-      processRepeatedDownload(statelessSession, title, originalUrl, url, description, published, downloaded, state,
-          statusCode, crawlingId, sourceId, content, masterDocumentWithDownloads);
+      processRepeatedDownload(statelessSession, title, originalUrl, url, description, published,
+          downloaded, state, statusCode, crawlingId, sourceId, content,
+          masterDocumentWithDownloads);
 
       // Process slaves
-      processSlaveDocuments(sourceId, statelessSession, masterDocumentWithDownloads, slaveDocumentsWithDownloads);
+      processSlaveDocuments(sourceId, statelessSession, masterDocumentWithDownloads,
+          slaveDocumentsWithDownloads);
     }
   }
 
-  private void processNewDownload(final long crawlingId, final long sourceId, final String originalUrl,
-      final String url, final LocalDateTime downloaded, final Integer statusCode, final String content,
-      final String title, final String description, final LocalDateTime published, final DocumentProcessingState state,
+  private void processNewDownload(final long crawlingId, final long sourceId,
+      final String originalUrl, final String url, final LocalDateTime downloaded,
+      final Integer statusCode, final String content, final String title, final String description,
+      final LocalDateTime published, final DocumentProcessingState state,
       final StatelessSession statelessSession) {
     // Create new document
-    final Document document = documentService.createDocument(statelessSession, title, url, description, published,
-        downloaded, state, statusCode, crawlingId, sourceId);
+    final Document document = documentService.createDocument(statelessSession, title, url,
+        description, published, downloaded, state, statusCode, crawlingId, sourceId);
     final long documentId = document.getId();
 
     // Create new content
@@ -130,8 +133,10 @@ public class DocumentCrawler {
     }
 
     // Create new downloads
-    downloadService.insertOrUpdateDownloadForUrl(statelessSession, originalUrl, sourceId, documentId, downloadSuccess);
-    downloadService.insertOrUpdateDownloadForUrl(statelessSession, url, sourceId, documentId, downloadSuccess);
+    downloadService.insertOrUpdateDownloadForUrl(statelessSession, originalUrl, sourceId,
+        documentId, downloadSuccess);
+    downloadService.insertOrUpdateDownloadForUrl(statelessSession, url, sourceId, documentId,
+        downloadSuccess);
 
     // Rebuild statistics
     if (published != null) {
@@ -140,9 +145,10 @@ public class DocumentCrawler {
   }
 
   private void processRepeatedDownload(final StatelessSession statelessSession, final String title,
-      final String originalUrl, final String url, final String description, final LocalDateTime published,
-      final LocalDateTime downloaded, final DocumentProcessingState state, final Integer statusCode,
-      final long crawlingId, final long sourceId, final String content,
+      final String originalUrl, final String url, final String description,
+      final LocalDateTime published, final LocalDateTime downloaded,
+      final DocumentProcessingState state, final Integer statusCode, final long crawlingId,
+      final long sourceId, final String content,
       final DocumentWithDownloads masterDocumentWithDownloads) {
     final long documentId = masterDocumentWithDownloads.getDocumentId();
     final boolean downloadSuccess = content != null;
@@ -163,11 +169,12 @@ public class DocumentCrawler {
       final Document document = documentDao.getEntity(statelessSession, documentId);
       final LocalDate oldPublishedDate = document.getPublishedDate();
       final DocumentProcessingState oldState = document.getState();
-      documentService.updateDocument(statelessSession, document, documentId, title, url, description, published,
-          downloaded, state, statusCode, crawlingId);
+      documentService.updateDocument(statelessSession, document, documentId, title, url,
+          description, published, downloaded, state, statusCode, crawlingId);
       final LocalDate newPublishedDate = document.getPublishedDate();
       final DocumentProcessingState newState = document.getState();
-      if (!Objects.equals(oldPublishedDate, newPublishedDate) || !Objects.equals(oldState, newState)) {
+      if (!Objects.equals(oldPublishedDate, newPublishedDate)
+          || !Objects.equals(oldState, newState)) {
         statisticsToBeRebuilt.putValue(sourceId, oldPublishedDate, true);
         statisticsToBeRebuilt.putValue(sourceId, newPublishedDate, true);
       }
@@ -179,22 +186,26 @@ public class DocumentCrawler {
     }
 
     // Create new downloads (if necessary)
-    downloadService.insertOrUpdateDownloadForUrl(statelessSession, originalUrl, sourceId, documentId, downloadSuccess);
-    downloadService.insertOrUpdateDownloadForUrl(statelessSession, url, sourceId, documentId, downloadSuccess);
+    downloadService.insertOrUpdateDownloadForUrl(statelessSession, originalUrl, sourceId,
+        documentId, downloadSuccess);
+    downloadService.insertOrUpdateDownloadForUrl(statelessSession, url, sourceId, documentId,
+        downloadSuccess);
   }
 
   private void processSlaveDocuments(final long sourceId, final StatelessSession statelessSession,
       final DocumentWithDownloads masterDocumentWithDownloads,
       final Collection<DocumentWithDownloads> slaveDocumentsWithDownloads) {
     final long masterDocumentId = masterDocumentWithDownloads.getDocumentId();
-    final Collection<Long> slaveDownloadIds = downloadService.getDownloadIds(slaveDocumentsWithDownloads);
+    final Collection<Long> slaveDownloadIds =
+        downloadService.getDownloadIds(slaveDocumentsWithDownloads);
     final Collection<Document> slaveDocuments =
         downloadService.getDocuments(statelessSession, slaveDocumentsWithDownloads);
-    downloadService.mergeSlaveDocumentsIntoMasterDocument(sourceId, statelessSession, masterDocumentId,
-        slaveDownloadIds, slaveDocuments);
+    downloadService.mergeSlaveDocumentsIntoMasterDocument(sourceId, statelessSession,
+        masterDocumentId, slaveDownloadIds, slaveDocuments);
 
     for (final Document slaveDocument : slaveDocuments) {
-      statisticsToBeRebuilt.putValue(slaveDocument.getSourceId(), slaveDocument.getPublishedDate(), true);
+      statisticsToBeRebuilt.putValue(slaveDocument.getSourceId(), slaveDocument.getPublishedDate(),
+          true);
     }
   }
 
@@ -206,7 +217,8 @@ public class DocumentCrawler {
     }
 
     // Order by success and lowest ID
-    final List<DocumentWithDownloads> documentsWithDownloadsOrdered = Lists.newArrayList(documentsWithDownloads);
+    final List<DocumentWithDownloads> documentsWithDownloadsOrdered =
+        Lists.newArrayList(documentsWithDownloads);
     Collections.sort(documentsWithDownloadsOrdered, MasterDocumentWithDownloadsComparator.INSTANCE);
     final DocumentWithDownloads first = documentsWithDownloadsOrdered.iterator().next();
     return first;

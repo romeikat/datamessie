@@ -30,7 +30,6 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-
 import com.romeikat.datamessie.core.base.service.ProjectService;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
@@ -59,36 +58,36 @@ public class ProjectPage extends AbstractAuthenticatedPage {
 
   private void initialize() {
     // Form
-    final Form<ProjectDto> projectForm =
-        new Form<ProjectDto>("projectForm", new CompoundPropertyModel<ProjectDto>(getActiveProjectModel())) {
-          private static final long serialVersionUID = 1L;
+    final Form<ProjectDto> projectForm = new Form<ProjectDto>("projectForm",
+        new CompoundPropertyModel<ProjectDto>(getActiveProjectModel())) {
+      private static final long serialVersionUID = 1L;
 
-          @Override
-          protected void onSubmit() {
-            // TODO: integrate when authentication is implemented
-            // final HibernateSessionProvider sessionProvider = new
-            // HibernateSessionProvider(sessionFactory);
-            // new ExecuteWithTransaction(sessionProvider) {
-            //
-            // @Override
-            // protected void execute(final StatelessSession statelessSession) {
-            // projectService.updateProject(statelessSession, getModelObject());
-            // }
-            // }.execute();
+      @Override
+      protected void onSubmit() {
+        // TODO: integrate when authentication is implemented
+        // final HibernateSessionProvider sessionProvider = new
+        // HibernateSessionProvider(sessionFactory);
+        // new ExecuteWithTransaction(sessionProvider) {
+        //
+        // @Override
+        // protected void execute(final StatelessSession statelessSession) {
+        // projectService.updateProject(statelessSession, getModelObject());
+        // }
+        // }.execute();
 
-            // TODO: response (on failure only)
-            // PageParameters pageParameters = getPageParameters();
-            // final String usernameValue = username.getModelObject();
-            // pageParameters.set("username", usernameValue);
-            // setResponsePage(SuccessPage.class, pageParameters);
-          }
+        // TODO: response (on failure only)
+        // PageParameters pageParameters = getPageParameters();
+        // final String usernameValue = username.getModelObject();
+        // pageParameters.set("username", usernameValue);
+        // setResponsePage(SuccessPage.class, pageParameters);
+      }
 
-          @Override
-          protected void onConfigure() {
-            super.onConfigure();
-            setVisible(getModelObject() != null);
-          }
-        };
+      @Override
+      protected void onConfigure() {
+        super.onConfigure();
+        setVisible(getModelObject() != null);
+      }
+    };
     add(projectForm);
 
     // Name

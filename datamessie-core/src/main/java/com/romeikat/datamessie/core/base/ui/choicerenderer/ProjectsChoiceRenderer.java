@@ -23,10 +23,8 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
-
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
 
 public class ProjectsChoiceRenderer implements IChoiceRenderer<ProjectDto> {
@@ -44,7 +42,8 @@ public class ProjectsChoiceRenderer implements IChoiceRenderer<ProjectDto> {
   }
 
   @Override
-  public ProjectDto getObject(final String id, final IModel<? extends List<? extends ProjectDto>> choices) {
+  public ProjectDto getObject(final String id,
+      final IModel<? extends List<? extends ProjectDto>> choices) {
     final List<? extends ProjectDto> projects = choices.getObject();
     for (final ProjectDto project : projects) {
       if (Long.toString(project.getId()).equals(id)) {

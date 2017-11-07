@@ -24,18 +24,17 @@ License along with this program.  If not, see
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 
 @Entity
 @Table(name = NamedEntity.TABLE_NAME,
-    uniqueConstraints = {@UniqueConstraint(name = "namedEntity_id_version", columnNames = {"id", "version"}),
+    uniqueConstraints = {
+        @UniqueConstraint(name = "namedEntity_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "namedEntity_name", columnNames = {"name"})})
 public class NamedEntity extends AbstractEntityWithGeneratedIdAndVersion {
 

@@ -25,13 +25,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
-
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
@@ -47,7 +45,8 @@ public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAn
   }
 
   @Override
-  public Map<Long, Long> getIdsWithVersion(final SharedSessionContract ssc, final Collection<Long> ids) {
+  public Map<Long, Long> getIdsWithVersion(final SharedSessionContract ssc,
+      final Collection<Long> ids) {
     if (ids.isEmpty()) {
       return Collections.emptyMap();
     }
@@ -62,7 +61,8 @@ public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAn
     projectionList.add(Projections.property("id"), "id");
     projectionList.add(Projections.property("version"), "version");
     @SuppressWarnings("unchecked")
-    final List<IdAndVersion> idsAndVersions = (List<IdAndVersion>) query.listForProjection(ssc, projectionList);
+    final List<IdAndVersion> idsAndVersions =
+        (List<IdAndVersion>) query.listForProjection(ssc, projectionList);
 
     // Transform into map
     final Map<Long, Long> result = transformIntoMap(idsAndVersions);
@@ -78,8 +78,8 @@ public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAn
   }
 
   @Override
-  public Map<Long, Long> getIdsWithVersion(final SharedSessionContract ssc, final Integer firstResult,
-      final Integer maxResults) {
+  public Map<Long, Long> getIdsWithVersion(final SharedSessionContract ssc,
+      final Integer firstResult, final Integer maxResults) {
     // Query
     final EntityQuery<E> query = new EntityQuery<>(getEntityClass());
     query.setFirstResult(firstResult);
@@ -91,7 +91,8 @@ public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAn
     projectionList.add(Projections.property("id"), "id");
     projectionList.add(Projections.property("version"), "version");
     @SuppressWarnings("unchecked")
-    final List<IdAndVersion> idsAndVersions = (List<IdAndVersion>) query.listForProjection(ssc, projectionList);
+    final List<IdAndVersion> idsAndVersions =
+        (List<IdAndVersion>) query.listForProjection(ssc, projectionList);
 
     // Transform into map
     final Map<Long, Long> result = transformIntoMap(idsAndVersions);

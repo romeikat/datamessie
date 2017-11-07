@@ -28,9 +28,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
 
 @Path("/rest/fullTextResult")
@@ -45,7 +43,8 @@ public class RemoteFullTextProvider {
   @Path("/cleanedContent/{query}")
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public Response getContentIds(@PathParam("query") final String luceneQueryString) {
-    final FullTextResult fullTextResult = localFullTextSearcher.searchForCleanedContent(luceneQueryString);
+    final FullTextResult fullTextResult =
+        localFullTextSearcher.searchForCleanedContent(luceneQueryString);
     final Response response = buildResponse(fullTextResult);
     return response;
   }

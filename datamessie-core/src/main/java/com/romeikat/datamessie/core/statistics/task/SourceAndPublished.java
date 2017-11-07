@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDate;
-
 import org.apache.commons.lang3.tuple.MutablePair;
 
 class SourceAndPublished extends MutablePair<Long, LocalDate> {

@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import com.romeikat.datamessie.core.base.app.shared.ISharedBean;
 
 public abstract class AbstractDataMessieModule implements IDataMessieModule {

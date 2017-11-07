@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.Date;
-
 import com.romeikat.datamessie.core.base.util.converter.DateConverter;
 
 public class TaskExecutionWork {

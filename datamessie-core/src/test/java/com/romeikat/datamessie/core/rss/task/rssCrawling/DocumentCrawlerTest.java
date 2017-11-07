@@ -27,16 +27,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import java.time.LocalDateTime;
 import java.util.Collection;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
@@ -87,40 +84,52 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime now = LocalDateTime.now();
     // Document1 with download success
     final LocalDateTime published1 = now.minusDays(1);
-    final Document document1 = new Document(1, crawling1.getId(), source1.getId()).setTitle("Title1")
-        .setUrl("http://www.url1.de/").setDescription("Description1").setPublished(published1).setDownloaded(now)
-        .setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
+    final Document document1 =
+        new Document(1, crawling1.getId(), source1.getId()).setTitle("Title1")
+            .setUrl("http://www.url1.de/").setDescription("Description1").setPublished(published1)
+            .setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
     final Download download1 = new Download(1, 1, 1, true).setUrl("http://www.url1.de/");
     final Download download2 = new Download(2, 1, 1, true).setUrl("http://www.originalUrl1.de/");
     final RawContent rawContent1 = new RawContent(document1.getId(), "RawContent1");
     // Document2 with failed download
     final LocalDateTime published2 = now.minusDays(2);
-    final Document document2 = new Document(2, crawling1.getId(), source1.getId()).setTitle("Title2")
-        .setUrl("http://www.url2.de/").setDescription("Description2").setPublished(published2).setDownloaded(now)
-        .setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);
+    final Document document2 =
+        new Document(2, crawling1.getId(), source1.getId()).setTitle("Title2")
+            .setUrl("http://www.url2.de/").setDescription("Description2").setPublished(published2)
+            .setDownloaded(now).setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);
     final Download download3 = new Download(3, 1, 2, false).setUrl("http://www.url2.de/");
     final Download download4 = new Download(4, 1, 2, false).setUrl("http://www.originalUrl2.de/");
     // Document3 with download success, but redirection error
     final LocalDateTime published3 = now.minusDays(3);
-    final Document document3 = new Document(3, crawling1.getId(), source1.getId()).setTitle("Title3")
-        .setUrl("http://www.url3.de/").setDescription("Description3").setPublished(published3).setDownloaded(now)
+    final Document document3 = new Document(3, crawling1.getId(), source1.getId())
+        .setTitle("Title3").setUrl("http://www.url3.de/").setDescription("Description3")
+        .setPublished(published3).setDownloaded(now)
         .setState(DocumentProcessingState.REDIRECTING_ERROR).setStatusCode(200);
     final Download download5 = new Download(5, 1, 3, true).setUrl("http://www.url3.de/");
     final Download download6 = new Download(6, 1, 3, true).setUrl("http://www.originalUrl3.de/");
     final Download download7 = new Download(7, 1, 3, false).setUrl("http://www.redirectedUrl3.de/");
-    final Download download8 = new Download(8, 1, 3, false).setUrl("http://www.redirectedOriginalUrl3.de/");
+    final Download download8 =
+        new Download(8, 1, 3, false).setUrl("http://www.redirectedOriginalUrl3.de/");
     // Obsolete content4
     final RawContent rawContent4 = new RawContent(4, "RawContent4");
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
-        sequenceOf(CommonOperations.insertIntoProject(project1), CommonOperations.insertIntoSource(source1),
-            CommonOperations.insertIntoCrawling(crawling1), CommonOperations.insertIntoDocument(document1),
-            CommonOperations.insertIntoDocument(document2), CommonOperations.insertIntoDocument(document3),
-            CommonOperations.insertIntoDownload(download1), CommonOperations.insertIntoDownload(download2),
-            CommonOperations.insertIntoDownload(download3), CommonOperations.insertIntoDownload(download4),
-            CommonOperations.insertIntoDownload(download5), CommonOperations.insertIntoDownload(download6),
-            CommonOperations.insertIntoDownload(download7), CommonOperations.insertIntoDownload(download8),
-            CommonOperations.insertIntoRawContent(rawContent1), CommonOperations.insertIntoRawContent(rawContent4)));
+        sequenceOf(CommonOperations.insertIntoProject(project1),
+            CommonOperations.insertIntoSource(source1),
+            CommonOperations.insertIntoCrawling(crawling1),
+            CommonOperations.insertIntoDocument(document1),
+            CommonOperations.insertIntoDocument(document2),
+            CommonOperations.insertIntoDocument(document3),
+            CommonOperations.insertIntoDownload(download1),
+            CommonOperations.insertIntoDownload(download2),
+            CommonOperations.insertIntoDownload(download3),
+            CommonOperations.insertIntoDownload(download4),
+            CommonOperations.insertIntoDownload(download5),
+            CommonOperations.insertIntoDownload(download6),
+            CommonOperations.insertIntoDownload(download7),
+            CommonOperations.insertIntoDownload(download8),
+            CommonOperations.insertIntoRawContent(rawContent1),
+            CommonOperations.insertIntoRawContent(rawContent4)));
   }
 
   @Override
@@ -148,16 +157,16 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         new DownloadResult(originalUrlNew, urlNew, newRawContentNew, downloadedNew, statusCodeNew);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), titleNew, descriptionNew, publishedNew,
-        downloadResultNew, crawling1.getId(), source1.getId());
+    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), titleNew, descriptionNew,
+        publishedNew, downloadResultNew, crawling1.getId(), source1.getId());
 
     // New document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
     assertEquals(4, count);
 
     // Document metadata is set
-    final Document documentNew =
-        documentDao.getForUrlAndSource(sessionProvider.getStatelessSession(), urlNew, source1.getId());
+    final Document documentNew = documentDao
+        .getForUrlAndSource(sessionProvider.getStatelessSession(), urlNew, source1.getId());
     assertEquals(titleNew, documentNew.getTitle());
     assertEquals(urlNew, documentNew.getUrl());
     assertEquals(descriptionNew, documentNew.getDescription());
@@ -173,7 +182,8 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), documentNew.getId());
     assertEquals(2, downloadsNew.size());
     assertEqDownload(getDownload(downloadsNew, urlNew), urlNew, source1.getId(), true);
-    assertEqDownload(getDownload(downloadsNew, originalUrlNew), originalUrlNew, source1.getId(), true);
+    assertEqDownload(getDownload(downloadsNew, originalUrlNew), originalUrlNew, source1.getId(),
+        true);
 
     // Content is created
     final RawContent rawContentNew =
@@ -181,8 +191,10 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(newRawContentNew, rawContentNew.getContent());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(documentNew.getSourceId(), documentNew.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(documentNew.getSourceId(), documentNew.getPublishedDate()));
   }
 
   @Test
@@ -202,16 +214,16 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         new DownloadResult(originalUrlNew, urlNew, newRawContentNew, downloadedNew, statusCodeNew);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), titleNew, descriptionNew, publishedNew,
-        downloadResultNew, crawling1.getId(), source1.getId());
+    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), titleNew, descriptionNew,
+        publishedNew, downloadResultNew, crawling1.getId(), source1.getId());
 
     // New document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
     assertEquals(4, count);
 
     // Document metadata is set
-    final Document documentNew =
-        documentDao.getForUrlAndSource(sessionProvider.getStatelessSession(), urlNew, source1.getId());
+    final Document documentNew = documentDao
+        .getForUrlAndSource(sessionProvider.getStatelessSession(), urlNew, source1.getId());
     assertEquals(titleNew, documentNew.getTitle());
     assertEquals(urlNew, documentNew.getUrl());
     assertEquals(descriptionNew, documentNew.getDescription());
@@ -227,7 +239,8 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), documentNew.getId());
     assertEquals(2, downloadsNew.size());
     assertEqDownload(getDownload(downloadsNew, urlNew), urlNew, source1.getId(), false);
-    assertEqDownload(getDownload(downloadsNew, originalUrlNew), originalUrlNew, source1.getId(), false);
+    assertEqDownload(getDownload(downloadsNew, originalUrlNew), originalUrlNew, source1.getId(),
+        false);
 
     // No content is created
     final RawContent rawContentNew =
@@ -235,8 +248,10 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertNull(rawContentNew);
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(documentNew.getSourceId(), documentNew.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(documentNew.getSourceId(), documentNew.getPublishedDate()));
   }
 
   @Test
@@ -263,12 +278,12 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime downloaded1New = LocalDateTime.now();
     final Integer statusCode1New = 200;
     final String rawContent1New = "rawContent1New";
-    final DownloadResult downloadResult1New =
-        new DownloadResult(originalUrl1New, url1New, rawContent1New, downloaded1New, statusCode1New);
+    final DownloadResult downloadResult1New = new DownloadResult(originalUrl1New, url1New,
+        rawContent1New, downloaded1New, statusCode1New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New, description1New, published1New,
-        downloadResult1New, crawling1.getId(), source1.getId());
+    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+        description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -289,9 +304,11 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Collection<Download> downloads1 =
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), document1.getId());
     assertEquals(3, downloads1.size());
-    assertEqDownload(getDownload(downloads1, originalUrl1Old), originalUrl1Old, source1.getId(), true);
+    assertEqDownload(getDownload(downloads1, originalUrl1Old), originalUrl1Old, source1.getId(),
+        true);
     assertEqDownload(getDownload(downloads1, url1Old), url1Old, source1.getId(), true);
-    assertEqDownload(getDownload(downloads1, originalUrl1New), originalUrl1New, source1.getId(), true);
+    assertEqDownload(getDownload(downloads1, originalUrl1New), originalUrl1New, source1.getId(),
+        true);
     assertEqDownload(getDownload(downloads1, url1New), url1New, source1.getId(), true);
 
     // Content is not modified
@@ -299,8 +316,10 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(rawContent1Old, rawContent1.getContent());
 
     // Statistics are not rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertNull(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertNull(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
   }
 
   @Test
@@ -327,12 +346,12 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime downloaded1New = LocalDateTime.now();
     final Integer statusCode1New = 400;
     final String rawContent1New = null;
-    final DownloadResult downloadResult1New =
-        new DownloadResult(originalUrl1New, url1New, rawContent1New, downloaded1New, statusCode1New);
+    final DownloadResult downloadResult1New = new DownloadResult(originalUrl1New, url1New,
+        rawContent1New, downloaded1New, statusCode1New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New, description1New, published1New,
-        downloadResult1New, crawling1.getId(), source1.getId());
+    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+        description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -353,9 +372,11 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Collection<Download> downloads1 =
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), document1.getId());
     assertEquals(3, downloads1.size());
-    assertEqDownload(getDownload(downloads1, originalUrl1Old), originalUrl1Old, source1.getId(), true);
+    assertEqDownload(getDownload(downloads1, originalUrl1Old), originalUrl1Old, source1.getId(),
+        true);
     assertEqDownload(getDownload(downloads1, url1Old), url1Old, source1.getId(), true);
-    assertEqDownload(getDownload(downloads1, originalUrl1New), originalUrl1New, source1.getId(), false);
+    assertEqDownload(getDownload(downloads1, originalUrl1New), originalUrl1New, source1.getId(),
+        false);
     assertEqDownload(getDownload(downloads1, url1New), url1New, source1.getId(), true);
 
     // Content is not modified
@@ -363,8 +384,10 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(rawContent1Old, rawContent1.getContent());
 
     // Statistics are not rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertNull(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertNull(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
   }
 
   @Test
@@ -384,12 +407,12 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime downloaded2New = LocalDateTime.now();
     final Integer statusCode2New = 200;
     final String rawContent2New = "rawContent2New";
-    final DownloadResult downloadResult2New =
-        new DownloadResult(originalUrl2New, url2New, rawContent2New, downloaded2New, statusCode2New);
+    final DownloadResult downloadResult2New = new DownloadResult(originalUrl2New, url2New,
+        rawContent2New, downloaded2New, statusCode2New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title2New, description2New, published2New,
-        downloadResult2New, crawling1.getId(), source1.getId());
+    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title2New,
+        description2New, published2New, downloadResult2New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -409,18 +432,23 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Collection<Download> downloads2 =
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), document2.getId());
     assertEquals(3, downloads2.size());
-    assertEqDownload(getDownload(downloads2, originalUrl2Old), originalUrl2Old, source1.getId(), false);
+    assertEqDownload(getDownload(downloads2, originalUrl2Old), originalUrl2Old, source1.getId(),
+        false);
     assertEqDownload(getDownload(downloads2, url2Old), url2Old, source1.getId(), true);
-    assertEqDownload(getDownload(downloads2, originalUrl2New), originalUrl2New, source1.getId(), true);
+    assertEqDownload(getDownload(downloads2, originalUrl2New), originalUrl2New, source1.getId(),
+        true);
     assertEqDownload(getDownload(downloads2, url2New), url2New, source1.getId(), true);
 
     // Content is created
-    final RawContent rawContent2 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), document2.getId());
+    final RawContent rawContent2 =
+        rawContentDao.getEntity(sessionProvider.getStatelessSession(), document2.getId());
     assertEquals(rawContent2New, rawContent2.getContent());
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
   }
 
   @Test
@@ -440,12 +468,12 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime downloaded2New = LocalDateTime.now();
     final Integer statusCode2New = 400;
     final String rawContent2New = null;
-    final DownloadResult downloadResult2New =
-        new DownloadResult(originalUrl2New, url2New, rawContent2New, downloaded2New, statusCode2New);
+    final DownloadResult downloadResult2New = new DownloadResult(originalUrl2New, url2New,
+        rawContent2New, downloaded2New, statusCode2New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title2New, description2New, published2New,
-        downloadResult2New, crawling1.getId(), source1.getId());
+    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title2New,
+        description2New, published2New, downloadResult2New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -465,18 +493,23 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Collection<Download> downloads2 =
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), document2.getId());
     assertEquals(3, downloads2.size());
-    assertEqDownload(getDownload(downloads2, originalUrl2Old), originalUrl2Old, source1.getId(), false);
+    assertEqDownload(getDownload(downloads2, originalUrl2Old), originalUrl2Old, source1.getId(),
+        false);
     assertEqDownload(getDownload(downloads2, url2Old), url2Old, source1.getId(), false);
-    assertEqDownload(getDownload(downloads2, originalUrl2New), originalUrl2New, source1.getId(), false);
+    assertEqDownload(getDownload(downloads2, originalUrl2New), originalUrl2New, source1.getId(),
+        false);
     assertEqDownload(getDownload(downloads2, url2New), url2New, source1.getId(), false);
 
     // No content is created
-    final RawContent rawContent2 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), document2.getId());
+    final RawContent rawContent2 =
+        rawContentDao.getEntity(sessionProvider.getStatelessSession(), document2.getId());
     assertNull(rawContent2);
 
     // Statistics are rebuilt
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertTrue(statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
   }
 
   @Test
@@ -512,12 +545,12 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime downloaded1New = LocalDateTime.now();
     final Integer statusCode1New = 200;
     final String rawContent1New = "rawContent1New";
-    final DownloadResult downloadResult1New =
-        new DownloadResult(originalUrl1New, url1New, rawContent1New, downloaded1New, statusCode1New);
+    final DownloadResult downloadResult1New = new DownloadResult(originalUrl1New, url1New,
+        rawContent1New, downloaded1New, statusCode1New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New, description1New, published1New,
-        downloadResult1New, crawling1.getId(), source1.getId());
+    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+        description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -551,9 +584,11 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Collection<Download> downloads1 =
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), document1.getId());
     assertEquals(4, downloads1.size());
-    assertEqDownload(getDownload(downloads1, originalUrl1Old), originalUrl1Old, source1.getId(), true);
+    assertEqDownload(getDownload(downloads1, originalUrl1Old), originalUrl1Old, source1.getId(),
+        true);
     assertEqDownload(getDownload(downloads1, url1Old), url1Old, source1.getId(), true);
-    assertEqDownload(getDownload(downloads1, originalUrl2Old), originalUrl2Old, source1.getId(), false);
+    assertEqDownload(getDownload(downloads1, originalUrl2Old), originalUrl2Old, source1.getId(),
+        false);
     assertEqDownload(getDownload(downloads1, url2Old), url2Old, source1.getId(), true);
     final Collection<Download> downloads2 =
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), document2.getId());
@@ -564,9 +599,12 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(rawContent1Old, rawCntent1.getContent());
 
     // Statistics are not rebuilt for document 1, but for document 2
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertNull(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
-    assertTrue(statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertNull(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document2.getSourceId(), document2.getPublishedDate()));
   }
 
   @Test
@@ -604,12 +642,12 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime downloaded1New = LocalDateTime.now();
     final Integer statusCode1New = 200;
     final String rawContent1New = "rawContent1New";
-    final DownloadResult downloadResult1New =
-        new DownloadResult(originalUrl1New, url1New, rawContent1New, downloaded1New, statusCode1New);
+    final DownloadResult downloadResult1New = new DownloadResult(originalUrl1New, url1New,
+        rawContent1New, downloaded1New, statusCode1New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New, description1New, published1New,
-        downloadResult1New, crawling1.getId(), source1.getId());
+    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+        description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -643,13 +681,16 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Collection<Download> downloads1 =
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), document1.getId());
     assertEquals(6, downloads1.size());
-    assertEqDownload(getDownload(downloads1, originalUrl1Old), originalUrl1Old, source1.getId(), true);
+    assertEqDownload(getDownload(downloads1, originalUrl1Old), originalUrl1Old, source1.getId(),
+        true);
     assertEqDownload(getDownload(downloads1, url1Old), url1Old, source1.getId(), true);
-    assertEqDownload(getDownload(downloads1, originalUrl3Old), originalUrl3Old, source1.getId(), true);
+    assertEqDownload(getDownload(downloads1, originalUrl3Old), originalUrl3Old, source1.getId(),
+        true);
     assertEqDownload(getDownload(downloads1, url3Old), url3Old, source1.getId(), true);
-    assertEqDownload(getDownload(downloads1, redirectedOriginalUrl3Old), redirectedOriginalUrl3Old, source1.getId(),
+    assertEqDownload(getDownload(downloads1, redirectedOriginalUrl3Old), redirectedOriginalUrl3Old,
+        source1.getId(), false);
+    assertEqDownload(getDownload(downloads1, redirectedUrl3Old), redirectedUrl3Old, source1.getId(),
         false);
-    assertEqDownload(getDownload(downloads1, redirectedUrl3Old), redirectedUrl3Old, source1.getId(), false);
     final Collection<Download> downloads3 =
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), document3.getId());
     assertEquals(0, downloads3.size());
@@ -659,9 +700,12 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(rawContent1Old, rawContent1.getContent());
 
     // Statistics are not rebuilt for document 1, but for document 2
-    final StatisticsRebuildingSparseTable statisticsToBeRebuilt = documentCrawler.getStatisticsToBeRebuilt();
-    assertNull(statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
-    assertTrue(statisticsToBeRebuilt.getValue(document3.getSourceId(), document3.getPublishedDate()));
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentCrawler.getStatisticsToBeRebuilt();
+    assertNull(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document3.getSourceId(), document3.getPublishedDate()));
   }
 
   private Download getDownload(final Collection<Download> downloads, final String url) {
@@ -674,7 +718,8 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     return null;
   }
 
-  private void assertEqDownload(final Download download, final String url, final long sourceId, final boolean success) {
+  private void assertEqDownload(final Download download, final String url, final long sourceId,
+      final boolean success) {
     assertNotNull(download);
     assertEquals(url, download.getUrl());
     assertEquals(sourceId, download.getSourceId());

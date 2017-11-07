@@ -28,20 +28,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithId;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 
 public class AbstractEntityWithIdDaoTest extends AbstractDbSetupBasedTest {
@@ -54,8 +50,8 @@ public class AbstractEntityWithIdDaoTest extends AbstractDbSetupBasedTest {
   @Override
   protected Operation initDb() {
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
-        insertInto("fooEntityWithId").columns("id", "name", "active").values(1L, "Foo1", true).values(2L, "Foo2", true)
-            .values(3L, "Foo3", false).build());
+        insertInto("fooEntityWithId").columns("id", "name", "active").values(1L, "Foo1", true)
+            .values(2L, "Foo2", true).values(3L, "Foo3", false).build());
   }
 
   @Test
@@ -77,7 +73,8 @@ public class AbstractEntityWithIdDaoTest extends AbstractDbSetupBasedTest {
   @Test
   public void getEntities() {
     final Collection<Long> ids = Lists.newArrayList(1l, 2l, 3l, NEW_ID);
-    final Collection<FooEntityWithId> foos = dao.getEntities(sessionProvider.getStatelessSession(), ids);
+    final Collection<FooEntityWithId> foos =
+        dao.getEntities(sessionProvider.getStatelessSession(), ids);
     assertEquals(3, foos.size());
 
     dbSetupTracker.skipNextLaunch();
@@ -86,7 +83,8 @@ public class AbstractEntityWithIdDaoTest extends AbstractDbSetupBasedTest {
   @Test
   public void getIdsWithEntities() {
     final Collection<Long> ids = Lists.newArrayList(1l, 2l, 3l, NEW_ID);
-    final Map<Long, FooEntityWithId> idsWithFoos = dao.getIdsWithEntities(sessionProvider.getStatelessSession(), ids);
+    final Map<Long, FooEntityWithId> idsWithFoos =
+        dao.getIdsWithEntities(sessionProvider.getStatelessSession(), ids);
     assertEquals(3, idsWithFoos.size());
     for (long id = 1; id <= 3l; id++) {
       final FooEntityWithId foo = idsWithFoos.get(id);
@@ -190,7 +188,8 @@ public class AbstractEntityWithIdDaoTest extends AbstractDbSetupBasedTest {
     assertEquals(NEW_ID, foo.getId());
     sessionProvider.closeStatelessSession();
 
-    final Collection<FooEntityWithId> foos = dao.getAllEntites(sessionProvider.getStatelessSession());
+    final Collection<FooEntityWithId> foos =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(4, foos.size());
     foo = dao.getEntity(sessionProvider.getStatelessSession(), NEW_ID);
     assertNotNull(foo);

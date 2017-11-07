@@ -24,9 +24,7 @@ License along with this program.  If not, see
 
 import java.time.LocalDateTime;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
-
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -36,7 +34,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
@@ -84,7 +81,8 @@ public class ProjectCrawler {
     sourceCrawler = new SourceCrawler(ctx);
   }
 
-  public void performCrawling(final TaskExecution taskExecution, final Project project) throws TaskCancelledException {
+  public void performCrawling(final TaskExecution taskExecution, final Project project)
+      throws TaskCancelledException {
     // Initialize
     taskExecution.reportWork(String.format("Performing crawling for project %s", project.getId()));
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
@@ -131,24 +129,27 @@ public class ProjectCrawler {
   }
 
   private List<Source> loadSources(final Project project, final StatelessSession statelessSession) {
-    final List<Source> sources = new ExecuteWithTransactionAndResult<List<Source>>(statelessSession) {
-      @Override
-      protected List<Source> executeWithResult(final StatelessSession statelessSession) {
-        return sourceDao.getOfProject(statelessSession, project.getId());
-      }
+    final List<Source> sources =
+        new ExecuteWithTransactionAndResult<List<Source>>(statelessSession) {
+          @Override
+          protected List<Source> executeWithResult(final StatelessSession statelessSession) {
+            return sourceDao.getOfProject(statelessSession, project.getId());
+          }
 
-      @Override
-      protected void onException(final Exception e) {
-        LOG.error("Could not create sources of project " + project.getId(), e);
-      };
-    }.execute();
+          @Override
+          protected void onException(final Exception e) {
+            LOG.error("Could not create sources of project " + project.getId(), e);
+          };
+        }.execute();
     return sources;
   }
 
-  private void performCrawling(final TaskExecution taskExecution, final Crawling crawling, final List<Source> sources) {
+  private void performCrawling(final TaskExecution taskExecution, final Crawling crawling,
+      final List<Source> sources) {
     new ParallelProcessing<Source>(sessionFactory, sources, sourcesParallelismFactor) {
       @Override
-      public void doProcessing(final HibernateSessionProvider sessionProvider, final Source source) {
+      public void doProcessing(final HibernateSessionProvider sessionProvider,
+          final Source source) {
         try {
           sourceCrawler.performCrawling(sessionProvider, taskExecution, crawling, source);
         } catch (final Exception e) {

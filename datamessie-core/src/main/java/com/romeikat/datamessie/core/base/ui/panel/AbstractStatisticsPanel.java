@@ -30,7 +30,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.model.IModel;
@@ -40,7 +39,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
@@ -90,16 +88,18 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
 
       @Override
       protected Map<Long, SourceOverviewDto> load() {
-        final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
+        final HibernateSessionProvider sessionProvider =
+            new HibernateSessionProvider(sessionFactory);
         final DocumentsFilterSettings dfs = DataMessieSession.get().getDocumentsFilterSettings();
         final Long projectId = dfs.getProjectId();
         final Long sourceId = dfs.getSourceId();
         final Collection<Long> sourceTypeIds = dfs.getSourceTypeIds();
-        final List<SourceOverviewDto> sources =
-            sourceDao.getAsOverviewDtos(sessionProvider.getStatelessSession(), projectId, sourceId, sourceTypeIds);
+        final List<SourceOverviewDto> sources = sourceDao.getAsOverviewDtos(
+            sessionProvider.getStatelessSession(), projectId, sourceId, sourceTypeIds);
         sessionProvider.closeStatelessSession();
 
-        final Map<Long, SourceOverviewDto> sourcesMap = Maps.newHashMapWithExpectedSize(sources.size());
+        final Map<Long, SourceOverviewDto> sourcesMap =
+            Maps.newHashMapWithExpectedSize(sources.size());
         for (final SourceOverviewDto source : sources) {
           sourcesMap.put(source.getId(), source);
         }
@@ -149,13 +149,14 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
     sourcePageParameters.set("id", source.getId());
     final IModel<String> labelModel = new PropertyModel<String>(source, "name");
     final BookmarkablePageLinkPanel<SourcePage> sourceLinkPanel =
-        new BookmarkablePageLinkPanel<SourcePage>(componentId, SourcePage.class, sourcePageParameters, labelModel);
+        new BookmarkablePageLinkPanel<SourcePage>(componentId, SourcePage.class,
+            sourcePageParameters, labelModel);
     return sourceLinkPanel;
   }
 
   @Override
-  protected Component getValueComponent(final String componentId, final Long sourceId, final LocalDate date,
-      final IModel<String> valueModel) {
+  protected Component getValueComponent(final String componentId, final Long sourceId,
+      final LocalDate date, final IModel<String> valueModel) {
     final LabelPanel statisticsPanel = new LabelPanel(componentId, valueModel);
     return statisticsPanel;
   }
@@ -170,13 +171,15 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
   }
 
   private Map<Long, String> getSourcesIdsNames() {
-    final Function<SourceOverviewDto, String> sourceToNameFunction = new Function<SourceOverviewDto, String>() {
-      @Override
-      public String apply(final SourceOverviewDto source) {
-        return source.getName();
-      }
-    };
-    final Map<Long, String> sourcesIdsNames = Maps.transformValues(sourcesModel.getObject(), sourceToNameFunction);
+    final Function<SourceOverviewDto, String> sourceToNameFunction =
+        new Function<SourceOverviewDto, String>() {
+          @Override
+          public String apply(final SourceOverviewDto source) {
+            return source.getName();
+          }
+        };
+    final Map<Long, String> sourcesIdsNames =
+        Maps.transformValues(sourcesModel.getObject(), sourceToNameFunction);
     return sourcesIdsNames;
   }
 
@@ -191,7 +194,8 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
     return statistics;
   }
 
-  protected abstract SparseSingleTable<Long, LocalDate, Z> getStatistics(Collection<Long> sourceIds);
+  protected abstract SparseSingleTable<Long, LocalDate, Z> getStatistics(
+      Collection<Long> sourceIds);
 
   @Override
   protected void onDetach() {

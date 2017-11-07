@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import org.apache.wicket.markup.html.form.TextField;
-
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
 
 public class StatisticsPeriodSelector extends TextField<Integer> {

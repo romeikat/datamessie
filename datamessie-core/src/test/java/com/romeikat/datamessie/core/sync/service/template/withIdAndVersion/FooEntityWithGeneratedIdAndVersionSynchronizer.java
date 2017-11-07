@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.FooEntityWithGeneratedIdAndVersionDao;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithGeneratedIdAndVersion;
@@ -50,7 +49,8 @@ public class FooEntityWithGeneratedIdAndVersionSynchronizer
   }
 
   @Override
-  protected EntityWithIdAndVersionDao<FooEntityWithGeneratedIdAndVersion> getDao(final ApplicationContext ctx) {
+  protected EntityWithIdAndVersionDao<FooEntityWithGeneratedIdAndVersion> getDao(
+      final ApplicationContext ctx) {
     return ctx.getBean(FooEntityWithGeneratedIdAndVersionDao.class);
   }
 

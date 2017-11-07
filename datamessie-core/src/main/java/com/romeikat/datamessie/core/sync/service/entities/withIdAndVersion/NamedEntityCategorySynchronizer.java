@@ -23,14 +23,14 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
-public class NamedEntityCategorySynchronizer extends EntityWithIdAndVersionSynchronizer<NamedEntityCategory> {
+public class NamedEntityCategorySynchronizer
+    extends EntityWithIdAndVersionSynchronizer<NamedEntityCategory> {
 
   public NamedEntityCategorySynchronizer(final ApplicationContext ctx) {
     super(NamedEntityCategory.class, ctx);
@@ -42,7 +42,8 @@ public class NamedEntityCategorySynchronizer extends EntityWithIdAndVersionSynch
   }
 
   @Override
-  protected void copyProperties(final NamedEntityCategory source, final NamedEntityCategory target) {
+  protected void copyProperties(final NamedEntityCategory source,
+      final NamedEntityCategory target) {
     target.setNamedEntityId(source.getNamedEntityId());
     target.setCategoryNamedEntityId(source.getCategoryNamedEntityId());
   }

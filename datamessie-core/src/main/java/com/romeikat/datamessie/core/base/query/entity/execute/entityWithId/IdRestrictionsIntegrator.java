@@ -24,12 +24,9 @@ License along with this program.  If not, see
 
 import java.util.List;
 import java.util.Set;
-
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
-
 import com.romeikat.datamessie.core.base.query.entity.execute.AbstractEntityQueryExecutor;
-
 import jersey.repackaged.com.google.common.collect.Sets;
 
 public class IdRestrictionsIntegrator {

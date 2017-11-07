@@ -26,10 +26,8 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import com.romeikat.datamessie.core.base.app.shared.IFullTextSearcher;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
@@ -52,10 +50,10 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
 
   public DocumentsFilterSettings() {}
 
-  public DocumentsFilterSettings(final Long projectId, final Long sourceId, final Boolean sourceVisible,
-      final Collection<Long> sourceTypeIds, final Long crawlingId, final LocalDate fromDate, final LocalDate toDate,
-      final String cleanedContent, final Collection<DocumentProcessingState> states,
-      final Collection<Long> documentIds) {
+  public DocumentsFilterSettings(final Long projectId, final Long sourceId,
+      final Boolean sourceVisible, final Collection<Long> sourceTypeIds, final Long crawlingId,
+      final LocalDate fromDate, final LocalDate toDate, final String cleanedContent,
+      final Collection<DocumentProcessingState> states, final Collection<Long> documentIds) {
     this.projectId = projectId;
     this.sourceId = sourceId;
     this.sourceVisible = sourceVisible;
@@ -69,8 +67,9 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
   }
 
   public boolean isEmpty() {
-    return projectId == null && sourceId == null && sourceVisible == null && sourceTypeIds == null && crawlingId == null
-        && fromDate == null && toDate == null && cleanedContent == null && states == null && documentIds == null;
+    return projectId == null && sourceId == null && sourceVisible == null && sourceTypeIds == null
+        && crawlingId == null && fromDate == null && toDate == null && cleanedContent == null
+        && states == null && documentIds == null;
   }
 
   public Long getProjectId() {
@@ -205,8 +204,8 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
       return;
     }
 
-    final FullTextResult fullTextResult =
-        sharedBeanProvider.getSharedBean(IFullTextSearcher.class).searchForCleanedContent(luceneQueryString);
+    final FullTextResult fullTextResult = sharedBeanProvider.getSharedBean(IFullTextSearcher.class)
+        .searchForCleanedContent(luceneQueryString);
     final Collection<Long> documentIds = fullTextResult.getIds();
 
     restrictToDocumentIds(documentIds);
@@ -215,8 +214,8 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
 
   @Override
   public DocumentsFilterSettings clone() {
-    return new DocumentsFilterSettings(projectId, sourceId, sourceVisible, sourceTypeIds, crawlingId, fromDate, toDate,
-        cleanedContent, states, documentIds);
+    return new DocumentsFilterSettings(projectId, sourceId, sourceVisible, sourceTypeIds,
+        crawlingId, fromDate, toDate, cleanedContent, states, documentIds);
   }
 
 }

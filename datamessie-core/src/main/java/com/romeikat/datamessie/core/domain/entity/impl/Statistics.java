@@ -23,18 +23,17 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDate;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Entity
 @Table(name = Statistics.TABLE_NAME,
-    uniqueConstraints = {@UniqueConstraint(name = "statistics_id_version", columnNames = {"id", "version"}),
+    uniqueConstraints = {
+        @UniqueConstraint(name = "statistics_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "statistics_source_id_published_state",
             columnNames = {"source_id", "published", "state"}),
         @UniqueConstraint(name = "statistics_published_source_id_state",
@@ -53,8 +52,8 @@ public class Statistics extends AbstractEntityWithGeneratedIdAndVersion {
 
   public Statistics() {}
 
-  public Statistics(final long id, final long sourceId, final LocalDate published, final DocumentProcessingState state,
-      final long documents) {
+  public Statistics(final long id, final long sourceId, final LocalDate published,
+      final DocumentProcessingState state, final long documents) {
     super(id);
     this.sourceId = sourceId;
     this.published = published;

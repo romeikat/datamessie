@@ -25,10 +25,8 @@ License along with this program.  If not, see
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
-
 import org.hibernate.criterion.Restrictions;
 import org.springframework.util.CollectionUtils;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -38,7 +36,8 @@ public class DocumentQuery extends EntityWithIdQuery<Document> {
   private final DocumentsFilterSettings dfs;
   private final Collection<? extends Collection<Long>> idRestrictions;
 
-  public DocumentQuery(final DocumentsFilterSettings dfs, final Collection<? extends Collection<Long>> idRestrictions) {
+  public DocumentQuery(final DocumentsFilterSettings dfs,
+      final Collection<? extends Collection<Long>> idRestrictions) {
     super(Document.class);
 
     this.dfs = dfs;
@@ -50,10 +49,12 @@ public class DocumentQuery extends EntityWithIdQuery<Document> {
   private void addRestrictions() {
     // Published
     if (dfs.getFromDate() != null) {
-      addRestriction(Restrictions.ge("published", LocalDateTime.of(dfs.getFromDate(), LocalTime.MIDNIGHT)));
+      addRestriction(
+          Restrictions.ge("published", LocalDateTime.of(dfs.getFromDate(), LocalTime.MIDNIGHT)));
     }
     if (dfs.getToDate() != null) {
-      addRestriction(Restrictions.lt("published", LocalDateTime.of(dfs.getToDate(), LocalTime.MIDNIGHT).plusDays(1)));
+      addRestriction(Restrictions.lt("published",
+          LocalDateTime.of(dfs.getToDate(), LocalTime.MIDNIGHT).plusDays(1)));
     }
 
     // States

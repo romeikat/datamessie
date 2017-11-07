@@ -23,10 +23,8 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
-
 import com.romeikat.datamessie.core.domain.entity.Entity;
 
 
@@ -56,8 +54,8 @@ public interface EntityDao<E extends Entity> {
    * @param maxResults
    * @return
    */
-  List<E> getEntitesByProperty(SharedSessionContract ssc, String property, Object value, Integer firstResult,
-      Integer maxResults);
+  List<E> getEntitesByProperty(SharedSessionContract ssc, String property, Object value,
+      Integer firstResult, Integer maxResults);
 
   /**
    * Provides a unique entity by a given property value.

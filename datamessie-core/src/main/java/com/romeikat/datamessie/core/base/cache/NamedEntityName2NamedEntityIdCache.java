@@ -24,11 +24,11 @@ License along with this program.  If not, see
 
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 
-public class NamedEntityName2NamedEntityIdCache extends AbstractLazyCache<String, Long, SharedSessionContract> {
+public class NamedEntityName2NamedEntityIdCache
+    extends AbstractLazyCache<String, Long, SharedSessionContract> {
 
   /**
    * We assume an average named entity name of 25 characters. Thus, each cache entry requires 25*2 +
@@ -48,7 +48,8 @@ public class NamedEntityName2NamedEntityIdCache extends AbstractLazyCache<String
   }
 
   private Long getNamedEntityId(final SharedSessionContract ssc, final String namedEntityName) {
-    final EntityWithIdQuery<NamedEntity> namedEntityQuery = new EntityWithIdQuery<>(NamedEntity.class);
+    final EntityWithIdQuery<NamedEntity> namedEntityQuery =
+        new EntityWithIdQuery<>(NamedEntity.class);
     namedEntityQuery.addRestriction(Restrictions.eq("name", namedEntityName));
     final Long namedEntityId = namedEntityQuery.uniqueId(ssc);
     return namedEntityId;

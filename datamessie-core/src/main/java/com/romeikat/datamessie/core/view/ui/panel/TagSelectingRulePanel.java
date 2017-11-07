@@ -23,14 +23,12 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDate;
-
 import org.apache.wicket.datetime.StyleDateConverter;
 import org.apache.wicket.extensions.yui.calendar.DatePicker;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
-
 import com.romeikat.datamessie.core.base.ui.behavior.ModelUpdatingBehavior;
 import com.romeikat.datamessie.core.base.ui.component.LocalDateTextField;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
@@ -39,12 +37,14 @@ public class TagSelectingRulePanel extends Panel {
 
   private static final long serialVersionUID = 1L;
 
-  public TagSelectingRulePanel(final String id, final IModel<TagSelectingRuleDto> tagSelectingRuleModel) {
+  public TagSelectingRulePanel(final String id,
+      final IModel<TagSelectingRuleDto> tagSelectingRuleModel) {
     super(id, tagSelectingRuleModel);
 
     // Active from
     final LocalDateTextField activeFromTextField = new LocalDateTextField("activeFrom",
-        new PropertyModel<LocalDate>(tagSelectingRuleModel, "activeFrom"), new StyleDateConverter("M-", false));
+        new PropertyModel<LocalDate>(tagSelectingRuleModel, "activeFrom"),
+        new StyleDateConverter("M-", false));
     add(activeFromTextField);
     activeFromTextField.add(new ModelUpdatingBehavior());
     // Active from date picker
@@ -55,7 +55,8 @@ public class TagSelectingRulePanel extends Panel {
 
     // Active to
     final LocalDateTextField activeToTextField = new LocalDateTextField("activeTo",
-        new PropertyModel<LocalDate>(tagSelectingRuleModel, "activeTo"), new StyleDateConverter("M-", false));
+        new PropertyModel<LocalDate>(tagSelectingRuleModel, "activeTo"),
+        new StyleDateConverter("M-", false));
     add(activeToTextField);
     activeToTextField.add(new ModelUpdatingBehavior());
     // Active to date picker
@@ -65,8 +66,8 @@ public class TagSelectingRulePanel extends Panel {
     activeToTextField.add(activeToDatePicker);
 
     // Tag selector
-    final TextField<String> tagSelectorTextField =
-        new TextField<String>("tagSelector", new PropertyModel<String>(tagSelectingRuleModel, "tagSelector"));
+    final TextField<String> tagSelectorTextField = new TextField<String>("tagSelector",
+        new PropertyModel<String>(tagSelectingRuleModel, "tagSelector"));
     tagSelectorTextField.add(new ModelUpdatingBehavior());
     add(tagSelectorTextField);
   }

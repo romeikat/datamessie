@@ -27,8 +27,10 @@ import java.time.format.DateTimeFormatter;
 
 public class LocalDateTimeConverter extends AbstractConverter<LocalDateTime> {
 
-  public static final LocalDateTimeConverter INSTANCE_UI = new LocalDateTimeConverter("dd.MM.yy HH:mm:ss");
-  public static final LocalDateTimeConverter INSTANCE_SYS = new LocalDateTimeConverter("yyyy-MM-dd_HH:mm:ss");
+  public static final LocalDateTimeConverter INSTANCE_UI =
+      new LocalDateTimeConverter("dd.MM.yy HH:mm:ss");
+  public static final LocalDateTimeConverter INSTANCE_SYS =
+      new LocalDateTimeConverter("yyyy-MM-dd_HH:mm:ss");
 
   private static final long serialVersionUID = 1L;
 

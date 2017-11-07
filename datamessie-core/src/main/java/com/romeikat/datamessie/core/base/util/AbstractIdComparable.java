@@ -24,7 +24,8 @@ License along with this program.  If not, see
 
 import com.romeikat.datamessie.core.domain.util.Identifiable;
 
-public abstract class AbstractIdComparable implements Comparable<AbstractIdComparable>, Identifiable {
+public abstract class AbstractIdComparable
+    implements Comparable<AbstractIdComparable>, Identifiable {
 
   @Override
   public boolean equals(final Object other) {

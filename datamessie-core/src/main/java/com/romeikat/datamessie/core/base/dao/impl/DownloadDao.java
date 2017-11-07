@@ -22,11 +22,9 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.List;
-
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 
@@ -52,7 +50,8 @@ public class DownloadDao extends AbstractEntityWithIdAndVersionDao<Download> {
     return downloads;
   }
 
-  public Download getForUrlAndSource(final SharedSessionContract ssc, final String url, final long sourceId) {
+  public Download getForUrlAndSource(final SharedSessionContract ssc, final String url,
+      final long sourceId) {
     if (url == null) {
       return null;
     }

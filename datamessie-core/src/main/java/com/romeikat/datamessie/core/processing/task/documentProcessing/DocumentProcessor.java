@@ -29,13 +29,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.service.DownloadService;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
@@ -59,7 +57,6 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecti
 import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirector;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmer;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmingResult;
-
 import jersey.repackaged.com.google.common.collect.Lists;
 import jersey.repackaged.com.google.common.collect.Sets;
 
@@ -84,7 +81,8 @@ public class DocumentProcessor {
   private final StatisticsRebuildingSparseTable statisticsToBeRebuilt;
   private final Set<Long> failedDocumentIds;
 
-  public DocumentProcessor(final ApplicationContext ctx, final DocumentsProcessingCache documentsProcessingCache) {
+  public DocumentProcessor(final ApplicationContext ctx,
+      final DocumentsProcessingCache documentsProcessingCache) {
     this.ctx = ctx;
     rawContentDao = ctx.getBean(RawContentDao.class);
     documentRedirector = ctx.getBean(DocumentRedirector.class);
@@ -118,7 +116,8 @@ public class DocumentProcessor {
     final DocumentProcessingState newState = processedDocument.getState();
 
     // Rebuild statistics
-    if (!Objects.equals(oldPublishedDate, newPublishedDate) || !Objects.equals(oldState, newState)) {
+    if (!Objects.equals(oldPublishedDate, newPublishedDate)
+        || !Objects.equals(oldState, newState)) {
       statisticsToBeRebuilt.putValue(document.getSourceId(), oldPublishedDate, true);
       statisticsToBeRebuilt.putValue(document.getSourceId(), newPublishedDate, true);
     }
@@ -129,16 +128,18 @@ public class DocumentProcessor {
     final RawContent rawContent = documentsProcessingCache.getRawContent(document.getId());
     if (rawContent == null && document.getState() != DocumentProcessingState.DOWNLOAD_ERROR) {
       // A missing raw content should only occur in case of a download error
-      new ErrorHandler(ctx, document, false, true, true, true, DocumentProcessingState.TECHNICAL_ERROR,
-          failedDocumentIds).handleError(statelessSession, "No raw content found", null);
+      new ErrorHandler(ctx, document, false, true, true, true,
+          DocumentProcessingState.TECHNICAL_ERROR, failedDocumentIds).handleError(statelessSession,
+              "No raw content found", null);
       return document;
     }
 
     // Determine language
     final Source source = documentsProcessingCache.getSource(document.getId());
     if (source == null) {
-      new ErrorHandler(ctx, document, false, true, true, true, DocumentProcessingState.TECHNICAL_ERROR,
-          failedDocumentIds).handleError(statelessSession, "No source found", null);
+      new ErrorHandler(ctx, document, false, true, true, true,
+          DocumentProcessingState.TECHNICAL_ERROR, failedDocumentIds).handleError(statelessSession,
+              "No source found", null);
       return document;
     }
     final Language language = source.getLanguage();
@@ -146,8 +147,8 @@ public class DocumentProcessor {
     // Process document
 
     if (document.getState() == DocumentProcessingState.DOWNLOAD_ERROR) {
-      new ErrorHandler(ctx, document, false, true, true, true, null, null).handleError(statelessSession,
-          "Downloading had failed", null);
+      new ErrorHandler(ctx, document, false, true, true, true, null, null)
+          .handleError(statelessSession, "Downloading had failed", null);
       return document;
     }
 
@@ -156,11 +157,13 @@ public class DocumentProcessor {
       if (document.getState() == DocumentProcessingState.DOWNLOADED) {
         final DocumentRedirectingResult documentRedirectingResult =
             documentRedirector.redirect(statelessSession, document, rawContent);
-        interpretRedirectingResult(statelessSession, documentRedirectingResult, document, rawContent);
+        interpretRedirectingResult(statelessSession, documentRedirectingResult, document,
+            rawContent);
       }
     } catch (final Exception e) {
-      new ErrorHandler(ctx, document, false, true, true, true, DocumentProcessingState.TECHNICAL_ERROR,
-          failedDocumentIds).handleError(statelessSession, "Redirecting failed", e);
+      new ErrorHandler(ctx, document, false, true, true, true,
+          DocumentProcessingState.TECHNICAL_ERROR, failedDocumentIds).handleError(statelessSession,
+              "Redirecting failed", e);
       return document;
     }
 
@@ -173,8 +176,9 @@ public class DocumentProcessor {
         interpretCleaningResult(statelessSession, documentCleaningResult, document);
       }
     } catch (final Exception e) {
-      new ErrorHandler(ctx, document, false, true, true, true, DocumentProcessingState.TECHNICAL_ERROR,
-          failedDocumentIds).handleError(statelessSession, "Cleaning failed", e);
+      new ErrorHandler(ctx, document, false, true, true, true,
+          DocumentProcessingState.TECHNICAL_ERROR, failedDocumentIds).handleError(statelessSession,
+              "Cleaning failed", e);
       return document;
     }
 
@@ -190,8 +194,9 @@ public class DocumentProcessor {
         interpretStemmingResult(statelessSession, documentStemmingResult, document);
       }
     } catch (final Exception e) {
-      new ErrorHandler(ctx, document, false, false, true, true, DocumentProcessingState.TECHNICAL_ERROR,
-          failedDocumentIds).handleError(statelessSession, "Stemming failed", e);
+      new ErrorHandler(ctx, document, false, false, true, true,
+          DocumentProcessingState.TECHNICAL_ERROR, failedDocumentIds).handleError(statelessSession,
+              "Stemming failed", e);
       return document;
     }
 
@@ -199,7 +204,8 @@ public class DocumentProcessor {
     final Collection<NamedEntityOccurrence> namedEntityOccurrences = namedEntityOccurrencesUpdater
         .updateNamedEntityOccurrences(statelessSession, document.getId(), namedEntityDetections);
     // Create NamedEntityCategories
-    namedEntityCategoriesCreator.createNamedEntityCategories(statelessSession, namedEntityOccurrences);
+    namedEntityCategoriesCreator.createNamedEntityCategories(statelessSession,
+        namedEntityOccurrences);
 
     documentDao.update(statelessSession, document);
 
@@ -207,7 +213,8 @@ public class DocumentProcessor {
   }
 
   private void interpretRedirectingResult(final StatelessSession statelessSession,
-      final DocumentRedirectingResult documentRedirectingResult, final Document document, final RawContent rawContent) {
+      final DocumentRedirectingResult documentRedirectingResult, final Document document,
+      final RawContent rawContent) {
 
     final String url = documentRedirectingResult.getRedirectedUrl();
     final boolean wasRedirectingUrlFound = StringUtils.isNotBlank(url);
@@ -218,7 +225,8 @@ public class DocumentProcessor {
     }
 
     // An URL for redirection was found
-    final DownloadResult redirectedDownloadResult = documentRedirectingResult.getRedirectedDownloadResult();
+    final DownloadResult redirectedDownloadResult =
+        documentRedirectingResult.getRedirectedDownloadResult();
     final String originalUrl = redirectedDownloadResult.getOriginalUrl();
     final LocalDateTime downloaded = redirectedDownloadResult.getDownloaded();
     final Integer statusCode = redirectedDownloadResult.getStatusCode();
@@ -228,12 +236,13 @@ public class DocumentProcessor {
 
     // Find existing documents for the two redirected URLs
     // (before their downloads might be overtaken by applying the redirection)
-    final Collection<DocumentWithDownloads> existingDocumentsWithDownloads = downloadService
-        .getDocumentsWithDownloads(statelessSession, document.getSourceId(), Sets.newHashSet(originalUrl, url));
+    final Collection<DocumentWithDownloads> existingDocumentsWithDownloads =
+        downloadService.getDocumentsWithDownloads(statelessSession, document.getSourceId(),
+            Sets.newHashSet(originalUrl, url));
 
     // Apply redirection
-    applyRedirection(statelessSession, document, rawContent, url, originalUrl, downloaded, statusCode, content, state,
-        downloadSuccess);
+    applyRedirection(statelessSession, document, rawContent, url, originalUrl, downloaded,
+        statusCode, content, state, downloadSuccess);
 
     // Merge documents, if necessary
     if (!existingDocumentsWithDownloads.isEmpty()) {
@@ -250,15 +259,17 @@ public class DocumentProcessor {
 
       // Process slaves
       final long masterDocumentId = masterDocumentWithDownloads.getDocumentId();
-      final Collection<Long> slaveDownloadIds = downloadService.getDownloadIds(slaveDocumentsWithDownloads);
+      final Collection<Long> slaveDownloadIds =
+          downloadService.getDownloadIds(slaveDocumentsWithDownloads);
       final Collection<Document> slaveDocuments =
           downloadService.getDocuments(statelessSession, slaveDocumentsWithDownloads);
-      downloadService.mergeSlaveDocumentsIntoMasterDocument(document.getSourceId(), statelessSession, masterDocumentId,
-          slaveDownloadIds, slaveDocuments);
+      downloadService.mergeSlaveDocumentsIntoMasterDocument(document.getSourceId(),
+          statelessSession, masterDocumentId, slaveDownloadIds, slaveDocuments);
 
       // Rebuild statistics
       for (final Document slaveDocument : slaveDocuments) {
-        statisticsToBeRebuilt.putValue(slaveDocument.getSourceId(), slaveDocument.getPublishedDate(), true);
+        statisticsToBeRebuilt.putValue(slaveDocument.getSourceId(),
+            slaveDocument.getPublishedDate(), true);
       }
     }
 
@@ -278,13 +289,14 @@ public class DocumentProcessor {
   }
 
   private void applyRedirection(final StatelessSession statelessSession, final Document document,
-      final RawContent rawContent, final String url, final String originalUrl, final LocalDateTime downloaded,
-      final Integer statusCode, final String content, final DocumentProcessingState state,
-      final boolean downloadSuccess) {
+      final RawContent rawContent, final String url, final String originalUrl,
+      final LocalDateTime downloaded, final Integer statusCode, final String content,
+      final DocumentProcessingState state, final boolean downloadSuccess) {
     // Download succeeded
     if (downloadSuccess) {
       // Update document
-      documentService.updateDocument(statelessSession, document, url, downloaded, state, statusCode);
+      documentService.updateDocument(statelessSession, document, url, downloaded, state,
+          statusCode);
 
       // Update content
       rawContent.setContent(content);
@@ -297,10 +309,10 @@ public class DocumentProcessor {
     }
 
     // Create new downloads (if necessary)
-    downloadService.insertOrUpdateDownloadForUrl(statelessSession, originalUrl, document.getSourceId(),
+    downloadService.insertOrUpdateDownloadForUrl(statelessSession, originalUrl,
+        document.getSourceId(), document.getId(), downloadSuccess);
+    downloadService.insertOrUpdateDownloadForUrl(statelessSession, url, document.getSourceId(),
         document.getId(), downloadSuccess);
-    downloadService.insertOrUpdateDownloadForUrl(statelessSession, url, document.getSourceId(), document.getId(),
-        downloadSuccess);
   }
 
   private Collection<DocumentWithDownloads> getAllDocumentsWithDownloads(
@@ -329,7 +341,8 @@ public class DocumentProcessor {
     }
 
     // Order by success and lowest ID
-    final List<DocumentWithDownloads> documentsWithDownloadsOrdered = Lists.newArrayList(documentsWithDownloads);
+    final List<DocumentWithDownloads> documentsWithDownloadsOrdered =
+        Lists.newArrayList(documentsWithDownloads);
     Collections.sort(documentsWithDownloadsOrdered, MasterDocumentWithDownloadsComparator.INSTANCE);
     final DocumentWithDownloads first = documentsWithDownloadsOrdered.iterator().next();
     return first;

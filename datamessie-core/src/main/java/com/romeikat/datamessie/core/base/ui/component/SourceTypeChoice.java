@@ -23,11 +23,9 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-
 import org.apache.wicket.model.IModel;
 import org.wicketstuff.select2.Select2MultiChoice;
 import org.wicketstuff.select2.Settings;
-
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 
 public class SourceTypeChoice extends Select2MultiChoice<SourceTypeDto> {
