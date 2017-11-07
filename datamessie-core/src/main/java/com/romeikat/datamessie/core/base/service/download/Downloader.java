@@ -27,12 +27,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
@@ -103,7 +105,7 @@ public class Downloader {
       // Server-side redirection
       final String responseUrl = getResponseUrl(urlConnection);
       if (responseUrl != null) {
-        final String redirectedUrl = responseUrl;
+        final String redirectedUrl = getRedirectedUrl(url, responseUrl);
         if (isValidRedirection(url, redirectedUrl)) {
           originalUrl = url;
           url = redirectedUrl;
@@ -318,6 +320,54 @@ public class Downloader {
     httpUrlConnection.setInstanceFollowRedirects(false);
     final String responseUrl = httpUrlConnection.getHeaderField("Location");
     return responseUrl;
+  }
+
+  private String getRedirectedUrl(final String url, final String responseUrl) throws MalformedURLException {
+    String result = responseUrl;
+
+    // Prepend host, if necessary
+    final String responseUrlHost = getHost(responseUrl);
+    if (StringUtils.isBlank(responseUrlHost)) {
+      final String urlHost = getHost(url);
+      if (StringUtils.isNotBlank(urlHost)) {
+        result = urlHost + result;
+      }
+    }
+
+    // Prepend protocol, if necessary
+    final String responseUrlProtocol = getProtocol(responseUrl);
+    if (StringUtils.isBlank(responseUrlProtocol)) {
+      final String urlProtocol = getProtocol(url);
+      if (StringUtils.isNotBlank(urlProtocol)) {
+        result = urlProtocol + "://" + result;
+      }
+    }
+
+    return result;
+  }
+
+  private String getHost(final String url) {
+    final URL urlAsUrl;
+    try {
+      urlAsUrl = new URL(url);
+    } catch (final Exception e) {
+      return null;
+    }
+
+    final String host = urlAsUrl.getHost();
+    return host;
+  }
+
+  private String getProtocol(final String url) {
+    final URL urlAsUrl;
+    try {
+      urlAsUrl = new URL(url);
+    } catch (final Exception e) {
+      return null;
+    }
+
+    final String protocol = urlAsUrl.getProtocol();
+    return protocol;
   }
 
   private void closeUrlConnection(final URLConnection urlConnection) {
