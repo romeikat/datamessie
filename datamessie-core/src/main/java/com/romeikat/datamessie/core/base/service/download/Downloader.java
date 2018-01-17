@@ -73,6 +73,12 @@ public class Downloader {
     SyndFeed syndFeed = null;
     try {
       urlConnection = getConnection(sourceUrl);
+      final String responseUrl = getResponseUrl(urlConnection);
+      if (responseUrl != null) {
+        closeUrlConnection(urlConnection);
+        urlConnection = getConnection(responseUrl);
+        LOG.debug("Redirection (server): {} -> {}", sourceUrl, responseUrl);
+      }
       final InputStream urlInputStream = asInputStream(urlConnection, true, false);
       xmlReader = new XmlReader(urlInputStream);
       final SyndFeedInput syndFeedInput = new SyndFeedInput();
@@ -107,6 +113,7 @@ public class Downloader {
         if (isValidRedirection(url, redirectedUrl)) {
           originalUrl = url;
           url = redirectedUrl;
+          closeUrlConnection(urlConnection);
           urlConnection = getConnection(url);
           LOG.debug("Redirection (server): {} -> {}", originalUrl, url);
         }
