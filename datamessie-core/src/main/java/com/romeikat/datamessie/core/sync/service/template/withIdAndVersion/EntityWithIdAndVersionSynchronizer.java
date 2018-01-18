@@ -38,7 +38,6 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.converter.IntegerConverter;
 import com.romeikat.datamessie.core.base.util.converter.LongConverter;
-import com.romeikat.datamessie.core.base.util.converter.PercentageConverter;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
@@ -116,26 +115,8 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     taskExecution.reportWork(msg);
 
     // Process in batches
-    final long rhsCount = dao.countAll(rhsSessionProvider.getStatelessSession());
     int firstResult = 0;
     while (true) {
-      // Don't update rhsCount, i.e. only process objects that existed in the beginning;
-      // this is to avoid endless processing of an entity without proceeding to the next one
-      if (firstResult >= rhsCount) {
-        rhsSessionProvider.closeStatelessSession();
-        return;
-      }
-
-      // Feedback
-      final long lastResult = Math.min(firstResult + batchSizeIds, rhsCount);
-      final double progress = (double) lastResult / (double) rhsCount;
-      msg = String.format("Processing %s to %s of %s (%s)",
-          IntegerConverter.INSTANCE.convertToString(firstResult + 1),
-          LongConverter.INSTANCE.convertToString(lastResult),
-          LongConverter.INSTANCE.convertToString(rhsCount),
-          PercentageConverter.INSTANCE_2.convertToString(progress));
-      final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
-
       // Load RHS
       final List<Long> rhsIds =
           dao.getIds(rhsSessionProvider.getStatelessSession(), firstResult, batchSizeIds);
@@ -143,6 +124,13 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
         rhsSessionProvider.closeStatelessSession();
         return;
       }
+
+      // Feedback
+      final long lastResult = firstResult + rhsIds.size();
+      msg = String.format("Processing %s to %s",
+          IntegerConverter.INSTANCE.convertToString(firstResult + 1),
+          LongConverter.INSTANCE.convertToString(lastResult));
+      final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
       // Delete RHS
       final int numberOfDeletedEntities = delete(rhsIds);
@@ -189,29 +177,8 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     taskExecution.reportWork(msg);
 
     // Process in batches
-    final long lhsCount =
-        SyncService.MAX_RESULTS == null ? dao.countAll(lhsSessionProvider.getStatelessSession())
-            : SyncService.MAX_RESULTS;
     int firstResult = 0;
     while (true) {
-      if (firstResult >= lhsCount) {
-        // Don't update rhsCount, i.e. only process objects that existed in the beginning;
-        // this is to avoid endless processing of an entity without proceeding to the next one
-        lhsSessionProvider.closeStatelessSession();
-        rhsSessionProvider.closeStatelessSession();
-        return;
-      }
-
-      // Feedback
-      final long lastResult = Math.min(firstResult + batchSizeIds, lhsCount);
-      final double progress = (double) lastResult / (double) lhsCount;
-      msg = String.format("Processing %s to %s of %s (%s)",
-          IntegerConverter.INSTANCE.convertToString(firstResult + 1),
-          LongConverter.INSTANCE.convertToString(lastResult),
-          LongConverter.INSTANCE.convertToString(lhsCount),
-          PercentageConverter.INSTANCE_2.convertToString(progress));
-      final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
-
       // Load LHS
       final Map<Long, Long> lhsIdsWithVersion = dao
           .getIdsWithVersion(lhsSessionProvider.getStatelessSession(), firstResult, batchSizeIds);
@@ -220,6 +187,13 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
         rhsSessionProvider.closeStatelessSession();
         return;
       }
+
+      // Feedback
+      final long lastResult = firstResult + lhsIdsWithVersion.size();
+      msg = String.format("Processing %s to %s",
+          IntegerConverter.INSTANCE.convertToString(firstResult + 1),
+          LongConverter.INSTANCE.convertToString(lastResult));
+      final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
       // Create or update RHS
       createOrUpdate(lhsIdsWithVersion, lhsSessionProvider.getStatelessSession(),
