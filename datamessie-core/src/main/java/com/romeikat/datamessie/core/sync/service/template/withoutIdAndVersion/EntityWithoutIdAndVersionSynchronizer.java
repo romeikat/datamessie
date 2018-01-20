@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
+import javax.persistence.PersistenceException;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
@@ -50,6 +51,7 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
   private final HibernateSessionProvider lhsSessionProvider;
   private final HibernateSessionProvider rhsSessionProvider;
   private final Double parallelismFactor;
+  private final long sleepingInterval = 60000;
 
   public EntityWithoutIdAndVersionSynchronizer(final Class<E> clazz, final ApplicationContext ctx) {
     this.clazz = clazz;
@@ -77,6 +79,20 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
     final String msg = String.format("Synchronizing %s", clazz.getSimpleName());
     final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
+    while (true) {
+      try {
+        synchronizeAll(taskExecution);
+        break;
+      } catch (final PersistenceException e) {
+        retry(taskExecution);
+      }
+    }
+
+    taskExecution.reportWorkEnd(work);
+    taskExecution.checkpoint();
+  }
+
+  private void synchronizeAll(final TaskExecution taskExecution) {
     // Load
     final Collection<E> lhsEntities = SyncService.MAX_RESULTS == null
         ? entityDao.getAllEntites(lhsSessionProvider.getStatelessSession())
@@ -100,8 +116,19 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
 
     lhsSessionProvider.closeStatelessSession();
     rhsSessionProvider.closeStatelessSession();
-    taskExecution.reportWorkEnd(work);
-    taskExecution.checkpoint();
+  }
+
+  private void retry(final TaskExecution taskExecution) {
+    lhsSessionProvider.closeStatelessSession();
+    rhsSessionProvider.closeStatelessSession();
+
+    final String msg =
+        String.format("Retrying in %,d seconds due to connection issues", sleepingInterval / 1000);
+    taskExecution.reportWork(msg);
+    try {
+      Thread.sleep(sleepingInterval);
+    } catch (final InterruptedException e) {
+    }
   }
 
   protected abstract void copyProperties(E source, E target);

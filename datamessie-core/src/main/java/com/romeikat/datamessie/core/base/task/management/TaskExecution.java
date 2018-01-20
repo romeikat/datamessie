@@ -267,6 +267,12 @@ public class TaskExecution {
     this.logFile = logFile;
   }
 
+  public TaskExecutionWork startWork() {
+    final TaskExecutionWork work = new TaskExecutionWork();
+    work.setStart(System.currentTimeMillis());
+    return work;
+  }
+
   public void reportWork(final String message) {
     final TaskExecutionWork work = new TaskExecutionWork(message);
     work.setStart(System.currentTimeMillis());
@@ -292,6 +298,19 @@ public class TaskExecution {
     // Logfile
     if (logFile != null) {
       fileUtil.appendToFile(logFile, "");
+    }
+  }
+
+  public void reportWorkStart(final TaskExecutionWork work, final String message) {
+    work.setMessage(message);
+    synchronized (works) {
+      // Add work
+      works.add(work);
+      LOG.debug("Work {} - {} started", task.getName(), work.getMessage());
+    }
+    // Logfile
+    if (logFile != null) {
+      fileUtil.appendToFile(logFile, work.toString());
     }
   }
 

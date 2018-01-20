@@ -27,6 +27,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.persistence.PersistenceException;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.springframework.context.ApplicationContext;
@@ -62,6 +64,7 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
   private int batchSizeIds;
   private final int batchSizeEntities;
   private final Double parallelismFactor;
+  private final long sleepingInterval = 60000;
 
   public EntityWithIdAndVersionSynchronizer(final Class<E> clazz, final ApplicationContext ctx) {
     this.clazz = clazz;
@@ -111,35 +114,50 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
   }
 
   private void delete(final TaskExecution taskExecution) throws TaskCancelledException {
-    String msg = String.format("Deleting RHS for %s", clazz.getSimpleName());
+    final String msg = String.format("Deleting RHS for %s", clazz.getSimpleName());
     taskExecution.reportWork(msg);
 
     // Process in batches
-    int firstResult = 0;
+    final MutableInt firstResult = new MutableInt(0);
     while (true) {
-      // Load RHS
-      final List<Long> rhsIds =
-          dao.getIds(rhsSessionProvider.getStatelessSession(), firstResult, batchSizeIds);
-      if (rhsIds.isEmpty()) {
-        rhsSessionProvider.closeStatelessSession();
-        return;
+      try {
+        final boolean moreBatches = deleteBatch(taskExecution, firstResult);
+        if (!moreBatches) {
+          return;
+        }
+      } catch (final PersistenceException e) {
+        retry(taskExecution);
       }
-
-      // Feedback
-      final long lastResult = firstResult + rhsIds.size();
-      msg = String.format("Processing %s to %s",
-          IntegerConverter.INSTANCE.convertToString(firstResult + 1),
-          LongConverter.INSTANCE.convertToString(lastResult));
-      final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
-
-      // Delete RHS
-      final int numberOfDeletedEntities = delete(rhsIds);
-      firstResult += rhsIds.size() - numberOfDeletedEntities;
-
-      rhsSessionProvider.closeStatelessSession();
-      taskExecution.reportWorkEnd(work);
-      taskExecution.checkpoint();
     }
+  }
+
+  private boolean deleteBatch(final TaskExecution taskExecution, final MutableInt firstResult)
+      throws TaskCancelledException {
+    final TaskExecutionWork work = taskExecution.startWork();
+
+    // Load RHS
+    final List<Long> rhsIds =
+        dao.getIds(rhsSessionProvider.getStatelessSession(), firstResult.getValue(), batchSizeIds);
+    if (rhsIds.isEmpty()) {
+      rhsSessionProvider.closeStatelessSession();
+      return false;
+    }
+
+    // Feedback
+    final long lastResult = firstResult.getValue() + rhsIds.size();
+    final String msg = String.format("Processing batch %s to %s",
+        IntegerConverter.INSTANCE.convertToString(firstResult.getValue() + 1),
+        LongConverter.INSTANCE.convertToString(lastResult));
+    taskExecution.reportWorkStart(work, msg);
+
+    // Delete RHS
+    final int numberOfDeletedEntities = delete(rhsIds);
+    firstResult.add(rhsIds.size() - numberOfDeletedEntities);
+
+    rhsSessionProvider.closeStatelessSession();
+    taskExecution.reportWorkEnd(work);
+    taskExecution.checkpoint();
+    return true;
   }
 
   private int delete(final List<Long> rhsIds) {
@@ -173,38 +191,53 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
   }
 
   private void createOrUpdate(final TaskExecution taskExecution) throws TaskCancelledException {
-    String msg = String.format("Creating/updating LHS > RHS for %s", clazz.getSimpleName());
+    final String msg = String.format("Creating/updating LHS > RHS for %s", clazz.getSimpleName());
     taskExecution.reportWork(msg);
 
     // Process in batches
-    int firstResult = 0;
+    final MutableInt firstResult = new MutableInt(0);
     while (true) {
-      // Load LHS
-      final Map<Long, Long> lhsIdsWithVersion = dao
-          .getIdsWithVersion(lhsSessionProvider.getStatelessSession(), firstResult, batchSizeIds);
-      if (lhsIdsWithVersion.isEmpty()) {
-        lhsSessionProvider.closeStatelessSession();
-        rhsSessionProvider.closeStatelessSession();
-        return;
+      try {
+        final boolean moreBatches = createOrUpdateBatch(taskExecution, firstResult);
+        if (!moreBatches) {
+          return;
+        }
+      } catch (final PersistenceException e) {
+        retry(taskExecution);
       }
+    }
+  }
 
-      // Feedback
-      final long lastResult = firstResult + lhsIdsWithVersion.size();
-      msg = String.format("Processing %s to %s",
-          IntegerConverter.INSTANCE.convertToString(firstResult + 1),
-          LongConverter.INSTANCE.convertToString(lastResult));
-      final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
+  private boolean createOrUpdateBatch(final TaskExecution taskExecution,
+      final MutableInt firstResult) throws TaskCancelledException {
+    final TaskExecutionWork work = taskExecution.startWork();
 
-      // Create or update RHS
-      createOrUpdate(lhsIdsWithVersion, lhsSessionProvider.getStatelessSession(),
-          rhsSessionProvider.getStatelessSession(), taskExecution);
-      firstResult += lhsIdsWithVersion.size();
-
+    // Load LHS
+    final Map<Long, Long> lhsIdsWithVersion = dao.getIdsWithVersion(
+        lhsSessionProvider.getStatelessSession(), firstResult.getValue(), batchSizeIds);
+    if (lhsIdsWithVersion.isEmpty()) {
       lhsSessionProvider.closeStatelessSession();
       rhsSessionProvider.closeStatelessSession();
-      taskExecution.reportWorkEnd(work);
-      taskExecution.checkpoint();
+      return false;
     }
+
+    // Feedback
+    final long lastResult = firstResult.getValue() + lhsIdsWithVersion.size();
+    final String msg = String.format("Processing batch %s to %s",
+        IntegerConverter.INSTANCE.convertToString(firstResult.getValue() + 1),
+        LongConverter.INSTANCE.convertToString(lastResult));
+    taskExecution.reportWorkStart(work, msg);
+
+    // Create or update RHS
+    createOrUpdate(lhsIdsWithVersion, lhsSessionProvider.getStatelessSession(),
+        rhsSessionProvider.getStatelessSession(), taskExecution);
+    firstResult.add(lhsIdsWithVersion.size());
+
+    lhsSessionProvider.closeStatelessSession();
+    rhsSessionProvider.closeStatelessSession();
+    taskExecution.reportWorkEnd(work);
+    taskExecution.checkpoint();
+    return true;
   }
 
   private void createOrUpdate(final Map<Long, Long> lhsIdsWithVersion,
@@ -245,6 +278,19 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     };
 
     return rhsIdsWithVersion;
+  }
+
+  private void retry(final TaskExecution taskExecution) {
+    lhsSessionProvider.closeStatelessSession();
+    rhsSessionProvider.closeStatelessSession();
+
+    final String msg =
+        String.format("Retrying in %,d seconds due to connection issues", sleepingInterval / 1000);
+    taskExecution.reportWork(msg);
+    try {
+      Thread.sleep(sleepingInterval);
+    } catch (final InterruptedException e) {
+    }
   }
 
   protected abstract void copyProperties(E source, E target);

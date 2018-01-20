@@ -33,6 +33,10 @@ public class TaskExecutionWork {
 
   private Long end;
 
+  public TaskExecutionWork() {
+    this(null);
+  }
+
   public TaskExecutionWork(final String message) {
     this.message = message;
   }
