@@ -27,6 +27,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import org.apache.wicket.util.lang.Objects;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
@@ -104,9 +107,13 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
   }
 
   private void create(final List<Long> lhsIds) throws TaskCancelledException {
-    final List<List<Long>> lhsIdsBatches = Lists.partition(lhsIds, batchSizeEntities);
+    final Collection<List<Long>> lhsIdsBatches = Lists.partition(lhsIds, batchSizeEntities);
     final int lhsCount = lhsIds.size();
     int firstEntity = 0;
+
+    CountDownLatch rhsInProgress = null;
+    CountDownLatch rhsDone = null;
+    final Executor e = Executors.newSingleThreadExecutor();
 
     for (final List<Long> lhsIdsBatch : lhsIdsBatches) {
       // Feedback
@@ -119,17 +126,31 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
           PercentageConverter.INSTANCE_2.convertToString(progress));
       final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
-      createBatch(lhsIdsBatch);
+      // Load LHS
+      final Collection<E> lhsEntities = loadLhsBatch(rhsInProgress, lhsIdsBatch);
+
+      // Create RHS
+      rhsInProgress = new CountDownLatch(1);
+      rhsDone = new CountDownLatch(1);
+      e.execute(new RhsCreator(rhsInProgress, rhsDone, lhsEntities));
 
       firstEntity += batchSizeEntities;
 
       taskExecution.reportWorkEnd(work);
       taskExecution.checkpoint();
     }
+
+    // Wait until last batch ends
+    if (rhsDone != null) {
+      try {
+        rhsDone.await();
+      } catch (final InterruptedException e1) {
+      }
+    }
   }
 
-  private void createBatch(final List<Long> lhsIds) {
-    final Collection<E> lhsEntities = dao.getEntities(lhsStatelessSession, lhsIds);
+  private void createBatch(final Collection<E> lhsEntities) {
+    // Create
     new ParallelProcessing<E>(sessionFactory, lhsEntities, parallelismFactor) {
       @Override
       protected HibernateSessionProvider createSessionProvider() {
@@ -175,9 +196,13 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
   }
 
   private void update(final List<Long> lhsIds) throws TaskCancelledException {
-    final List<List<Long>> lhsIdsBatches = Lists.partition(lhsIds, batchSizeEntities);
+    final Collection<List<Long>> lhsIdsBatches = Lists.partition(lhsIds, batchSizeEntities);
     final int lhsCount = lhsIds.size();
     int firstEntity = 0;
+
+    CountDownLatch rhsInProgress = null;
+    CountDownLatch rhsDone = null;
+    final Executor e = Executors.newSingleThreadExecutor();
 
     for (final List<Long> lhsIdsBatch : lhsIdsBatches) {
       // Feedback
@@ -190,17 +215,31 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
           PercentageConverter.INSTANCE_2.convertToString(progress));
       final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
-      updateBatch(lhsIdsBatch);
+      // Load LHS
+      final Collection<E> lhsEntities = loadLhsBatch(rhsInProgress, lhsIdsBatch);
+
+      // Update RHS
+      rhsInProgress = new CountDownLatch(1);
+      rhsDone = new CountDownLatch(1);
+      e.execute(new RhsUpdater(rhsInProgress, rhsDone, lhsIdsBatch, lhsEntities));
 
       firstEntity += batchSizeEntities;
 
       taskExecution.reportWorkEnd(work);
       taskExecution.checkpoint();
     }
+
+    // Wait until last batch ends
+    if (rhsDone != null) {
+      try {
+        rhsDone.await();
+      } catch (final InterruptedException e1) {
+      }
+    }
   }
 
-  private void updateBatch(final List<Long> lhsIds) {
-    final Collection<E> lhsEntities = dao.getEntities(lhsStatelessSession, lhsIds);
+  private void updateBatch(final Collection<Long> lhsIds, final Collection<E> lhsEntities) {
+    // Update
     final Map<Long, E> rhsEntities =
         new ConcurrentHashMap<>(dao.getIdsWithEntities(rhsStatelessSession, lhsIds));
     new ParallelProcessing<E>(sessionFactory, lhsEntities, parallelismFactor) {
@@ -269,6 +308,79 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
     final List<Long> lhsIds = Lists.newArrayList(failedLhsIds);
     failedLhsIds.clear();
     create(lhsIds);
+  }
+
+  private Collection<E> loadLhsBatch(final CountDownLatch previousRhsInProgress,
+      final List<Long> lhsIds) {
+    // Wait until previous LHS is being consumed
+    if (previousRhsInProgress != null) {
+      try {
+        previousRhsInProgress.await();
+      } catch (final InterruptedException e) {
+      }
+    }
+
+    // Load LHS
+    final Collection<E> lhsEntities = dao.getEntities(lhsStatelessSession, lhsIds);
+    return lhsEntities;
+  }
+
+  class RhsCreator implements Runnable {
+    private final CountDownLatch rhsInProgress;
+    private final CountDownLatch rhsDone;
+
+    private final Collection<E> lhsEntities;
+
+    RhsCreator(final CountDownLatch rhsInProgress, final CountDownLatch rhsDone,
+        final Collection<E> lhsEntities) {
+      this.rhsInProgress = rhsInProgress;
+      this.rhsDone = rhsDone;
+      this.lhsEntities = lhsEntities;
+    }
+
+    @Override
+    public void run() {
+      // Wait
+      rhsInProgress.countDown();
+
+      // Create RHS
+      try {
+        createBatch(lhsEntities);
+      }
+
+      // Done
+      finally {
+        rhsDone.countDown();
+      }
+    }
+  }
+
+  class RhsUpdater implements Runnable {
+    private final CountDownLatch rhsInProgress;
+    private final CountDownLatch rhsDone;
+
+    private final Collection<Long> lhsIds;
+    private final Collection<E> lhsEntities;
+
+    RhsUpdater(final CountDownLatch rhsInProgress, final CountDownLatch rhsDone,
+        final Collection<Long> lhsIds, final Collection<E> lhsEntities) {
+      this.rhsInProgress = rhsInProgress;
+      this.rhsDone = rhsDone;
+      this.lhsIds = lhsIds;
+      this.lhsEntities = lhsEntities;
+    }
+
+    @Override
+    public void run() {
+      // Wait
+      rhsInProgress.countDown();
+
+      // Update RHS
+      updateBatch(lhsIds, lhsEntities);
+
+      // Done
+      rhsDone.countDown();
+    }
   }
 
 }
