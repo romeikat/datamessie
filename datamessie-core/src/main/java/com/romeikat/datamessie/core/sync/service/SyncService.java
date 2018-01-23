@@ -89,8 +89,8 @@ public class SyncService {
 
     synchronizers.add(new CrawlingSynchronizer(ctx));
     synchronizers.add(new DocumentSynchronizer(ctx));
-    synchronizers.add(new RawContentSynchronizer(ctx));
     synchronizers.add(new DownloadSynchronizer(ctx));
+    synchronizers.add(new RawContentSynchronizer(ctx));
 
     synchronizers.add(new CleanedContentSynchronizer(ctx));
     synchronizers.add(new StemmedContentSynchronizer(ctx));
