@@ -52,7 +52,7 @@ public abstract class ParallelProcessing<T> {
 
   public ParallelProcessing(final SessionFactory sessionFactory,
       final Collection<T> objectsToBeProcessed, final Double parallelismFactor) {
-    this(sessionFactory, Lists.newArrayList(objectsToBeProcessed), DEFAULT_PARALLELISM_FACTOR);
+    this(sessionFactory, Lists.newArrayList(objectsToBeProcessed), parallelismFactor);
   }
 
   public ParallelProcessing(final SessionFactory sessionFactory,
