@@ -262,7 +262,7 @@ public class CollectionUtil {
     for (int i = 0;; i++) {
       final int fromIndex = i * sizeOfSublists;
       int toIndex = (i + 1) * sizeOfSublists;
-      final boolean lastSublist = list.size() < toIndex;
+      final boolean lastSublist = list.size() <= toIndex;
       if (lastSublist) {
         toIndex = list.size();
       }

@@ -23,12 +23,11 @@ License along with this program.  If not, see
  */
 
 import static org.junit.Assert.assertEquals;
-import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.AbstractTest;
-import com.romeikat.datamessie.core.base.util.CollectionUtil;
 
 public class CollectionUtilTest extends AbstractTest {
 
@@ -37,22 +36,70 @@ public class CollectionUtilTest extends AbstractTest {
 
   @Test
   public void calculatesPowerSet1() throws Exception {
-    final List<Integer> elements = new LinkedList<Integer>();
-    elements.add(1);
-    elements.add(2);
-    elements.add(3);
+    final List<Integer> elements = Lists.newArrayList(1, 2, 3);
     final List<List<Integer>> powerSet = collectionUtil.powerSet(elements);
     assertEquals(8, powerSet.size());
   }
 
   @Test
   public void calculatesPowerSet2() throws Exception {
-    final List<Integer> elements = new LinkedList<Integer>();
-    elements.add(1);
-    elements.add(2);
-    elements.add(3);
+    final List<Integer> elements = Lists.newArrayList(1, 2, 3);
     final List<List<Integer>> powerSet = collectionUtil.powerSet(elements, 1);
     assertEquals(3, powerSet.size());
+  }
+
+  @Test
+  public void splitsIntoSubListsByNumber1() throws Exception {
+    final List<Integer> elements = Lists.newArrayList(1, 2, 3);
+    final List<List<Integer>> subLists = CollectionUtil.splitIntoSubListsByNumber(elements, 3);
+    assertEquals(3, subLists.size());
+    assertEquals(Lists.newArrayList(1), subLists.get(0));
+    assertEquals(Lists.newArrayList(2), subLists.get(1));
+    assertEquals(Lists.newArrayList(3), subLists.get(2));
+  }
+
+  @Test
+  public void splitsIntoSubListsByNumber2() throws Exception {
+    final List<Integer> elements = Lists.newArrayList(1, 2, 3);
+    final List<List<Integer>> subLists = CollectionUtil.splitIntoSubListsByNumber(elements, 1);
+    assertEquals(1, subLists.size());
+    assertEquals(elements, subLists.get(0));
+  }
+
+  @Test
+  public void splitsIntoSubListsByNumber3() throws Exception {
+    final List<Integer> elements = Lists.newArrayList(1, 2, 3);
+    final List<List<Integer>> subLists = CollectionUtil.splitIntoSubListsByNumber(elements, 2);
+    assertEquals(2, subLists.size());
+    assertEquals(Lists.newArrayList(1, 2), subLists.get(0));
+    assertEquals(Lists.newArrayList(3), subLists.get(1));
+  }
+
+  @Test
+  public void splitsIntoSubListsBySize1() throws Exception {
+    final List<Integer> elements = Lists.newArrayList(1, 2, 3);
+    final List<List<Integer>> subLists = CollectionUtil.splitIntoSubListsBySize(elements, 3);
+    assertEquals(1, subLists.size());
+    assertEquals(elements, subLists.get(0));
+  }
+
+  @Test
+  public void splitsIntoSubListsBySize2() throws Exception {
+    final List<Integer> elements = Lists.newArrayList(1, 2, 3);
+    final List<List<Integer>> subLists = CollectionUtil.splitIntoSubListsBySize(elements, 1);
+    assertEquals(3, subLists.size());
+    assertEquals(Lists.newArrayList(1), subLists.get(0));
+    assertEquals(Lists.newArrayList(2), subLists.get(1));
+    assertEquals(Lists.newArrayList(3), subLists.get(2));
+  }
+
+  @Test
+  public void splitsIntoSubListsBySize3() throws Exception {
+    final List<Integer> elements = Lists.newArrayList(1, 2, 3);
+    final List<List<Integer>> subLists = CollectionUtil.splitIntoSubListsBySize(elements, 2);
+    assertEquals(2, subLists.size());
+    assertEquals(Lists.newArrayList(1, 2), subLists.get(0));
+    assertEquals(Lists.newArrayList(3), subLists.get(1));
   }
 
 }
