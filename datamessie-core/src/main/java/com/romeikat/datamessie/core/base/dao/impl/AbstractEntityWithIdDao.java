@@ -82,16 +82,15 @@ public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends Ab
   }
 
   @Override
-  public List<Long> getIds(final SharedSessionContract ssc, final Integer firstResult,
+  public List<Long> getIds(final SharedSessionContract ssc, final Long firstId,
       final Integer maxResults) {
     // Query
     final EntityWithIdQuery<E> query = new EntityWithIdQuery<>(getEntityClass());
-    query.setFirstResult(firstResult);
-    query.setMaxResults(maxResults);
-    final String defaultSortingProperty = defaultSortingProperty();
-    if (defaultSortingProperty != null) {
-      query.addOrder(Order.asc(defaultSortingProperty));
+    if (firstId != null) {
+      query.addRestriction(Restrictions.ge("id", firstId));
     }
+    query.setMaxResults(maxResults);
+    query.addOrder(Order.asc("id"));
     // Done
     final List<Long> result = query.listIds(ssc);
     return result;
@@ -117,7 +116,7 @@ public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends Ab
 
   @Override
   public List<Long> getIds(final SharedSessionContract ssc, final Collection<Long> ids,
-      final Integer firstResult, final Integer maxResults) {
+      final Long firstId, final Integer maxResults) {
     if (ids.isEmpty()) {
       return Collections.emptyList();
     }
@@ -125,12 +124,11 @@ public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends Ab
     // Query
     final EntityWithIdQuery<E> query = new EntityWithIdQuery<>(getEntityClass());
     query.addRestriction(Restrictions.in("id", ids));
-    query.setFirstResult(firstResult);
-    query.setMaxResults(maxResults);
-    final String defaultSortingProperty = defaultSortingProperty();
-    if (defaultSortingProperty != null) {
-      query.addOrder(Order.asc(defaultSortingProperty));
+    if (firstId != null) {
+      query.addRestriction(Restrictions.ge("id", firstId));
     }
+    query.setMaxResults(maxResults);
+    query.addOrder(Order.asc("id"));
     // Done
     final List<Long> result = query.listIds(ssc);
     return result;

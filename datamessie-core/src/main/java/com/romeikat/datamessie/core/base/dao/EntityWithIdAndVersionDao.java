@@ -23,7 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.TreeMap;
 import org.hibernate.SharedSessionContract;
 import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
 
@@ -31,9 +31,9 @@ import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
 public interface EntityWithIdAndVersionDao<E extends EntityWithIdAndVersion>
     extends EntityWithIdDao<E> {
 
-  Map<Long, Long> getIdsWithVersion(SharedSessionContract ssc, Integer firstResult,
+  TreeMap<Long, Long> getIdsWithVersion(SharedSessionContract ssc, Long firstId,
       Integer maxResults);
 
-  Map<Long, Long> getIdsWithVersion(SharedSessionContract ssc, Collection<Long> ids);
+  TreeMap<Long, Long> getIdsWithVersion(SharedSessionContract ssc, Collection<Long> ids);
 
 }

@@ -22,10 +22,10 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -33,7 +33,6 @@ import org.hibernate.transform.AliasToBeanResultTransformer;
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
 import com.romeikat.datamessie.core.domain.util.IdAndVersion;
 
@@ -45,10 +44,35 @@ public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAn
   }
 
   @Override
-  public Map<Long, Long> getIdsWithVersion(final SharedSessionContract ssc,
+  public TreeMap<Long, Long> getIdsWithVersion(final SharedSessionContract ssc, final Long firstId,
+      final Integer maxResults) {
+    // Query
+    final EntityQuery<E> query = new EntityQuery<>(getEntityClass());
+    if (firstId != null) {
+      query.addRestriction(Restrictions.ge("id", firstId));
+    }
+    query.setMaxResults(maxResults);
+    query.addOrder(Order.asc("id"));
+    query.setResultTransformer(new AliasToBeanResultTransformer(IdAndVersion.class));
+
+    // Done
+    final ProjectionList projectionList = Projections.projectionList();
+    projectionList.add(Projections.property("id"), "id");
+    projectionList.add(Projections.property("version"), "version");
+    @SuppressWarnings("unchecked")
+    final List<IdAndVersion> idsAndVersions =
+        (List<IdAndVersion>) query.listForProjection(ssc, projectionList);
+
+    // Transform into map
+    final TreeMap<Long, Long> result = transformIntoMap(idsAndVersions);
+    return result;
+  }
+
+  @Override
+  public TreeMap<Long, Long> getIdsWithVersion(final SharedSessionContract ssc,
       final Collection<Long> ids) {
     if (ids.isEmpty()) {
-      return Collections.emptyMap();
+      return new TreeMap<Long, Long>();
     }
 
     // Query
@@ -65,37 +89,15 @@ public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAn
         (List<IdAndVersion>) query.listForProjection(ssc, projectionList);
 
     // Transform into map
-    final Map<Long, Long> result = transformIntoMap(idsAndVersions);
+    final TreeMap<Long, Long> result = transformIntoMap(idsAndVersions);
     return result;
   }
 
-  private Map<Long, Long> transformIntoMap(final List<IdAndVersion> idsAndVersions) {
-    final Map<Long, Long> result = Maps.newHashMapWithExpectedSize(idsAndVersions.size());
+  private TreeMap<Long, Long> transformIntoMap(final List<IdAndVersion> idsAndVersions) {
+    final TreeMap<Long, Long> result = Maps.newTreeMap();
     for (final IdAndVersion idAndVersion : idsAndVersions) {
       result.put(idAndVersion.getId(), idAndVersion.getVersion());
     }
-    return result;
-  }
-
-  @Override
-  public Map<Long, Long> getIdsWithVersion(final SharedSessionContract ssc,
-      final Integer firstResult, final Integer maxResults) {
-    // Query
-    final EntityQuery<E> query = new EntityQuery<>(getEntityClass());
-    query.setFirstResult(firstResult);
-    query.setMaxResults(maxResults);
-    query.setResultTransformer(new AliasToBeanResultTransformer(IdAndVersion.class));
-
-    // Done
-    final ProjectionList projectionList = Projections.projectionList();
-    projectionList.add(Projections.property("id"), "id");
-    projectionList.add(Projections.property("version"), "version");
-    @SuppressWarnings("unchecked")
-    final List<IdAndVersion> idsAndVersions =
-        (List<IdAndVersion>) query.listForProjection(ssc, projectionList);
-
-    // Transform into map
-    final Map<Long, Long> result = transformIntoMap(idsAndVersions);
     return result;
   }
 

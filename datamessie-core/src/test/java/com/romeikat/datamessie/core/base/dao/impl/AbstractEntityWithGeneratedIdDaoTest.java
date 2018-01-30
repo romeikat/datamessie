@@ -129,23 +129,27 @@ public class AbstractEntityWithGeneratedIdDaoTest extends AbstractDbSetupBasedTe
     Collection<Long> expected = Arrays.asList(1l, 2l, 3l);
     assertTrue(CollectionUtils.isEqualCollection(expected, ids));
 
-    ids = dao.getIds(sessionProvider.getStatelessSession(), 0, 1);
+    ids = dao.getIds(sessionProvider.getStatelessSession(), 0l, 1);
     expected = Arrays.asList(1l);
     assertTrue(CollectionUtils.isEqualCollection(expected, ids));
 
-    ids = dao.getIds(sessionProvider.getStatelessSession(), 1, 2);
+    ids = dao.getIds(sessionProvider.getStatelessSession(), 1l, 1);
+    expected = Arrays.asList(1l);
+    assertTrue(CollectionUtils.isEqualCollection(expected, ids));
+
+    ids = dao.getIds(sessionProvider.getStatelessSession(), 2l, 2);
     expected = Arrays.asList(2l, 3l);
     assertTrue(CollectionUtils.isEqualCollection(expected, ids));
 
-    ids = dao.getIds(sessionProvider.getStatelessSession(), 1, 0);
+    ids = dao.getIds(sessionProvider.getStatelessSession(), 2l, 0);
     expected = Arrays.asList(2l, 3l);
     assertTrue(CollectionUtils.isEqualCollection(expected, ids));
 
-    ids = dao.getIds(sessionProvider.getStatelessSession(), 1, 3);
+    ids = dao.getIds(sessionProvider.getStatelessSession(), 2l, 3);
     expected = Arrays.asList(2l, 3l);
     assertTrue(CollectionUtils.isEqualCollection(expected, ids));
 
-    ids = dao.getIds(sessionProvider.getStatelessSession(), 5, 0);
+    ids = dao.getIds(sessionProvider.getStatelessSession(), 5l, 0);
     expected = Arrays.asList();
     assertTrue(CollectionUtils.isEqualCollection(expected, ids));
 

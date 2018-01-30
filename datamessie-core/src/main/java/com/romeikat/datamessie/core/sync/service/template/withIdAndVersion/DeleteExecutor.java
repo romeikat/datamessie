@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.List;
-import org.apache.commons.lang3.mutable.MutableInt;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.query.Query;
@@ -51,14 +50,11 @@ public class DeleteExecutor<E extends EntityWithIdAndVersion> {
     this.parallelismFactor = parallelismFactor;
   }
 
-  public int executeDecisons() {
-    final int numberOfDeletedEntities = delete();
-    return numberOfDeletedEntities;
+  public void executeDecisons() {
+    delete();
   }
 
-  private int delete() {
-    final MutableInt numberOfDeletedEntities = new MutableInt(0);
-
+  private void delete() {
     final List<Long> rhsIds = decisionResults.getToBeDeleted();
     final List<List<Long>> rhsIdsBatches = Lists.partition(rhsIds, batchSizeEntities);
     new ParallelProcessing<List<Long>>(sessionFactory, rhsIdsBatches, parallelismFactor) {
@@ -69,29 +65,22 @@ public class DeleteExecutor<E extends EntityWithIdAndVersion> {
 
           @Override
           protected void execute(final StatelessSession statelessSession) {
-            final int numberOfDeletedEntitiesBatch =
-                delete(rhsSessionProvider.getStatelessSession(), rhsIdsBatch);
-            synchronized (numberOfDeletedEntities) {
-              numberOfDeletedEntities.add(numberOfDeletedEntitiesBatch);
-            }
+            delete(rhsSessionProvider.getStatelessSession(), rhsIdsBatch);
           }
         }.execute();
       }
     };
-
-    return numberOfDeletedEntities.intValue();
   }
 
-  private int delete(final StatelessSession rhsStatelessSession, final Collection<Long> rhsIds) {
+  private void delete(final StatelessSession rhsStatelessSession, final Collection<Long> rhsIds) {
     if (rhsIds.isEmpty()) {
-      return 0;
+      return;
     }
 
     final String queryString = "DELETE FROM " + clazz.getSimpleName() + " WHERE id IN :_rhsIds";
     final Query<?> query = rhsStatelessSession.createQuery(queryString);
     query.setParameterList("_rhsIds", rhsIds);
-    final int numberOfDeletedEntities = query.executeUpdate();
-    return numberOfDeletedEntities;
+    query.executeUpdate();
   }
 
 }

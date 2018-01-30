@@ -49,11 +49,11 @@ public interface EntityWithIdDao<E extends EntityWithId> extends EntityDao<E> {
    * Provides the ids of the respective entities.
    *
    * @param ssc
-   * @param firstResult
+   * @param firstId
    * @param maxResults
    * @return
    */
-  List<Long> getIds(SharedSessionContract ssc, Integer firstResult, Integer maxResults);
+  List<Long> getIds(SharedSessionContract ssc, Long firstId, Integer maxResults);
 
   /**
    * Provides the ids of the respective entities.
@@ -66,14 +66,14 @@ public interface EntityWithIdDao<E extends EntityWithId> extends EntityDao<E> {
 
   /**
    * Provides the ids of the respective entities.
-   * 
+   *
    * @param ssc
    * @param ids
-   * @param firstResult
+   * @param firstId
    * @param maxResults
    * @return
    */
-  List<Long> getIds(SharedSessionContract ssc, Collection<Long> ids, Integer firstResult,
+  List<Long> getIds(SharedSessionContract ssc, Collection<Long> ids, Long firstId,
       Integer maxResults);
 
   /**

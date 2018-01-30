@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
+import java.util.TreeMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +53,7 @@ public class AbstractEntityWithIdAndVersionDaoTest extends AbstractDbSetupBasedT
   @Test
   public void getIdsWithVersion_ids() {
     Collection<Long> ids = Lists.newArrayList();
-    Map<Long, Long> idsWithVersion =
+    TreeMap<Long, Long> idsWithVersion =
         dao.getIdsWithVersion(sessionProvider.getStatelessSession(), ids);
     assertEquals(0, idsWithVersion.size());
     assertTrue(CollectionUtils.isEqualCollection(ids, idsWithVersion.keySet()));
@@ -61,33 +61,37 @@ public class AbstractEntityWithIdAndVersionDaoTest extends AbstractDbSetupBasedT
     ids = Lists.newArrayList(1l, 2l, 3l);
     idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), ids);
     assertEquals(3, idsWithVersion.size());
-    assertTrue(CollectionUtils.isEqualCollection(ids, idsWithVersion.keySet()));
+    assertEquals(ids, Lists.newArrayList(idsWithVersion.keySet()));
 
     dbSetupTracker.skipNextLaunch();
   }
 
   @Test
   public void getIdsWithVersion_firstResult_maxResults() {
-    Map<Long, Long> idsWithVersion =
-        dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 0, 1);
+    TreeMap<Long, Long> idsWithVersion =
+        dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 0l, 1);
     Collection<Long> expected = Arrays.asList(1l);
-    assertTrue(CollectionUtils.isEqualCollection(expected, idsWithVersion.keySet()));
+    assertEquals(expected, Lists.newArrayList(idsWithVersion.keySet()));
 
-    idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 1, 2);
+    idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 1l, 1);
+    expected = Arrays.asList(1l);
+    assertEquals(expected, Lists.newArrayList(idsWithVersion.keySet()));
+
+    idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 2l, 2);
     expected = Arrays.asList(2l, 3l);
-    assertTrue(CollectionUtils.isEqualCollection(expected, idsWithVersion.keySet()));
+    assertEquals(expected, Lists.newArrayList(idsWithVersion.keySet()));
 
-    idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 1, 0);
+    idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 2l, 0);
     expected = Arrays.asList(2l, 3l);
-    assertTrue(CollectionUtils.isEqualCollection(expected, idsWithVersion.keySet()));
+    assertEquals(expected, Lists.newArrayList(idsWithVersion.keySet()));
 
-    idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 1, 3);
+    idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 2l, 3);
     expected = Arrays.asList(2l, 3l);
-    assertTrue(CollectionUtils.isEqualCollection(expected, idsWithVersion.keySet()));
+    assertEquals(expected, Lists.newArrayList(idsWithVersion.keySet()));
 
-    idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 5, 0);
+    idsWithVersion = dao.getIdsWithVersion(sessionProvider.getStatelessSession(), 5l, 0);
     expected = Arrays.asList();
-    assertTrue(CollectionUtils.isEqualCollection(expected, idsWithVersion.keySet()));
+    assertEquals(expected, Lists.newArrayList(idsWithVersion.keySet()));
 
     dbSetupTracker.skipNextLaunch();
   }
