@@ -199,10 +199,11 @@ public class SourceCrawler {
     final List<SyndEntry> entries = feed.getEntries();
 
     final Map<String, SyndEntry> entriesPerUrl = Maps.newHashMapWithExpectedSize(entries.size());
+    int numberOfMissingUrls = 0;
     for (final SyndEntry entry : entries) {
       String url = entry.getLink();
-      if (url == null) {
-        LOG.info("Missing URL in RSS feed of source {}", url, sourceId);
+      if (StringUtils.isBlank(url)) {
+        numberOfMissingUrls++;
         continue;
       }
       url = url.trim();
@@ -214,6 +215,12 @@ public class SourceCrawler {
       }
 
       entriesPerUrl.put(url, entry);
+    }
+
+    if (numberOfMissingUrls > 0) {
+      final String singularPlural = numberOfMissingUrls == 1 ? "URL" : "URLs";
+      LOG.info("{} missing {} in RSS feed of source {}", numberOfMissingUrls, singularPlural,
+          sourceId);
     }
 
     return entriesPerUrl;
