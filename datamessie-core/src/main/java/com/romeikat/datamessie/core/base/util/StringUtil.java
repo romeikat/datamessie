@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -64,6 +65,14 @@ public class StringUtil {
       e.printStackTrace();
       return null;
     }
+  }
+
+  public String getSingularOrPluralTerm(final String singularTerm, final int number) {
+    if (StringUtils.isBlank(singularTerm)) {
+      return singularTerm;
+    }
+
+    return number == 1 ? singularTerm : singularTerm + "s";
   }
 
 }

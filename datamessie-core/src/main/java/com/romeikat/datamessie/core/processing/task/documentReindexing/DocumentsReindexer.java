@@ -37,6 +37,7 @@ import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
+import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 
@@ -57,6 +58,9 @@ public class DocumentsReindexer {
 
   @Autowired
   private SessionFactory sessionFactory;
+
+  @Autowired
+  private StringUtil stringUtil;
 
   public DocumentsReindexer() {
     documentsToBeReindexed = new DocumentsToBeReindexed();
@@ -92,7 +96,8 @@ public class DocumentsReindexer {
   private void updateFullTextIndex(final HibernateSessionProvider sessionProvider,
       final TaskExecution taskExecution, final Collection<Long> documentIds)
       throws TaskCancelledException {
-    final String singularPlural = documentIds.size() == 1 ? "document" : "documents";
+    final String singularPlural =
+        stringUtil.getSingularOrPluralTerm("document", documentIds.size());
     work = taskExecution
         .reportWorkStart(String.format("Reindexing %s %s", documentIds.size(), singularPlural));
 

@@ -52,6 +52,7 @@ import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.DateUtil;
+import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
@@ -94,6 +95,9 @@ public class DocumentsProcessingTask implements Task {
 
   @Autowired
   private DocumentsReindexer documentsReindexer;
+
+  @Autowired
+  private StringUtil stringUtil;
 
   @Value("${documents.processing.downloaded.date.min}")
   private String minDownloadedDate;
@@ -162,7 +166,8 @@ public class DocumentsProcessingTask implements Task {
 
       // Process
       if (CollectionUtils.isNotEmpty(documentsToProcess)) {
-        final String singularPlural = documentsToProcess.size() == 1 ? "document" : "documents";
+        final String singularPlural =
+            stringUtil.getSingularOrPluralTerm("document", documentsToProcess.size());
         final TaskExecutionWork work = taskExecution.reportWorkStart(
             String.format("Processing %s %s", documentsToProcess.size(), singularPlural));
 

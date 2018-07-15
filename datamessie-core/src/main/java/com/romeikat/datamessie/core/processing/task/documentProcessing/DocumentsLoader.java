@@ -38,6 +38,7 @@ import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
+import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
@@ -55,6 +56,9 @@ public class DocumentsLoader {
   @Autowired
   @Qualifier("processingDocumentDao")
   private DocumentDao documentDao;
+
+  @Autowired
+  private StringUtil stringUtil;
 
   private DocumentsLoader() {}
 
@@ -79,7 +83,8 @@ public class DocumentsLoader {
       // Logging
       final boolean wereDocumentsLoaded = !loadedDocuments.isEmpty();
       if (wereDocumentsLoaded) {
-        final String singularPlural = loadedDocuments.size() == 1 ? "document" : "documents";
+        final String singularPlural =
+            stringUtil.getSingularOrPluralTerm("document", loadedDocuments.size());
         work = taskExecution.reportWorkStart(
             String.format("Loaded %s %s to process with download date %s", loadedDocuments.size(),
                 singularPlural, LocalDateConverter.INSTANCE_UI.convertToString(downloadedDate)));

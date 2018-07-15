@@ -48,6 +48,7 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.DateUtil;
 import com.romeikat.datamessie.core.base.util.HtmlUtil;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
+import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
@@ -65,6 +66,7 @@ public class SourceCrawler {
   private final Downloader downloader;
   private final HtmlUtil htmlUtil;
   private final IStatisticsManager statisticsManager;
+  private final StringUtil stringUtil;
 
   private final DocumentCrawler documentCrawler;
 
@@ -77,6 +79,7 @@ public class SourceCrawler {
     htmlUtil = ctx.getBean(HtmlUtil.class);
     statisticsManager =
         ctx.getBean(SharedBeanProvider.class).getSharedBean(IStatisticsManager.class);
+    stringUtil = ctx.getBean(StringUtil.class);
 
     documentCrawler = new DocumentCrawler(ctx);
 
@@ -218,7 +221,7 @@ public class SourceCrawler {
     }
 
     if (numberOfMissingUrls > 0) {
-      final String singularPlural = numberOfMissingUrls == 1 ? "URL" : "URLs";
+      final String singularPlural = stringUtil.getSingularOrPluralTerm("URL", numberOfMissingUrls);
       LOG.info("{} missing {} in RSS feed of source {}", numberOfMissingUrls, singularPlural,
           sourceId);
     }
