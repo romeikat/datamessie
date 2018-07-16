@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -92,7 +93,7 @@ public class SourceCrawler {
   public void performCrawling(final HibernateSessionProvider sessionProvider,
       final TaskExecution taskExecution, final Crawling crawling, final Source source) {
     final TaskExecutionWork work = taskExecution
-        .reportWorkStart(String.format("Performing crawling for source %s", source.getId()));
+        .reportWorkStart(String.format("Source %s: performing crawling", source.getId()));
 
     // Download RSS feed
     final SyndFeed syndFeed = downloadFeed(source);
@@ -113,11 +114,11 @@ public class SourceCrawler {
   }
 
   private SyndFeed downloadFeed(final Source source) {
-    LOG.debug("Downloading RSS feed of source {}", source.getId());
+    LOG.debug("Source {}: downloading RSS feed", source.getId());
 
     final String url = source.getUrl();
     if (StringUtils.isBlank(url)) {
-      LOG.warn("Missing URL for RSS feed of source {}", source.getId());
+      LOG.warn("Source {}: missing URL for RSS feed", source.getId());
       return null;
     }
     final String rssFeedUrl = htmlUtil.addProtocolIfNecessary(url);
@@ -127,7 +128,7 @@ public class SourceCrawler {
 
   private void processFeed(final HibernateSessionProvider sessionProvider, final Crawling crawling,
       final Source source, final SyndFeed feed) {
-    LOG.debug("Crawling documents of source {}", source.getId());
+    LOG.debug("Source {}: crawling documents", source.getId());
 
     // Determine which URLs to download
     final Map<String, SyndEntry> entriesPerUrlToBeDownloaded =
@@ -135,24 +136,21 @@ public class SourceCrawler {
 
     // Download contents for new URLs
     final Set<String> entriesUrls = entriesPerUrlToBeDownloaded.keySet();
-    final Map<String, DownloadResult> downloadResultsPerUrl = downloadEntries(entriesUrls);
+    final Map<String, DownloadResult> downloadResultsPerUrl =
+        downloadEntries(source.getId(), entriesUrls);
 
-    // Process downloaded URLs
-    final Set<String> downloadedUrls = downloadResultsPerUrl.keySet();
-    for (final String downloadedUrl : downloadedUrls) {
-      final SyndEntry entry = entriesPerUrlToBeDownloaded.get(downloadedUrl);
-      if (entry == null) {
-        LOG.error("No entry found for URL {}", downloadedUrl);
-        continue;
-      }
+    // Process entries and download results
+    for (final Entry<String, SyndEntry> entry : entriesPerUrlToBeDownloaded.entrySet()) {
+      final String url = entry.getKey();
+      final SyndEntry syndEntry = entry.getValue();
 
-      final DownloadResult downloadResult = downloadResultsPerUrl.get(downloadedUrl);
+      final DownloadResult downloadResult = downloadResultsPerUrl.get(url);
       if (downloadResult == null) {
-        LOG.error("No download result found for URL {}", downloadedUrl);
+        LOG.error("Source {}: no download result found for URL {}", source.getId(), url);
         continue;
       }
 
-      processUrl(sessionProvider.getStatelessSession(), downloadedUrl, entry, downloadResult,
+      processUrl(sessionProvider.getStatelessSession(), url, syndEntry, downloadResult,
           crawling.getId(), source.getId());
     }
 
@@ -176,13 +174,13 @@ public class SourceCrawler {
 
       @Override
       protected void onException(final Exception e) {
-        LOG.error("Could not perform crawling for " + url + " and source " + sourceId, e);
+        LOG.error("Source " + sourceId + ": could not perform crawling for " + url, e);
       };
     }.execute();
   }
 
   private Map<String, SyndEntry> getEntriesToBeDownloaded(
-      final HibernateSessionProvider sessionProvider, final Long sourceId,
+      final HibernateSessionProvider sessionProvider, final long sourceId,
       final SyndFeed syndFeed) {
     final Map<String, SyndEntry> entriesPerUrl = getUniqueEntriesPerUrl(sourceId, syndFeed);
 
@@ -195,13 +193,13 @@ public class SourceCrawler {
     };
     final Map<String, SyndEntry> syndEntriesPerUrlToBeDownloaded =
         Maps.filterKeys(entriesPerUrl, shouldUrlBeDownloadedPredicate);
-    return Maps.newHashMap(syndEntriesPerUrlToBeDownloaded);
+    return Maps.newLinkedHashMap(syndEntriesPerUrlToBeDownloaded);
   }
 
-  private Map<String, SyndEntry> getUniqueEntriesPerUrl(final Long sourceId, final SyndFeed feed) {
+  private Map<String, SyndEntry> getUniqueEntriesPerUrl(final long sourceId, final SyndFeed feed) {
     final List<SyndEntry> entries = feed.getEntries();
 
-    final Map<String, SyndEntry> entriesPerUrl = Maps.newHashMapWithExpectedSize(entries.size());
+    final Map<String, SyndEntry> entriesPerUrl = Maps.newLinkedHashMap();
     int numberOfMissingUrls = 0;
     for (final SyndEntry entry : entries) {
       String url = entry.getLink();
@@ -213,7 +211,7 @@ public class SourceCrawler {
 
       final boolean doesUrlAlreadyExist = entriesPerUrl.containsKey(url);
       if (doesUrlAlreadyExist) {
-        LOG.info("Ignoring duplicate URL {} in RSS feed of source {}", url, sourceId);
+        LOG.info("Source {}: ignoring duplicate URL {}", sourceId, url);
         continue;
       }
 
@@ -222,20 +220,20 @@ public class SourceCrawler {
 
     if (numberOfMissingUrls > 0) {
       final String singularPlural = stringUtil.getSingularOrPluralTerm("URL", numberOfMissingUrls);
-      LOG.info("{} missing {} in RSS feed of source {}", numberOfMissingUrls, singularPlural,
-          sourceId);
+      LOG.info("Source {}: {} missing {} in RSS feed", sourceId, numberOfMissingUrls,
+          singularPlural);
     }
 
     return entriesPerUrl;
   }
 
   private boolean shouldUrlBeDownloaded(final HibernateSessionProvider sessionProvider,
-      final Long sourceId, final String url) {
+      final long sourceId, final String url) {
     try {
       // Validate URL
-      final boolean isUrlValid = isUrlValid(url);
+      final boolean isUrlValid = isUrlValid(sourceId, url);
       if (!isUrlValid) {
-        LOG.debug("Invalid URL {} provided by source {}", url, sourceId);
+        LOG.debug("Source {}: invalid URL {} provided", sourceId, url);
         return false;
       }
 
@@ -243,28 +241,32 @@ public class SourceCrawler {
       final boolean existsWithDownloadSuccess = downloadService
           .existsWithDownloadSuccess(sessionProvider.getStatelessSession(), url, sourceId);
       if (existsWithDownloadSuccess) {
-        LOG.debug("URL {} has already been downloaded for source {}", url, sourceId);
+        LOG.debug("Source {}: URL {} has already been downloaded", sourceId, url);
         return false;
       }
 
+      LOG.debug("Source {}: URL {} should be downloaded", sourceId, url);
       return true;
     } catch (final Exception e) {
-      LOG.error(String.format("Could not determine whether to download URL %s", url), e);
+      LOG.error(
+          String.format("Source %s: could not determine whether to download URL %s", sourceId, url),
+          e);
       sessionProvider.closeStatelessSession();
       return false;
     }
   }
 
-  private boolean isUrlValid(final String url) {
+  private boolean isUrlValid(final long sourceId, final String url) {
     if (url != null && !url.startsWith("http")) {
-      LOG.warn("Skipping document due to malformed URL {}", url);
+      LOG.warn("Source {}: skipping document due to malformed URL {}", sourceId, url);
       return false;
     }
 
     return true;
   }
 
-  private ConcurrentMap<String, DownloadResult> downloadEntries(final Set<String> urls) {
+  private ConcurrentMap<String, DownloadResult> downloadEntries(final long sourceId,
+      final Set<String> urls) {
     final ConcurrentMap<String, DownloadResult> downloadResults =
         new ConcurrentHashMap<String, DownloadResult>();
 
@@ -273,12 +275,12 @@ public class SourceCrawler {
       @Override
       public void doProcessing(final HibernateSessionProvider sessionProvider, final String url) {
         try {
-          LOG.debug("Downloading {}", url);
+          LOG.debug("Source {}: downloading {}", sourceId, url);
 
           final DownloadResult downloadResult = downloader.downloadContent(url);
           downloadResults.put(url, downloadResult);
         } catch (final Exception e) {
-          LOG.error(String.format("Could not download URL %s", url), e);
+          LOG.error(String.format("Source %s: could not download URL %s", sourceId, url), e);
         }
       }
     };

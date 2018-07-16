@@ -109,7 +109,7 @@ public class DocumentCrawler {
           masterDocumentWithDownloads);
 
       // Process slaves
-      processSlaveDocuments(sourceId, statelessSession, masterDocumentWithDownloads,
+      processSlaveDocuments(statelessSession, sourceId, url, masterDocumentWithDownloads,
           slaveDocumentsWithDownloads);
     }
   }
@@ -119,6 +119,8 @@ public class DocumentCrawler {
       final Integer statusCode, final String content, final String title, final String description,
       final LocalDateTime published, final DocumentProcessingState state,
       final StatelessSession statelessSession) {
+    LOG.debug("Source {}: processing new download for URL {}", sourceId, url);
+
     // Create new document
     final Document document = documentService.createDocument(statelessSession, title, url,
         description, published, downloaded, state, statusCode, crawlingId, sourceId);
@@ -148,6 +150,8 @@ public class DocumentCrawler {
       final DocumentProcessingState state, final Integer statusCode, final long crawlingId,
       final long sourceId, final String content,
       final DocumentWithDownloads masterDocumentWithDownloads) {
+    LOG.debug("Source {}: processing repeated download for URL {}", sourceId, url);
+
     final long documentId = masterDocumentWithDownloads.getDocumentId();
     final boolean downloadSuccess = content != null;
 
@@ -191,9 +195,11 @@ public class DocumentCrawler {
         downloadSuccess);
   }
 
-  private void processSlaveDocuments(final long sourceId, final StatelessSession statelessSession,
-      final DocumentWithDownloads masterDocumentWithDownloads,
+  private void processSlaveDocuments(final StatelessSession statelessSession, final long sourceId,
+      final String url, final DocumentWithDownloads masterDocumentWithDownloads,
       final Collection<DocumentWithDownloads> slaveDocumentsWithDownloads) {
+    LOG.debug("Source {}: processing slave documents for URL {}", sourceId, url);
+
     final long masterDocumentId = masterDocumentWithDownloads.getDocumentId();
     final Collection<Long> slaveDownloadIds =
         downloadService.getDownloadIds(slaveDocumentsWithDownloads);
