@@ -42,8 +42,9 @@ import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.service.DownloadService;
+import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
-import com.romeikat.datamessie.core.base.service.download.Downloader;
+import com.romeikat.datamessie.core.base.service.download.RssFeedDownloader;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.DateUtil;
@@ -64,7 +65,8 @@ public class SourceCrawler {
   private static final Logger LOG = LoggerFactory.getLogger(SourceCrawler.class);
 
   private final DownloadService downloadService;
-  private final Downloader downloader;
+  private final RssFeedDownloader rssFeedDownloader;
+  private final ContentDownloader contentDownloader;
   private final HtmlUtil htmlUtil;
   private final IStatisticsManager statisticsManager;
   private final StringUtil stringUtil;
@@ -76,7 +78,8 @@ public class SourceCrawler {
 
   public SourceCrawler(final ApplicationContext ctx) {
     downloadService = ctx.getBean(DownloadService.class);
-    downloader = ctx.getBean(Downloader.class);
+    rssFeedDownloader = ctx.getBean(RssFeedDownloader.class);
+    contentDownloader = ctx.getBean(ContentDownloader.class);
     htmlUtil = ctx.getBean(HtmlUtil.class);
     statisticsManager =
         ctx.getBean(SharedBeanProvider.class).getSharedBean(IStatisticsManager.class);
@@ -98,6 +101,7 @@ public class SourceCrawler {
     // Download RSS feed
     final SyndFeed syndFeed = downloadFeed(source);
     if (syndFeed == null) {
+      LOG.debug("Source {}: RSS feed could not be downloaded", source.getId());
       return;
     }
 
@@ -122,7 +126,7 @@ public class SourceCrawler {
       return null;
     }
     final String rssFeedUrl = htmlUtil.addProtocolIfNecessary(url);
-    final SyndFeed syndFeed = downloader.downloadRssFeed(rssFeedUrl);
+    final SyndFeed syndFeed = rssFeedDownloader.downloadRssFeed(rssFeedUrl);
     return syndFeed;
   }
 
@@ -277,7 +281,7 @@ public class SourceCrawler {
         try {
           LOG.debug("Source {}: downloading {}", sourceId, url);
 
-          final DownloadResult downloadResult = downloader.downloadContent(url);
+          final DownloadResult downloadResult = contentDownloader.downloadContent(url);
           downloadResults.put(url, downloadResult);
         } catch (final Exception e) {
           LOG.error(String.format("Source %s: could not download URL %s", sourceId, url), e);

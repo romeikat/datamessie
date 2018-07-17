@@ -41,7 +41,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
-import com.romeikat.datamessie.core.base.service.download.Downloader;
+import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
@@ -52,7 +52,7 @@ public class DocumentRedirector {
   private static final Logger LOG = LoggerFactory.getLogger(DocumentRedirector.class);
 
   @Autowired
-  private Downloader downloader;
+  private ContentDownloader contentDownloader;
 
   @Autowired
   @Qualifier("redirectingRuleDao")
@@ -73,7 +73,7 @@ public class DocumentRedirector {
     // Download redirected URL, if one was found
     final boolean wasRedirectingUrlFound = redirectedUrl != null;
     final DownloadResult redirectedDownloadResult =
-        wasRedirectingUrlFound ? downloader.downloadContent(redirectedUrl) : null;
+        wasRedirectingUrlFound ? contentDownloader.downloadContent(redirectedUrl) : null;
 
     // Done
     return new DocumentRedirectingResult(redirectedUrl, redirectedDownloadResult);

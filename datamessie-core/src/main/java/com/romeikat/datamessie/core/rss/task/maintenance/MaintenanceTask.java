@@ -37,7 +37,7 @@ import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
-import com.romeikat.datamessie.core.base.service.download.Downloader;
+import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
@@ -68,7 +68,7 @@ public class MaintenanceTask implements Task {
   private int batchSize;
 
   @Autowired
-  private Downloader downloader;
+  private ContentDownloader contentDownloader;
 
   @Autowired
   @Qualifier("rssDocumentService")

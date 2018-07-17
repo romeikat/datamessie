@@ -48,8 +48,9 @@ import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.service.DownloadService;
+import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
-import com.romeikat.datamessie.core.base.service.download.Downloader;
+import com.romeikat.datamessie.core.base.service.download.RssFeedDownloader;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.util.DateUtil;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
@@ -61,8 +62,6 @@ import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
-import com.romeikat.datamessie.core.rss.task.rssCrawling.DocumentCrawler;
-import com.romeikat.datamessie.core.rss.task.rssCrawling.SourceCrawler;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
 
@@ -78,7 +77,10 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
   private DownloadService downloadService;
 
   @Autowired
-  private Downloader downloader;
+  private RssFeedDownloader rssFeedDownloader;
+
+  @Autowired
+  private ContentDownloader contentDownloader;
 
   @Mock
   private TaskExecution taskExecution;
@@ -147,7 +149,8 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     sourceCrawler = new SourceCrawler(ctx);
     documentCrawler = new DocumentCrawler(ctx);
 
-    downloader = createAndInjectSpy(downloader, sourceCrawler, "downloader");
+    rssFeedDownloader = createAndInjectSpy(rssFeedDownloader, sourceCrawler, "rssFeedDownloader");
+    contentDownloader = createAndInjectSpy(contentDownloader, sourceCrawler, "contentDownloader");
     documentCrawler = createAndInjectSpy(documentCrawler, sourceCrawler, "documentCrawler");
     downloadService = createAndInjectSpy(downloadService, sourceCrawler, "downloadService");
   }
@@ -168,12 +171,12 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished3)).when(syndEntry1).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
 
     // Mock download result
     final DownloadResult downloadResult3 =
         new DownloadResult(null, url3, newRawContent3, newDownloaded3, null);
-    doReturn(downloadResult3).when(downloader).downloadContent(eq(url3));
+    doReturn(downloadResult3).when(contentDownloader).downloadContent(eq(url3));
 
     // Crawl
     sourceCrawler.performCrawling(sessionProvider, taskExecution, crawling1, source1);
@@ -218,12 +221,12 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
       syndEntries.add(syndEntry1);
     }
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
 
     // Mock download result
     final DownloadResult downloadResult3 =
         new DownloadResult(null, url3, newRawContent3, newDownloaded3, null);
-    doReturn(downloadResult3).when(downloader).downloadContent(eq(url3));
+    doReturn(downloadResult3).when(contentDownloader).downloadContent(eq(url3));
 
     // Crawl
     sourceCrawler.performCrawling(sessionProvider, taskExecution, crawling1, source1);
@@ -270,12 +273,12 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished1)).when(syndEntry1).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
 
     // Mock download result
     final DownloadResult downloadResult1 =
         new DownloadResult(null, url1, newRawContent1, newDownloaded1, null);
-    doReturn(downloadResult1).when(downloader).downloadContent(eq(url1));
+    doReturn(downloadResult1).when(contentDownloader).downloadContent(eq(url1));
 
     // Crawl
     sourceCrawler.performCrawling(sessionProvider, taskExecution, crawling1, source1);
@@ -314,12 +317,12 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished2)).when(syndEntry1).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
 
     // Mock download result
     final DownloadResult downloadResult2 =
         new DownloadResult(null, url2, newRawContent2, newDownloaded2, null);
-    doReturn(downloadResult2).when(downloader).downloadContent(eq(url2));
+    doReturn(downloadResult2).when(contentDownloader).downloadContent(eq(url2));
 
     // Crawl
     sourceCrawler.performCrawling(sessionProvider, taskExecution, crawling1, source1);
@@ -363,14 +366,14 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished4)).when(syndEntry2).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1, syndEntry2);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
 
     // Mock download results (3 fails, 4 works)
     doThrow(Exception.class).when(downloadService)
         .existsWithDownloadSuccess(any(StatelessSession.class), eq(url3), any(Long.class));
     final DownloadResult downloadResult4 =
         new DownloadResult(null, url4, newRawContent4, newDownloaded4, null);
-    doReturn(downloadResult4).when(downloader).downloadContent(eq(url4));
+    doReturn(downloadResult4).when(contentDownloader).downloadContent(eq(url4));
 
     // Crawl
     sourceCrawler.performCrawling(sessionProvider, taskExecution, crawling1, source1);
@@ -404,15 +407,15 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished4)).when(syndEntry2).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1, syndEntry2);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
 
     // Mock download results (3 fails, 4 works)
-    doThrow(Exception.class).when(downloader).downloadContent(eq(url3));
+    doThrow(Exception.class).when(contentDownloader).downloadContent(eq(url3));
     final LocalDateTime newDownloaded4 = LocalDateTime.now();
     final String newRawContent4 = "Content4-new";
     final DownloadResult downloadResult4 =
         new DownloadResult(null, url4, newRawContent4, newDownloaded4, null);
-    doReturn(downloadResult4).when(downloader).downloadContent(eq(url4));
+    doReturn(downloadResult4).when(contentDownloader).downloadContent(eq(url4));
 
     // Crawl
     sourceCrawler.performCrawling(sessionProvider, taskExecution, crawling1, source1);
@@ -450,15 +453,15 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished4)).when(syndEntry2).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1, syndEntry2);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(downloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
 
     // Mock download results
     final DownloadResult downloadResult3 =
         new DownloadResult(null, url3, newRawContent3, newDownloaded3, null);
-    doReturn(downloadResult3).when(downloader).downloadContent(eq(url3));
+    doReturn(downloadResult3).when(contentDownloader).downloadContent(eq(url3));
     final DownloadResult downloadResult4 =
         new DownloadResult(null, url4, newRawContent4, newDownloaded4, null);
-    doReturn(downloadResult4).when(downloader).downloadContent(eq(url4));
+    doReturn(downloadResult4).when(contentDownloader).downloadContent(eq(url4));
 
     // Crawl (3 fails, 4 works)
     doThrow(Exception.class).when(documentCrawler).performCrawling(any(StatelessSession.class),
