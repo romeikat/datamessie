@@ -36,10 +36,9 @@ import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 @Entity
 @Table(name = NamedEntityOccurrence.TABLE_NAME, uniqueConstraints = {
     @UniqueConstraint(name = "namedEntityOccurrence_id_version", columnNames = {"id", "version"}),
-    @UniqueConstraint(name = "namedEntityOccurrence_namedEntity_type_document_id",
+    @UniqueConstraint(name = "namedEntityOccurrence_namedEntity_id_type_document_id",
         columnNames = {"namedEntity_id", "type", "document_id"})},
     indexes = {
-        @Index(name = "namedEntityOccurrence_type_document_id", columnList = "type, document_id"),
         @Index(name = "FK_namedEntityOccurrence_namedEntity_id", columnList = "namedEntity_id"),
         @Index(name = "FK_namedEntityOccurrence_document_id", columnList = "document_id")})
 public class NamedEntityOccurrence extends AbstractEntityWithGeneratedIdAndVersion {

@@ -120,10 +120,11 @@ public class NamedEntityOccurrencesUpdater {
     // Two NamedEntityOccurrences might be considered the same by the database (due to its
     // collation), so we ensure uniqueness for each NamedEntityOccurrence explicitly
 
+    final long namedEntityId = namedEntityOccurrence.getNamedEntityId();
     final NamedEntityType type = namedEntityOccurrence.getType();
     final int quantity = namedEntityOccurrence.getQuantity();
-    final NamedEntityOccurrence existingNamedEntityOccurrence =
-        namedEntityOccurrenceDao.getByTypeAndDocument(statelessSession, type, documentId);
+    final NamedEntityOccurrence existingNamedEntityOccurrence = namedEntityOccurrenceDao
+        .getByNamedEntityAndTypeAndDocument(statelessSession, namedEntityId, type, documentId);
     // New occurrence
     if (existingNamedEntityOccurrence == null) {
       namedEntityOccurrenceDao.insert(statelessSession, namedEntityOccurrence);

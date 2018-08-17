@@ -47,9 +47,10 @@ public class NamedEntityOccurrenceDao
     return getEntitesByProperty(ssc, "documentId", documentId);
   }
 
-  public NamedEntityOccurrence getByTypeAndDocument(final SharedSessionContract ssc,
-      final NamedEntityType type, final long documentId) {
+  public NamedEntityOccurrence getByNamedEntityAndTypeAndDocument(final SharedSessionContract ssc,
+      final long namedEntityId, final NamedEntityType type, final long documentId) {
     final EntityQuery<NamedEntityOccurrence> query = new EntityQuery<>(NamedEntityOccurrence.class);
+    query.addRestriction(Restrictions.eq("namedEntityId", namedEntityId));
     query.addRestriction(Restrictions.eq("type", type));
     query.addRestriction(Restrictions.eq("documentId", documentId));
     return query.uniqueObject(ssc);
