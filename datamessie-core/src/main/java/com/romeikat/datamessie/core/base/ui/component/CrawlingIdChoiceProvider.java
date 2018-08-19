@@ -60,7 +60,7 @@ public class CrawlingIdChoiceProvider extends AbstractIdBasedChoiceProvider<Craw
     final Long projectId =
         documentsFilterSetting == null ? null : documentsFilterSetting.getProjectId();
     final List<CrawlingOverviewDto> choices =
-        crawlingDao.getAsOverviewDtos(sessionProvider.getStatelessSession(), projectId);
+        crawlingDao.getAsOverviewDtos(sessionProvider.getStatelessSession(), projectId, null, null);
     sessionProvider.closeStatelessSession();
     return choices;
   }

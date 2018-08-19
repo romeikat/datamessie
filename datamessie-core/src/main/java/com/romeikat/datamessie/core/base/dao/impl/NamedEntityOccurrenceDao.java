@@ -25,7 +25,7 @@ import java.util.List;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
+import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 
@@ -49,7 +49,8 @@ public class NamedEntityOccurrenceDao
 
   public NamedEntityOccurrence getByNamedEntityAndTypeAndDocument(final SharedSessionContract ssc,
       final long namedEntityId, final NamedEntityType type, final long documentId) {
-    final EntityQuery<NamedEntityOccurrence> query = new EntityQuery<>(NamedEntityOccurrence.class);
+    final EntityWithIdQuery<NamedEntityOccurrence> query =
+        new EntityWithIdQuery<>(NamedEntityOccurrence.class);
     query.addRestriction(Restrictions.eq("namedEntityId", namedEntityId));
     query.addRestriction(Restrictions.eq("type", type));
     query.addRestriction(Restrictions.eq("documentId", documentId));

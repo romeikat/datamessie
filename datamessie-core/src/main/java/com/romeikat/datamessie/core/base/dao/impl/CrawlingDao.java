@@ -35,7 +35,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
 import com.google.common.collect.Maps;
-import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
+import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.CrawlingDto;
 import com.romeikat.datamessie.core.domain.dto.CrawlingOverviewDto;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
@@ -55,7 +55,7 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
 
   public List<Crawling> getForProject(final SharedSessionContract ssc, final long projectId) {
     // Query: Crawling
-    final EntityQuery<Crawling> crawlingQuery = new EntityQuery<>(Crawling.class);
+    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(Crawling.class);
     crawlingQuery.addRestriction(Restrictions.eq("projectId", projectId));
     crawlingQuery.addOrder(Order.desc("started"));
 
@@ -78,9 +78,9 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
     return result;
   }
 
-  public long getCount(final SharedSessionContract ssc, final long projectId) {
+  public long count(final SharedSessionContract ssc, final long projectId) {
     // Query: Crawling
-    final EntityQuery<Crawling> crawlingQuery = new EntityQuery<>(Crawling.class);
+    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(Crawling.class);
     crawlingQuery.addRestriction(Restrictions.eq("projectId", projectId));
 
     // Done
@@ -90,10 +90,8 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
 
   public List<CrawlingDto> getAsDtos(final SharedSessionContract ssc, final Long projectId) {
     // Query: Crawling
-    final EntityQuery<Crawling> crawlingQuery = new EntityQuery<>(Crawling.class);
-    if (projectId != null) {
-      crawlingQuery.addRestriction(Restrictions.eq("projectId", projectId));
-    }
+    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(Crawling.class);
+    crawlingQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
     crawlingQuery.addOrder(Order.desc("started"));
     crawlingQuery.setResultTransformer(new AliasToBeanResultTransformer(CrawlingDto.class));
 
@@ -107,18 +105,18 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
         (List<CrawlingDto>) crawlingQuery.listForProjection(ssc, projectionList);
 
     // Set duration
-    setDuration(dtos);
+    setDurationForDtos(dtos);
 
     return dtos;
   }
 
   public List<CrawlingOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
-      final Long projectId) {
+      final Long projectId, final Long first, final Long count) {
     // Query: Crawling
-    final EntityQuery<Crawling> crawlingQuery = new EntityQuery<>(Crawling.class);
-    if (projectId != null) {
-      crawlingQuery.addRestriction(Restrictions.eq("projectId", projectId));
-    }
+    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(Crawling.class);
+    crawlingQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
+    crawlingQuery.setFirstResult(first == null ? null : first.intValue());
+    crawlingQuery.setMaxResults(count == null ? null : count.intValue());
     crawlingQuery.addOrder(Order.desc("started"));
     crawlingQuery.setResultTransformer(new AliasToBeanResultTransformer(CrawlingOverviewDto.class));
 
@@ -126,20 +124,38 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
     final ProjectionList projectionList = Projections.projectionList();
     projectionList.add(Projections.groupProperty("id"), "id");
     projectionList.add(Projections.property("started"), "started");
+    projectionList.add(Projections.property("completed"), "completed");
     @SuppressWarnings("unchecked")
     final List<CrawlingOverviewDto> dtos =
         (List<CrawlingOverviewDto>) crawlingQuery.listForProjection(ssc, projectionList);
 
+    // Set duration
+    setDurationForOverviewDtos(dtos);
+
     return dtos;
   }
 
-  private void setDuration(final List<CrawlingDto> crawlings) {
+  private void setDurationForDtos(final List<CrawlingDto> crawlings) {
     for (final CrawlingDto crawling : crawlings) {
-      setDuration(crawling);
+      setDurationForDto(crawling);
     }
   }
 
-  private void setDuration(final CrawlingDto crawling) {
+  private void setDurationForDto(final CrawlingDto crawling) {
+    if (crawling.getStarted() == null || crawling.getCompleted() == null) {
+      return;
+    }
+    final Duration duration = Duration.between(crawling.getStarted(), crawling.getCompleted());
+    crawling.setDuration(duration);
+  }
+
+  private void setDurationForOverviewDtos(final List<CrawlingOverviewDto> crawlings) {
+    for (final CrawlingOverviewDto crawling : crawlings) {
+      setDurationForOverviewDto(crawling);
+    }
+  }
+
+  private void setDurationForOverviewDto(final CrawlingOverviewDto crawling) {
     if (crawling.getStarted() == null || crawling.getCompleted() == null) {
       return;
     }

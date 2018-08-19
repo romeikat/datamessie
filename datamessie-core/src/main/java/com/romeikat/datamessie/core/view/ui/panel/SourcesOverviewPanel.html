@@ -19,10 +19,58 @@ License along with this program.  If not, see
 <http://www.gnu.org/licenses/gpl-3.0.html>.
   =============================LICENSE_END=============================
   -->
-<wicket:extend>
+<wicket:panel>
 
-		<div wicket:id="sourcesOverviewPanel"/>
+			<table class="pagingNavigator">
+				<tr>
+					<td>
+						<span wicket:id="numberOfSourcesLabel"/>
+					</td>
+					<td>
+						<span wicket:id="sourcesOverviewNavigator"/>
+					</td>
+				</tr>
+			</table>
 
-		<a href="#" wicket:id="addSource">Add a new source</a>
+			<table>
+				<tr>
+					<td class="nowrap">
+						Name
+					</td>
+					<td>
+						Language
+					</td>
+					<td>
+						Types
+					</td>
+					<td>
+						Visible
+					</td>
+					<td>
+						Rules
+					</td>
+				</tr>
+				<div wicket:id="sourcesOverviewList">
+					<tr>
+						<td class="nowrap">
+							<a href="#" wicket:id="sourceLink">
+								<span wicket:id="name"/>
+							</a>
+						</td>
+						<td>
+							<span wicket:id="language"/>
+						</td>
+						<td>
+							<input wicket:id="types" type="hidden"/>
+						</td>
+						<td>
+							<input type="checkbox" wicket:id="visible" />
+						</td>
+						<td>
+							<span wicket:id="numberOfRules"/>
+						</td>
+					</tr>
+				</div>
+			</table>
 
-</wicket:extend>
+</wicket:panel>

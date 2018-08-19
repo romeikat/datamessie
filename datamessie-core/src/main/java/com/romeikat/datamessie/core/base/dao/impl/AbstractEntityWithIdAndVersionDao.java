@@ -32,7 +32,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
-import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
+import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
 import com.romeikat.datamessie.core.domain.util.IdAndVersion;
 
@@ -47,7 +47,7 @@ public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAn
   public TreeMap<Long, Long> getIdsWithVersion(final SharedSessionContract ssc, final Long firstId,
       final Integer maxResults) {
     // Query
-    final EntityQuery<E> query = new EntityQuery<>(getEntityClass());
+    final EntityWithIdQuery<E> query = new EntityWithIdQuery<>(getEntityClass());
     if (firstId != null) {
       query.addRestriction(Restrictions.ge("id", firstId));
     }
@@ -76,7 +76,7 @@ public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAn
     }
 
     // Query
-    final EntityQuery<E> query = new EntityQuery<>(getEntityClass());
+    final EntityWithIdQuery<E> query = new EntityWithIdQuery<>(getEntityClass());
     query.addRestriction(Restrictions.in("id", ids));
     query.setResultTransformer(new AliasToBeanResultTransformer(IdAndVersion.class));
 

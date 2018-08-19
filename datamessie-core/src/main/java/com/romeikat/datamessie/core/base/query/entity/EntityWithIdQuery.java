@@ -106,7 +106,6 @@ public class EntityWithIdQuery<E extends EntityWithId> extends EntityQuery<E> {
     return new EntityWithIdQueryUniqueForProjectionExecutor<>(ssc, this, projection).execute();
   }
 
-  @Override
   public Long count(final SharedSessionContract ssc) {
     return new EntityWithIdQueryCountExecutor<>(ssc, this).execute();
   }

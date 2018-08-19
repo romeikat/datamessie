@@ -43,7 +43,6 @@ import com.google.common.collect.Lists;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
-import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery.ReturnMode;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 
@@ -144,7 +143,7 @@ public class EntityQueryTest extends AbstractDbSetupBasedTest {
   public void count() {
     final EntityQuery<BarEntity> query = new EntityQuery<>(BarEntity.class);
 
-    final long count = query.count(sessionProvider.getStatelessSession());
+    final long count = query.count(sessionProvider.getStatelessSession(), "name");
     assertEquals(4, count);
 
     dbSetupTracker.skipNextLaunch();

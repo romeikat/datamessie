@@ -25,7 +25,7 @@ import java.util.List;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
+import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 
 @Repository
@@ -42,7 +42,7 @@ public class DownloadDao extends AbstractEntityWithIdAndVersionDao<Download> {
 
   public List<Download> getForDocument(final SharedSessionContract ssc, final long documentId) {
     // Query: Download
-    final EntityQuery<Download> downloadQuery = new EntityQuery<>(Download.class);
+    final EntityWithIdQuery<Download> downloadQuery = new EntityWithIdQuery<>(Download.class);
     downloadQuery.addRestriction(Restrictions.eq("documentId", documentId));
 
     // Done
@@ -57,7 +57,7 @@ public class DownloadDao extends AbstractEntityWithIdAndVersionDao<Download> {
     }
 
     // Query: Download
-    final EntityQuery<Download> downloadQuery = new EntityQuery<>(Download.class);
+    final EntityWithIdQuery<Download> downloadQuery = new EntityWithIdQuery<>(Download.class);
     downloadQuery.addRestriction(Restrictions.eq("url", url));
     downloadQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
 

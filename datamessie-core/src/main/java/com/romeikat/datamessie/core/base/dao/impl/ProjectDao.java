@@ -29,7 +29,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
+import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
 
@@ -47,7 +47,7 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
 
   public List<ProjectDto> getAllAsDtos(final SharedSessionContract ssc) {
     // Query: Project
-    final EntityQuery<Project> projectQuery = new EntityQuery<>(Project.class);
+    final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(Project.class);
     projectQuery.addOrder(Order.asc("name"));
     projectQuery.setResultTransformer(new AliasToBeanResultTransformer(ProjectDto.class));
 
@@ -67,7 +67,7 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
   public ProjectDto getAsDto(final SharedSessionContract sharedSessionContract,
       final long projectId) {
     // Query: Project
-    final EntityQuery<Project> projectQuery = new EntityQuery<>(Project.class);
+    final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(Project.class);
     projectQuery.addRestriction(Restrictions.idEq(projectId));
     projectQuery.addOrder(Order.desc("started"));
     projectQuery.setResultTransformer(new AliasToBeanResultTransformer(ProjectDto.class));

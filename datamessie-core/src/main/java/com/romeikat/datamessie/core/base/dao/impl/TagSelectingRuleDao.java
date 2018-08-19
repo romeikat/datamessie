@@ -30,7 +30,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
+import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 
@@ -48,8 +48,8 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
 
   public List<TagSelectingRule> getOfSource(final SharedSessionContract ssc, final long sourceId) {
     // Query: TagSelectingRule
-    final EntityQuery<TagSelectingRule> tagSelectingRuleQuery =
-        new EntityQuery<>(TagSelectingRule.class);
+    final EntityWithIdQuery<TagSelectingRule> tagSelectingRuleQuery =
+        new EntityWithIdQuery<>(TagSelectingRule.class);
     tagSelectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
     tagSelectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -61,8 +61,8 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
 
   public List<TagSelectingRuleDto> getAsDtos(final SharedSessionContract ssc, final long sourceId) {
     // Query: TagSelectingRule
-    final EntityQuery<TagSelectingRule> tagSelectingRuleQuery =
-        new EntityQuery<>(TagSelectingRule.class);
+    final EntityWithIdQuery<TagSelectingRule> tagSelectingRuleQuery =
+        new EntityWithIdQuery<>(TagSelectingRule.class);
     tagSelectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
     tagSelectingRuleQuery

@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
-import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
@@ -76,8 +75,8 @@ public class NamedEntityName2CategoriesCache
 
   private Collection<NamedEntityCategory> getNamedEntityCategories(final SharedSessionContract ssc,
       final Long namedEntityId) {
-    final EntityQuery<NamedEntityCategory> namedEntityCategoryQuery =
-        new EntityQuery<>(NamedEntityCategory.class);
+    final EntityWithIdQuery<NamedEntityCategory> namedEntityCategoryQuery =
+        new EntityWithIdQuery<>(NamedEntityCategory.class);
     namedEntityCategoryQuery.addRestriction(Restrictions.eq("namedEntityId", namedEntityId));
     final Collection<NamedEntityCategory> namedEntityCategories =
         namedEntityCategoryQuery.listObjects(ssc);
@@ -100,7 +99,8 @@ public class NamedEntityName2CategoriesCache
 
   private Collection<NamedEntity> getNamedEntites(final SharedSessionContract ssc,
       final Collection<Long> categoryNamedEntityIds) {
-    final EntityQuery<NamedEntity> namedEntityQuery = new EntityQuery<>(NamedEntity.class);
+    final EntityWithIdQuery<NamedEntity> namedEntityQuery =
+        new EntityWithIdQuery<>(NamedEntity.class);
     namedEntityQuery.addRestriction(Restrictions.in("id", categoryNamedEntityIds));
     final Collection<NamedEntity> namedEntities = namedEntityQuery.listObjects(ssc);
     return namedEntities;

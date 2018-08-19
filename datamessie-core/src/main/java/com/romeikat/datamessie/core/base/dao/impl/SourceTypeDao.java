@@ -31,6 +31,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
+import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceType;
@@ -49,7 +50,7 @@ public class SourceTypeDao extends AbstractEntityWithIdAndVersionDao<SourceType>
 
   public List<SourceTypeDto> getAsDtos(final SharedSessionContract ssc) {
     // Query: SourceType
-    final EntityQuery<SourceType> sourceQuery = new EntityQuery<>(SourceType.class);
+    final EntityWithIdQuery<SourceType> sourceQuery = new EntityWithIdQuery<>(SourceType.class);
     sourceQuery.addOrder(Order.asc("name"));
     sourceQuery.setResultTransformer(new AliasToBeanResultTransformer(SourceTypeDto.class));
 

@@ -35,7 +35,7 @@ public class EntityWithIdQueryCountExecutor<E extends EntityWithId>
 
   public EntityWithIdQueryCountExecutor(final SharedSessionContract ssc,
       final EntityWithIdQuery<E> query) {
-    super(ssc, query);
+    super(ssc, query, "id");
 
     idRestrictionsDecider = new IdRestrictionsDecider(query);
   }

@@ -19,10 +19,39 @@ License along with this program.  If not, see
 <http://www.gnu.org/licenses/gpl-3.0.html>.
   =============================LICENSE_END=============================
   -->
-<wicket:extend>
+<wicket:panel>
 
-		<div wicket:id="sourcesOverviewPanel"/>
+			<table class="pagingNavigator">
+				<tr>
+					<td>
+						<span wicket:id="numberOfCrawlingsLabel"/>
+					</td>
+					<td>
+						<span wicket:id="crawlingsOverviewNavigator"/>
+					</td>
+				</tr>
+			</table>
 
-		<a href="#" wicket:id="addSource">Add a new source</a>
+			<table>
+				<tr>
+					<td class="nowrap">
+						Started
+					</td>
+					<td class="nowrap">
+						Duration
+					</td>
+				</tr>
+				<div wicket:id="crawlingsOverviewList">
+					<tr>
+						<td class="nowrap">
+							<span wicket:id="startedLabel"/>
+						</td>
+						<td class="nowrap">
+							<span wicket:id="durationLabel"/>
+							<span wicket:id="ongoingLabel"/>
+						</td>
+					</tr>
+				</div>
+			</table>
 
-</wicket:extend>
+</wicket:panel>

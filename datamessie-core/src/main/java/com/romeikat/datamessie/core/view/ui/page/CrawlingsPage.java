@@ -4,7 +4,7 @@ package com.romeikat.datamessie.core.view.ui.page;
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2018 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,40 +22,21 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
+import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.hibernate.SessionFactory;
-import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
+import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
-import com.romeikat.datamessie.core.domain.dto.CrawlingDto;
-import com.romeikat.datamessie.core.domain.dto.ProjectDto;
+import com.romeikat.datamessie.core.view.ui.panel.CrawlingsOverviewPanel;
 
 @AuthorizeInstantiation(DataMessieRoles.CRAWLINGS_PAGE)
 public class CrawlingsPage extends AbstractAuthenticatedPage {
 
   private static final long serialVersionUID = 1L;
 
-  private IModel<List<CrawlingDto>> crawlingsModel;
-
-  private ListView<CrawlingDto> crawlingsList;
-
-  @SpringBean(name = "crawlingDao")
-  private CrawlingDao crawlingDao;
-
-  @SpringBean(name = "sessionFactory")
-  private SessionFactory sessionFactory;
+  private AjaxLazyLoadPanel crawlingsOverviewPanel;
 
   public CrawlingsPage(final PageParameters pageParameters) {
     super(pageParameters);
@@ -68,41 +49,14 @@ public class CrawlingsPage extends AbstractAuthenticatedPage {
   }
 
   private void initialize() {
-    crawlingsModel = new LoadableDetachableModel<List<CrawlingDto>>() {
+    // Sources overview
+    crawlingsOverviewPanel = new AjaxLazyLoadPanel("crawlingsOverviewPanel") {
       private static final long serialVersionUID = 1L;
 
       @Override
-      public List<CrawlingDto> load() {
-        final ProjectDto activeProject = getActiveProject();
-        if (activeProject == null) {
-          return Collections.emptyList();
-        }
-        return crawlingDao.getAsDtos(sessionFactory.getCurrentSession(), activeProject.getId());
-      }
-    };
-
-    crawlingsList = new ListView<CrawlingDto>("crawlingsList", crawlingsModel) {
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      protected void populateItem(final ListItem<CrawlingDto> item) {
-        final IModel<CrawlingDto> crawlingModel = item.getModel();
-        final CrawlingDto crawling = item.getModelObject();
-        final boolean crawlingInProgress = crawling.getCompleted() == null;
-        // Started
-        final Label startedLabel =
-            new Label("startedLabel", new PropertyModel<LocalDateTime>(crawlingModel, "started"));
-        item.add(startedLabel);
-        // Duration
-        final Label durationLabel =
-            new Label("durationLabel", new PropertyModel<Duration>(crawlingModel, "duration"));
-        durationLabel.setVisible(!crawlingInProgress);
-        item.add(durationLabel);
-        // Ongoing
-        final String ongoingText = "ongoing";
-        final Label ongoingLabel = new Label("ongoingLabel", ongoingText);
-        ongoingLabel.setVisible(crawlingInProgress);
-        item.add(ongoingLabel);
+      public Component getLazyLoadComponent(final String id) {
+        return new CrawlingsOverviewPanel(id,
+            DataMessieSession.get().getDocumentsFilterSettingsModel());
       }
 
       @Override
@@ -111,15 +65,8 @@ public class CrawlingsPage extends AbstractAuthenticatedPage {
         setVisible(getActiveProject() != null);
       }
     };
-    crawlingsList.setOutputMarkupId(true);
-    add(crawlingsList);
-  }
-
-  @Override
-  protected void onDetach() {
-    super.onDetach();
-
-    crawlingsModel.detach();
+    crawlingsOverviewPanel.setOutputMarkupId(true);
+    add(crawlingsOverviewPanel);
   }
 
 }

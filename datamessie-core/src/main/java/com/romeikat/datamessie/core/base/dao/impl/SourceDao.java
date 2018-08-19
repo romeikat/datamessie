@@ -30,10 +30,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
-import org.hibernate.criterion.ProjectionList;
-import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.google.common.collect.Lists;
@@ -113,6 +110,13 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return sourceIds2;
   }
 
+  public Long count(final SharedSessionContract ssc, final Long projectId) {
+    // Query: Project2Source
+    final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    final Long count = project2SourceQuery.count(ssc, "projectId");
+    return count;
+  }
+
   public SourceDto getAsDto(final SharedSessionContract ssc, final long id) {
     final Source source = getEntity(ssc, id);
     return sourceToDto(ssc, source);
@@ -145,7 +149,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
   }
 
   public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
-      final Long projectId, final Boolean visible) {
+      final Long projectId, final Boolean visible, final Long first, final Long count) {
     // Query: Project2Source
     final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
     project2SourceQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
@@ -157,20 +161,19 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     // Query: Source
     final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
     sourceQuery.addRestriction(Restrictions.in("id", sourceIds));
-    sourceQuery.addRestriction(Restrictions.eq("visible", visible));
+    if (visible != null) {
+      sourceQuery.addRestriction(Restrictions.eq("visible", visible));
+    }
+    sourceQuery.setFirstResult(first == null ? null : first.intValue());
+    sourceQuery.setMaxResults(count == null ? null : count.intValue());
     sourceQuery.addOrder(Order.asc("name"));
 
-    // Projection
-    sourceQuery.setResultTransformer(new AliasToBeanResultTransformer(SourceOverviewDto.class));
-
     // Done
-    final ProjectionList projectionList = Projections.projectionList();
-    projectionList.add(Projections.property("id"), "id");
-    projectionList.add(Projections.property("name"), "name");
-    @SuppressWarnings("unchecked")
-    final List<SourceOverviewDto> dtos =
-        (List<SourceOverviewDto>) sourceQuery.listForProjection(ssc, projectionList);
-    return dtos;
+    final List<Source> sources = sourceQuery.listObjects(ssc);
+
+    // Transform
+    final List<SourceOverviewDto> dtos = Lists.transform(sources, s -> sourceToOverviewDto(ssc, s));
+    return Lists.newArrayList(dtos);
   }
 
   public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
@@ -216,7 +219,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     final List<Source> sources = sourceQuery.listObjects(ssc);
 
     // Transform
-    final List<SourceOverviewDto> dtos = Lists.transform(sources, s -> sourceToOverviewDto(s));
+    final List<SourceOverviewDto> dtos = Lists.transform(sources, s -> sourceToOverviewDto(ssc, s));
     return Lists.newArrayList(dtos);
   }
 
@@ -281,18 +284,28 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     final List<TagSelectingRuleDto> tagSelectingRules =
         tagSelectingRuleDao.getAsDtos(ssc, source.getId());
     dto.setTagSelectingRules(tagSelectingRules);
-    dto.setNumberOfRedirectingRules(dto.getRedirectingRules().size());
-    dto.setNumberOfTagSelectingRules(dto.getTagSelectingRules().size());
+    dto.setNumberOfRedirectingRules(redirectingRules.size());
+    dto.setNumberOfTagSelectingRules(tagSelectingRules.size());
     dto.setVisible(source.getVisible());
     return dto;
   }
 
-  private SourceOverviewDto sourceToOverviewDto(final Source source) {
+  private SourceOverviewDto sourceToOverviewDto(final SharedSessionContract ssc,
+      final Source source) {
     final SourceOverviewDto dto = new SourceOverviewDto();
     dto.setId(source.getId());
     dto.setName(source.getName());
     dto.setLanguage(source.getLanguage());
+    final List<SourceTypeDto> sourceTypeDtos = sourceTypeDao.getAsDtos(ssc, source.getId());
+    dto.setTypes(sourceTypeDtos);
     dto.setUrl(source.getUrl());
+    final List<RedirectingRuleDto> redirectingRules =
+        redirectingRuleDao.getAsDtos(ssc, source.getId());
+    final List<TagSelectingRuleDto> tagSelectingRules =
+        tagSelectingRuleDao.getAsDtos(ssc, source.getId());
+    dto.setNumberOfRedirectingRules(redirectingRules.size());
+    dto.setNumberOfTagSelectingRules(tagSelectingRules.size());
+    dto.setVisible(source.getVisible());
     return dto;
   }
 

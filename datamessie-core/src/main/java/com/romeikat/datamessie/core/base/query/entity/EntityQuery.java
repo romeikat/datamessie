@@ -180,10 +180,11 @@ public class EntityQuery<E extends Entity> {
    * Loads the number of respective objects.
    *
    * @param ssc
+   * @param propertyName
    * @return
    */
-  public Long count(final SharedSessionContract ssc) {
-    return new EntityQueryCountExecutor<>(ssc, this).execute();
+  public Long count(final SharedSessionContract ssc, final String propertyName) {
+    return new EntityQueryCountExecutor<>(ssc, this, propertyName).execute();
   }
 
   /**

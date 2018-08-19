@@ -31,8 +31,13 @@ import com.romeikat.datamessie.core.domain.entity.Entity;
 public class EntityQueryCountExecutor<E extends Entity>
     extends AbstractEntityQueryExecutor<E, Long> {
 
-  public EntityQueryCountExecutor(final SharedSessionContract ssc, final EntityQuery<E> query) {
+  private final String propertyName;
+
+  public EntityQueryCountExecutor(final SharedSessionContract ssc,
+      final EntityQuery<E> query, final String propertyName) {
     super(ssc, query);
+
+    this.propertyName = propertyName;
   }
 
   @Override
@@ -42,7 +47,8 @@ public class EntityQueryCountExecutor<E extends Entity>
     final Criteria criteria = createCriteria(ssc, query.getTargetClass());
 
     applyRestrictions(query.getRestrictions(), criteria);
-    applyCountProjection(criteria);
+    applyDistinctPropertyProjection(criteria, propertyName);
+    applyCountProjection(criteria, propertyName);
 
     return criteria;
   }

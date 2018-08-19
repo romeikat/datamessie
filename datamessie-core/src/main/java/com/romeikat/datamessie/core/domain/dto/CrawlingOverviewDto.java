@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class CrawlingOverviewDto implements Serializable {
@@ -32,6 +33,10 @@ public class CrawlingOverviewDto implements Serializable {
   private Long id;
 
   private LocalDateTime started;
+
+  private LocalDateTime completed;
+
+  private Duration duration;
 
   public Long getId() {
     return id;
@@ -47,6 +52,22 @@ public class CrawlingOverviewDto implements Serializable {
 
   public void setStarted(final LocalDateTime started) {
     this.started = started;
+  }
+
+  public LocalDateTime getCompleted() {
+    return completed;
+  }
+
+  public void setCompleted(final LocalDateTime completed) {
+    this.completed = completed;
+  }
+
+  public Duration getDuration() {
+    return duration;
+  }
+
+  public void setDuration(final Duration duration) {
+    this.duration = duration;
   }
 
 }

@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
+import java.util.List;
 import com.romeikat.datamessie.core.domain.enums.Language;
 
 public class SourceOverviewDto implements Serializable {
@@ -38,7 +39,15 @@ public class SourceOverviewDto implements Serializable {
 
   private Language language;
 
+  private List<SourceTypeDto> types;
+
   private String url;
+
+  private Integer numberOfRedirectingRules;
+
+  private Integer numberOfTagSelectingRules;
+
+  private boolean visible;
 
   public Long getId() {
     return id;
@@ -64,6 +73,14 @@ public class SourceOverviewDto implements Serializable {
     this.language = language;
   }
 
+  public List<SourceTypeDto> getTypes() {
+    return types;
+  }
+
+  public void setTypes(final List<SourceTypeDto> types) {
+    this.types = types;
+  }
+
   public String getUrl() {
     if (url != null && !url.startsWith(PROTOCOL1) && !url.startsWith(PROTOCOL2)) {
       return PROTOCOL1 + url;
@@ -73,6 +90,30 @@ public class SourceOverviewDto implements Serializable {
 
   public void setUrl(final String url) {
     this.url = url;
+  }
+
+  public Integer getNumberOfRedirectingRules() {
+    return numberOfRedirectingRules;
+  }
+
+  public void setNumberOfRedirectingRules(final Integer numberOfRedirectingRules) {
+    this.numberOfRedirectingRules = numberOfRedirectingRules;
+  }
+
+  public Integer getNumberOfTagSelectingRules() {
+    return numberOfTagSelectingRules;
+  }
+
+  public void setNumberOfTagSelectingRules(final Integer numberOfTagSelectingRules) {
+    this.numberOfTagSelectingRules = numberOfTagSelectingRules;
+  }
+
+  public boolean getVisible() {
+    return visible;
+  }
+
+  public void setVisible(final boolean visible) {
+    this.visible = visible;
   }
 
 }

@@ -127,8 +127,8 @@ public abstract class AbstractEntityQueryExecutor<E extends Entity, R> {
     criteria.setProjection(Projections.distinct(Projections.property(propertyName)));
   }
 
-  public void applyCountProjection(final Criteria criteria) {
-    criteria.setProjection(Projections.count("id"));
+  public void applyCountProjection(final Criteria criteria, final String propertyName) {
+    criteria.setProjection(Projections.count(propertyName));
   }
 
   public void applyResultTransformer(final ResultTransformer resultTransformer,

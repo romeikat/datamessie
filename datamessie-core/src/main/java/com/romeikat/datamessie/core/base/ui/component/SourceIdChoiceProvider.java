@@ -56,8 +56,8 @@ public class SourceIdChoiceProvider extends AbstractIdBasedChoiceProvider<Source
     final DocumentsFilterSettings documentsFilterSetting = dfsModel.getObject();
     final Long projectId =
         documentsFilterSetting == null ? null : documentsFilterSetting.getProjectId();
-    final List<SourceOverviewDto> choices =
-        sourceDao.getAsOverviewDtos(sessionProvider.getStatelessSession(), projectId, true);
+    final List<SourceOverviewDto> choices = sourceDao
+        .getAsOverviewDtos(sessionProvider.getStatelessSession(), projectId, true, null, null);
     sessionProvider.closeStatelessSession();
     return choices;
   }

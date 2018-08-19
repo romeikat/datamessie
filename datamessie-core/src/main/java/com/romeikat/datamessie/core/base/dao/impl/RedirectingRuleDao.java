@@ -30,7 +30,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
+import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 
@@ -48,8 +48,8 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
 
   public List<RedirectingRule> getOfSource(final SharedSessionContract ssc, final long sourceId) {
     // Query: RedirectingRule
-    final EntityQuery<RedirectingRule> redirectingRuleQuery =
-        new EntityQuery<>(RedirectingRule.class);
+    final EntityWithIdQuery<RedirectingRule> redirectingRuleQuery =
+        new EntityWithIdQuery<>(RedirectingRule.class);
     redirectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
     redirectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -61,8 +61,8 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
 
   public List<RedirectingRuleDto> getAsDtos(final SharedSessionContract ssc, final long sourceId) {
     // Query: RedirectingRule
-    final EntityQuery<RedirectingRule> redirectingRuleQuery =
-        new EntityQuery<>(RedirectingRule.class);
+    final EntityWithIdQuery<RedirectingRule> redirectingRuleQuery =
+        new EntityWithIdQuery<>(RedirectingRule.class);
     redirectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
     redirectingRuleQuery
