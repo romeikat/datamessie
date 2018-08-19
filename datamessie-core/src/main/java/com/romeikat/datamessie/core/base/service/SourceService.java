@@ -23,27 +23,37 @@ License along with this program.  If not, see
  */
 import java.util.Collection;
 import java.util.List;
+import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import com.romeikat.datamessie.core.base.dao.impl.Project2SourceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
 import com.romeikat.datamessie.core.base.dao.impl.Source2SourceTypeDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceTypeDao;
 import com.romeikat.datamessie.core.base.dao.impl.TagSelectingRuleDao;
+import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.task.DocumentsDeprocessingTask;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.base.util.EntitiesById;
 import com.romeikat.datamessie.core.base.util.EntitiesWithIdById;
+import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.UpdateTracker;
+import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransactionAndResult;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.SourceDto;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
+import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
@@ -53,6 +63,8 @@ import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
 
 @Service
 public class SourceService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SourceService.class);
 
   @Autowired
   private TaskManager taskManager;
@@ -75,7 +87,67 @@ public class SourceService {
   private Source2SourceTypeDao source2SourceTypeDao;
 
   @Autowired
+  private Project2SourceDao project2SourceDao;
+
+  @Autowired
+  private StringUtil stringUtil;
+
+  @Autowired
   private ApplicationContext ctx;
+
+  public SourceDto createSource(final StatelessSession statelessSession, final Long projectId) {
+    final SourceDto source = new ExecuteWithTransactionAndResult<SourceDto>(statelessSession) {
+      @Override
+      protected SourceDto executeWithResult(final StatelessSession statelessSession) {
+        // Create
+        final String name = getNewName(statelessSession);
+        final Source source = new Source(0, name, "", true);
+        sourceDao.insert(statelessSession, source);
+
+        // Assign
+        if (projectId != null) {
+          final Project2Source project2Source = new Project2Source(projectId, source.getId());
+          project2SourceDao.insert(statelessSession, project2Source);
+        }
+
+        // Get
+        return sourceDao.getAsDto(statelessSession, source.getId());
+      }
+
+      @Override
+      protected void onException(final Exception e) {
+        final StringBuilder msg = new StringBuilder();
+        msg.append("Could not create source");
+        if (projectId != null) {
+          msg.append(" for project ");
+          msg.append(projectId);
+        }
+        LOG.error(msg.toString(), e);
+      }
+    }.execute();
+
+    // Get
+    return source;
+  }
+
+  public String getNewName(final SharedSessionContract ssc) {
+    // Get all names
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
+    final ProjectionList projectionList = Projections.projectionList();
+    projectionList.add(Projections.property("name"), "name");
+    final List<String> names = (List<String>) sourceQuery.listForProjection(ssc, projectionList);
+
+    // Determine new name
+    int counter = 1;
+    while (true) {
+      final String candidateName = "New source " + counter;
+      if (!stringUtil.containsIgnoreCase(names, candidateName)) {
+        return candidateName;
+      } else {
+        counter++;
+      }
+    }
+  }
 
   public void updateSource(final StatelessSession statelessSession, final SourceDto sourceDto) {
     // Get

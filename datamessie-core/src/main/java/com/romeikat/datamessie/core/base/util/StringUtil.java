@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
+import java.util.Collection;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.lang3.StringUtils;
@@ -73,6 +74,17 @@ public class StringUtil {
     }
 
     return number == 1 ? singularTerm : singularTerm + "s";
+  }
+
+  public boolean containsIgnoreCase(final Collection<String> existingStrings,
+      final String candidateString) {
+    for (final String existingString : existingStrings) {
+      if (StringUtils.equalsIgnoreCase(existingString, candidateString)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
 }

@@ -28,10 +28,14 @@ import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.hibernate.SessionFactory;
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.service.SourceService;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
+import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
+import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
+import com.romeikat.datamessie.core.domain.dto.SourceDto;
 import com.romeikat.datamessie.core.view.ui.panel.SourcesOverviewPanel;
 
 @AuthorizeInstantiation(DataMessieRoles.SOURCES_PAGE)
@@ -45,6 +49,9 @@ public class SourcesPage extends AbstractAuthenticatedPage {
 
   @SpringBean
   private SourceService sourceService;
+
+  @SpringBean(name = "sessionFactory")
+  private SessionFactory sessionFactory;
 
   public SourcesPage(final PageParameters pageParameters) {
     super(pageParameters);
@@ -82,14 +89,19 @@ public class SourcesPage extends AbstractAuthenticatedPage {
 
       @Override
       public void onClick() {
-        // TODO source creation
-      }
+        final DocumentsFilterSettings dfs = DataMessieSession.get().getDocumentsFilterSettings();
+        final Long projectId = dfs.getProjectId();
 
-      @Override
-      public void onConfigure() {
-        setVisible(false);
-        // final List<SourceDto> sources = sourcesModel.getObject();
-        // setVisible(sources.isEmpty());
+        // Create
+        final HibernateSessionProvider sessionProvider =
+            new HibernateSessionProvider(sessionFactory);
+        final SourceDto newSource =
+            sourceService.createSource(sessionProvider.getStatelessSession(), projectId);
+
+        // Open
+        final PageParameters sourcePageParameters = createProjectPageParameters();
+        sourcePageParameters.set("id", newSource.getId());
+        setResponsePage(SourcePage.class, sourcePageParameters);
       }
     };
     addSourceLink.setOutputMarkupId(true);
