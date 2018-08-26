@@ -50,6 +50,7 @@ import org.hibernate.SessionFactory;
 import org.wicketstuff.modalx.ModalContentPanel;
 import org.wicketstuff.modalx.ModalContentWindow;
 import org.wicketstuff.modalx.ModalMgr;
+import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.base.ui.component.NavigationLink;
 import com.romeikat.datamessie.core.base.ui.component.ProjectSelector;
@@ -127,8 +128,9 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
         if (projectParameter.isNull()) {
           activeProject = getDefaultProject();
         } else {
-          activeProject =
-              projectDao.getAsDto(sessionFactory.getCurrentSession(), projectParameter.toLong());
+          final Long userId = DataMessieSession.get().getUserId();
+          activeProject = projectDao.getAsDto(sessionFactory.getCurrentSession(),
+              projectParameter.toLong(), userId);
           if (activeProject == null) {
             activeProject = getDefaultProject();
           }
@@ -136,6 +138,7 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
         // Ensure project parameter
         if (activeProject != null) {
           getPageParameters().set("project", activeProject.getId());
+          DataMessieSession.get().getDocumentsFilterSettings().setProjectId(activeProject.getId());
         }
         // Done
         return activeProject;
@@ -291,8 +294,9 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
   }
 
   private ProjectDto getDefaultProject() {
-    // TODO: only consider projects to which the user has permission
-    final List<ProjectDto> projects = projectDao.getAllAsDtos(sessionFactory.getCurrentSession());
+    final Long userId = DataMessieSession.get().getUserId();
+    final List<ProjectDto> projects =
+        projectDao.getAllAsDtos(sessionFactory.getCurrentSession(), userId);
     // No project found
     if (projects.isEmpty()) {
       return null;

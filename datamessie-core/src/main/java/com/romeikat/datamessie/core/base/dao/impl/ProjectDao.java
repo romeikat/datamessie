@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.base.dao.impl;
 
+import java.util.Collection;
+import java.util.Collections;
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -29,9 +31,11 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
+import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
+import com.romeikat.datamessie.core.domain.entity.impl.Project2User;
 
 @Repository
 public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
@@ -45,9 +49,24 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
     return "name";
   }
 
-  public List<ProjectDto> getAllAsDtos(final SharedSessionContract ssc) {
+  public List<Long> getIdsForUser(final SharedSessionContract ssc, final Long userId) {
+    // Query: Project2User
+    final EntityQuery<Project2User> project2UserQuery = new EntityQuery<>(Project2User.class);
+    project2UserQuery.addRestriction(Restrictions.eq("userId", userId));
+    final List<Long> projectIds = project2UserQuery.listIdsForProperty(ssc, "projectId");
+    return projectIds;
+  }
+
+  public List<ProjectDto> getAllAsDtos(final SharedSessionContract ssc, final Long userId) {
+    // Restrict to user
+    final Collection<Long> projectIdsForUser = getIdsForUser(ssc, userId);
+    if (projectIdsForUser.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     // Query: Project
     final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(Project.class);
+    projectQuery.addIdRestriction(projectIdsForUser);
     projectQuery.addOrder(Order.asc("name"));
     projectQuery.setResultTransformer(new AliasToBeanResultTransformer(ProjectDto.class));
 
@@ -64,11 +83,18 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
     return dtos;
   }
 
-  public ProjectDto getAsDto(final SharedSessionContract sharedSessionContract,
-      final long projectId) {
+  public ProjectDto getAsDto(final SharedSessionContract ssc, final long projectId,
+      final Long userId) {
+    // Restrict to user
+    final Collection<Long> projectIdsForUser = getIdsForUser(ssc, userId);
+    if (projectIdsForUser.isEmpty()) {
+      return null;
+    }
+
     // Query: Project
     final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(Project.class);
     projectQuery.addRestriction(Restrictions.idEq(projectId));
+    projectQuery.addIdRestriction(projectIdsForUser);
     projectQuery.addOrder(Order.desc("started"));
     projectQuery.setResultTransformer(new AliasToBeanResultTransformer(ProjectDto.class));
 
@@ -79,8 +105,7 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
     projectionList.add(Projections.property("crawlingEnabled"), "crawlingEnabled");
     projectionList.add(Projections.property("crawlingInterval"), "crawlingInterval");
     projectionList.add(Projections.property("preprocessingEnabled"), "preprocessingEnabled");
-    final ProjectDto dto =
-        (ProjectDto) projectQuery.uniqueForProjection(sharedSessionContract, projectionList);
+    final ProjectDto dto = (ProjectDto) projectQuery.uniqueForProjection(ssc, projectionList);
     return dto;
   }
 

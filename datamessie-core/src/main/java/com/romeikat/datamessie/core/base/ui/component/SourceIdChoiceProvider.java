@@ -27,6 +27,7 @@ import org.apache.wicket.injection.Injector;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
+import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
@@ -56,8 +57,9 @@ public class SourceIdChoiceProvider extends AbstractIdBasedChoiceProvider<Source
     final DocumentsFilterSettings documentsFilterSetting = dfsModel.getObject();
     final Long projectId =
         documentsFilterSetting == null ? null : documentsFilterSetting.getProjectId();
-    final List<SourceOverviewDto> choices = sourceDao
-        .getAsOverviewDtos(sessionProvider.getStatelessSession(), projectId, true, null, null);
+    final Long userId = DataMessieSession.get().getUserId();
+    final List<SourceOverviewDto> choices = sourceDao.getAsOverviewDtos(
+        sessionProvider.getStatelessSession(), userId, projectId, true, null, null);
     sessionProvider.closeStatelessSession();
     return choices;
   }

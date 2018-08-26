@@ -89,7 +89,7 @@ public class LocalStatisticsManager implements IStatisticsManager {
 
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     final Collection<Long> sourceIds =
-        sourceDao.getIds(sessionProvider.getStatelessSession(), projectId, null);
+        sourceDao.getIds(sessionProvider.getStatelessSession(), projectId, (Boolean) null);
 
     LocalDate to;
     LocalDate from;

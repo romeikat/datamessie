@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.dao.impl.Project2SourceDao;
+import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
 import com.romeikat.datamessie.core.base.dao.impl.Source2SourceTypeDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
@@ -78,6 +79,9 @@ public class SourceService {
   private SourceTypeDao sourceTypeDao;
 
   @Autowired
+  private ProjectDao projectDao;
+
+  @Autowired
   private RedirectingRuleDao redirectingRuleDao;
 
   @Autowired
@@ -95,10 +99,19 @@ public class SourceService {
   @Autowired
   private ApplicationContext ctx;
 
-  public SourceDto createSource(final StatelessSession statelessSession, final Long projectId) {
+  public SourceDto createSource(final StatelessSession statelessSession, final Long userId,
+      final Long projectId) {
     final SourceDto source = new ExecuteWithTransactionAndResult<SourceDto>(statelessSession) {
       @Override
       protected SourceDto executeWithResult(final StatelessSession statelessSession) {
+        // Restrict to user
+        final Collection<Long> projectIdsForUser =
+            projectDao.getIdsForUser(statelessSession, userId);
+        if (projectIdsForUser.isEmpty()) {
+          return null;
+        }
+
+
         // Create
         final String name = getNewName(statelessSession);
         final Source source = new Source(0, name, "", true);
@@ -111,7 +124,7 @@ public class SourceService {
         }
 
         // Get
-        return sourceDao.getAsDto(statelessSession, source.getId());
+        return sourceDao.getAsDto(statelessSession, userId, source.getId());
       }
 
       @Override
@@ -140,7 +153,7 @@ public class SourceService {
     // Determine new name
     int counter = 1;
     while (true) {
-      final String candidateName = "New source " + counter;
+      final String candidateName = "New source #" + counter;
       if (!stringUtil.containsIgnoreCase(names, candidateName)) {
         return candidateName;
       } else {

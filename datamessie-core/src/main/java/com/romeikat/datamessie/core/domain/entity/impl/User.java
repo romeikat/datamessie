@@ -45,12 +45,12 @@ public class User extends AbstractEntityWithGeneratedIdAndVersion {
 
   public User() {}
 
-  public User(final long id, final String username, final byte[] passwordHash,
-      final byte[] passwordSalt) {
+  public User(final long id, final String username, final byte[] passwordSalt,
+      final byte[] passwordHash) {
     super(id);
     this.username = username;
-    this.passwordHash = passwordHash;
     this.passwordSalt = passwordSalt;
+    this.passwordHash = passwordHash;
   }
 
   @Column(nullable = false)

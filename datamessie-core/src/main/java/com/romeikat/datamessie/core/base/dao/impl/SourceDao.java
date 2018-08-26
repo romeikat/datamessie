@@ -54,6 +54,9 @@ import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
 public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
 
   @Autowired
+  private ProjectDao projectDao;
+
+  @Autowired
   private RedirectingRuleDao redirectingRuleDao;
 
   @Autowired
@@ -88,11 +91,15 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return result;
   }
 
-  public List<Long> getIds(final SharedSessionContract ssc, final long projectId,
+  public List<Long> getIds(final SharedSessionContract ssc, final Long projectId,
       final Boolean visible) {
+    if (projectId == null) {
+      return Collections.emptyList();
+    }
+
     // Query: Project2Source
     final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
-    project2SourceQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
+    project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
     final Collection<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
     if (sourceIds.isEmpty()) {
       return Collections.emptyList();
@@ -110,23 +117,67 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return sourceIds2;
   }
 
-  public Long count(final SharedSessionContract ssc, final Long projectId) {
+  public Long count(final SharedSessionContract ssc, final Long userId, final Long projectId) {
+    if (projectId == null) {
+      return 0l;
+    }
+
+    // Restrict to user
+    final Collection<Long> projectIdsForUser = projectDao.getIdsForUser(ssc, userId);
+    if (projectIdsForUser.isEmpty()) {
+      return 0l;
+    }
+
     // Query: Project2Source
     final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
     final Long count = project2SourceQuery.count(ssc, "projectId");
     return count;
   }
 
-  public SourceDto getAsDto(final SharedSessionContract ssc, final long id) {
-    final Source source = getEntity(ssc, id);
+  public SourceDto getAsDto(final SharedSessionContract ssc, final Long userId, final Long id) {
+    if (id == null) {
+      return null;
+    }
+
+    // Restrict to user
+    final Collection<Long> projectIdsForUser = projectDao.getIdsForUser(ssc, userId);
+    if (projectIdsForUser.isEmpty()) {
+      return null;
+    }
+
+    // Query: Project2Source
+    final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    project2SourceQuery.addRestriction(Restrictions.in("projectId", projectIdsForUser));
+    final Collection<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
+    if (sourceIds.isEmpty()) {
+      return null;
+    }
+
+    // Query: Source
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
+    sourceQuery.addRestriction(Restrictions.idEq(id));
+    sourceQuery.addRestriction(Restrictions.in("id", sourceIds));
+
+    final Source source = sourceQuery.uniqueObject(ssc);
     return sourceToDto(ssc, source);
   }
 
-  public List<SourceDto> getAsDtos(final SharedSessionContract ssc, final long projectId,
-      final Boolean visible) {
+  public List<SourceDto> getAsDtos(final SharedSessionContract ssc, final Long userId,
+      final Long projectId, final Boolean visible) {
+    if (projectId == null) {
+      return Collections.emptyList();
+    }
+
+    // Restrict to user
+    final Collection<Long> projectIdsForUser = projectDao.getIdsForUser(ssc, userId);
+    if (projectIdsForUser.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     // Query: Project2Source
     final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
-    project2SourceQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
+    project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
     final Collection<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
     if (sourceIds.isEmpty()) {
       return Collections.emptyList();
@@ -149,10 +200,22 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
   }
 
   public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
-      final Long projectId, final Boolean visible, final Long first, final Long count) {
+      final Long userId, final Long projectId, final Boolean visible, final Long first,
+      final Long count) {
+    if (projectId == null) {
+      return Collections.emptyList();
+    }
+
+    // Restrict to user
+    final Collection<Long> projectIdsForUser = projectDao.getIdsForUser(ssc, userId);
+    if (projectIdsForUser.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     // Query: Project2Source
     final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
-    project2SourceQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
+    project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
+    project2SourceQuery.addRestriction(Restrictions.in("projectId", projectIdsForUser));
     final Collection<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
     if (sourceIds.isEmpty()) {
       return Collections.emptyList();
@@ -177,17 +240,26 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
   }
 
   public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
-      final Long projectId, final Long sourceId, final Collection<Long> sourceTypeIds) {
+      final Long userId, final Long projectId, final Long sourceId,
+      final Collection<Long> sourceTypeIds) {
+    if (projectId == null) {
+      return Collections.emptyList();
+    }
+
+    // Restrict to user
+    final Collection<Long> projectIdsForUser = projectDao.getIdsForUser(ssc, userId);
+    if (projectIdsForUser.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     // Query: Project2Source
     Collection<Long> sourceIds = null;
-    if (projectId != null) {
-      final EntityQuery<Project2Source> project2SourceQuery =
-          new EntityQuery<>(Project2Source.class);
-      project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
-      sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
-      if (sourceIds.isEmpty()) {
-        return Collections.emptyList();
-      }
+    final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
+    project2SourceQuery.addRestriction(Restrictions.in("projectId", projectIdsForUser));
+    sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
+    if (sourceIds.isEmpty()) {
+      return Collections.emptyList();
     }
 
     // Query: Source2SourceType
@@ -223,7 +295,11 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return Lists.newArrayList(dtos);
   }
 
-  public List<Source> getOfProject(final SharedSessionContract ssc, final long projectId) {
+  public List<Source> getOfProject(final SharedSessionContract ssc, final Long projectId) {
+    if (projectId == null) {
+      return Collections.emptyList();
+    }
+
     // Query: Project2Source
     final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
     project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
@@ -271,6 +347,10 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
   }
 
   private SourceDto sourceToDto(final SharedSessionContract ssc, final Source source) {
+    if (source == null) {
+      return null;
+    }
+
     final SourceDto dto = new SourceDto();
     dto.setId(source.getId());
     dto.setName(source.getName());
@@ -292,6 +372,10 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
 
   private SourceOverviewDto sourceToOverviewDto(final SharedSessionContract ssc,
       final Source source) {
+    if (source == null) {
+      return null;
+    }
+
     final SourceOverviewDto dto = new SourceOverviewDto();
     dto.setId(source.getId());
     dto.setName(source.getName());

@@ -30,6 +30,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.hibernate.SessionFactory;
+import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.domain.dto.SourceOverviewDto;
@@ -58,7 +59,8 @@ public class SourcesOverviewDataProvider implements IDataProvider<SourceOverview
 
       @Override
       public Long load() {
-        final Long numberOfDocuments = sourceDao.count(sessionFactory.getCurrentSession(),
+        final Long userId = DataMessieSession.get().getUserId();
+        final Long numberOfDocuments = sourceDao.count(sessionFactory.getCurrentSession(), userId,
             dfsModel.getObject().getProjectId());
         return numberOfDocuments;
       }
@@ -67,8 +69,9 @@ public class SourcesOverviewDataProvider implements IDataProvider<SourceOverview
 
   @Override
   public Iterator<? extends SourceOverviewDto> iterator(final long first, final long count) {
+    final Long userId = DataMessieSession.get().getUserId();
     final List<SourceOverviewDto> documents =
-        sourceDao.getAsOverviewDtos(sessionFactory.getCurrentSession(),
+        sourceDao.getAsOverviewDtos(sessionFactory.getCurrentSession(), userId,
             dfsModel.getObject().getProjectId(), null, first, count);
     return documents.iterator();
   }

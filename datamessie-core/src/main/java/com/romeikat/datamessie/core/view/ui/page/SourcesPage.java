@@ -95,8 +95,9 @@ public class SourcesPage extends AbstractAuthenticatedPage {
         // Create
         final HibernateSessionProvider sessionProvider =
             new HibernateSessionProvider(sessionFactory);
+        final Long userId = DataMessieSession.get().getUserId();
         final SourceDto newSource =
-            sourceService.createSource(sessionProvider.getStatelessSession(), projectId);
+            sourceService.createSource(sessionProvider.getStatelessSession(), userId, projectId);
 
         // Open
         final PageParameters sourcePageParameters = createProjectPageParameters();

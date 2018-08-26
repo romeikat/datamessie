@@ -29,6 +29,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
+import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.base.ui.choicerenderer.ProjectsChoiceRenderer;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
@@ -59,7 +60,8 @@ public class ProjectSelector extends DropDownChoice<ProjectDto> {
 
       @Override
       public List<ProjectDto> load() {
-        return projectDao.getAllAsDtos(sessionFactory.getCurrentSession());
+        final Long userId = DataMessieSession.get().getUserId();
+        return projectDao.getAllAsDtos(sessionFactory.getCurrentSession(), userId);
       }
     };
     setChoices(allProjectsModel);

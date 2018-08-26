@@ -90,12 +90,13 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
       protected Map<Long, SourceOverviewDto> load() {
         final HibernateSessionProvider sessionProvider =
             new HibernateSessionProvider(sessionFactory);
+        final Long userId = DataMessieSession.get().getUserId();
         final DocumentsFilterSettings dfs = DataMessieSession.get().getDocumentsFilterSettings();
         final Long projectId = dfs.getProjectId();
         final Long sourceId = dfs.getSourceId();
         final Collection<Long> sourceTypeIds = dfs.getSourceTypeIds();
         final List<SourceOverviewDto> sources = sourceDao.getAsOverviewDtos(
-            sessionProvider.getStatelessSession(), projectId, sourceId, sourceTypeIds);
+            sessionProvider.getStatelessSession(), userId, projectId, sourceId, sourceTypeIds);
         sessionProvider.closeStatelessSession();
 
         final Map<Long, SourceOverviewDto> sourcesMap =

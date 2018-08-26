@@ -39,6 +39,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.StringValue;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
+import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.service.SourceService;
@@ -83,8 +84,9 @@ public class SourcePage extends AbstractAuthenticatedPage {
 
     // Source
     final StringValue idParameter = getRequest().getRequestParameters().getParameterValue("id");
+    final Long userId = DataMessieSession.get().getUserId();
     final SourceDto source = idParameter.isNull() ? null
-        : sourceDao.getAsDto(sessionProvider.getStatelessSession(), idParameter.toLong());
+        : sourceDao.getAsDto(sessionProvider.getStatelessSession(), userId, idParameter.toLong());
     // Model cannot be a LoadableDetachableModel as the contained DTO will be edited across
     // multiple Ajax requests (by RedirectingRulesPanel and TagSelectingRulesPanel)
     sourceModel = new Model<SourceDto>(source) {
@@ -99,8 +101,8 @@ public class SourcePage extends AbstractAuthenticatedPage {
           if (oldSource.getId() != idParameter.toLong()) {
             final HibernateSessionProvider sessionProvider =
                 new HibernateSessionProvider(sessionFactory);
-            final SourceDto newSource =
-                sourceDao.getAsDto(sessionProvider.getStatelessSession(), idParameter.toLong());
+            final SourceDto newSource = sourceDao.getAsDto(sessionProvider.getStatelessSession(),
+                userId, idParameter.toLong());
             sessionProvider.closeStatelessSession();
             if (newSource != null) {
               return newSource;

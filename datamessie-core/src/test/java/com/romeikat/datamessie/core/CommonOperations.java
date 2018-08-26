@@ -43,6 +43,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
+import com.romeikat.datamessie.core.domain.entity.impl.Project2User;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
@@ -62,7 +63,8 @@ public class CommonOperations {
       CleanedContent.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
       Document.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceType.TABLE_NAME, SourceType.TABLE_NAME,
-      Project2Source.TABLE_NAME, Source.TABLE_NAME, Project.TABLE_NAME, User.TABLE_NAME);
+      Project2Source.TABLE_NAME, Source.TABLE_NAME, Project2User.TABLE_NAME, Project.TABLE_NAME,
+      User.TABLE_NAME);
 
   public static Insert insertIntoBarEntity(final BarEntity barEntity) {
     return insertInto(BarEntity.TABLE_NAME).columns("name", "active", "foo_id")
@@ -109,6 +111,11 @@ public class CommonOperations {
             project.getCrawlingEnabled(), project.getCrawlingInterval(),
             project.getPreprocessingEnabled())
         .build();
+  }
+
+  public static Insert insertIntoProject2User(final Project2User project2User) {
+    return insertInto(Project2User.TABLE_NAME).columns("project_id", "user_id")
+        .values(project2User.getProjectId(), project2User.getUserId()).build();
   }
 
   public static Insert insertIntoProject2Source(final Project2Source project2Source) {

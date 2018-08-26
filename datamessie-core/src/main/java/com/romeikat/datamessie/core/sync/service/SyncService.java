@@ -46,7 +46,9 @@ import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.Sourc
 import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.StatisticsSynchronizer;
 import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.StemmedContentSynchronizer;
 import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.TagSelectingRuleSynchronizer;
+import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.UserSynchronizer;
 import com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion.Project2SourceSynchronizer;
+import com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion.Project2UserSynchronizer;
 import com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion.Source2SourceTypeSynchronizer;
 import com.romeikat.datamessie.core.sync.service.template.ISynchronizer;
 import jersey.repackaged.com.google.common.collect.Lists;
@@ -78,6 +80,7 @@ public class SyncService {
   private List<ISynchronizer> getSynchronizersFromCore() {
     final List<ISynchronizer> synchronizers = Lists.newLinkedList();
 
+    synchronizers.add(new UserSynchronizer(ctx));
     synchronizers.add(new SourceTypeSynchronizer(ctx));
     synchronizers.add(new SourceSynchronizer(ctx));
     synchronizers.add(new Source2SourceTypeSynchronizer(ctx));
@@ -85,6 +88,7 @@ public class SyncService {
     synchronizers.add(new RedirectingRuleSynchronizer(ctx));
 
     synchronizers.add(new ProjectSynchronizer(ctx));
+    synchronizers.add(new Project2UserSynchronizer(ctx));
     synchronizers.add(new Project2SourceSynchronizer(ctx));
 
     synchronizers.add(new CrawlingSynchronizer(ctx));
