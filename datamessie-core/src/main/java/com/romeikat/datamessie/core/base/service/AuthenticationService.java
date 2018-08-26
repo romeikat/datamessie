@@ -23,88 +23,90 @@ License along with this program.  If not, see
  */
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
+import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.romeikat.datamessie.core.base.dao.impl.UserDao;
+import com.romeikat.datamessie.core.domain.entity.impl.User;
 
 @Service
 public class AuthenticationService {
 
-  public boolean authenticate(final String username, final String password) {
-    if (username == null) {
-      return false;
+  private static final Logger LOG = LoggerFactory.getLogger(AuthenticationService.class);
+
+  @Autowired
+  private UserDao userDao;
+
+  @Autowired
+  private SessionFactory sessionFactory;
+
+  public Long authenticate(final String username, final String password) {
+    if (StringUtils.isBlank(username)) {
+      return null;
     }
-    // admin / Pastinake
-    if (checkUsername(username, "admin") && checkPassword(password, "Pastinake")) {
-      return true;
+
+    // Find user
+    final User user = userDao.get(sessionFactory.getCurrentSession(), username);
+    if (user == null) {
+      return null;
     }
-    // admin / Zd2tsd3ig
-    if (checkUsername(username, "admin") && checkPassword(password, "Zd2tsd3ig")) {
-      return true;
+
+    // Verify user
+    final byte[] passwordSalt = user.getPasswordSalt();
+    final byte[] passwordHash = user.getPasswordHash();
+    final boolean authenticated = authenticate(password, passwordSalt, passwordHash);
+    if (authenticated) {
+      return user.getId();
+    } else {
+      return null;
     }
-    // Others
-    return false;
   }
 
-  public DataMessieRoles getRoles(final String username, final String passwordHash,
-      final boolean signedIn) {
-    if (username == null || !signedIn) {
+  public boolean authenticate(final String password, final byte[] passwordSalt,
+      final byte[] passwordHash) {
+    final byte[] expectedPasswordHash = calculateHash(password, passwordSalt);
+    final boolean passwordHashEquals = Arrays.equals(expectedPasswordHash, passwordHash);
+    return passwordHashEquals;
+  }
+
+  public DataMessieRoles getRoles(final Long userId) {
+    if (userId == null) {
       return DataMessieRoles.getEmptyRoles();
-    }
-    // admin / Pastinake
-    if (checkUsername(username, "admin") && checkPasswordHash(passwordHash, "Pastinake")) {
+    } else {
       return DataMessieRoles.getAllRoles();
     }
-    // admin / Zd2tsd3ig
-    if (checkUsername(username, "admin") && checkPasswordHash(passwordHash, "Zd2tsd3ig")) {
-      return DataMessieRoles.getAllRolesExcept(DataMessieRoles.ANALYSIS_PAGE);
-    }
-    // Others
-    return DataMessieRoles.getEmptyRoles();
   }
 
-  private boolean checkUsername(final String providedUsername, final String expectedUsername) {
-    if (providedUsername == null || expectedUsername == null) {
-      return false;
-    }
-    return providedUsername.equalsIgnoreCase(expectedUsername);
-  }
-
-  private boolean checkPassword(final String providedPassword, final String expectedPassword) {
-    if (providedPassword == null || expectedPassword == null) {
-      return false;
-    }
-    return providedPassword.equals(expectedPassword);
-  }
-
-  private boolean checkPasswordHash(final String providedPasswordHash,
-      final String expectedPassword) {
-    if (providedPasswordHash == null || expectedPassword == null) {
-      return false;
-    }
-    final String expectedPasswordHash = getHash(expectedPassword);
-    return providedPasswordHash.equals(expectedPasswordHash);
-  }
-
-  public String getHash(final String password) {
-    String passwordHash = null;
+  public byte[] createSalt() {
+    SecureRandom sr;
     try {
-      // Create MessageDigest instance for SHA-512
-      final MessageDigest md = MessageDigest.getInstance("SHA-512");
-      // Add password bytes to digest
-      md.update(password.getBytes());
-      // Get the hash's bytes
-      final byte[] bytes = md.digest();
-      // Convert bytes in decimal format to hexadecimal format
-      final StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < bytes.length; i++) {
-        sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
-      }
-      // Get hashed password in hex format
-      passwordHash = sb.toString();
+      sr = SecureRandom.getInstance("SHA1PRNG");
+      final byte[] salt = new byte[512 / 8];
+      sr.nextBytes(salt);
+      return salt;
     } catch (final NoSuchAlgorithmException e) {
-      e.printStackTrace();
+      LOG.error("Could not create salt", e);
+      return null;
     }
-    return passwordHash;
+  }
+
+  public byte[] calculateHash(final String password, final byte[] salt) {
+    MessageDigest md;
+    try {
+      md = MessageDigest.getInstance("SHA-512");
+      md.update(salt);
+      final byte[] hash = md.digest(password.getBytes());
+      return hash;
+    } catch (final NoSuchAlgorithmException e) {
+      LOG.error("Could not calculate hash", e);
+      return null;
+    }
   }
 
   public static class DataMessieRoles extends Roles {

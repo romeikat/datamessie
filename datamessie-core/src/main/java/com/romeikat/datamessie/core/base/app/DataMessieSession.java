@@ -38,9 +38,7 @@ public class DataMessieSession extends AuthenticatedWebSession {
 
   private static final long serialVersionUID = 1L;
 
-  private String username;
-
-  private String passwordHash;
+  private Long userId;
 
   private final IModel<DocumentsFilterSettings> dfsModel;
 
@@ -73,29 +71,28 @@ public class DataMessieSession extends AuthenticatedWebSession {
 
   @Override
   public boolean authenticate(final String username, final String password) {
-    final boolean authSuccess = authenticationService.authenticate(username, password);
+    final Long userId = authenticationService.authenticate(username, password);
+    final boolean authSuccess = userId != null;
     if (authSuccess) {
-      this.username = username;
-      passwordHash = authenticationService.getHash(password);
+      this.userId = userId;
     }
     return authSuccess;
   }
 
   @Override
   public DataMessieRoles getRoles() {
-    final DataMessieRoles roles =
-        authenticationService.getRoles(username, passwordHash, isSignedIn());
+    final DataMessieRoles roles = authenticationService.getRoles(userId);
     return roles;
   }
 
   @Override
   public void signOut() {
     super.signOut();
-    username = null;
+    userId = null;
   }
 
-  public String getUsername() {
-    return username;
+  public Long getUserId() {
+    return userId;
   }
 
   public IModel<DocumentsFilterSettings> getDocumentsFilterSettingsModel() {

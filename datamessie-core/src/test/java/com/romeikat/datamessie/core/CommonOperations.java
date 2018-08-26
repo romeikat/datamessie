@@ -50,6 +50,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.entity.impl.User;
 
 public class CommonOperations {
 
@@ -61,7 +62,7 @@ public class CommonOperations {
       CleanedContent.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
       Document.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceType.TABLE_NAME, SourceType.TABLE_NAME,
-      Project2Source.TABLE_NAME, Source.TABLE_NAME, Project.TABLE_NAME);
+      Project2Source.TABLE_NAME, Source.TABLE_NAME, Project.TABLE_NAME, User.TABLE_NAME);
 
   public static Insert insertIntoBarEntity(final BarEntity barEntity) {
     return insertInto(BarEntity.TABLE_NAME).columns("name", "active", "foo_id")
@@ -72,6 +73,13 @@ public class CommonOperations {
     return insertInto(BarEntityWithId.TABLE_NAME)
         .columns("id", "name", "active", "foo_id").values(barEntityWithId.getId(),
             barEntityWithId.getName(), barEntityWithId.getActive(), barEntityWithId.getFooId())
+        .build();
+  }
+
+  public static Insert insertIntoUser(final User user) {
+    return insertInto(User.TABLE_NAME)
+        .columns("id", "version", "username", "passwordSalt", "passwordHash").values(user.getId(),
+            user.getVersion(), user.getUsername(), user.getPasswordSalt(), user.getPasswordHash())
         .build();
   }
 
