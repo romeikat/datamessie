@@ -46,8 +46,6 @@ import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
-import com.romeikat.datamessie.core.rss.task.rssCrawling.ProjectCrawler;
-import com.romeikat.datamessie.core.rss.task.rssCrawling.SourceCrawler;
 
 public class ProjectCrawlerTest extends AbstractDbSetupBasedTest {
 
@@ -72,7 +70,7 @@ public class ProjectCrawlerTest extends AbstractDbSetupBasedTest {
   @Override
   protected Operation initDb() {
     final Project project1 = new Project(1, "Project1", false, false);
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true);
+    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true, false);
     final Project2Source project2Source = new Project2Source(1, 1);
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,

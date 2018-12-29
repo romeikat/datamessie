@@ -174,6 +174,9 @@ public class SourcePage extends AbstractAuthenticatedPage {
     // Visible
     final CheckBox visibleCheckBox = new CheckBox("visible");
     sourceForm.add(visibleCheckBox);
+    // Statistics checking
+    final CheckBox statisticsCheckingCheckBox = new CheckBox("statisticsChecking");
+    sourceForm.add(statisticsCheckingCheckBox);
 
     sessionProvider.closeStatelessSession();
   }

@@ -67,9 +67,6 @@ import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentProcessor;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessor;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.NamedEntityCategoriesCreator;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.cache.DocumentsProcessingCache;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaner;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaningResult;
@@ -144,7 +141,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
   @Override
   protected Operation initDb() {
     final Project project1 = new Project(1, "Project1", false, false);
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true);
+    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true, false);
     final Crawling crawling1 = new Crawling(1, project1.getId());
     final NamedEntity namedEntity = new NamedEntity(1, "NamedEntity");
 

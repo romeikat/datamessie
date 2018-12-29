@@ -69,10 +69,10 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   protected Operation initDb() {
     final SourceType sourceType1 = new SourceType(1, "SourceType1");
     final SourceType sourceType2 = new SourceType(2, "SourceType2");
-    final Source source11 = new Source(11, "Source11", "http://www.source11.de/", true);
-    final Source source12 = new Source(12, "Source12", "http://www.source12.de/", false);
-    final Source source21 = new Source(21, "Source21", "http://www.source21.de/", true);
-    final Source source22 = new Source(22, "Source22", "http://www.source22.de/", false);
+    final Source source11 = new Source(11, "Source11", "http://www.source11.de/", true, false);
+    final Source source12 = new Source(12, "Source12", "http://www.source12.de/", false, false);
+    final Source source21 = new Source(21, "Source21", "http://www.source21.de/", true, false);
+    final Source source22 = new Source(22, "Source22", "http://www.source22.de/", false, false);
     final Source2SourceType source2SourceType111 = new Source2SourceType(11, 1);
     final Source2SourceType source2SourceType211 = new Source2SourceType(21, 1);
     final Source2SourceType source2SourceType122 = new Source2SourceType(12, 2);

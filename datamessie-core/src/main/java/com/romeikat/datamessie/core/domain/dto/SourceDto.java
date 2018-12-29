@@ -53,6 +53,8 @@ public class SourceDto implements Serializable {
 
   private boolean visible;
 
+  private boolean statisticsChecking;
+
   public long getId() {
     return id;
   }
@@ -134,6 +136,14 @@ public class SourceDto implements Serializable {
 
   public void setVisible(final boolean visible) {
     this.visible = visible;
+  }
+
+  public boolean getStatisticsChecking() {
+    return statisticsChecking;
+  }
+
+  public void setStatisticsChecking(final boolean statisticsChecking) {
+    this.statisticsChecking = statisticsChecking;
   }
 
 }

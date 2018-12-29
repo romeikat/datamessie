@@ -114,7 +114,7 @@ public class SourceService {
 
         // Create
         final String name = getNewName(statelessSession);
-        final Source source = new Source(0, name, "", true);
+        final Source source = new Source(0, name, "", true, false);
         sourceDao.insert(statelessSession, source);
 
         // Assign
@@ -174,6 +174,7 @@ public class SourceService {
     source.setLanguage(sourceDto.getLanguage());
     source.setUrl(sourceDto.getUrl());
     source.setVisible(sourceDto.getVisible());
+    source.setStatisticsChecking(sourceDto.getStatisticsChecking());
 
     // Set new types
     setSourceTypes(statelessSession, source.getId(), sourceDto.getTypes());
@@ -326,6 +327,21 @@ public class SourceService {
     }
     // Update
     source.setVisible(visible);
+    sourceDao.update(statelessSession, source);
+  }
+
+  public void setStatisticsChecking(final StatelessSession statelessSession, final long id,
+      final Boolean statisticsChecking) {
+    if (statisticsChecking == null) {
+      return;
+    }
+    // Get
+    final Source source = sourceDao.getEntity(statelessSession, id);
+    if (source == null) {
+      return;
+    }
+    // Update
+    source.setStatisticsChecking(statisticsChecking);
     sourceDao.update(statelessSession, source);
   }
 

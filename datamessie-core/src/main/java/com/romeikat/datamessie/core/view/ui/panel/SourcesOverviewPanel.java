@@ -163,6 +163,29 @@ public class SourcesOverviewPanel extends Panel {
               }
             });
             item.add(visibleCheckBox);
+            // Statistics checking
+            final CheckBox statisticsCheckingCheckBox = new CheckBox("statisticsChecking",
+                new PropertyModel<Boolean>(sourceModel, "statisticsChecking"));
+            // Updating behavior to save statistics checking immediately on change
+            statisticsCheckingCheckBox.add(new ModelUpdatingBehavior() {
+              private static final long serialVersionUID = 1L;
+
+              @Override
+              protected void onUpdate(final AjaxRequestTarget target) {
+                final Boolean newSelection = statisticsCheckingCheckBox.getModelObject();
+                final HibernateSessionProvider sessionProvider =
+                    new HibernateSessionProvider(sessionFactory);
+                new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
+                  @Override
+                  protected void execute(final StatelessSession statelessSession) {
+                    sourceService.setStatisticsChecking(statelessSession, source.getId(),
+                        newSelection);
+                  }
+                }.execute();
+                sessionProvider.closeStatelessSession();
+              }
+            });
+            item.add(statisticsCheckingCheckBox);
             // Number of rules
             final Label numberOfRulesLabel = new Label("numberOfRules",
                 source.getNumberOfRedirectingRules() + "/" + source.getNumberOfTagSelectingRules());

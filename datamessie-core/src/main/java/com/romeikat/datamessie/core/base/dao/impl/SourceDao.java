@@ -367,6 +367,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     dto.setNumberOfRedirectingRules(redirectingRules.size());
     dto.setNumberOfTagSelectingRules(tagSelectingRules.size());
     dto.setVisible(source.getVisible());
+    dto.setStatisticsChecking(source.getStatisticsChecking());
     return dto;
   }
 
@@ -390,6 +391,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     dto.setNumberOfRedirectingRules(redirectingRules.size());
     dto.setNumberOfTagSelectingRules(tagSelectingRules.size());
     dto.setVisible(source.getVisible());
+    dto.setStatisticsChecking(source.getStatisticsChecking());
     return dto;
   }
 

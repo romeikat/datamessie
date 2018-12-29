@@ -48,13 +48,17 @@ public class Source extends AbstractEntityWithGeneratedIdAndVersion {
 
   private boolean visible;
 
+  private boolean statisticsChecking;
+
   public Source() {}
 
-  public Source(final long id, final String name, final String url, final boolean visible) {
+  public Source(final long id, final String name, final String url, final boolean visible,
+      final boolean statisticsChecking) {
     super(id);
     this.name = name;
     this.url = url;
     this.visible = visible;
+    this.statisticsChecking = statisticsChecking;
   }
 
   @Column(nullable = false)
@@ -96,6 +100,15 @@ public class Source extends AbstractEntityWithGeneratedIdAndVersion {
   public Source setVisible(final boolean visible) {
     this.visible = visible;
     return this;
+  }
+
+  @Column(nullable = false)
+  public boolean getStatisticsChecking() {
+    return statisticsChecking;
+  }
+
+  public void setStatisticsChecking(final boolean statisticsChecking) {
+    this.statisticsChecking = statisticsChecking;
   }
 
 }

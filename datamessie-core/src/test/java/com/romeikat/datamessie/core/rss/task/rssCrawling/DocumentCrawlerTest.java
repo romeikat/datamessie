@@ -78,7 +78,7 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
   @Override
   protected Operation initDb() {
     final Project project1 = new Project(1, "Project1", false, false);
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true);
+    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true, false);
     final Crawling crawling1 = new Crawling(1, project1.getId());
     final LocalDateTime now = LocalDateTime.now();
     // Document1 with download success

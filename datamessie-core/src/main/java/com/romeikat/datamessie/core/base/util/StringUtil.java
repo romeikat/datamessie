@@ -76,6 +76,11 @@ public class StringUtil {
     return number == 1 ? singularTerm : singularTerm + "s";
   }
 
+  public String getSingularOrPluralTerm(final String singularTerm, final String pluralTerm,
+      final int number) {
+    return number == 1 ? singularTerm : pluralTerm;
+  }
+
   public boolean containsIgnoreCase(final Collection<String> existingStrings,
       final String candidateString) {
     for (final String existingString : existingStrings) {
