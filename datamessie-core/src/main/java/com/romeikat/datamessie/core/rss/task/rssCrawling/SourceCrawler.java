@@ -73,7 +73,8 @@ public class SourceCrawler {
 
   private final DocumentCrawler documentCrawler;
 
-  private final Double documentsParallelismFactor;
+  private final int feedDownloadAttempts;
+  private final double documentsParallelismFactor;
   private final StatisticsRebuildingSparseTable statisticsToBeRebuilt;
 
   public SourceCrawler(final ApplicationContext ctx) {
@@ -87,6 +88,8 @@ public class SourceCrawler {
 
     documentCrawler = new DocumentCrawler(ctx);
 
+    feedDownloadAttempts =
+        Integer.parseInt(SpringUtil.getPropertyValue(ctx, "crawling.feed.download.attempts"));
     documentsParallelismFactor = Double
         .parseDouble(SpringUtil.getPropertyValue(ctx, "crawling.documents.parallelism.factor"));
 
@@ -126,7 +129,7 @@ public class SourceCrawler {
       return null;
     }
     final String rssFeedUrl = htmlUtil.addProtocolIfNecessary(url);
-    final SyndFeed syndFeed = rssFeedDownloader.downloadRssFeed(rssFeedUrl);
+    final SyndFeed syndFeed = rssFeedDownloader.downloadRssFeed(rssFeedUrl, feedDownloadAttempts);
     return syndFeed;
   }
 

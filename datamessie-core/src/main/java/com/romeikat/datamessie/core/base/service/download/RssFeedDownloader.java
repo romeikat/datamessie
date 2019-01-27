@@ -39,6 +39,23 @@ public class RssFeedDownloader extends AbstractDownloader {
   private static final boolean ALLOW_DOCTYPES = true;
 
   public SyndFeed downloadRssFeed(final String sourceUrl) {
+    return downloadRssFeed(sourceUrl, 1);
+  }
+
+  public SyndFeed downloadRssFeed(final String sourceUrl, final int maxAttempts) {
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      final SyndFeed syndFeed = download(sourceUrl);
+      if (syndFeed != null) {
+        return syndFeed;
+      }
+
+      waitMillis(getTimeout());
+    }
+
+    return null;
+  }
+
+  private SyndFeed download(final String sourceUrl) {
     LOG.debug("Downloading content from {}", sourceUrl);
     // Download source
     XmlReader xmlReader = null;
@@ -67,6 +84,13 @@ public class RssFeedDownloader extends AbstractDownloader {
       }
     }
     return syndFeed;
+  }
+
+  private void waitMillis(final long millis) {
+    try {
+      Thread.sleep(millis);
+    } catch (final InterruptedException e) {
+    }
   }
 
 }

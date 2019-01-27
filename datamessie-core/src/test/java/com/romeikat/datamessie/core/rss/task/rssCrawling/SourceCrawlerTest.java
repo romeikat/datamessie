@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -171,7 +172,7 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished3)).when(syndEntry1).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString(), anyInt());
 
     // Mock download result
     final DownloadResult downloadResult3 =
@@ -221,7 +222,7 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
       syndEntries.add(syndEntry1);
     }
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString(), anyInt());
 
     // Mock download result
     final DownloadResult downloadResult3 =
@@ -273,7 +274,7 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished1)).when(syndEntry1).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString(), anyInt());
 
     // Mock download result
     final DownloadResult downloadResult1 =
@@ -317,7 +318,7 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished2)).when(syndEntry1).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString(), anyInt());
 
     // Mock download result
     final DownloadResult downloadResult2 =
@@ -366,7 +367,7 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished4)).when(syndEntry2).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1, syndEntry2);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString(), anyInt());
 
     // Mock download results (3 fails, 4 works)
     doThrow(Exception.class).when(downloadService)
@@ -407,7 +408,7 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished4)).when(syndEntry2).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1, syndEntry2);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString(), anyInt());
 
     // Mock download results (3 fails, 4 works)
     doThrow(Exception.class).when(contentDownloader).downloadContent(eq(url3));
@@ -453,7 +454,7 @@ public class SourceCrawlerTest extends AbstractDbSetupBasedTest {
     doReturn(DateUtil.fromLocalDateTime(newPublished4)).when(syndEntry2).getPublishedDate();
     final List<SyndEntry> syndEntries = Lists.newArrayList(syndEntry1, syndEntry2);
     doReturn(syndEntries).when(syndFeed).getEntries();
-    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString());
+    doReturn(syndFeed).when(rssFeedDownloader).downloadRssFeed(anyString(), anyInt());
 
     // Mock download results
     final DownloadResult downloadResult3 =

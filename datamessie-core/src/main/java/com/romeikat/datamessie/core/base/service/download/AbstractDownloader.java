@@ -201,4 +201,8 @@ public abstract class AbstractDownloader {
     }
   }
 
+  protected int getTimeout() {
+    return timeout;
+  }
+
 }
