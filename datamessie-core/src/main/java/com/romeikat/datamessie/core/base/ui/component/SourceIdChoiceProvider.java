@@ -31,9 +31,9 @@ import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.domain.dto.SourceOverviewDto;
+import com.romeikat.datamessie.core.domain.dto.SourceNameDto;
 
-public class SourceIdChoiceProvider extends AbstractIdBasedChoiceProvider<SourceOverviewDto> {
+public class SourceIdChoiceProvider extends AbstractIdBasedChoiceProvider<SourceNameDto> {
 
   private static final long serialVersionUID = 1L;
 
@@ -52,25 +52,25 @@ public class SourceIdChoiceProvider extends AbstractIdBasedChoiceProvider<Source
   }
 
   @Override
-  protected List<SourceOverviewDto> provideChoices() {
+  protected List<SourceNameDto> provideChoices() {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     final DocumentsFilterSettings documentsFilterSetting = dfsModel.getObject();
     final Long projectId =
         documentsFilterSetting == null ? null : documentsFilterSetting.getProjectId();
     final Long userId = DataMessieSession.get().getUserId();
-    final List<SourceOverviewDto> choices = sourceDao.getAsOverviewDtos(
-        sessionProvider.getStatelessSession(), userId, projectId, true, null, null);
+    final List<SourceNameDto> choices = sourceDao
+        .getAsNameDtos(sessionProvider.getStatelessSession(), userId, projectId, true, null, null);
     sessionProvider.closeStatelessSession();
     return choices;
   }
 
   @Override
-  protected long provideId(final SourceOverviewDto choice) {
+  protected long provideId(final SourceNameDto choice) {
     return choice.getId();
   }
 
   @Override
-  protected String provideDisplayText(final SourceOverviewDto choice) {
+  protected String provideDisplayText(final SourceNameDto choice) {
     return choice.getName();
   }
 

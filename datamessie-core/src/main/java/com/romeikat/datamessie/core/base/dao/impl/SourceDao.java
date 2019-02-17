@@ -200,9 +200,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return Lists.newArrayList(entitesAsDtos);
   }
 
-  public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
-      final Long userId, final Long projectId, final Boolean visible, final Long first,
-      final Long count) {
+  private List<Source> get(final SharedSessionContract ssc, final Long userId, final Long projectId,
+      final Boolean visible, final Long first, final Long count) {
     if (projectId == null) {
       return Collections.emptyList();
     }
@@ -234,9 +233,27 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
 
     // Done
     final List<Source> sources = sourceQuery.listObjects(ssc);
+    return sources;
+  }
+
+  public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
+      final Long userId, final Long projectId, final Boolean visible, final Long first,
+      final Long count) {
+    // Load
+    final List<Source> sources = get(ssc, userId, projectId, visible, first, count);
 
     // Transform
     final List<SourceOverviewDto> dtos = Lists.transform(sources, s -> sourceToOverviewDto(ssc, s));
+    return Lists.newArrayList(dtos);
+  }
+
+  public List<SourceNameDto> getAsNameDtos(final SharedSessionContract ssc, final Long userId,
+      final Long projectId, final Boolean visible, final Long first, final Long count) {
+    // Load
+    final List<Source> sources = get(ssc, userId, projectId, visible, first, count);
+
+    // Transform
+    final List<SourceNameDto> dtos = Lists.transform(sources, s -> sourceToNameDto(ssc, s));
     return Lists.newArrayList(dtos);
   }
 
