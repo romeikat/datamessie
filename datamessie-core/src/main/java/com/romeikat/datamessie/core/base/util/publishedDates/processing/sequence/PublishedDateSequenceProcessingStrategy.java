@@ -69,10 +69,10 @@ public abstract class PublishedDateSequenceProcessingStrategy
     dfsForQuery.setFromDate(publishedDate);
     dfsForQuery.setToDate(publishedDate);
 
-    process(ssc, dfsForQuery);
+    process(ssc, publishedDate, dfsForQuery);
   }
 
-  protected abstract void process(SharedSessionContract ssc,
+  protected abstract void process(SharedSessionContract ssc, LocalDate publishedDate,
       DocumentsFilterSettings dfsWithPublishedDate);
 
 }

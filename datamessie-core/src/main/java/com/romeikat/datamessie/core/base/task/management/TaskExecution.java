@@ -274,8 +274,12 @@ public class TaskExecution {
   }
 
   public void reportWork(final String message) {
+    reportWork(System.currentTimeMillis(), message);
+  }
+
+  public void reportWork(final Long start, final String message) {
     final TaskExecutionWork work = new TaskExecutionWork(message);
-    work.setStart(System.currentTimeMillis());
+    work.setStart(start);
     synchronized (works) {
       // Add work
       works.add(work);
