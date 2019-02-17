@@ -120,6 +120,7 @@ public class FileUtil {
       filename = normalizeFilename(filename);
       Path file = Paths.get(dir, filename + ".txt");
       file = getNonExisting(file);
+      Files.createDirectories(file.getParent());
       Files.createFile(file);
       if (content != null && !content.isEmpty()) {
         final FileOutputStream fileOutputStream = new FileOutputStream(file.toFile(), false);
@@ -146,6 +147,7 @@ public class FileUtil {
       filename = normalizeFilename(filename);
       Path file = Paths.get(dir, filename + ".xlsx");
       file = getNonExisting(file);
+      Files.createDirectories(file.getParent());
       Files.createFile(file);
       final FileOutputStream fileOutputStream = new FileOutputStream(file.toFile());
       xlsxWorkbook.write(fileOutputStream);
@@ -229,6 +231,7 @@ public class FileUtil {
     // Create ZIP file
     Path zipFile = Paths.get(dir, filename + ".zip");
     zipFile = getNonExisting(zipFile);
+    Files.createDirectories(zipFile.getParent());
     Files.createFile(zipFile);
     final URI zipUri = URI.create("jar:file:" + zipFile.toUri().getPath());
     Files.delete(zipFile);
