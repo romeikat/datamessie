@@ -76,10 +76,10 @@
 		<property name="user" value="${jdbc.username}" />
 		<property name="password" value="${jdbc.password}" />
 		<!-- Collection pool size -->
-		<property name="initialPoolSize" value="4" />
-		<property name="minPoolSize" value="4" />
+		<property name="initialPoolSize" value="${connections.minPoolSize}" />
+		<property name="minPoolSize" value="${connections.minPoolSize}" />
 		<property name="maxPoolSize" value="${connections.maxPoolSize}" />
-		<property name="acquireIncrement" value="2" />
+		<property name="acquireIncrement" value="1" />
 		<!-- Collection establishment -->
 		<property name="checkoutTimeout" value="5000" />
 		<!-- Connection age -->
@@ -102,10 +102,10 @@
 		<property name="user" value="${syncSource.jdbc.username}" />
 		<property name="password" value="${syncSource.jdbc.password}" />
 		<!-- Collection pool size -->
-		<property name="initialPoolSize" value="4" />
-		<property name="minPoolSize" value="4" />
+		<property name="initialPoolSize" value="${syncSource.connections.minPoolSize}" />
+		<property name="minPoolSize" value="${syncSource.connections.minPoolSize}" />
 		<property name="maxPoolSize" value="${syncSource.connections.maxPoolSize}" />
-		<property name="acquireIncrement" value="2" />
+		<property name="acquireIncrement" value="1" />
 		<!-- Collection establishment -->
 		<property name="checkoutTimeout" value="5000" />
 		<!-- Connection age -->
