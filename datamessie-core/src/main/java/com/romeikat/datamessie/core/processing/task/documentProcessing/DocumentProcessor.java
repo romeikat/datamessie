@@ -275,8 +275,8 @@ public class DocumentProcessor {
 
     // Cleanup
     if (document.getState() != DocumentProcessingState.REDIRECTED) {
-      documentService.createUpdateOrDeleteCleanedContent(statelessSession, document.getId(), null);
-      documentService.createUpdateOrDeleteStemmedContent(statelessSession, document.getId(), null);
+      documentService.createOrUpdateCleanedContent(statelessSession, document.getId(), "");
+      documentService.createOrUpdateStemmedContent(statelessSession, document.getId(), "");
     }
   }
 
@@ -354,18 +354,18 @@ public class DocumentProcessor {
     // but stemmed content must not be null
     final boolean wasCleaningSuccesful = documentCleaningResult.getCleanedContent() != null;
     if (wasCleaningSuccesful) {
-      documentService.createUpdateOrDeleteCleanedContent(statelessSession, document.getId(),
+      documentService.createOrUpdateCleanedContent(statelessSession, document.getId(),
           documentCleaningResult.getCleanedContent());
       document.setState(DocumentProcessingState.CLEANED);
     } else {
-      documentService.createUpdateOrDeleteCleanedContent(statelessSession, document.getId(), null);
+      documentService.createOrUpdateCleanedContent(statelessSession, document.getId(), "");
       document.setState(DocumentProcessingState.CLEANING_ERROR);
     }
 
     // Cleanup
     if (document.getState() != DocumentProcessingState.CLEANED) {
-      documentService.createUpdateOrDeleteCleanedContent(statelessSession, document.getId(), null);
-      documentService.createUpdateOrDeleteStemmedContent(statelessSession, document.getId(), null);
+      documentService.createOrUpdateCleanedContent(statelessSession, document.getId(), "");
+      documentService.createOrUpdateStemmedContent(statelessSession, document.getId(), "");
     }
   }
 
@@ -373,7 +373,7 @@ public class DocumentProcessor {
       final DocumentStemmingResult documentStemmingResult, final Document document) {
     document.setStemmedTitle(documentStemmingResult.getStemmedTitle());
     document.setStemmedDescription(documentStemmingResult.getStemmedDescription());
-    documentService.createUpdateOrDeleteStemmedContent(statelessSession, document.getId(),
+    documentService.createOrUpdateStemmedContent(statelessSession, document.getId(),
         documentStemmingResult.getStemmedContent());
     document.setState(DocumentProcessingState.STEMMED);
 

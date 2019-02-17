@@ -39,10 +39,10 @@ public class ErrorHandler {
   private static final Logger LOG = LoggerFactory.getLogger(ErrorHandler.class);
 
   private final Document document;
-  private final boolean deleteRawContent;
-  private final boolean deleteCleanedContent;
-  private final boolean deleteStemmedContent;
-  private final boolean deleteNamedEntityOccurrences;
+  private final boolean clearRawContent;
+  private final boolean clearCleanedContent;
+  private final boolean clearStemmedContent;
+  private final boolean clearNamedEntityOccurrences;
   private final DocumentProcessingState newState;
   private final Collection<Long> failedDocumentIds;
 
@@ -51,14 +51,14 @@ public class ErrorHandler {
   private final DocumentDao documentDao;
 
   public ErrorHandler(final ApplicationContext ctx, final Document document,
-      final boolean deleteRawContent, final boolean deleteCleanedContent,
-      final boolean deleteStemmedContent, final boolean deleteNamedEntityOccurrences,
+      final boolean clearRawContent, final boolean clearCleanedContent,
+      final boolean clearStemmedContent, final boolean clearNamedEntityOccurrences,
       final DocumentProcessingState newState, final Collection<Long> failedDocumentIds) {
     this.document = document;
-    this.deleteRawContent = deleteRawContent;
-    this.deleteCleanedContent = deleteCleanedContent;
-    this.deleteStemmedContent = deleteStemmedContent;
-    this.deleteNamedEntityOccurrences = deleteNamedEntityOccurrences;
+    this.clearRawContent = clearRawContent;
+    this.clearCleanedContent = clearCleanedContent;
+    this.clearStemmedContent = clearStemmedContent;
+    this.clearNamedEntityOccurrences = clearNamedEntityOccurrences;
     this.newState = newState;
     this.failedDocumentIds = failedDocumentIds;
 
@@ -78,16 +78,16 @@ public class ErrorHandler {
     }
     LOG.error(msg.toString(), e);
 
-    if (deleteRawContent) {
-      documentService.createUpdateOrDeleteRawContent(statelessSession, document.getId(), null);
+    if (clearRawContent) {
+      documentService.createOrUpdateRawContent(statelessSession, document.getId(), "");
     }
-    if (deleteCleanedContent) {
-      documentService.createUpdateOrDeleteCleanedContent(statelessSession, document.getId(), null);
+    if (clearCleanedContent) {
+      documentService.createOrUpdateCleanedContent(statelessSession, document.getId(), "");
     }
-    if (deleteStemmedContent) {
-      documentService.createUpdateOrDeleteStemmedContent(statelessSession, document.getId(), null);
+    if (clearStemmedContent) {
+      documentService.createOrUpdateStemmedContent(statelessSession, document.getId(), "");
     }
-    if (deleteNamedEntityOccurrences) {
+    if (clearNamedEntityOccurrences) {
       namedEntityOccurrencesUpdater.updateNamedEntityOccurrences(statelessSession, document.getId(),
           Collections.emptyList());
     }

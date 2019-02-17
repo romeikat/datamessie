@@ -25,7 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -81,72 +80,48 @@ public class DocumentService {
   @Qualifier("sourceDao")
   private SourceDao sourceDao;
 
-  public void createUpdateOrDeleteRawContent(final StatelessSession statelessSession,
+  public void createOrUpdateRawContent(final StatelessSession statelessSession,
       final long documentId, final String content) {
     RawContent rawContent = rawContentDao.getEntity(statelessSession, documentId);
+    final String contentToBeStored = content == null ? "" : content;
 
     // Create or update
-    if (StringUtils.isNotBlank(content)) {
-      if (rawContent == null) {
-        rawContent = new RawContent(documentId, content);
-        rawContentDao.insert(statelessSession, rawContent);
-      } else {
-        rawContent.setContent(content);
-        rawContentDao.update(statelessSession, rawContent);
-      }
-    }
-
-    // Delete
-    else {
-      if (rawContent != null) {
-        rawContentDao.delete(statelessSession, rawContent);
-      }
+    if (rawContent == null) {
+      rawContent = new RawContent(documentId, contentToBeStored);
+      rawContentDao.insert(statelessSession, rawContent);
+    } else {
+      rawContent.setContent(contentToBeStored);
+      rawContentDao.update(statelessSession, rawContent);
     }
   }
 
-  public void createUpdateOrDeleteCleanedContent(final StatelessSession statelessSession,
+  public void createOrUpdateCleanedContent(final StatelessSession statelessSession,
       final long documentId, final String content) {
     CleanedContent cleanedContent = cleanedContentDao.getEntity(statelessSession, documentId);
+    final String contentToBeStored = content == null ? "" : content;
 
     // Create or update
-    if (StringUtils.isNotBlank(content)) {
-      if (cleanedContent == null) {
-        cleanedContent = new CleanedContent(documentId, content);
-        cleanedContentDao.insert(statelessSession, cleanedContent);
-      } else {
-        cleanedContent.setContent(content);
-        cleanedContentDao.update(statelessSession, cleanedContent);
-      }
-    }
-
-    // Delete
-    else {
-      if (cleanedContent != null) {
-        cleanedContentDao.delete(statelessSession, cleanedContent);
-      }
+    if (cleanedContent == null) {
+      cleanedContent = new CleanedContent(documentId, contentToBeStored);
+      cleanedContentDao.insert(statelessSession, cleanedContent);
+    } else {
+      cleanedContent.setContent(contentToBeStored);
+      cleanedContentDao.update(statelessSession, cleanedContent);
     }
   }
 
-  public void createUpdateOrDeleteStemmedContent(final StatelessSession statelessSession,
+  public void createOrUpdateStemmedContent(final StatelessSession statelessSession,
       final long documentId, final String content) {
     StemmedContent stemmedContent = stemmedContentDao.getEntity(statelessSession, documentId);
+    final String contentToBeStored = content == null ? "" : content;
 
     // Create or update
-    if (StringUtils.isNotBlank(content)) {
-      if (stemmedContent == null) {
-        stemmedContent = new StemmedContent(documentId, content);
-        stemmedContentDao.insert(statelessSession, stemmedContent);
-      } else {
-        stemmedContent.setContent(content);
-        stemmedContentDao.update(statelessSession, stemmedContent);
-      }
-    }
-
-    // Delete
-    else {
-      if (stemmedContent != null) {
-        stemmedContentDao.delete(statelessSession, stemmedContent);
-      }
+    if (stemmedContent == null) {
+      stemmedContent = new StemmedContent(documentId, contentToBeStored);
+      stemmedContentDao.insert(statelessSession, stemmedContent);
+    } else {
+      stemmedContent.setContent(contentToBeStored);
+      stemmedContentDao.update(statelessSession, stemmedContent);
     }
   }
 

@@ -303,19 +303,20 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     // Process
     documentProcessor.processDocument(sessionProvider.getStatelessSession(), document2);
 
-    // Processing was successful (without redirection):
-    // state becomes DOWNLOAD_ERROR; raw, cleaned and stemmed contents become null
+    // Processing failed:
+    // state becomes DOWNLOAD_ERROR; raw content remains unchanged, cleaned and stemmed contents
+    // become empty
     document2 = documentDao.getEntity(sessionProvider.getStatelessSession(), 2);
     rawContent2 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
     cleanedContent2 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
     stemmedContent2 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 2);
-    final DocumentAndContentValues expectedValues =
-        new DocumentAndContentValues(oldValues.getTitle(), oldValues.getStemmedTitle(),
-            oldValues.getUrl(), oldValues.getDescription(), oldValues.getStemmedDescription(),
-            oldValues.getPublished(), oldValues.getDownloaded(),
-            DocumentProcessingState.DOWNLOAD_ERROR, oldValues.getStatusCode(), null, null, null);
+    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(
+        oldValues.getTitle(), oldValues.getStemmedTitle(), oldValues.getUrl(),
+        oldValues.getDescription(), oldValues.getStemmedDescription(), oldValues.getPublished(),
+        oldValues.getDownloaded(), DocumentProcessingState.DOWNLOAD_ERROR,
+        oldValues.getStatusCode(), oldValues.getRawContent(), "", "");
     final DocumentAndContentValues actualValues =
-        new DocumentAndContentValues(document2, null, null, null);
+        new DocumentAndContentValues(document2, rawContent2, cleanedContent2, stemmedContent2);
     assertEquals(expectedValues, actualValues);
     final List<NamedEntityOccurrence> namedEntityOccurrences =
         namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 2);
@@ -401,7 +402,7 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     documentProcessor.processDocument(sessionProvider.getStatelessSession(), document1);
 
     // Processing failed:
-    // state becomes REDIRECTING_ERROR; cleaned and stemmed contents become null; other fields
+    // state becomes REDIRECTING_ERROR; cleaned and stemmed contents become empty; other fields
     // remain unmodified
     document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
@@ -411,7 +412,7 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
         oldValues.getTitle(), oldValues.getStemmedTitle(), oldValues.getUrl(),
         oldValues.getDescription(), oldValues.getStemmedDescription(), oldValues.getPublished(),
         oldValues.getDownloaded(), DocumentProcessingState.REDIRECTING_ERROR,
-        oldValues.getStatusCode(), oldValues.getRawContent(), null, null);
+        oldValues.getStatusCode(), oldValues.getRawContent(), "", "");
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);
@@ -448,7 +449,7 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     documentProcessor.processDocument(sessionProvider.getStatelessSession(), document1);
 
     // Processing failed:
-    // state becomes TECHNICAL_ERROR; cleaned and stemmed contents become null; other fields remain
+    // state becomes TECHNICAL_ERROR; cleaned and stemmed contents become empty; other fields remain
     // unmodified
     document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
@@ -458,7 +459,7 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
         oldValues.getTitle(), oldValues.getStemmedTitle(), oldValues.getUrl(),
         oldValues.getDescription(), oldValues.getStemmedDescription(), oldValues.getPublished(),
         oldValues.getDownloaded(), DocumentProcessingState.TECHNICAL_ERROR,
-        oldValues.getStatusCode(), oldValues.getRawContent(), null, null);
+        oldValues.getStatusCode(), oldValues.getRawContent(), "", "");
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);
@@ -498,7 +499,8 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     documentProcessor.processDocument(sessionProvider.getStatelessSession(), document1);
 
     // Processing failed:
-    // state becomes CLEANING_ERROR; redirection succeeds, cleaned and stemmed contents become null;
+    // state becomes CLEANING_ERROR; redirection succeeds, cleaned and stemmed contents become
+    // empty;
     // other fields remain unmodified
     document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
@@ -508,7 +510,7 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
         new DocumentAndContentValues(oldValues.getTitle(), oldValues.getStemmedTitle(),
             REDIRECTED_URL, oldValues.getDescription(), oldValues.getStemmedDescription(),
             oldValues.getPublished(), REDIRECTED_DOWNLOADED, DocumentProcessingState.CLEANING_ERROR,
-            REDIRECTED_STATUS_CODE, REDIRECTED_RAW_CONTENT, null, null);
+            REDIRECTED_STATUS_CODE, REDIRECTED_RAW_CONTENT, "", "");
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);
@@ -546,7 +548,7 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
 
     // Processing failed:
     // state becomes TECHNICAL_ERROR; redirection succeeds; cleaned and stemmed contents become
-    // null; other fields remain unmodified
+    // empty; other fields remain unmodified
     document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
@@ -555,7 +557,7 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
         oldValues.getTitle(), oldValues.getStemmedTitle(), REDIRECTED_URL,
         oldValues.getDescription(), oldValues.getStemmedDescription(), oldValues.getPublished(),
         REDIRECTED_DOWNLOADED, DocumentProcessingState.TECHNICAL_ERROR, oldValues.getStatusCode(),
-        REDIRECTED_RAW_CONTENT, null, null);
+        REDIRECTED_RAW_CONTENT, "", "");
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);
@@ -594,7 +596,7 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
 
     // Processing failed:
     // state becomes TECHNICAL_ERROR; redirection succeeds; cleaning succeeds, stemmed content
-    // becomes null; other fields remain unmodified
+    // becomes empty; other fields remain unmodified
     document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
@@ -603,7 +605,7 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
         oldValues.getTitle(), oldValues.getStemmedTitle(), REDIRECTED_URL,
         oldValues.getDescription(), oldValues.getStemmedDescription(), oldValues.getPublished(),
         REDIRECTED_DOWNLOADED, DocumentProcessingState.TECHNICAL_ERROR, oldValues.getStatusCode(),
-        REDIRECTED_RAW_CONTENT, CLEANED_CONTENT, null);
+        REDIRECTED_RAW_CONTENT, CLEANED_CONTENT, "");
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);
