@@ -53,7 +53,7 @@ import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider
 import com.romeikat.datamessie.core.base.util.sparsetable.ISingleTable;
 import com.romeikat.datamessie.core.base.util.sparsetable.MapValueKeyComparator;
 import com.romeikat.datamessie.core.base.util.sparsetable.SparseSingleTable;
-import com.romeikat.datamessie.core.domain.dto.SourceOverviewDto;
+import com.romeikat.datamessie.core.domain.dto.SourceNameDto;
 import com.romeikat.datamessie.core.view.ui.page.SourcePage;
 
 @AuthorizeInstantiation(DataMessieRoles.STATISTICS_PAGE)
@@ -66,7 +66,7 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
 
   private static final String DATE_PATTERN = "d.M.";
 
-  private IModel<Map<Long, SourceOverviewDto>> sourcesModel;
+  private IModel<Map<Long, SourceNameDto>> sourcesModel;
 
   private StatisticsPage statisticsPage;
 
@@ -83,11 +83,11 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
     super(id);
     this.statisticsPage = statisticsPage;
 
-    sourcesModel = new LoadableDetachableModel<Map<Long, SourceOverviewDto>>() {
+    sourcesModel = new LoadableDetachableModel<Map<Long, SourceNameDto>>() {
       private static final long serialVersionUID = 1L;
 
       @Override
-      protected Map<Long, SourceOverviewDto> load() {
+      protected Map<Long, SourceNameDto> load() {
         final HibernateSessionProvider sessionProvider =
             new HibernateSessionProvider(sessionFactory);
         final Long userId = DataMessieSession.get().getUserId();
@@ -95,13 +95,12 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
         final Long projectId = dfs.getProjectId();
         final Long sourceId = dfs.getSourceId();
         final Collection<Long> sourceTypeIds = dfs.getSourceTypeIds();
-        final List<SourceOverviewDto> sources = sourceDao.getAsOverviewDtos(
+        final List<SourceNameDto> sources = sourceDao.getAsNameDtos(
             sessionProvider.getStatelessSession(), userId, projectId, sourceId, sourceTypeIds);
         sessionProvider.closeStatelessSession();
 
-        final Map<Long, SourceOverviewDto> sourcesMap =
-            Maps.newHashMapWithExpectedSize(sources.size());
-        for (final SourceOverviewDto source : sources) {
+        final Map<Long, SourceNameDto> sourcesMap = Maps.newHashMapWithExpectedSize(sources.size());
+        for (final SourceNameDto source : sources) {
           sourcesMap.put(source.getId(), source);
         }
         return sourcesMap;
@@ -141,7 +140,7 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
 
   @Override
   protected Component getRowHeaderComponent(final String componentId, final Long sourceId) {
-    final SourceOverviewDto source = sourcesModel.getObject().get(sourceId);
+    final SourceNameDto source = sourcesModel.getObject().get(sourceId);
     if (source == null) {
       return null;
     }
@@ -172,10 +171,10 @@ public abstract class AbstractStatisticsPanel<Z extends Serializable & Comparabl
   }
 
   private Map<Long, String> getSourcesIdsNames() {
-    final Function<SourceOverviewDto, String> sourceToNameFunction =
-        new Function<SourceOverviewDto, String>() {
+    final Function<SourceNameDto, String> sourceToNameFunction =
+        new Function<SourceNameDto, String>() {
           @Override
-          public String apply(final SourceOverviewDto source) {
+          public String apply(final SourceNameDto source) {
             return source.getName();
           }
         };

@@ -42,6 +42,7 @@ import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.SourceDto;
+import com.romeikat.datamessie.core.domain.dto.SourceNameDto;
 import com.romeikat.datamessie.core.domain.dto.SourceOverviewDto;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
@@ -239,9 +240,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return Lists.newArrayList(dtos);
   }
 
-  public List<SourceOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
-      final Long userId, final Long projectId, final Long sourceId,
-      final Collection<Long> sourceTypeIds) {
+  public List<SourceNameDto> getAsNameDtos(final SharedSessionContract ssc, final Long userId,
+      final Long projectId, final Long sourceId, final Collection<Long> sourceTypeIds) {
     if (projectId == null) {
       return Collections.emptyList();
     }
@@ -291,7 +291,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     final List<Source> sources = sourceQuery.listObjects(ssc);
 
     // Transform
-    final List<SourceOverviewDto> dtos = Lists.transform(sources, s -> sourceToOverviewDto(ssc, s));
+    final List<SourceNameDto> dtos = Lists.transform(sources, s -> sourceToNameDto(ssc, s));
     return Lists.newArrayList(dtos);
   }
 
@@ -392,6 +392,17 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     dto.setNumberOfTagSelectingRules(tagSelectingRules.size());
     dto.setVisible(source.getVisible());
     dto.setStatisticsChecking(source.getStatisticsChecking());
+    return dto;
+  }
+
+  private SourceNameDto sourceToNameDto(final SharedSessionContract ssc, final Source source) {
+    if (source == null) {
+      return null;
+    }
+
+    final SourceNameDto dto = new SourceNameDto();
+    dto.setId(source.getId());
+    dto.setName(source.getName());
     return dto;
   }
 
