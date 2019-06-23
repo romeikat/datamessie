@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,15 +37,20 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Sets;
+import com.romeikat.datamessie.core.base.app.plugin.DateMessiePlugins;
+import com.romeikat.datamessie.core.base.app.plugin.INamedEntityCategoryProider;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
+import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
@@ -60,6 +64,9 @@ import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
 import com.romeikat.datamessie.core.processing.init.DatamessieIndexingInitializer;
 import com.romeikat.datamessie.core.processing.service.stemming.namedEntity.ClassifierPipelineProvider;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaner;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirector;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmer;
 import com.romeikat.datamessie.core.processing.task.documentReindexing.DocumentsReindexer;
 
 @Service(DocumentsProcessingTask.BEAN_NAME)
@@ -85,9 +92,6 @@ public class DocumentsProcessingTask implements Task {
   private SessionFactory sessionFactory;
 
   @Autowired
-  private DocumentDao documentDao;
-
-  @Autowired
   private DocumentsLoader documentsLoader;
 
   @Autowired
@@ -99,6 +103,28 @@ public class DocumentsProcessingTask implements Task {
   @Autowired
   private StringUtil stringUtil;
 
+  @Autowired
+  private DocumentRedirector documentRedirector;
+
+  @Autowired
+  private DocumentCleaner documentCleaner;
+
+  @Autowired
+  private DocumentStemmer documentStemmer;
+
+  @Autowired
+  @Qualifier("processingDocumentDao")
+  private DocumentDao documentDao;
+
+  @Autowired
+  private DownloadDao downloadDao;
+
+  @Autowired
+  private NamedEntityDao namedEntityDao;
+
+  @Autowired
+  private NamedEntityCategoryDao namedEntityCategoryDao;
+
   @Value("${documents.processing.downloaded.date.min}")
   private String minDownloadedDate;
 
@@ -109,10 +135,11 @@ public class DocumentsProcessingTask implements Task {
   private long pause;
 
   private HibernateSessionProvider sessionProvider;
-  private final Set<Long> failedDocumentIds;
+
+  private final INamedEntityCategoryProider plugin;
 
   private DocumentsProcessingTask() {
-    failedDocumentIds = Sets.newHashSet();
+    plugin = DateMessiePlugins.getInstance(ctx).getOrLoadPlugin(INamedEntityCategoryProider.class);
   }
 
   @PostConstruct
@@ -160,9 +187,8 @@ public class DocumentsProcessingTask implements Task {
     final MutableObject<LocalDate> downloadedDate = new MutableObject<LocalDate>(minDownloadedDate);
     while (true) {
       // Load
-      final List<Document> documentsToProcess =
-          documentsLoader.loadDocumentsToProcess(sessionProvider.getStatelessSession(),
-              taskExecution, downloadedDate.getValue(), failedDocumentIds);
+      final List<Document> documentsToProcess = documentsLoader.loadDocumentsToProcess(
+          sessionProvider.getStatelessSession(), taskExecution, downloadedDate.getValue());
 
       // Process
       if (CollectionUtils.isNotEmpty(documentsToProcess)) {
@@ -171,9 +197,21 @@ public class DocumentsProcessingTask implements Task {
         final TaskExecutionWork work = taskExecution.reportWorkStart(
             String.format("Processing %s %s", documentsToProcess.size(), singularPlural));
 
-        final DocumentsProcessor documentsProcessor = new DocumentsProcessor(ctx);
+        final DocumentsProcessor documentsProcessor = new DocumentsProcessor(
+            documentRedirector::redirect, downloadDao::getIdsWithEntities,
+            documentDao::getIdsWithEntities, downloadDao::getDocumentIdsForUrlsAndSource,
+            documentCleaner::clean, documentStemmer::stem, namedEntityDao::getOrCreate,
+            namedEntityCategoryDao::getWithoutCategories,
+            plugin == null ? null : plugin::provideCategoryTitles,
+            (documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
+                cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
+                namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved) -> documentDao
+                    .persistDocumentsProcessingOutput(sessionProvider.getStatelessSession(),
+                        documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
+                        cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
+                        namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved),
+            ctx);
         documentsProcessor.processDocuments(documentsToProcess);
-        failedDocumentIds.addAll(documentsProcessor.getFailedDocumentIds());
 
         rebuildStatistics(documentsProcessor.getStatisticsToBeRebuilt());
         reindexDocuments(documentsToProcess);

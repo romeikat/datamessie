@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -150,6 +151,20 @@ public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends Ab
     // Done
     final Long result = (Long) criteria.uniqueResult();
     return result;
+  }
+
+  @Override
+  public void insertOrUpdate(final StatelessSession statelessSession, final E entity) {
+    final boolean exists = getEntity(statelessSession, entity.getId()) != null;
+
+    // Insert
+    if (!exists) {
+      insert(statelessSession, entity);
+    }
+    // Update
+    else {
+      update(statelessSession, entity);
+    }
   }
 
 }

@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.core.processing.task.documentProcessing.cache;
+package com.romeikat.datamessie.core.processing.task.documentProcessing.callback;
 
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -23,27 +23,16 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-import org.hibernate.SharedSessionContract;
-import org.springframework.context.ApplicationContext;
-import com.romeikat.datamessie.core.base.cache.AbstractLazyCache;
-import com.romeikat.datamessie.core.base.dao.impl.TagSelectingRuleDao;
+import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaningResult;
+import de.l3s.boilerpipe.BoilerpipeProcessingException;
 
-public class SourcesWithTagSelectingRulesCache
-    extends AbstractLazyCache<Long, List<TagSelectingRule>, SharedSessionContract> {
+@FunctionalInterface
+public interface CleanCallback {
 
-  private final TagSelectingRuleDao tagSelectingRuleDao;
-
-  public SourcesWithTagSelectingRulesCache(final ApplicationContext ctx) {
-    tagSelectingRuleDao = ctx.getBean(TagSelectingRuleDao.class);
-  }
-
-  @Override
-  protected List<TagSelectingRule> loadValue(final SharedSessionContract ssc, final Long sourceId) {
-    // Source ID -> tag selecting rules
-    final List<TagSelectingRule> tagSelectingRules = tagSelectingRuleDao.getOfSource(ssc, sourceId);
-    return tagSelectingRules;
-  }
-
+  DocumentCleaningResult clean(Document document, RawContent rawContent,
+      List<TagSelectingRule> tagSelectingRules) throws BoilerpipeProcessingException;
 
 }

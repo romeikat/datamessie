@@ -23,7 +23,9 @@ License along with this program.  If not, see
  */
 import java.util.List;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
@@ -55,6 +57,14 @@ public class NamedEntityOccurrenceDao
     query.addRestriction(Restrictions.eq("type", type));
     query.addRestriction(Restrictions.eq("documentId", documentId));
     return query.uniqueObject(ssc);
+  }
+
+  public void deleteForDocument(final StatelessSession statelessSession, final long documentId) {
+    final String hql =
+        "delete from " + getEntityClass().getSimpleName() + " where documentId = :_documentId";
+    final Query<?> query = statelessSession.createQuery(hql);
+    query.setParameter("_documentId", documentId);
+    query.executeUpdate();
   }
 
 }

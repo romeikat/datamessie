@@ -229,6 +229,31 @@ public class AbstractEntityWithId2DaoTest extends AbstractDbSetupBasedTest {
     dao.update(sessionProvider.getStatelessSession(), foo);
   }
 
+  @Test
+  public void insertOrUpdate_stateless_with_new_id() {
+    FooEntityWithId2 foo = new FooEntityWithId2(NEW_ID);
+    dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
+    assertEquals(NEW_ID, foo.getId());
+    sessionProvider.closeStatelessSession();
+
+    final Collection<FooEntityWithId2> foos =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
+    assertEquals(4, foos.size());
+    foo = dao.getEntity(sessionProvider.getStatelessSession(), NEW_ID);
+    assertNotNull(foo);
+  }
+
+  @Test
+  public void insertOrUpdate_stateless_with_existing_id() {
+    FooEntityWithId2 foo = new FooEntityWithId2(1);
+    foo.setName("Updated Foo1");
+    dao.update(sessionProvider.getStatelessSession(), foo);
+    sessionProvider.closeStatelessSession();
+
+    foo = dao.getEntity(sessionProvider.getStatelessSession(), 1);
+    assertEquals("Updated Foo1", foo.getName());
+  }
+
   @Test(expected = Exception.class)
   public void delete_stateless_with_new_id() {
     final FooEntityWithId2 foo = new FooEntityWithId2(NEW_ID);

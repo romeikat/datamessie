@@ -27,17 +27,52 @@ import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
+import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
+import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
+import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQuery;
+import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
+import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.Download;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
+import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Repository("processingDocumentDao")
 public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.DocumentDao {
+
+  @Autowired
+  private DownloadDao downloadDao;
+
+  @Autowired
+  private RawContentDao rawContentDao;
+
+  @Autowired
+  private CleanedContentDao cleanedContentDao;
+
+  @Autowired
+  private StemmedContentDao stemmedContentDao;
+
+  @Autowired
+  private NamedEntityOccurrenceDao namedEntityOccurrenceDao;
+
+  @Autowired
+  private NamedEntityCategoryDao namedEntityCategoryDao;
 
   public List<Document> getToProcess(final SharedSessionContract ssc, final LocalDate downloaded,
       final int maxResults) {
@@ -74,6 +109,86 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
     // Done
     final List<Document> entities = documentQuery.listObjects(ssc);
     return entities;
+  }
+
+  public void persistDocumentsProcessingOutput(final StatelessSession statelessSession,
+      final Collection<Document> documentsToBeUpdated,
+      final Collection<Download> downloadsToBeCreatedOrUpdated,
+      final Collection<RawContent> rawContentsToBeUpdated,
+      final Collection<CleanedContent> cleanedContentsToBeCreatedOrUpdated,
+      final Collection<StemmedContent> stemmedContentsToBeCreatedOrUpdated,
+      final Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced,
+      final Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved) {
+    new ExecuteWithTransaction(statelessSession) {
+      @Override
+      protected void execute(final StatelessSession statelessSession) {
+        updateDocuments(statelessSession, documentsToBeUpdated);
+        createOrUpdateDownloads(statelessSession, downloadsToBeCreatedOrUpdated);
+        updateRawContents(statelessSession, rawContentsToBeUpdated);
+        createOrUpdateCleanedContents(statelessSession, cleanedContentsToBeCreatedOrUpdated);
+        createOrUpdateStemmedContents(statelessSession, stemmedContentsToBeCreatedOrUpdated);
+        replaceNamedEntityOccurrences(statelessSession, namedEntityOccurrencesToBeReplaced);
+        saveNamedEntityCategories(statelessSession, namedEntityCategoriesToBeSaved);
+      }
+    }.execute();
+  }
+
+  private void updateDocuments(final StatelessSession statelessSession,
+      final Collection<Document> documentsToBeUpdated) {
+    for (final Document document : documentsToBeUpdated) {
+      update(statelessSession, document);
+    }
+  }
+
+  private void createOrUpdateDownloads(final StatelessSession statelessSession,
+      final Collection<Download> downloadsToBeCreatedOrUpdated) {
+    for (final Download download : downloadsToBeCreatedOrUpdated) {
+      downloadDao.insertOrUpdate(statelessSession, download);
+    }
+  }
+
+  private void updateRawContents(final StatelessSession statelessSession,
+      final Collection<RawContent> rawContentsToBeUpdated) {
+    for (final RawContent rawContent : rawContentsToBeUpdated) {
+      rawContentDao.update(statelessSession, rawContent);
+    }
+  }
+
+  private void createOrUpdateCleanedContents(final StatelessSession statelessSession,
+      final Collection<CleanedContent> cleanedContentsToBeCreatedOrUpdated) {
+    for (final CleanedContent cleanedContents : cleanedContentsToBeCreatedOrUpdated) {
+      cleanedContentDao.insertOrUpdate(statelessSession, cleanedContents);
+    }
+  }
+
+  private void createOrUpdateStemmedContents(final StatelessSession statelessSession,
+      final Collection<StemmedContent> stemmedContentsToBeCreatedOrUpdated) {
+    for (final StemmedContent stemmedContents : stemmedContentsToBeCreatedOrUpdated) {
+      stemmedContentDao.insertOrUpdate(statelessSession, stemmedContents);
+    }
+  }
+
+  private void replaceNamedEntityOccurrences(final StatelessSession statelessSession,
+      final Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced) {
+    for (final Entry<Long, ? extends Collection<NamedEntityOccurrence>> entry : namedEntityOccurrencesToBeReplaced
+        .entrySet()) {
+      // Delete
+      final long documentId = entry.getKey();
+      namedEntityOccurrenceDao.deleteForDocument(statelessSession, documentId);
+
+      // Create
+      final Collection<NamedEntityOccurrence> namedEntityOccurrences = entry.getValue();
+      for (final NamedEntityOccurrence namedEntityOccurrence : namedEntityOccurrences) {
+        namedEntityOccurrenceDao.insert(statelessSession, namedEntityOccurrence);
+      }
+    }
+  }
+
+  private void saveNamedEntityCategories(final StatelessSession statelessSession,
+      final Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved) {
+    for (final NamedEntityCategory namedEntityCategory : namedEntityCategoriesToBeSaved) {
+      namedEntityCategoryDao.insert(statelessSession, namedEntityCategory);
+    }
   }
 
 }

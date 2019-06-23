@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Set;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -37,9 +39,12 @@ import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
 import com.romeikat.datamessie.core.base.util.DocumentWithDownloads;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
+import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Service
 public class DownloadService {
+
+  private final static Logger LOG = LoggerFactory.getLogger(DownloadService.class);
 
   @Autowired
   private DownloadDao downloadDao;
@@ -47,10 +52,6 @@ public class DownloadService {
   @Autowired
   @Qualifier("documentDao")
   private DocumentDao documentDao;
-
-  @Autowired
-  @Qualifier("documentService")
-  private DocumentService documentService;
 
   private DownloadService() {}
 
@@ -157,14 +158,43 @@ public class DownloadService {
     }
   }
 
-  public void mergeSlaveDocumentsIntoMasterDocument(final long sourceId,
-      final StatelessSession statelessSession, final long masterDocumentId,
-      final Collection<Long> slaveDownloadIds, final Collection<Document> slaveDocuments) {
+  /**
+   * Reassigns all downloads of the slave documents to the master document. Marks the slave
+   * documents to be deleted.<br>
+   * Persists changes to {@link Download Downloads}; does not persist changes to {@link Document
+   * Documents}.
+   *
+   * @param statelessSession
+   * @param sourceId
+   * @param masterDocumentId
+   * @param slaveDownloadIds
+   * @param slaveDocuments
+   */
+  public void mergeSlaveDocumentsIntoMasterDocument(final StatelessSession statelessSession,
+      final long sourceId, final long masterDocumentId, final Collection<Long> slaveDownloadIds,
+      final Collection<Document> slaveDocuments) {
     // Reassign existing slave downloads
     reassignDownloadsToDocument(statelessSession, slaveDownloadIds, masterDocumentId);
 
     // Remove existing slave documents
-    documentService.markDocumentsToBeDeleted(statelessSession, slaveDocuments);
+    markDocumentsToBeDeleted(statelessSession, slaveDocuments);
+  }
+
+  public void markDocumentsToBeDeleted(final StatelessSession statelessSession,
+      final Collection<Document> documents) {
+    for (final Document document : documents) {
+      markDocumentToBeDeleted(statelessSession, document);
+    }
+  }
+
+  private void markDocumentToBeDeleted(final StatelessSession statelessSession,
+      final Document document) {
+    if (document == null) {
+      return;
+    }
+
+    LOG.info("Document {} to be deleted", document.getId());
+    document.setState(DocumentProcessingState.TO_BE_DELETED);
   }
 
   public Set<Long> getDownloadIds(final Collection<DocumentWithDownloads> documentsWithDownloads) {

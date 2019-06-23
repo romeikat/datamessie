@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -32,9 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
@@ -63,31 +59,21 @@ public class DocumentsLoader {
   private DocumentsLoader() {}
 
   public List<Document> loadDocumentsToProcess(final StatelessSession statelessSession,
-      final TaskExecution taskExecution, final LocalDate downloadedDate,
-      final Collection<Long> failedDocumentIds) throws TaskCancelledException {
+      final TaskExecution taskExecution, final LocalDate downloadedDate)
+      throws TaskCancelledException {
     try {
       // Load documents
-      final List<Document> loadedDocuments =
+      final List<Document> documentsToProcess =
           documentDao.getToProcess(statelessSession, downloadedDate, batchSize);
 
-      // Ignore failed documents (TODO: examine why these fail)
-      final Predicate<Document> nonFailedDocumentPredicate = new Predicate<Document>() {
-        @Override
-        public boolean apply(final Document document) {
-          return !failedDocumentIds.contains(document.getId());
-        }
-      };
-      final List<Document> documentsToProcess =
-          Lists.newArrayList(Iterables.filter(loadedDocuments, nonFailedDocumentPredicate));
-
       // Logging
-      final boolean wereDocumentsLoaded = !loadedDocuments.isEmpty();
+      final boolean wereDocumentsLoaded = !documentsToProcess.isEmpty();
       if (wereDocumentsLoaded) {
         final String singularPlural =
-            stringUtil.getSingularOrPluralTerm("document", loadedDocuments.size());
-        work = taskExecution.reportWorkStart(
-            String.format("Loaded %s %s to process with download date %s", loadedDocuments.size(),
-                singularPlural, LocalDateConverter.INSTANCE_UI.convertToString(downloadedDate)));
+            stringUtil.getSingularOrPluralTerm("document", documentsToProcess.size());
+        work = taskExecution.reportWorkStart(String.format(
+            "Loaded %s %s to process with download date %s", documentsToProcess.size(),
+            singularPlural, LocalDateConverter.INSTANCE_UI.convertToString(downloadedDate)));
         taskExecution.reportWorkEnd(work);
       }
       taskExecution.checkpoint();

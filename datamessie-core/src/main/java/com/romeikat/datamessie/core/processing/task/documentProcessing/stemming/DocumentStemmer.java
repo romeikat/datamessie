@@ -48,7 +48,7 @@ public class DocumentStemmer {
   private DocumentStemmer() {}
 
   public DocumentStemmingResult stem(final Document document, final String cleanedContent,
-      final Language language) throws Exception {
+      final Language language) {
     // Stem title
     final String titleWithoutTags = htmlUtil.removeTags(document.getTitle());
     final String stemmedTitle =

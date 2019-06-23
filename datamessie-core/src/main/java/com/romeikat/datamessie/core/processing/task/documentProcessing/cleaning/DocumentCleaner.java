@@ -1,5 +1,6 @@
 package com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning;
 
+import java.util.List;
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -21,16 +22,15 @@ License along with this program.  If not, see
 <http://www.gnu.org/licenses/gpl-3.0.html>.
  * =============================LICENSE_END=============================
  */
-
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.processing.service.cleaning.boilerpipe.BoilerplateRemover;
 import com.romeikat.datamessie.core.processing.service.cleaning.extract.TagExctractor;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.cache.DocumentsProcessingCache;
+import de.l3s.boilerpipe.BoilerpipeProcessingException;
 
 @Service
 public class DocumentCleaner {
@@ -43,12 +43,11 @@ public class DocumentCleaner {
 
   private DocumentCleaner() {}
 
-  public DocumentCleaningResult clean(final StatelessSession statelessSession,
-      final DocumentsProcessingCache documentsProcessingCache, final Document document,
-      final RawContent rawContent) throws Exception {
+  public DocumentCleaningResult clean(final Document document, final RawContent rawContent,
+      final List<TagSelectingRule> tagSelectingRules) throws BoilerpipeProcessingException {
     // Extract
-    final String extractedContent = tagExctractor.extractContent(statelessSession,
-        documentsProcessingCache, rawContent, document);
+    final String extractedContent =
+        tagExctractor.extractContent(tagSelectingRules, rawContent, document);
 
     // Remove boilerplate
     String cleanedContent = boilerplateRemover.removeBoilerplate(extractedContent);

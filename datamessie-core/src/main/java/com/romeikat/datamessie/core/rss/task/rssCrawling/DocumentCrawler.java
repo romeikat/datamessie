@@ -215,8 +215,11 @@ public class DocumentCrawler {
         downloadService.getDownloadIds(slaveDocumentsWithDownloads);
     final Collection<Document> slaveDocuments =
         downloadService.getDocuments(statelessSession, slaveDocumentsWithDownloads);
-    downloadService.mergeSlaveDocumentsIntoMasterDocument(sourceId, statelessSession,
+    downloadService.mergeSlaveDocumentsIntoMasterDocument(statelessSession, sourceId,
         masterDocumentId, slaveDownloadIds, slaveDocuments);
+    for (final Document slaveDocument : slaveDocuments) {
+      documentDao.update(statelessSession, slaveDocument);
+    }
 
     for (final Document slaveDocument : slaveDocuments) {
       statisticsToBeRebuilt.putValue(slaveDocument.getSourceId(), slaveDocument.getPublishedDate(),

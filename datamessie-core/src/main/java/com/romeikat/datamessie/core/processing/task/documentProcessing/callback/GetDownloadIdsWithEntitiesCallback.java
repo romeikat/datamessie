@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.core.processing.task.documentProcessing.cache;
+package com.romeikat.datamessie.core.processing.task.documentProcessing.callback;
 
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -23,22 +23,13 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
+import java.util.Map;
 import org.hibernate.SharedSessionContract;
-import com.romeikat.datamessie.core.base.dao.EntityWithIdDao;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.Download;
 
-public class DocumentsWithRawContentsCache extends AbstractDocumentsCache<RawContent> {
+@FunctionalInterface
+public interface GetDownloadIdsWithEntitiesCallback {
 
-  public DocumentsWithRawContentsCache(final SharedSessionContract ssc,
-      final EntityWithIdDao<RawContent> dao, final Collection<Document> documents) {
-    super(ssc, dao, documents);
-  }
-
-  @Override
-  protected Long getEntityId(final Document document) {
-    return document.getId();
-  }
-
+  Map<Long, Download> getDownloadIdsWithEntities(SharedSessionContract ssc, Collection<Long> ids);
 
 }

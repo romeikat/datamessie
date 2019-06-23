@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.util.Function.InvalidValueException;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
+import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 import jersey.repackaged.com.google.common.collect.Sets;
 
 @Service
@@ -309,6 +311,10 @@ public class CollectionUtil {
     }
 
     return map.headMap(lastTerm);
+  }
+
+  public Set<Long> getIds(final Collection<? extends EntityWithId> entities) {
+    return entities.stream().map(e -> e.getId()).collect(Collectors.toSet());
   }
 
 }

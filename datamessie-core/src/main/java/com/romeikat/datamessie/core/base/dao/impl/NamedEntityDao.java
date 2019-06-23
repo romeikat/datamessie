@@ -36,6 +36,7 @@ import com.romeikat.datamessie.core.base.cache.NamedEntityName2NamedEntityIdCach
 import com.romeikat.datamessie.core.base.service.NamedEntityService;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
+import jersey.repackaged.com.google.common.collect.Maps;
 import jersey.repackaged.com.google.common.collect.Sets;
 
 @Repository
@@ -94,39 +95,54 @@ public class NamedEntityDao extends AbstractEntityWithIdAndVersionCachingDao<Nam
   }
 
   /**
-   * Provides the ID of the named entity with a given name. If that named entity does not yet exist,
-   * it is created and saved.
+   * Provides the names and IDs of the named entities with given names. Named entities that do not
+   * yet exist are being created and saved.
    *
    * @param statelessSession
-   * @param name
+   * @param names
    * @return
    */
-  public long getOrCreate(final StatelessSession statelessSession, final String name) {
-    // Look for a named entity with that name in the cache
-    Long namedEntityId = getFromCache(statelessSession, name);
-    if (namedEntityId != null) {
-      return namedEntityId;
-    }
+  public Map<String, Long> getOrCreate(final StatelessSession statelessSession,
+      final Collection<String> names) {
+    final Map<String, Long> result = Maps.newHashMapWithExpectedSize(names.size());
 
-    // Create a new named entity with that name
-    try {
-      final NamedEntity namedEntity = insertIntoDb(statelessSession, name);
-      return namedEntity.getId();
-    }
-    // If another thread has inserted the same named entity in the meantime, load it from the cache
-    catch (final ConstraintViolationException e) {
-      namedEntityId = getFromCache(statelessSession, name);
-      if (namedEntityId != null) {
-        return namedEntityId;
-      } else {
-        throw e;
+    // Look for named entities with that name in the cache
+    final Map<String, Long> existingNamedEntityNames = getFromCache(statelessSession, names);
+    result.putAll(existingNamedEntityNames);
+
+    // Create missing named entities
+    final Set<String> missingNamedEntityNames = Sets.newHashSet(names);
+    missingNamedEntityNames.removeAll(existingNamedEntityNames.keySet());
+    for (final String name : missingNamedEntityNames) {
+      try {
+        final NamedEntity namedEntity = insertIntoDb(statelessSession, name);
+        result.put(name, namedEntity.getId());
+      }
+      // If another thread has inserted the same named entity in the meantime, load it from the
+      // cache
+      catch (final ConstraintViolationException e) {
+        final Long namedEntityId = getFromCache(statelessSession, name);
+        if (namedEntityId != null) {
+          result.put(name, namedEntityId);
+        } else {
+          throw e;
+        }
       }
     }
+
+    return result;
   }
 
   private Long getFromCache(final StatelessSession statelessSession, final String name) {
     final Long namedEntityId = namedEntityName2NamedEntityIdCache.getValue(statelessSession, name);
     return namedEntityId;
+  }
+
+  private Map<String, Long> getFromCache(final StatelessSession statelessSession,
+      final Collection<String> names) {
+    final Map<String, Long> namedEntityIds =
+        namedEntityName2NamedEntityIdCache.getValues(statelessSession, names);
+    return namedEntityIds;
   }
 
   private NamedEntity insertIntoDb(final StatelessSession statelessSession, final String name) {

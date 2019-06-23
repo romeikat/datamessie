@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.StatelessSession;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -38,22 +37,18 @@ import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.cache.DocumentsProcessingCache;
 
 @Service
 public class TagExctractor {
 
   private static final Logger LOG = LoggerFactory.getLogger(TagExctractor.class);
 
-  public String extractContent(final StatelessSession statelessSession,
-      final DocumentsProcessingCache documentsProcessingCache, final RawContent rawContent,
-      final Document document) {
+  public String extractContent(final List<TagSelectingRule> tagSelectingRules,
+      final RawContent rawContent, final Document document) {
     if (rawContent == null) {
       return null;
     }
     // Apply tag selecting rules
-    final List<TagSelectingRule> tagSelectingRules =
-        documentsProcessingCache.getTagSelectingRules(statelessSession, document.getSourceId());
     final LocalDateTime documentDownloaded = document.getDownloaded();
     // Determine active rules
     final List<TagSelectingRule> activeTagSelectingRules = new LinkedList<TagSelectingRule>();

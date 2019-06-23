@@ -34,21 +34,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
-import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
-import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
-import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Service
@@ -64,84 +58,12 @@ public class DocumentService {
   private DocumentDao documentDao;
 
   @Autowired
-  private RawContentDao rawContentDao;
-
-  @Autowired
-  private CleanedContentDao cleanedContentDao;
-
-  @Autowired
-  private StemmedContentDao stemmedContentDao;
-
-  @Autowired
   @Qualifier("crawlingDao")
   private CrawlingDao crawlingDao;
 
   @Autowired
   @Qualifier("sourceDao")
   private SourceDao sourceDao;
-
-  public void createOrUpdateRawContent(final StatelessSession statelessSession,
-      final long documentId, final String content) {
-    RawContent rawContent = rawContentDao.getEntity(statelessSession, documentId);
-    final String contentToBeStored = content == null ? "" : content;
-
-    // Create or update
-    if (rawContent == null) {
-      rawContent = new RawContent(documentId, contentToBeStored);
-      rawContentDao.insert(statelessSession, rawContent);
-    } else {
-      rawContent.setContent(contentToBeStored);
-      rawContentDao.update(statelessSession, rawContent);
-    }
-  }
-
-  public void createOrUpdateCleanedContent(final StatelessSession statelessSession,
-      final long documentId, final String content) {
-    CleanedContent cleanedContent = cleanedContentDao.getEntity(statelessSession, documentId);
-    final String contentToBeStored = content == null ? "" : content;
-
-    // Create or update
-    if (cleanedContent == null) {
-      cleanedContent = new CleanedContent(documentId, contentToBeStored);
-      cleanedContentDao.insert(statelessSession, cleanedContent);
-    } else {
-      cleanedContent.setContent(contentToBeStored);
-      cleanedContentDao.update(statelessSession, cleanedContent);
-    }
-  }
-
-  public void createOrUpdateStemmedContent(final StatelessSession statelessSession,
-      final long documentId, final String content) {
-    StemmedContent stemmedContent = stemmedContentDao.getEntity(statelessSession, documentId);
-    final String contentToBeStored = content == null ? "" : content;
-
-    // Create or update
-    if (stemmedContent == null) {
-      stemmedContent = new StemmedContent(documentId, contentToBeStored);
-      stemmedContentDao.insert(statelessSession, stemmedContent);
-    } else {
-      stemmedContent.setContent(contentToBeStored);
-      stemmedContentDao.update(statelessSession, stemmedContent);
-    }
-  }
-
-  public void markDocumentsToBeDeleted(final StatelessSession statelessSession,
-      final Collection<Document> documents) {
-    for (final Document document : documents) {
-      markDocumentToBeDeleted(statelessSession, document);
-    }
-  }
-
-  private void markDocumentToBeDeleted(final StatelessSession statelessSession,
-      final Document document) {
-    if (document == null) {
-      return;
-    }
-
-    LOG.info("Document {} to be deleted", document.getId());
-    document.setState(DocumentProcessingState.TO_BE_DELETED);
-    documentDao.update(statelessSession, document);
-  }
 
   public void deprocessDocumentsOfSource(final StatelessSession statelessSession,
       final TaskExecution taskExecution, final long sourceId,

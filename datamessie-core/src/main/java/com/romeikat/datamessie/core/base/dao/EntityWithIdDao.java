@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.StatelessSession;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 
 
@@ -85,5 +86,14 @@ public interface EntityWithIdDao<E extends EntityWithId> extends EntityDao<E> {
    * @return
    */
   Long getMaxId(SharedSessionContract ssc);
+
+  /**
+   * If the entity does not exist in the database, it is inserted. If the entity already exists in
+   * the database, it is updated.
+   *
+   * @param statelessSession
+   * @param entity
+   */
+  void insertOrUpdate(StatelessSession statelessSession, E entity);
 
 }

@@ -1,5 +1,6 @@
 package com.romeikat.datamessie.core.base.dao.impl;
 
+import java.util.Collection;
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -30,6 +31,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
@@ -44,6 +47,24 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
   @Override
   protected String defaultSortingProperty() {
     return "activeFrom";
+  }
+
+  public ListMultimap<Long, TagSelectingRule> getPerSourceId(final SharedSessionContract ssc,
+      final Collection<Long> sourceIds) {
+    // Query: RedirectingRule
+    final EntityWithIdQuery<TagSelectingRule> tagSelectingRuleQuery =
+        new EntityWithIdQuery<>(TagSelectingRule.class);
+    tagSelectingRuleQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
+    tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
+    tagSelectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+
+    // Done
+    final List<TagSelectingRule> tagSelectingRules = tagSelectingRuleQuery.listObjects(ssc);
+    final ListMultimap<Long, TagSelectingRule> result = ArrayListMultimap.create();
+    for (final TagSelectingRule tagSelectingRule : tagSelectingRules) {
+      result.put(tagSelectingRule.getSourceId(), tagSelectingRule);
+    }
+    return result;
   }
 
   public List<TagSelectingRule> getOfSource(final SharedSessionContract ssc, final long sourceId) {
