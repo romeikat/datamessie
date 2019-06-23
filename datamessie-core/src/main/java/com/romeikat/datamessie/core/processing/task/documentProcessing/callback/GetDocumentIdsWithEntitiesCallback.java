@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.core.base.cache;
+package com.romeikat.datamessie.core.processing.task.documentProcessing.callback;
 
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -24,27 +24,12 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import org.hibernate.SharedSessionContract;
+import com.romeikat.datamessie.core.domain.entity.impl.Document;
 
-public interface ILazyCache<K, V, S extends SharedSessionContract> {
+@FunctionalInterface
+public interface GetDocumentIdsWithEntitiesCallback {
 
-  V getValue(S session, K key);
-
-  Map<K, V> getValues(S session, Collection<K> keys);
-
-  Set<K> getKnownKeys();
-
-  Set<V> getKnownValues();
-
-  void registerDependency(Long id, K key);
-
-  void registerDependencies(Collection<Long> ids, K key);
-
-  void invalidateEntity(Long id);
-
-  void invalidateKey(K key);
-
-  void invalidateAll();
+  Map<Long, Document> getDocumentIdsWithEntities(SharedSessionContract ssc, Collection<Long> ids);
 
 }

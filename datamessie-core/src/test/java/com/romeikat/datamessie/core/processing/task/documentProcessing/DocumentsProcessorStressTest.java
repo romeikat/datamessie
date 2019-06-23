@@ -26,25 +26,25 @@ import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.doReturn;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import org.hibernate.StatelessSession;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
+import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
@@ -60,19 +60,21 @@ import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.cache.DocumentsProcessingCache;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaner;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.CleanCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.ProvideNamedEntityCategoryTitlesCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.RedirectCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.StemCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaningResult;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirectingResult;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirector;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmer;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmingResult;
 
 public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
@@ -91,19 +93,22 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
   @Value("${documents.processing.parallelism.factor}")
   private Double documentsParallelismFactor;
 
+
   private DocumentsProcessor documentsProcessor;
 
-  @Autowired
-  private DocumentRedirector documentRedirector;
 
-  @Autowired
-  private DocumentCleaner documentCleaner;
+  @Mock
+  private RedirectCallback redirectCallback;
 
-  @Autowired
-  private DocumentStemmer documentStemmer;
+  @Mock
+  private CleanCallback cleanCallback;
 
-  @Autowired
-  private NamedEntityCategoriesCreator namedEntityCategoriesCreator;
+  @Mock
+  private StemCallback stemCallback;
+
+  @Mock
+  private ProvideNamedEntityCategoryTitlesCallback provideNamedEntityCategoryTitlesCallback;
+
 
   @Autowired
   @Qualifier("processingDocumentDao")
@@ -119,6 +124,9 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
   private StemmedContentDao stemmedContentDao;
 
   @Autowired
+  private DownloadDao downloadDao;
+
+  @Autowired
   private NamedEntityDao namedEntityDao;
 
   @Autowired
@@ -129,6 +137,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
 
   @Autowired
   private ApplicationContext ctx;
+
 
   private static List<Integer> getDocumentIds() {
     final List<Integer> documentIds = Lists.newArrayListWithExpectedSize(NUMBER_OF_DOCUMENTS);
@@ -185,22 +194,16 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
   public void before() throws Exception {
     super.before();
 
-    documentRedirector = createSpy(documentRedirector);
-    documentCleaner = createSpy(documentCleaner);
-    documentStemmer = createSpy(documentStemmer);
-    namedEntityCategoriesCreator = createSpy(namedEntityCategoriesCreator);
-
     // Simulate absent redirection
     final DocumentRedirectingResult expectedDocumentRedirectingResult =
         new DocumentRedirectingResult(null, null);
-    doReturn(expectedDocumentRedirectingResult).when(documentRedirector)
-        .redirect(any(StatelessSession.class), any(Document.class), any(RawContent.class));
+    doReturn(expectedDocumentRedirectingResult).when(redirectCallback).redirect(any(Document.class),
+        any(RawContent.class), anyListOf(RedirectingRule.class));
     // Simulate successful cleaning
     final DocumentCleaningResult expectedDocumentCleaningResult =
         new DocumentCleaningResult(CLEANED_CONTENT);
-    doReturn(expectedDocumentCleaningResult).when(documentCleaner).clean(
-        any(StatelessSession.class), any(DocumentsProcessingCache.class), any(Document.class),
-        any(RawContent.class));
+    doReturn(expectedDocumentCleaningResult).when(cleanCallback).clean(any(Document.class),
+        any(RawContent.class), anyListOf(TagSelectingRule.class));
     // Simulate successful stemming
     final NamedEntityDetectionDto namedEntityDetection =
         new NamedEntityDetectionDto().setName(NAMED_ENTITY_NAME).setParentName(NAMED_ENTITY_NAME)
@@ -208,27 +211,26 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
     final DocumentStemmingResult expectedDocumentStemmingResult =
         new DocumentStemmingResult(STEMMED_TITLE, STEMMED_DESCRIPTION, STEMMED_CONTENT,
             Lists.newArrayList(namedEntityDetection));
-    doReturn(expectedDocumentStemmingResult).when(documentStemmer).stem(any(Document.class),
+    doReturn(expectedDocumentStemmingResult).when(stemCallback).stem(any(Document.class),
         any(String.class), any(Language.class));
     // Simulate named entity categories
-    final Set<String> namedEntityCategories = Sets.newHashSetWithExpectedSize(1);
+    final List<String> namedEntityCategories = Lists.newArrayListWithExpectedSize(1);
     namedEntityCategories.add(NAMED_ENTITY_CATEGORY_NAME);
-    doReturn(namedEntityCategories).when(namedEntityCategoriesCreator)
-        .getNamedEntityCategoryNames(any(NamedEntity.class));
+    doReturn(namedEntityCategories).when(provideNamedEntityCategoryTitlesCallback)
+        .provideCategoryTitles(any(String.class));
 
-    documentsProcessor = new DocumentsProcessor(ctx) {
-      @Override
-      protected DocumentProcessor createDocumentProcessor(final ApplicationContext ctx,
-          final DocumentsProcessingCache documentsProcessingCache) {
-        final DocumentProcessor documentProcessor =
-            super.createDocumentProcessor(ctx, documentsProcessingCache);
-        injectSpy(documentProcessor, "documentRedirector", documentRedirector);
-        injectSpy(documentProcessor, "documentCleaner", documentCleaner);
-        injectSpy(documentProcessor, "documentStemmer", documentStemmer);
-        injectSpy(documentProcessor, "namedEntityCategoriesCreator", namedEntityCategoriesCreator);
-        return documentProcessor;
-      }
-    };
+    documentsProcessor = new DocumentsProcessor(redirectCallback, downloadDao::getIdsWithEntities,
+        documentDao::getIdsWithEntities, downloadDao::getDocumentIdsForUrlsAndSource, cleanCallback,
+        stemCallback, namedEntityDao::getOrCreate, namedEntityCategoryDao::getWithoutCategories,
+        provideNamedEntityCategoryTitlesCallback,
+        (documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
+            cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
+            namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved) -> documentDao
+                .persistDocumentsProcessingOutput(sessionProvider.getStatelessSession(),
+                    documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
+                    cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
+                    namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved),
+        ctx);
   }
 
   @Test
@@ -300,9 +302,6 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
       assertTrue(
           statisticsToBeRebuilt.getValue(document.getSourceId(), document.getPublishedDate()));
     }
-
-    // Failed documents
-    assertTrue(documentsProcessor.getFailedDocumentIds().isEmpty());
   }
 
 }

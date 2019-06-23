@@ -1,5 +1,9 @@
 package com.romeikat.datamessie.core.base.cache;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -21,8 +25,9 @@ License along with this program.  If not, see
 <http://www.gnu.org/licenses/gpl-3.0.html>.
  * =============================LICENSE_END=============================
  */
-
 import org.hibernate.SharedSessionContract;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
@@ -41,18 +46,26 @@ public class NamedEntityName2NamedEntityIdCache
   }
 
   @Override
-  protected Long loadValue(final SharedSessionContract ssc, final String namedEntityName) {
+  protected Map<String, Long> loadValues(final SharedSessionContract ssc,
+      final Collection<String> namedEntityNames) {
     // NamedEntity name -> NamedEntity ID
-    final Long namedEntityId = getNamedEntityId(ssc, namedEntityName);
-    return namedEntityId;
+    final Map<String, Long> namedEntityIds = getNamedEntityIds(ssc, namedEntityNames);
+    return namedEntityIds;
   }
 
-  private Long getNamedEntityId(final SharedSessionContract ssc, final String namedEntityName) {
+  private Map<String, Long> getNamedEntityIds(final SharedSessionContract ssc,
+      final Collection<String> namedEntityNames) {
     final EntityWithIdQuery<NamedEntity> namedEntityQuery =
         new EntityWithIdQuery<>(NamedEntity.class);
-    namedEntityQuery.addRestriction(Restrictions.eq("name", namedEntityName));
-    final Long namedEntityId = namedEntityQuery.uniqueId(ssc);
-    return namedEntityId;
+    namedEntityQuery.addRestriction(Restrictions.in("name", namedEntityNames));
+    final ProjectionList projectionList = Projections.projectionList()
+        .add(Projections.property("name")).add(Projections.property("id"));
+    final List<Object[]> rows =
+        (List<Object[]>) namedEntityQuery.listForProjection(ssc, projectionList);
+
+    final Map<String, Long> result =
+        rows.stream().collect(Collectors.toMap(row -> (String) row[0], row -> (Long) row[1]));
+    return result;
   }
 
 }

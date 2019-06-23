@@ -55,6 +55,16 @@ public abstract class AbstractTest {
     return mock;
   }
 
+  protected <T> T createAndInjectMock(final Class<T> classToBeMocked,
+      final Object objectContainingMocked, final String fieldNameContainingMock) throws Exception {
+    // Create spy
+    final T mock = createMock(classToBeMocked);
+    // Inject spy
+    setField(objectContainingMocked, fieldNameContainingMock, mock);
+    // Done
+    return mock;
+  }
+
   protected <T> T createSpy(final T objectToBeSpied) throws Exception {
     // Unproxy object to be spied, if necessary
     final T objectToBeSpiedUnproxied = SpringUtil.unwrapProxy(objectToBeSpied);
@@ -69,15 +79,14 @@ public abstract class AbstractTest {
     // Create spy
     final T spy = createSpy(objectToBeSpied);
     // Inject spy
-    injectSpy(objectContainingSpy, fieldNameContainingSpy, spy);
+    setField(objectContainingSpy, fieldNameContainingSpy, spy);
     // Done
     return spy;
   }
 
-  protected <T> void injectSpy(final Object objectContainingSpy,
-      final String fieldNameContainingSpy, final T spy) {
-    // Inject spy
-    ReflectionTestUtils.setField(objectContainingSpy, fieldNameContainingSpy, spy);
+  protected <T> void setField(final Object targetObject, final String name, final T value) {
+    // Inject value
+    ReflectionTestUtils.setField(targetObject, name, value);
   }
 
 }

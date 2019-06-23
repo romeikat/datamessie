@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TreeMap;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
@@ -99,6 +100,22 @@ public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAn
       result.put(idAndVersion.getId(), idAndVersion.getVersion());
     }
     return result;
+  }
+
+  @Override
+  public void insertOrUpdate(final StatelessSession statelessSession, final E entity) {
+    final E existingEntity = getEntity(statelessSession, entity.getId());
+    final boolean exists = existingEntity != null;
+
+    // Insert
+    if (!exists) {
+      insert(statelessSession, entity);
+    }
+    // Update
+    else {
+      entity.setVersion(existingEntity.getVersion());
+      update(statelessSession, entity);
+    }
   }
 
 }

@@ -33,8 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
-import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 public class NamedEntityDaoTest extends AbstractDbSetupBasedTest {
 
@@ -51,9 +51,10 @@ public class NamedEntityDaoTest extends AbstractDbSetupBasedTest {
   }
 
   @Test
-  public void getOrCreateNamedEntity_new() {
-    final long namedEntityId =
-        namedEntityDao.getOrCreate(sessionProvider.getStatelessSession(), "NamedEntity1");
+  public void getOrCreateNamedEntities_existing() {
+    final long namedEntityId = namedEntityDao
+        .getOrCreate(sessionProvider.getStatelessSession(), Lists.newArrayList("NamedEntity1"))
+        .values().iterator().next();
     final NamedEntity namedEntity =
         namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityId);
     assertEquals("NamedEntity1", namedEntity.getName());
@@ -66,9 +67,10 @@ public class NamedEntityDaoTest extends AbstractDbSetupBasedTest {
   }
 
   @Test
-  public void getOrCreateNamedEntity_existing() {
-    final long namedEntityId =
-        namedEntityDao.getOrCreate(sessionProvider.getStatelessSession(), "NamedEntity-1");
+  public void getOrCreateNamedEntities_new() {
+    final long namedEntityId = namedEntityDao
+        .getOrCreate(sessionProvider.getStatelessSession(), Lists.newArrayList("NamedEntity-1"))
+        .values().iterator().next();
     final NamedEntity namedEntity =
         namedEntityDao.getEntity(sessionProvider.getStatelessSession(), namedEntityId);
     assertEquals("NamedEntity-1", namedEntity.getName());

@@ -21,9 +21,12 @@ License along with this program.  If not, see
 <http://www.gnu.org/licenses/gpl-3.0.html>.
  * =============================LICENSE_END=============================
  */
+import java.util.Collection;
 import java.util.List;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
@@ -55,6 +58,19 @@ public class NamedEntityOccurrenceDao
     query.addRestriction(Restrictions.eq("type", type));
     query.addRestriction(Restrictions.eq("documentId", documentId));
     return query.uniqueObject(ssc);
+  }
+
+  public void deleteForDocuments(final StatelessSession statelessSession,
+      final Collection<Long> documentIds) {
+    if (documentIds.isEmpty()) {
+      return;
+    }
+
+    final String hql =
+        "delete from " + getEntityClass().getSimpleName() + " where documentId IN :_documentIds";
+    final Query<?> query = statelessSession.createQuery(hql);
+    query.setParameter("_documentIds", documentIds);
+    query.executeUpdate();
   }
 
 }

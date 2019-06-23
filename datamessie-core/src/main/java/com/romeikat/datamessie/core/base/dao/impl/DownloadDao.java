@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.base.dao.impl;
 
+import java.util.Collection;
+import java.util.Collections;
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -50,6 +52,17 @@ public class DownloadDao extends AbstractEntityWithIdAndVersionDao<Download> {
     return downloads;
   }
 
+  public List<Download> getForDocuments(final SharedSessionContract ssc,
+      final Collection<Long> documentIds) {
+    // Query: Download
+    final EntityWithIdQuery<Download> downloadQuery = new EntityWithIdQuery<>(Download.class);
+    downloadQuery.addRestriction(Restrictions.in("documentId", documentIds));
+
+    // Done
+    final List<Download> downloads = downloadQuery.listObjects(ssc);
+    return downloads;
+  }
+
   public Download getForUrlAndSource(final SharedSessionContract ssc, final String url,
       final long sourceId) {
     if (url == null) {
@@ -64,6 +77,22 @@ public class DownloadDao extends AbstractEntityWithIdAndVersionDao<Download> {
     // Done
     final Download download = downloadQuery.uniqueObject(ssc);
     return download;
+  }
+
+  public List<Long> getDocumentIdsForUrlsAndSource(final SharedSessionContract ssc,
+      final Collection<String> urls, final long sourceId) {
+    if (urls.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // Query: Download
+    final EntityWithIdQuery<Download> downloadQuery = new EntityWithIdQuery<>(Download.class);
+    downloadQuery.addRestriction(Restrictions.in("url", urls));
+    downloadQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
+
+    // Done
+    final List<Long> documentIds = downloadQuery.listIdsForProperty(ssc, "documentId");
+    return documentIds;
   }
 
 }

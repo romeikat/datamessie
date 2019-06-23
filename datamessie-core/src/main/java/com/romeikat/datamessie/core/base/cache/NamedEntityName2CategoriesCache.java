@@ -24,92 +24,138 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import jersey.repackaged.com.google.common.collect.Maps;
 
 public class NamedEntityName2CategoriesCache
     extends AbstractLazyCache<String, Set<String>, SharedSessionContract> {
 
   @Override
-  protected Set<String> loadValue(final SharedSessionContract ssc, final String namedEntityName) {
-    // NamedEntity name -> ID
-    final Long namedEntityId = getNamedEntityId(ssc, namedEntityName);
-    if (namedEntityId == null) {
-      return Collections.emptySet();
+  protected Map<String, Set<String>> loadValues(final SharedSessionContract ssc,
+      final Collection<String> namedEntityNames) {
+    // NamedEntity name -> NamedEntity ID
+    final BiMap<String, Long> namedEntityNames2NamedEntityId =
+        getNamedEntityNames2NamedEntityId(ssc, namedEntityNames);
+    if (namedEntityNames2NamedEntityId.isEmpty()) {
+      return Collections.emptyMap();
     }
 
-    // NamedEntity ID -> NamedEntityCategories
-    final Collection<NamedEntityCategory> namedEntityCategories =
-        getNamedEntityCategories(ssc, namedEntityId);
-    registerDependencies(namedEntityCategories, namedEntityName);
-
-    // NamedEntityCategories -> category NamedEntity IDs
-    final Collection<Long> categoryNamedEntityIds = getNamedEntityIds(ssc, namedEntityCategories);
-    if (categoryNamedEntityIds.isEmpty()) {
-      return Collections.emptySet();
+    // NamedEntity name -> category NamedEntity IDs
+    final Map<String, Set<Long>> namedEntityNames2CategoryNamedEntityIds =
+        getNamedEntityNames2CategoryNamedEntityIds(ssc, namedEntityNames2NamedEntityId);
+    if (namedEntityNames2CategoryNamedEntityIds.isEmpty()) {
+      return Collections.emptyMap();
     }
 
-    // Category NamedEntity IDs -> Category NamedEntities
-    final Collection<NamedEntity> namedEntities = getNamedEntites(ssc, categoryNamedEntityIds);
-    if (namedEntities.isEmpty()) {
-      return Collections.emptySet();
-    }
-
-    // Category NamedEntities -> category NamedEntity names
-    final Set<String> categoryNamedEntityNames = getCategoryNamedEntityNames(namedEntities);
-    return categoryNamedEntityNames;
+    // NamedEntity name -> category NamedEntity names
+    final Map<String, Set<String>> namedEntityNames2CategoryNamedEntityNames =
+        getNamedEntityNames2CategoryNamedEntityNames(ssc, namedEntityNames2CategoryNamedEntityIds);
+    return namedEntityNames2CategoryNamedEntityNames;
   }
 
-  private Long getNamedEntityId(final SharedSessionContract ssc, final String namedEntityName) {
+  private BiMap<String, Long> getNamedEntityNames2NamedEntityId(final SharedSessionContract ssc,
+      final Collection<String> namedEntityNames) {
+    // Query named entities for the given names
     final EntityWithIdQuery<NamedEntity> namedEntityQuery =
         new EntityWithIdQuery<>(NamedEntity.class);
-    namedEntityQuery.addRestriction(Restrictions.eq("name", namedEntityName));
-    final Long namedEntityId = namedEntityQuery.uniqueId(ssc);
-    return namedEntityId;
+    namedEntityQuery.addRestriction(Restrictions.in("name", namedEntityNames));
+    final ProjectionList projectionList = Projections.projectionList()
+        .add(Projections.property("name")).add(Projections.property("id"));
+    final List<Object[]> rows =
+        (List<Object[]>) namedEntityQuery.listForProjection(ssc, projectionList);
+
+    // Map named entity names to named entity IDs
+    final BiMap<String, Long> result = rows.stream().collect(Collectors
+        .toMap(row -> (String) row[0], row -> (Long) row[1], (a, b) -> b, HashBiMap::create));
+    return result;
   }
 
-  private Collection<NamedEntityCategory> getNamedEntityCategories(final SharedSessionContract ssc,
-      final Long namedEntityId) {
+  private Map<String, Set<Long>> getNamedEntityNames2CategoryNamedEntityIds(
+      final SharedSessionContract ssc, final BiMap<String, Long> namedEntityNames2NamedEntityId) {
+    // Query named entity categories for the the given named entity IDs
     final EntityWithIdQuery<NamedEntityCategory> namedEntityCategoryQuery =
         new EntityWithIdQuery<>(NamedEntityCategory.class);
-    namedEntityCategoryQuery.addRestriction(Restrictions.eq("namedEntityId", namedEntityId));
+    namedEntityCategoryQuery
+        .addRestriction(Restrictions.in("namedEntityId", namedEntityNames2NamedEntityId.values()));
     final Collection<NamedEntityCategory> namedEntityCategories =
         namedEntityCategoryQuery.listObjects(ssc);
-    return namedEntityCategories;
+
+    // Map named entity name with named entity category IDs (for registering dependencies)
+    final HashMultimap<String, Long> namedEntityNames2NamedEntityCategoryIds =
+        HashMultimap.create();
+    for (final NamedEntityCategory namedEntityCategory : namedEntityCategories) {
+      final long namedEntityId = namedEntityCategory.getNamedEntityId();
+      final String namedEntityName = namedEntityNames2NamedEntityId.inverse().get(namedEntityId);
+      namedEntityNames2NamedEntityCategoryIds.put(namedEntityName, namedEntityId);
+    }
+    // Register dependencies
+    for (final String namedEntityName : namedEntityNames2NamedEntityCategoryIds.keySet()) {
+      final Collection<Long> namedEntityCategoryIds =
+          namedEntityNames2NamedEntityCategoryIds.get(namedEntityName);
+      registerDependencies(namedEntityCategoryIds, namedEntityName);
+    }
+
+    // Map named entity IDs with category named entity IDs
+    final HashMultimap<Long, Long> namedEntityIds2CategoryNamedEntityIds = HashMultimap.create();
+    for (final NamedEntityCategory namedEntityCategory : namedEntityCategories) {
+      namedEntityIds2CategoryNamedEntityIds.put(namedEntityCategory.getNamedEntityId(),
+          namedEntityCategory.getCategoryNamedEntityId());
+    }
+
+    // Map named entity names with category named entity IDs
+    final Map<String, Set<Long>> result =
+        namedEntityNames2NamedEntityId.entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),
+            e -> namedEntityIds2CategoryNamedEntityIds.get(e.getValue())));
+    return result;
   }
 
-  private void registerDependencies(final Collection<NamedEntityCategory> namedEntityCategories,
-      final String namedEntityName) {
-    final Collection<Long> namedEntityCategoryIds =
-        namedEntityCategories.stream().map(nec -> nec.getId()).collect(Collectors.toSet());
-    registerDependencies(namedEntityCategoryIds, namedEntityName);
-  }
+  private Map<String, Set<String>> getNamedEntityNames2CategoryNamedEntityNames(
+      final SharedSessionContract ssc,
+      final Map<String, Set<Long>> namedEntityNames2CategoryNamedEntityIds) {
+    // Determine all category named entity IDs
+    final Set<Long> allNamedEntityIds = Sets.newHashSet();
+    for (final Set<Long> namedEntityIds : namedEntityNames2CategoryNamedEntityIds.values()) {
+      allNamedEntityIds.addAll(namedEntityIds);
+    }
 
-  private Collection<Long> getNamedEntityIds(final SharedSessionContract ssc,
-      final Collection<NamedEntityCategory> namedEntityCategories) {
-    final Collection<Long> categoryNamedEntityIds = namedEntityCategories.stream()
-        .map(nec -> nec.getCategoryNamedEntityId()).collect(Collectors.toSet());
-    return categoryNamedEntityIds;
-  }
-
-  private Collection<NamedEntity> getNamedEntites(final SharedSessionContract ssc,
-      final Collection<Long> categoryNamedEntityIds) {
+    // Query named entities for the given category named entity IDs
     final EntityWithIdQuery<NamedEntity> namedEntityQuery =
         new EntityWithIdQuery<>(NamedEntity.class);
-    namedEntityQuery.addRestriction(Restrictions.in("id", categoryNamedEntityIds));
-    final Collection<NamedEntity> namedEntities = namedEntityQuery.listObjects(ssc);
-    return namedEntities;
-  }
+    namedEntityQuery.addRestriction(Restrictions.in("id", allNamedEntityIds));
+    final List<NamedEntity> namedEntities = namedEntityQuery.listObjects(ssc);
 
-  private Set<String> getCategoryNamedEntityNames(final Collection<NamedEntity> namedEntities) {
-    final Set<String> categoryNamedEntityNames =
-        namedEntities.stream().map(ne -> ne.getName()).collect(Collectors.toSet());
-    return categoryNamedEntityNames;
+    // Map category named entity IDs to category named entity name
+    final Map<Long, String> categoryNamedEntityIds2CategoryNamedEntityName =
+        namedEntities.stream().collect(Collectors.toMap(ne -> ne.getId(), ne -> ne.getName()));
+
+    // Map named entity names with category named entity names
+    final Map<String, Set<String>> result =
+        Maps.newHashMapWithExpectedSize(namedEntityNames2CategoryNamedEntityIds.size());
+    for (final Entry<String, Set<Long>> entry : namedEntityNames2CategoryNamedEntityIds
+        .entrySet()) {
+      final String namedEntityName = entry.getKey();
+      final Set<Long> categoryNamedEntityIds = entry.getValue();
+      final Set<String> categoryNamedEntityNames = categoryNamedEntityIds.stream()
+          .map(s -> categoryNamedEntityIds2CategoryNamedEntityName.get(s))
+          .collect(Collectors.toSet());
+      result.put(namedEntityName, categoryNamedEntityNames);
+    }
+    return result;
   }
 
 }

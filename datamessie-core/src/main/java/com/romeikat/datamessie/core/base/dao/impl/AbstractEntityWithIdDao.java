@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -150,6 +151,36 @@ public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends Ab
     // Done
     final Long result = (Long) criteria.uniqueResult();
     return result;
+  }
+
+  @Override
+  public boolean exists(final SharedSessionContract ssc, final long id) {
+    // Query
+    final Criteria criteria = ssc.createCriteria(getEntityClass());
+    criteria.add(Restrictions.idEq(id));
+    // Projection
+    criteria.setProjection(Projections.count("id"));
+    // Done
+    Long count = (Long) criteria.uniqueResult();
+    if (count == null) {
+      count = 0l;
+    }
+    return count > 0;
+  }
+
+  @Override
+  public void insertOrUpdate(final StatelessSession statelessSession, final E entity) {
+    final boolean exists = exists(statelessSession, entity.getId());
+
+    // Insert
+    if (!exists) {
+      insert(statelessSession, entity);
+    }
+    // Update
+    else {
+      // statelessSession.refresh(entity);
+      update(statelessSession, entity);
+    }
   }
 
 }

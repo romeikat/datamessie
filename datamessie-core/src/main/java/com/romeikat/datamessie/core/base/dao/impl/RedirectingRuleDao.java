@@ -1,5 +1,6 @@
 package com.romeikat.datamessie.core.base.dao.impl;
 
+import java.util.Collection;
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -30,6 +31,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
@@ -57,6 +60,24 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
     // Done
     final List<RedirectingRule> redirectingRules = redirectingRuleQuery.listObjects(ssc);
     return redirectingRules;
+  }
+
+  public ListMultimap<Long, RedirectingRule> getPerSourceId(final SharedSessionContract ssc,
+      final Collection<Long> sourceIds) {
+    // Query: RedirectingRule
+    final EntityWithIdQuery<RedirectingRule> redirectingRuleQuery =
+        new EntityWithIdQuery<>(RedirectingRule.class);
+    redirectingRuleQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
+    redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
+    redirectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+
+    // Done
+    final List<RedirectingRule> redirectingRules = redirectingRuleQuery.listObjects(ssc);
+    final ListMultimap<Long, RedirectingRule> result = ArrayListMultimap.create();
+    for (final RedirectingRule redirectingRule : redirectingRules) {
+      result.put(redirectingRule.getSourceId(), redirectingRule);
+    }
+    return result;
   }
 
   public List<RedirectingRuleDto> getAsDtos(final SharedSessionContract ssc, final long sourceId) {

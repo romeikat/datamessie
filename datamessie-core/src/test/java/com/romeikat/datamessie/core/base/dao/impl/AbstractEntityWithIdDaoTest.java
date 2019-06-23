@@ -25,6 +25,7 @@ License along with this program.  If not, see
 import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -192,6 +193,22 @@ public class AbstractEntityWithIdDaoTest extends AbstractDbSetupBasedTest {
     dbSetupTracker.skipNextLaunch();
   }
 
+  @Test
+  public void exists_existing() {
+    final boolean exists = dao.exists(sessionProvider.getStatelessSession(), 1l);
+    assertTrue(exists);
+
+    dbSetupTracker.skipNextLaunch();
+  }
+
+  @Test
+  public void exists_nonExisting() {
+    final boolean exists = dao.exists(sessionProvider.getStatelessSession(), -1l);
+    assertFalse(exists);
+
+    dbSetupTracker.skipNextLaunch();
+  }
+
   @Test(expected = Exception.class)
   public void insert_stateless_with_existing_id() {
     final FooEntityWithId foo = new FooEntityWithId(1);
@@ -227,6 +244,31 @@ public class AbstractEntityWithIdDaoTest extends AbstractDbSetupBasedTest {
   public void update_stateless_with_new_id() {
     final FooEntityWithId foo = new FooEntityWithId(NEW_ID);
     dao.update(sessionProvider.getStatelessSession(), foo);
+  }
+
+  @Test
+  public void insertOrUpdate_stateless_with_new_id() {
+    FooEntityWithId foo = new FooEntityWithId(NEW_ID);
+    dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
+    assertEquals(NEW_ID, foo.getId());
+    sessionProvider.closeStatelessSession();
+
+    final Collection<FooEntityWithId> foos =
+        dao.getAllEntites(sessionProvider.getStatelessSession());
+    assertEquals(4, foos.size());
+    foo = dao.getEntity(sessionProvider.getStatelessSession(), NEW_ID);
+    assertNotNull(foo);
+  }
+
+  @Test
+  public void insertOrUpdate_stateless_with_existing_id() {
+    FooEntityWithId foo = new FooEntityWithId(1);
+    foo.setName("Updated Foo1");
+    dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
+    sessionProvider.closeStatelessSession();
+
+    foo = dao.getEntity(sessionProvider.getStatelessSession(), 1);
+    assertEquals("Updated Foo1", foo.getName());
   }
 
   @Test(expected = Exception.class)

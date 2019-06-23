@@ -69,8 +69,10 @@ class InternalRecursiveAction<T> extends RecursiveAction {
         parallelProcessing.onBeforeProcessing(sessionProvider);
       } catch (final Exception e) {
         LOG.error("Error before parallel processing", e);
-        sessionProvider.closeSession();
-        sessionProvider.closeStatelessSession();
+        if (sessionProvider != null) {
+          sessionProvider.closeSession();
+          sessionProvider.closeStatelessSession();
+        }
         throw e;
       }
       // Processing
@@ -79,8 +81,10 @@ class InternalRecursiveAction<T> extends RecursiveAction {
           parallelProcessing.doProcessing(sessionProvider, objectToBeProcessed);
         } catch (final Exception e) {
           LOG.error("Error during parallel processing", e);
-          sessionProvider.closeSession();
-          sessionProvider.closeStatelessSession();
+          if (sessionProvider != null) {
+            sessionProvider.closeSession();
+            sessionProvider.closeStatelessSession();
+          }
           throw e;
         }
       }
@@ -89,8 +93,10 @@ class InternalRecursiveAction<T> extends RecursiveAction {
         parallelProcessing.onAfterProcessing(sessionProvider);
       } catch (final Exception e) {
         LOG.error("Error after parallel processing", e);
-        sessionProvider.closeSession();
-        sessionProvider.closeStatelessSession();
+        if (sessionProvider != null) {
+          sessionProvider.closeSession();
+          sessionProvider.closeStatelessSession();
+        }
         throw e;
       }
       // Session management

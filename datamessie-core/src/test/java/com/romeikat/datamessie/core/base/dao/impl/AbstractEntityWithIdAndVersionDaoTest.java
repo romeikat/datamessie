@@ -36,6 +36,7 @@ import com.google.common.collect.Lists;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
+import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithGeneratedIdAndVersion;
 
 public class AbstractEntityWithIdAndVersionDaoTest extends AbstractDbSetupBasedTest {
 
@@ -94,6 +95,28 @@ public class AbstractEntityWithIdAndVersionDaoTest extends AbstractDbSetupBasedT
     assertEquals(expected, Lists.newArrayList(idsWithVersion.keySet()));
 
     dbSetupTracker.skipNextLaunch();
+  }
+
+  @Test
+  public void insertOrUpdate_stateless_with_existing_id() {
+    // The first update will increase the version from 0 to 1
+    FooEntityWithGeneratedIdAndVersion foo = new FooEntityWithGeneratedIdAndVersion(1);
+    foo.setName("Updated Foo1");
+    dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
+    sessionProvider.closeStatelessSession();
+
+    foo = dao.getEntity(sessionProvider.getStatelessSession(), 1);
+    assertEquals("Updated Foo1", foo.getName());
+
+    // It is crucial for this test that foo already exists in the DB with a higher version (1)
+    // than the version of the object to be persisted (0)
+    foo = new FooEntityWithGeneratedIdAndVersion(1);
+    foo.setName("Updated Foo1 again");
+    dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
+    sessionProvider.closeStatelessSession();
+
+    foo = dao.getEntity(sessionProvider.getStatelessSession(), 1);
+    assertEquals("Updated Foo1 again", foo.getName());
   }
 
 }

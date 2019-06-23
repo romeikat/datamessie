@@ -31,6 +31,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.hibernate.SharedSessionContract;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
+import jersey.repackaged.com.google.common.collect.Lists;
+import jersey.repackaged.com.google.common.collect.Maps;
 
 public abstract class AbstractLazyCache<K, V, S extends SharedSessionContract>
     implements ILazyCache<K, V, S> {
@@ -56,7 +58,18 @@ public abstract class AbstractLazyCache<K, V, S extends SharedSessionContract>
     return Collections.emptyMap();
   }
 
-  protected abstract V loadValue(S session, K key);
+  protected V loadValue(final S session, final K key) {
+    final Collection<K> keys = Lists.<K>newArrayList();
+    keys.add(key);
+
+    final Map<K, V> values = loadValues(session, keys);
+    if (values.isEmpty()) {
+      return null;
+    }
+    return values.entrySet().iterator().next().getValue();
+  }
+
+  protected abstract Map<K, V> loadValues(S session, Collection<K> keys);
 
   @Override
   public Set<K> getKnownKeys() {
@@ -93,6 +106,36 @@ public abstract class AbstractLazyCache<K, V, S extends SharedSessionContract>
 
     return value;
   }
+
+  @Override
+  public Map<K, V> getValues(final S session, final Collection<K> keys) {
+    final Map<K, V> result = Maps.newHashMapWithExpectedSize(keys.size());
+
+    // First: get values from cache
+    final Set<K> uncachedKeys = Sets.newHashSetWithExpectedSize(keys.size());
+    readWriteLock.readLock().lock();
+    for (final K key : keys) {
+      if (cachedMappings.containsKey(key)) {
+        final V value = cachedMappings.get(key);
+        result.put(key, value);
+      } else {
+        uncachedKeys.add(key);
+      }
+    }
+    readWriteLock.readLock().unlock();
+
+    // Second, load values and cache new mappings
+    if (!uncachedKeys.isEmpty()) {
+      final Map<K, V> values = loadValues(session, uncachedKeys);
+      result.putAll(values);
+      readWriteLock.writeLock().lock();
+      cachedMappings.putAll(result);
+      readWriteLock.writeLock().unlock();
+    }
+
+    return result;
+  }
+
 
   private void putInitialMappings() {
     final Map<K, V> initialMappings = getInitialMappings();

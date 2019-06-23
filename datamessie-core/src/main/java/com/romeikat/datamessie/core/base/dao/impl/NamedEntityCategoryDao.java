@@ -23,7 +23,9 @@ License along with this program.  If not, see
  */
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,11 +78,16 @@ public class NamedEntityCategoryDao
     namedEntityName2CategoriesCache.invalidateKey(namedEntityName);
   }
 
-  public boolean hasNamedEntityCategories(final SharedSessionContract ssc,
-      final String namedEntityName) {
-    final Set<String> namedEntityCategoryNames =
-        namedEntityName2CategoriesCache.getValue(ssc, namedEntityName);
-    return !namedEntityCategoryNames.isEmpty();
+  public Set<String> getWithoutCategories(final SharedSessionContract ssc,
+      final Collection<String> namedEntityNames) {
+    final Map<String, Set<String>> namedEntityNames2Categories =
+        namedEntityName2CategoriesCache.getValues(ssc, namedEntityNames);
+    final Set<String> withCategories = namedEntityNames2Categories.entrySet().stream()
+        .filter(e -> !e.getValue().isEmpty()).map(e -> e.getKey()).collect(Collectors.toSet());
+
+    final Set<String> withoutCategories = Sets.newHashSet(namedEntityNames);
+    withoutCategories.removeAll(withCategories);
+    return withoutCategories;
   }
 
   public Set<String> getNamedEntityCategoryNames(final SharedSessionContract ssc,
