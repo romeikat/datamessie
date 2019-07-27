@@ -32,7 +32,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
-import org.hibernate.SharedSessionContract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
@@ -52,8 +51,8 @@ public class TextStemmer {
   @Autowired
   private TextUtil textUtil;
 
-  public String stemText(final SharedSessionContract ssc, final String unstemmedText,
-      final Collection<String> namedEntityNames, final Language language) {
+  public String stemText(final String unstemmedText, final Collection<String> namedEntityNames,
+      final Language language) {
     if (unstemmedText == null || language == null) {
       return null;
     }
@@ -62,7 +61,7 @@ public class TextStemmer {
     String textUnderStemming = unstemmedText.toLowerCase();
 
     // Replace named entities (bind named entities consisting of multiple words together)
-    textUnderStemming = replaceNamedEntities(ssc, textUnderStemming, namedEntityNames);
+    textUnderStemming = replaceNamedEntities(textUnderStemming, namedEntityNames);
 
     // Stem
     final Analyzer analyzer = getAnalyzer(language, namedEntityNames);
@@ -73,21 +72,20 @@ public class TextStemmer {
     return stemmedText;
   }
 
-  private String replaceNamedEntities(final SharedSessionContract ssc, String textUnderStemming,
+  private String replaceNamedEntities(String textUnderStemming,
       final Collection<String> namedEntityNames) {
     final List<String> namedEntityNamesOrderdByNumberOfWords =
         getNamedEntityOccurrencesOrderedByNumberOfWords(namedEntityNames);
     for (final String namedEntityName : namedEntityNamesOrderdByNumberOfWords) {
-      textUnderStemming = replaceNamedEntity(ssc, textUnderStemming, namedEntityName);
+      textUnderStemming = replaceNamedEntity(textUnderStemming, namedEntityName);
     }
     return textUnderStemming;
   }
 
-  private String replaceNamedEntity(final SharedSessionContract ssc, final String textUnderStemming,
-      final String namedEntityName) {
+  private String replaceNamedEntity(final String textUnderStemming, final String namedEntityName) {
     // Determine replacement
     final Pair<String, String> replacingAndReplacement =
-        getReplacingAndReplacement(ssc, namedEntityName);
+        getReplacingAndReplacement(namedEntityName);
     if (replacingAndReplacement == null) {
       return textUnderStemming;
     }
@@ -102,8 +100,7 @@ public class TextStemmer {
     return result;
   }
 
-  private Pair<String, String> getReplacingAndReplacement(final SharedSessionContract ssc,
-      final String namedEntityName) {
+  private Pair<String, String> getReplacingAndReplacement(final String namedEntityName) {
     final String replacing = namedEntityName;
     final String replacement = NamedEntity.getAsSingleWord(namedEntityName);
     // Return the replacement, if different

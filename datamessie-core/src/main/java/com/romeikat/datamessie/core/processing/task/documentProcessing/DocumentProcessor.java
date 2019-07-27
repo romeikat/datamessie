@@ -189,7 +189,7 @@ public class DocumentProcessor {
         final String cleanedContent =
             documentCleaningResult == null ? null : documentCleaningResult.getCleanedContent();
         final DocumentStemmingResult documentStemmingResult =
-            documentStemmer.stem(statelessSession, document, cleanedContent, language);
+            documentStemmer.stem(document, cleanedContent, language);
         namedEntityDetections = documentStemmingResult.getNamedEntityDetections();
         interpretStemmingResult(statelessSession, documentStemmingResult, document);
       }

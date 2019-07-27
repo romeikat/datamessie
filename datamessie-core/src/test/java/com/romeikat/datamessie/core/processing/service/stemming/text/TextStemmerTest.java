@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.domain.enums.Language;
-import com.romeikat.datamessie.core.processing.service.stemming.text.TextStemmer;
 
 public class TextStemmerTest extends AbstractTest {
 
@@ -45,8 +44,7 @@ public class TextStemmerTest extends AbstractTest {
         "This text should really be stemmed. Numbers such as 44 will be removed. German special characters such as ? are replaced. Alright?";
     final Collection<String> namedEntityNames = Lists.newArrayList("this text");
 
-    final String stemmedText =
-        textStemmer.stemText(null, unstemmedText, namedEntityNames, Language.DE);
+    final String stemmedText = textStemmer.stemText(unstemmedText, namedEntityNames, Language.DE);
 
     assertTrue(stemmedText.contains("this_text"));
     assertFalse(stemmedText.contains("44"));
@@ -59,8 +57,7 @@ public class TextStemmerTest extends AbstractTest {
         "This text should really be stemmed. Numbers such as 44 will be removed. English possesives such as the author's name are removed. Alright?";
     final Collection<String> namedEntityNames = Lists.newArrayList("this text");
 
-    final String stemmedText =
-        textStemmer.stemText(null, unstemmedText, namedEntityNames, Language.EN);
+    final String stemmedText = textStemmer.stemText(unstemmedText, namedEntityNames, Language.EN);
 
     assertTrue(stemmedText.contains("this_text"));
     assertFalse(stemmedText.contains("44"));
@@ -70,8 +67,7 @@ public class TextStemmerTest extends AbstractTest {
   @Test
   public void stemmissingLanguage() {
     final String unstemmedText = "This text should not be stemmed.";
-    final String stemmedText =
-        textStemmer.stemText(null, unstemmedText, Collections.emptySet(), null);
+    final String stemmedText = textStemmer.stemText(unstemmedText, Collections.emptySet(), null);
 
     assertNull(stemmedText);
   }

@@ -222,8 +222,8 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
     final DocumentStemmingResult expectedDocumentStemmingResult =
         new DocumentStemmingResult(STEMMED_TITLE, STEMMED_DESCRIPTION, STEMMED_CONTENT,
             Lists.newArrayList(namedEntityDetection));
-    doReturn(expectedDocumentStemmingResult).when(documentStemmer).stem(any(StatelessSession.class),
-        any(Document.class), any(String.class), any(Language.class));
+    doReturn(expectedDocumentStemmingResult).when(documentStemmer).stem(any(Document.class),
+        any(String.class), any(Language.class));
     // Simulate named entity categories
     final Set<String> namedEntityCategories = Sets.newHashSetWithExpectedSize(1);
     namedEntityCategories.add(NAMED_ENTITY_CATEGORY_NAME);
@@ -588,8 +588,8 @@ public class DocumentProcessorTest extends AbstractDbSetupBasedTest {
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
 
     // Simulate exception
-    doThrow(Exception.class).when(documentStemmer).stem(any(StatelessSession.class),
-        any(Document.class), any(String.class), any(Language.class));
+    doThrow(Exception.class).when(documentStemmer).stem(any(Document.class), any(String.class),
+        any(Language.class));
 
     // Process
     documentProcessor.processDocument(sessionProvider.getStatelessSession(), document1);

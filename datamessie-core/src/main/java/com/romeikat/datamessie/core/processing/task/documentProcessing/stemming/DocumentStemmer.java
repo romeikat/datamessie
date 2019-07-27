@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.util.Collections;
 import java.util.List;
-import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.util.HtmlUtil;
@@ -48,26 +47,24 @@ public class DocumentStemmer {
 
   private DocumentStemmer() {}
 
-  public DocumentStemmingResult stem(final StatelessSession statelessSession,
-      final Document document, final String cleanedContent, final Language language)
-      throws Exception {
+  public DocumentStemmingResult stem(final Document document, final String cleanedContent,
+      final Language language) throws Exception {
     // Stem title
     final String titleWithoutTags = htmlUtil.removeTags(document.getTitle());
     final String stemmedTitle =
-        textStemmer.stemText(statelessSession, titleWithoutTags, Collections.emptySet(), language);
+        textStemmer.stemText(titleWithoutTags, Collections.emptySet(), language);
 
     // Stem description
     final String descriptionWithoutTags = htmlUtil.removeTags(document.getDescription());
-    final String stemmedDescription = textStemmer.stemText(statelessSession, descriptionWithoutTags,
-        Collections.emptySet(), language);
+    final String stemmedDescription =
+        textStemmer.stemText(descriptionWithoutTags, Collections.emptySet(), language);
 
     // Stem content
     final List<NamedEntityDetectionDto> namedEntityDetections =
         namedEntitiesDetector.detectNamedEntities(cleanedContent);
     final List<String> namedEntityNames =
         namedEntitiesDetector.getNamedEntityNames(namedEntityDetections);
-    final String stemmedContent =
-        textStemmer.stemText(statelessSession, cleanedContent, namedEntityNames, language);
+    final String stemmedContent = textStemmer.stemText(cleanedContent, namedEntityNames, language);
 
     // Done
     return new DocumentStemmingResult(stemmedTitle, stemmedDescription, stemmedContent,

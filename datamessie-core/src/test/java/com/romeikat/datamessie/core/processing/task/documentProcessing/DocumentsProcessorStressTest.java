@@ -208,8 +208,8 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
     final DocumentStemmingResult expectedDocumentStemmingResult =
         new DocumentStemmingResult(STEMMED_TITLE, STEMMED_DESCRIPTION, STEMMED_CONTENT,
             Lists.newArrayList(namedEntityDetection));
-    doReturn(expectedDocumentStemmingResult).when(documentStemmer).stem(any(StatelessSession.class),
-        any(Document.class), any(String.class), any(Language.class));
+    doReturn(expectedDocumentStemmingResult).when(documentStemmer).stem(any(Document.class),
+        any(String.class), any(Language.class));
     // Simulate named entity categories
     final Set<String> namedEntityCategories = Sets.newHashSetWithExpectedSize(1);
     namedEntityCategories.add(NAMED_ENTITY_CATEGORY_NAME);
