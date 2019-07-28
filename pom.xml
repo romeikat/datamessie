@@ -60,7 +60,6 @@
 		<bliki-core.version>3.0.19</bliki-core.version>
 		<super-csv.version>2.3.1</super-csv.version>
 		<poi.version>3.13</poi.version>
-		<google-collections.version>1.0</google-collections.version>
 		<commons-collections4.version>4.1</commons-collections4.version>
 		<commons-lang3.version>3.4</commons-lang3.version>
 		<commons-math3.version>3.5</commons-math3.version>
@@ -335,11 +334,6 @@
 			</dependency>
 
 			<!-- UTILITY DEPENDENCIES -->
-			<dependency>
-				<groupId>com.google.collections</groupId>
-				<artifactId>google-collections</artifactId>
-				<version>${google-collections.version}</version>
-			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-collections4</artifactId>

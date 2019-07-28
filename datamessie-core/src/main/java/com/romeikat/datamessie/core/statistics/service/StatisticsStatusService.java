@@ -28,17 +28,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.dao.impl.StatisticsDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.util.StringUtil;
+import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -55,21 +56,42 @@ public class StatisticsStatusService {
   private static final double THRESHOLD_DAY_BEFORE = 0.1;
   private static final double THRESHOLD_WEEK_BEFORE = 0.1;
 
-  @Value("${statistics.checking.sms.enabled}")
-  private boolean statisticsCheckingSmsEnabled;
-
   @Autowired
   private StatisticsDao statisticsDao;
 
   @Autowired
-  private SmsService smsService;
+  private StringUtil stringUtil;
 
   @Autowired
-  private StringUtil stringUtil;
+  private SessionFactory sessionFactory;
 
   private StatisticsStatusService() {}
 
-  public Collection<Long> getSourceIdsToCheck(final StatelessSession statelessSession) {
+  public String createStatisticsStatusReport() {
+    final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
+
+    // Determine sources
+    final Collection<Long> sourceIdsToCheck =
+        getSourceIdsToCheck(sessionProvider.getStatelessSession());
+    if (sourceIdsToCheck.isEmpty()) {
+      return null;
+    }
+
+    // Check status
+    final Collection<StatisticsStatus> allStatisticsStatus =
+        determineStatisticsStatus(sessionProvider.getStatelessSession(), sourceIdsToCheck);
+    sessionProvider.closeStatelessSession();
+
+    // Determine critical status
+    final Collection<StatisticsStatus> criticalStatisticsStatus =
+        determineCriticalStatisticsStatus(allStatisticsStatus);
+
+    // Create report
+    final String report = createReport(allStatisticsStatus, criticalStatisticsStatus);
+    return report;
+  }
+
+  private Collection<Long> getSourceIdsToCheck(final StatelessSession statelessSession) {
     // Query
     final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<Source>(Source.class);
     sourceQuery.addRestriction(Restrictions.eq("statisticsChecking", true));
@@ -79,7 +101,7 @@ public class StatisticsStatusService {
     return sourceIds;
   }
 
-  public Set<StatisticsStatus> determineStatisticsStatus(final StatelessSession statelessSession,
+  private Set<StatisticsStatus> determineStatisticsStatus(final StatelessSession statelessSession,
       final Collection<Long> sourceIds) {
 
     final LocalDate today = LocalDate.now();
@@ -123,7 +145,14 @@ public class StatisticsStatusService {
     return result;
   }
 
-  public boolean isCritical(final StatisticsStatus statisticsStatus) {
+  private Set<StatisticsStatus> determineCriticalStatisticsStatus(
+      final Collection<StatisticsStatus> allStatisticsStatus) {
+    final Set<StatisticsStatus> criticalStatisticsStatus = allStatisticsStatus.stream()
+        .filter(statisticsStatus -> isCritical(statisticsStatus)).collect(Collectors.toSet());
+    return criticalStatisticsStatus;
+  }
+
+  private boolean isCritical(final StatisticsStatus statisticsStatus) {
     final long successfulToday = statisticsStatus.getSuccessfulToday();
     final long successfulMinus1 = statisticsStatus.getSuccessfulMinus1();
     final long successfulMinus7 = statisticsStatus.getSuccessfulMinus7();
@@ -153,7 +182,7 @@ public class StatisticsStatusService {
     return false;
   }
 
-  public void reportStatisticsStatus(final Collection<StatisticsStatus> allStatisticsStatus,
+  private String createReport(final Collection<StatisticsStatus> allStatisticsStatus,
       final Collection<StatisticsStatus> criticalStatisticsStatus) {
     final int numberOfAllSources = allStatisticsStatus.size();
     final int numberOfCriticalSources = criticalStatisticsStatus.size();
@@ -187,10 +216,8 @@ public class StatisticsStatusService {
       LOG.warn(msg.toString());
     }
 
-    // SMS
-    if (statisticsCheckingSmsEnabled) {
-      smsService.sendSms(msg.toString());
-    }
+    // Done
+    return msg.toString();
   }
 
 }

@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.dao.impl.UserDao;
+import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.domain.entity.impl.User;
 
 @Service
@@ -47,12 +48,15 @@ public class AuthenticationService {
   private SessionFactory sessionFactory;
 
   public Long authenticate(final String username, final String password) {
+    final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
+
     if (StringUtils.isBlank(username)) {
       return null;
     }
 
     // Find user
-    final User user = userDao.get(sessionFactory.getCurrentSession(), username);
+    final User user = userDao.get(sessionProvider.getStatelessSession(), username);
+    sessionProvider.closeStatelessSession();
     if (user == null) {
       return null;
     }

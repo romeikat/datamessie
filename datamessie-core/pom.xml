@@ -179,10 +179,6 @@
 
 		<!-- UTILITY DEPENDENCIES -->
 		<dependency>
-			<groupId>com.google.collections</groupId>
-			<artifactId>google-collections</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-collections4</artifactId>
 		</dependency>
@@ -193,6 +189,13 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
+		</dependency>
+
+		<!-- TELEGRAM DEPENDENCIES -->
+		<dependency>
+			<groupId>org.telegram</groupId>
+			<artifactId>telegrambots-abilities</artifactId>
+			<version>4.3</version>
 		</dependency>
 
 		<!-- LOGGING DEPENDENCIES -->
