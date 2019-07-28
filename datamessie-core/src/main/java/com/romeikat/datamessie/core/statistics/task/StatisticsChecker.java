@@ -48,7 +48,7 @@ public class StatisticsChecker {
   public void performChecking(final TaskExecution taskExecution) throws TaskCancelledException {
     // Create report
     work = taskExecution.reportWorkStart("Creating statistics status report");
-    final String report = statisticsStatusService.createStatisticsStatusReport();
+    final String report = statisticsStatusService.createStatisticsStatusReport(null);
     taskExecution.reportWorkEnd(work);
     taskExecution.checkpoint();
 

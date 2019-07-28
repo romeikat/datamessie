@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.hibernate.SessionFactory;
-import org.hibernate.StatelessSession;
+import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.dao.impl.StatisticsDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
+import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQuery;
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsSparseTable;
@@ -67,12 +68,12 @@ public class StatisticsStatusService {
 
   private StatisticsStatusService() {}
 
-  public String createStatisticsStatusReport() {
+  public String createStatisticsStatusReport(final Long projectId) {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
 
     // Determine sources
     final Collection<Long> sourceIdsToCheck =
-        getSourceIdsToCheck(sessionProvider.getStatelessSession());
+        getSourceIdsToCheck(sessionProvider.getStatelessSession(), projectId);
     if (sourceIdsToCheck.isEmpty()) {
       return null;
     }
@@ -91,30 +92,45 @@ public class StatisticsStatusService {
     return report;
   }
 
-  private Collection<Long> getSourceIdsToCheck(final StatelessSession statelessSession) {
-    // Query
+  private Collection<Long> getSourceIdsToCheck(final SharedSessionContract ssc,
+      final Long projectId) {
+    // Query: Project2Source
+    Collection<Long> sourceIds = null;
+    if (projectId != null) {
+      final Project2SourceQuery project2SourceQuery = new Project2SourceQuery();
+      project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
+      sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
+      if (sourceIds.isEmpty()) {
+        return Collections.emptyList();
+      }
+    }
+
+    // Query: Source
     final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<Source>(Source.class);
     sourceQuery.addRestriction(Restrictions.eq("statisticsChecking", true));
+    if (sourceIds != null) {
+      sourceQuery.addRestriction(Restrictions.in("id", sourceIds));
+    }
 
     // Done
-    final List<Long> sourceIds = sourceQuery.listIds(statelessSession);
-    return sourceIds;
+    final List<Long> result = sourceQuery.listIds(ssc);
+    return result;
   }
 
-  private Set<StatisticsStatus> determineStatisticsStatus(final StatelessSession statelessSession,
+  private Set<StatisticsStatus> determineStatisticsStatus(final SharedSessionContract ssc,
       final Collection<Long> sourceIds) {
 
     final LocalDate today = LocalDate.now();
     final StatisticsSparseTable statisticsToday =
-        statisticsDao.getStatistics(statelessSession, sourceIds, today);
+        statisticsDao.getStatistics(ssc, sourceIds, today);
 
     final LocalDate minus1 = today.minusDays(1);
     final StatisticsSparseTable statisticsMinus1 =
-        statisticsDao.getStatistics(statelessSession, sourceIds, minus1);
+        statisticsDao.getStatistics(ssc, sourceIds, minus1);
 
     final LocalDate minus7 = today.minusDays(7);
     final StatisticsSparseTable statisticsMinus7 =
-        statisticsDao.getStatistics(statelessSession, sourceIds, minus7);
+        statisticsDao.getStatistics(ssc, sourceIds, minus7);
 
     final Collection<DocumentProcessingState> successStates =
         DocumentProcessingState.getSuccessStates();
@@ -187,12 +203,7 @@ public class StatisticsStatusService {
     final int numberOfAllSources = allStatisticsStatus.size();
     final int numberOfCriticalSources = criticalStatisticsStatus.size();
 
-    // Number of checked sources
     final StringBuilder msg = new StringBuilder();
-    msg.append(numberOfAllSources);
-    msg.append(" ");
-    msg.append(stringUtil.getSingularOrPluralTerm("source", numberOfAllSources));
-    msg.append(" checked: ");
 
     // No criticals
     if (numberOfCriticalSources == 0) {
@@ -206,6 +217,8 @@ public class StatisticsStatusService {
       Collections.sort(criticalSourceIds);
 
       msg.append(numberOfCriticalSources);
+      msg.append(" out of ");
+      msg.append(numberOfAllSources);
       msg.append(" ");
       msg.append(stringUtil.getSingularOrPluralTerm("is", "are", numberOfCriticalSources));
       msg.append(" critical (");
