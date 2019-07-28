@@ -81,10 +81,23 @@ public class AbstractEntityWithGeneratedIdDaoTest extends AbstractDbSetupBasedTe
   }
 
   @Test
-  public void getIdsWithEntities() {
-    final Collection<Long> ids = Lists.newArrayList(1l, 2l, 3l, NEW_ID);
+  public void getIdsWithEntities_some() {
+    final Collection<Long> ids = Lists.newArrayList(1l, 2l, NEW_ID);
     final Map<Long, FooEntityWithGeneratedId> idsWithFoos =
         dao.getIdsWithEntities(sessionProvider.getStatelessSession(), ids);
+    assertEquals(2, idsWithFoos.size());
+    for (long id = 1; id <= 2l; id++) {
+      final FooEntityWithGeneratedId foo = idsWithFoos.get(id);
+      assertEquals(id, foo.getId());
+    }
+
+    dbSetupTracker.skipNextLaunch();
+  }
+
+  @Test
+  public void getIdsWithEntities_all() {
+    final Map<Long, FooEntityWithGeneratedId> idsWithFoos =
+        dao.getIdsWithEntities(sessionProvider.getStatelessSession());
     assertEquals(3, idsWithFoos.size());
     for (long id = 1; id <= 3l; id++) {
       final FooEntityWithGeneratedId foo = idsWithFoos.get(id);

@@ -69,6 +69,13 @@ public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends Ab
   }
 
   @Override
+  public Map<Long, E> getIdsWithEntities(final SharedSessionContract ssc) {
+    final List<E> objects = getAllEntites(ssc);
+    final Map<Long, E> result = Maps.uniqueIndex(objects, s -> s.getId());
+    return result;
+  }
+
+  @Override
   public Map<Long, E> getIdsWithEntities(final SharedSessionContract ssc,
       final Collection<Long> ids) {
     final List<E> objects = getEntities(ssc, ids);

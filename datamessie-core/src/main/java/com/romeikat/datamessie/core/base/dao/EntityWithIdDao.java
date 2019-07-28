@@ -35,6 +35,8 @@ public interface EntityWithIdDao<E extends EntityWithId> extends EntityDao<E> {
 
   List<E> getEntities(SharedSessionContract ssc, Collection<Long> ids);
 
+  Map<Long, E> getIdsWithEntities(SharedSessionContract ssc);
+
   Map<Long, E> getIdsWithEntities(SharedSessionContract ssc, Collection<Long> ids);
 
   /**
