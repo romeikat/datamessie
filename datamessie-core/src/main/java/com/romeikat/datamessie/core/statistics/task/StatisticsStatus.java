@@ -24,18 +24,18 @@ License along with this program.  If not, see
 
 public class StatisticsStatus {
 
-  private final long sourceId;
+  private final String sourceName;
 
   private long successfulToday;
   private long successfulMinus1;
   private long successfulMinus7;
 
-  public StatisticsStatus(final long sourceId) {
-    this.sourceId = sourceId;
+  public StatisticsStatus(final String sourceName) {
+    this.sourceName = sourceName;
   }
 
-  public long getSourceId() {
-    return sourceId;
+  public String getSourceName() {
+    return sourceName;
   }
 
   public long getSuccessfulToday() {

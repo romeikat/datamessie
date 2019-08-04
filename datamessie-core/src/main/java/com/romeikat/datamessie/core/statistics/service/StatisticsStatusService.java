@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
+import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.dao.impl.StatisticsDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQuery;
@@ -61,6 +62,9 @@ public class StatisticsStatusService {
   private StatisticsDao statisticsDao;
 
   @Autowired
+  private SourceDao sourceDao;
+
+  @Autowired
   private StringUtil stringUtil;
 
   @Autowired
@@ -72,15 +76,15 @@ public class StatisticsStatusService {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
 
     // Determine sources
-    final Collection<Long> sourceIdsToCheck =
-        getSourceIdsToCheck(sessionProvider.getStatelessSession(), projectId);
-    if (sourceIdsToCheck.isEmpty()) {
+    final Collection<Source> sourcesToCheck =
+        getSourcesToCheck(sessionProvider.getStatelessSession(), projectId);
+    if (sourcesToCheck.isEmpty()) {
       return null;
     }
 
     // Check status
     final Collection<StatisticsStatus> allStatisticsStatus =
-        determineStatisticsStatus(sessionProvider.getStatelessSession(), sourceIdsToCheck);
+        determineStatisticsStatus(sessionProvider.getStatelessSession(), sourcesToCheck);
     sessionProvider.closeStatelessSession();
 
     // Determine critical status
@@ -92,7 +96,7 @@ public class StatisticsStatusService {
     return report;
   }
 
-  private Collection<Long> getSourceIdsToCheck(final SharedSessionContract ssc,
+  private Collection<Source> getSourcesToCheck(final SharedSessionContract ssc,
       final Long projectId) {
     // Query: Project2Source
     Collection<Long> sourceIds = null;
@@ -113,12 +117,13 @@ public class StatisticsStatusService {
     }
 
     // Done
-    final List<Long> result = sourceQuery.listIds(ssc);
+    final List<Source> result = sourceQuery.listObjects(ssc);
     return result;
   }
 
   private Set<StatisticsStatus> determineStatisticsStatus(final SharedSessionContract ssc,
-      final Collection<Long> sourceIds) {
+      final Collection<Source> sources) {
+    final Set<Long> sourceIds = sources.stream().map(s -> s.getId()).collect(Collectors.toSet());
 
     final LocalDate today = LocalDate.now();
     final StatisticsSparseTable statisticsToday =
@@ -136,18 +141,21 @@ public class StatisticsStatusService {
         DocumentProcessingState.getSuccessStates();
 
     final Set<StatisticsStatus> result = Sets.newHashSetWithExpectedSize(sourceIds.size());
-    for (final long sourceId : sourceIds) {
-      final StatisticsStatus statisticsStatus = new StatisticsStatus(sourceId);
+    for (final Source source : sources) {
+      final StatisticsStatus statisticsStatus = new StatisticsStatus(source.getName());
 
-      final DocumentsPerState documentsPerStateToday = statisticsToday.getValue(sourceId, today);
+      final DocumentsPerState documentsPerStateToday =
+          statisticsToday.getValue(source.getId(), today);
       final long successfulToday = documentsPerStateToday == null ? 0l
           : documentsPerStateToday.get(successStates.toArray(new DocumentProcessingState[] {}));
 
-      final DocumentsPerState documentsPerStateMinus1 = statisticsMinus1.getValue(sourceId, minus1);
+      final DocumentsPerState documentsPerStateMinus1 =
+          statisticsMinus1.getValue(source.getId(), minus1);
       final long successfulMinus1 = documentsPerStateMinus1 == null ? 0l
           : documentsPerStateMinus1.get(successStates.toArray(new DocumentProcessingState[] {}));
 
-      final DocumentsPerState documentsPerStateMinus7 = statisticsMinus7.getValue(sourceId, minus7);
+      final DocumentsPerState documentsPerStateMinus7 =
+          statisticsMinus7.getValue(source.getId(), minus7);
       final long successfulMinus7 = documentsPerStateMinus7 == null ? 0l
           : documentsPerStateMinus7.get(successStates.toArray(new DocumentProcessingState[] {}));
 
@@ -212,20 +220,17 @@ public class StatisticsStatusService {
     }
     // Criticals
     else {
-      final List<Long> criticalSourceIds = Lists.newArrayList(
-          criticalStatisticsStatus.stream().map(s -> s.getSourceId()).collect(Collectors.toList()));
-      Collections.sort(criticalSourceIds);
+      final List<String> criticalSourceNames = Lists.newArrayList(criticalStatisticsStatus.stream()
+          .map(s -> s.getSourceName()).collect(Collectors.toList()));
+      Collections.sort(criticalSourceNames);
 
       msg.append(numberOfCriticalSources);
       msg.append(" out of ");
       msg.append(numberOfAllSources);
       msg.append(" ");
       msg.append(stringUtil.getSingularOrPluralTerm("is", "are", numberOfCriticalSources));
-      msg.append(" critical (");
-      msg.append(stringUtil.getSingularOrPluralTerm("ID", numberOfCriticalSources));
-      msg.append(" ");
-      msg.append(StringUtils.join(criticalSourceIds, ", "));
-      msg.append(")");
+      msg.append(" critical: ");
+      msg.append(StringUtils.join(criticalSourceNames, ", "));
       LOG.warn(msg.toString());
     }
 
