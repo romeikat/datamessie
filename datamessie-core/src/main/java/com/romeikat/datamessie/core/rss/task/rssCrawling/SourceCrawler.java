@@ -26,24 +26,13 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
-import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
-import com.romeikat.datamessie.core.base.service.DownloadService;
-import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
-import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.service.download.RssFeedDownloader;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
@@ -51,11 +40,7 @@ import com.romeikat.datamessie.core.base.util.DateUtil;
 import com.romeikat.datamessie.core.base.util.HtmlUtil;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.StringUtil;
-import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
-import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.rometools.rome.feed.synd.SyndEntry;
 import com.rometools.rome.feed.synd.SyndFeed;
@@ -64,40 +49,27 @@ public class SourceCrawler {
 
   private static final Logger LOG = LoggerFactory.getLogger(SourceCrawler.class);
 
-  private final DownloadService downloadService;
+  private final ApplicationContext ctx;
+
   private final RssFeedDownloader rssFeedDownloader;
-  private final ContentDownloader contentDownloader;
   private final HtmlUtil htmlUtil;
-  private final IStatisticsManager statisticsManager;
   private final StringUtil stringUtil;
 
-  private final DocumentCrawler documentCrawler;
-
   private final int feedDownloadAttempts;
-  private final double documentsParallelismFactor;
-  private final StatisticsRebuildingSparseTable statisticsToBeRebuilt;
 
   public SourceCrawler(final ApplicationContext ctx) {
-    downloadService = ctx.getBean(DownloadService.class);
-    rssFeedDownloader = ctx.getBean(RssFeedDownloader.class);
-    contentDownloader = ctx.getBean(ContentDownloader.class);
-    htmlUtil = ctx.getBean(HtmlUtil.class);
-    statisticsManager =
-        ctx.getBean(SharedBeanProvider.class).getSharedBean(IStatisticsManager.class);
-    stringUtil = ctx.getBean(StringUtil.class);
+    this.ctx = ctx;
 
-    documentCrawler = new DocumentCrawler(ctx);
+    rssFeedDownloader = ctx.getBean(RssFeedDownloader.class);
+    htmlUtil = ctx.getBean(HtmlUtil.class);
+    stringUtil = ctx.getBean(StringUtil.class);
 
     feedDownloadAttempts =
         Integer.parseInt(SpringUtil.getPropertyValue(ctx, "crawling.feed.download.attempts"));
-    documentsParallelismFactor = Double
-        .parseDouble(SpringUtil.getPropertyValue(ctx, "crawling.documents.parallelism.factor"));
-
-    statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
   }
 
   public void performCrawling(final HibernateSessionProvider sessionProvider,
-      final TaskExecution taskExecution, final Crawling crawling, final Source source) {
+      final TaskExecution taskExecution, final long crawlingId, final Source source) {
     final TaskExecutionWork work = taskExecution
         .reportWorkStart(String.format("Source %s: performing crawling", source.getId()));
 
@@ -109,12 +81,7 @@ public class SourceCrawler {
     }
 
     // Process RSS feed
-    processFeed(sessionProvider, crawling, source, syndFeed);
-
-    // Rebuild statistics
-    if (statisticsManager != null) {
-      statisticsManager.rebuildStatistics(statisticsToBeRebuilt);
-    }
+    processFeed(sessionProvider, taskExecution, crawlingId, source.getId(), syndFeed);
 
     // Done
     taskExecution.reportWorkEnd(work);
@@ -133,74 +100,55 @@ public class SourceCrawler {
     return syndFeed;
   }
 
-  private void processFeed(final HibernateSessionProvider sessionProvider, final Crawling crawling,
-      final Source source, final SyndFeed feed) {
-    LOG.debug("Source {}: crawling documents", source.getId());
+  private void processFeed(final HibernateSessionProvider sessionProvider,
+      final TaskExecution taskExecution, final long crawlingId, final long sourceId,
+      final SyndFeed feed) {
+    LOG.debug("Source {}: crawling documents", sourceId);
 
-    // Determine which URLs to download
-    final Map<String, SyndEntry> entriesPerUrlToBeDownloaded =
-        getEntriesToBeDownloaded(sessionProvider, source.getId(), feed);
+    // Determine entries to be processed
+    final Map<String, SyndEntry> entriesPerUrl = getUniqueEntriesPerUrl(sourceId, feed);
 
-    // Download contents for new URLs
-    final Set<String> entriesUrls = entriesPerUrlToBeDownloaded.keySet();
-    final Map<String, DownloadResult> downloadResultsPerUrl =
-        downloadEntries(source.getId(), entriesUrls);
-
-    // Process entries and download results
-    for (final Entry<String, SyndEntry> entry : entriesPerUrlToBeDownloaded.entrySet()) {
-      final String url = entry.getKey();
-      final SyndEntry syndEntry = entry.getValue();
-
-      final DownloadResult downloadResult = downloadResultsPerUrl.get(url);
-      if (downloadResult == null) {
-        LOG.error("Source {}: no download result found for URL {}", source.getId(), url);
-        continue;
-      }
-
-      processUrl(sessionProvider.getStatelessSession(), url, syndEntry, downloadResult,
-          crawling.getId(), source.getId());
-    }
-
-    sessionProvider.closeStatelessSession();
-  }
-
-  private void processUrl(final StatelessSession statelessSession, final String url,
-      final SyndEntry entry, final DownloadResult downloadResult, final long crawlingId,
-      final long sourceId) {
-    new ExecuteWithTransaction(statelessSession) {
+    // Process entries of feed
+    final DocumentsCrawler documentsCrawler = new DocumentsCrawler(ctx) {
       @Override
-      protected void execute(final StatelessSession statelessSession) {
-        final String title = getTitle(entry);
-        final String description = getDescription(entry);
-        final LocalDateTime published = getPublished(entry);
+      protected String getTitle(final String url) {
+        final SyndEntry syndEntry = entriesPerUrl.get(url);
+        if (syndEntry == null) {
+          return null;
+        }
 
-        documentCrawler.performCrawling(statelessSession, title, description, published,
-            downloadResult, crawlingId, sourceId);
-        statisticsToBeRebuilt.putValues(documentCrawler.getStatisticsToBeRebuilt());
+        return StringEscapeUtils.unescapeHtml4(syndEntry.getTitle());
       }
 
       @Override
-      protected void onException(final Exception e) {
-        LOG.error("Source " + sourceId + ": could not perform crawling for " + url, e);
-      };
-    }.execute();
-  }
+      protected String getDescription(final String url) {
+        final SyndEntry syndEntry = entriesPerUrl.get(url);
+        if (syndEntry == null) {
+          return null;
+        }
 
-  private Map<String, SyndEntry> getEntriesToBeDownloaded(
-      final HibernateSessionProvider sessionProvider, final long sourceId,
-      final SyndFeed syndFeed) {
-    final Map<String, SyndEntry> entriesPerUrl = getUniqueEntriesPerUrl(sourceId, syndFeed);
+        final String description =
+            syndEntry.getDescription() == null ? null : syndEntry.getDescription().getValue();
+        return StringEscapeUtils.unescapeHtml4(description);
+      }
 
-    // Filter URLs that should be downloaded
-    final Predicate<String> shouldUrlBeDownloadedPredicate = new Predicate<String>() {
       @Override
-      public boolean apply(final String url) {
-        return shouldUrlBeDownloaded(sessionProvider, sourceId, url);
+      protected LocalDateTime getPublished(final String url) {
+        final SyndEntry syndEntry = entriesPerUrl.get(url);
+        if (syndEntry == null) {
+          return null;
+        }
+
+        final Date publishedDate = syndEntry.getPublishedDate();
+        if (publishedDate == null) {
+          return null;
+        }
+
+        return DateUtil.toLocalDateTime(publishedDate);
       }
     };
-    final Map<String, SyndEntry> syndEntriesPerUrlToBeDownloaded =
-        Maps.filterKeys(entriesPerUrl, shouldUrlBeDownloadedPredicate);
-    return Maps.newLinkedHashMap(syndEntriesPerUrlToBeDownloaded);
+    final Set<String> urls = entriesPerUrl.keySet();
+    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawlingId, sourceId, urls);
   }
 
   private Map<String, SyndEntry> getUniqueEntriesPerUrl(final long sourceId, final SyndFeed feed) {
@@ -232,88 +180,6 @@ public class SourceCrawler {
     }
 
     return entriesPerUrl;
-  }
-
-  private boolean shouldUrlBeDownloaded(final HibernateSessionProvider sessionProvider,
-      final long sourceId, final String url) {
-    try {
-      // Validate URL
-      final boolean isUrlValid = isUrlValid(sourceId, url);
-      if (!isUrlValid) {
-        LOG.debug("Source {}: invalid URL {} provided", sourceId, url);
-        return false;
-      }
-
-      // Skip if URL has already been successfully downloaded
-      final boolean existsWithDownloadSuccess = downloadService
-          .existsWithDownloadSuccess(sessionProvider.getStatelessSession(), url, sourceId);
-      if (existsWithDownloadSuccess) {
-        LOG.debug("Source {}: URL {} has already been downloaded", sourceId, url);
-        return false;
-      }
-
-      LOG.debug("Source {}: URL {} should be downloaded", sourceId, url);
-      return true;
-    } catch (final Exception e) {
-      LOG.error(
-          String.format("Source %s: could not determine whether to download URL %s", sourceId, url),
-          e);
-      sessionProvider.closeStatelessSession();
-      return false;
-    }
-  }
-
-  private boolean isUrlValid(final long sourceId, final String url) {
-    if (url != null && !url.startsWith("http")) {
-      LOG.warn("Source {}: skipping document due to malformed URL {}", sourceId, url);
-      return false;
-    }
-
-    return true;
-  }
-
-  private ConcurrentMap<String, DownloadResult> downloadEntries(final long sourceId,
-      final Set<String> urls) {
-    final ConcurrentMap<String, DownloadResult> downloadResults =
-        new ConcurrentHashMap<String, DownloadResult>();
-
-    final List<String> urlsList = Lists.newArrayList(urls);
-    new ParallelProcessing<String>(null, urlsList, documentsParallelismFactor) {
-      @Override
-      public void doProcessing(final HibernateSessionProvider sessionProvider, final String url) {
-        try {
-          LOG.debug("Source {}: downloading {}", sourceId, url);
-
-          final DownloadResult downloadResult = contentDownloader.downloadContent(url);
-          downloadResults.put(url, downloadResult);
-        } catch (final Exception e) {
-          LOG.error(String.format("Source %s: could not download URL %s", sourceId, url), e);
-        }
-      }
-    };
-
-    return downloadResults;
-  }
-
-  private String getTitle(final SyndEntry entry) {
-    String title = entry.getTitle();
-    title = StringEscapeUtils.unescapeHtml4(title);
-    return title;
-  }
-
-  private String getDescription(final SyndEntry entry) {
-    String description = entry.getDescription() == null ? null : entry.getDescription().getValue();
-    description = StringEscapeUtils.unescapeHtml4(description);
-    return description;
-  }
-
-  private LocalDateTime getPublished(final SyndEntry entry) {
-    final Date publishedDate = entry.getPublishedDate();
-    if (publishedDate == null) {
-      return null;
-    }
-
-    return DateUtil.toLocalDateTime(publishedDate);
   }
 
 }

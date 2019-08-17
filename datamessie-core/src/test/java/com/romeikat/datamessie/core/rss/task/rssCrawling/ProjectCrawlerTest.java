@@ -94,9 +94,9 @@ public class ProjectCrawlerTest extends AbstractDbSetupBasedTest {
     final Project project1 = projectDao.getEntity(sessionProvider.getStatelessSession(), 1);
 
     // Crawl
-    doNothing().when(sourceCrawler).performCrawling(Matchers.any(), Matchers.any(), Matchers.any(),
-        Matchers.any());
-    projectCrawler.performCrawling(taskExecution, project1);
+    doNothing().when(sourceCrawler).performCrawling(Matchers.any(), Matchers.any(),
+        Matchers.anyLong(), Matchers.any());
+    projectCrawler.performCrawling(taskExecution, project1.getId());
 
     // New crawling is created
     final List<Crawling> crawlings =
@@ -114,8 +114,8 @@ public class ProjectCrawlerTest extends AbstractDbSetupBasedTest {
 
     // Crawl
     doThrow(Exception.class).when(sourceCrawler).performCrawling(Matchers.any(), Matchers.any(),
-        Matchers.any(), Matchers.any());
-    projectCrawler.performCrawling(taskExecution, project1);
+        Matchers.anyLong(), Matchers.any());
+    projectCrawler.performCrawling(taskExecution, project1.getId());
 
     // New crawling is created
     final List<Crawling> crawlings =

@@ -42,7 +42,6 @@ import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransactionAndR
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
-import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
 import com.romeikat.datamessie.core.rss.service.CrawlingService;
@@ -81,21 +80,21 @@ public class ProjectCrawler {
     sourceCrawler = new SourceCrawler(ctx);
   }
 
-  public void performCrawling(final TaskExecution taskExecution, final Project project)
+  public void performCrawling(final TaskExecution taskExecution, final long projectId)
       throws TaskCancelledException {
     // Initialize
-    taskExecution.reportWork(String.format("Performing crawling for project %s", project.getId()));
+    taskExecution.reportWork(String.format("Performing crawling for project %s", projectId));
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
 
     // Create new crawling
-    final Crawling crawling = createCrawling(project, sessionProvider.getStatelessSession());
+    final Crawling crawling = createCrawling(projectId, sessionProvider.getStatelessSession());
     if (crawling == null) {
       sessionProvider.closeStatelessSession();
       return;
     }
 
     // Load sources
-    final List<Source> sources = loadSources(project, sessionProvider.getStatelessSession());
+    final List<Source> sources = loadSources(projectId, sessionProvider.getStatelessSession());
     if (sources == null) {
       sessionProvider.closeStatelessSession();
       return;
@@ -109,36 +108,36 @@ public class ProjectCrawler {
 
     // Done
     sessionProvider.closeStatelessSession();
-    taskExecution.reportWork(String.format("Completed crawling for project %s", project.getId()));
+    taskExecution.reportWork(String.format("Completed crawling for project %s", projectId));
   }
 
-  private Crawling createCrawling(final Project project, final StatelessSession statelessSession) {
+  private Crawling createCrawling(final long projectId, final StatelessSession statelessSession) {
     final Crawling crawling = new ExecuteWithTransactionAndResult<Crawling>(statelessSession) {
       @Override
       protected Crawling executeWithResult(final StatelessSession statelessSession) {
         final LocalDateTime started = LocalDateTime.now();
-        return crawlingService.createCrawling(statelessSession, started, project);
+        return crawlingService.createCrawling(statelessSession, started, projectId);
       }
 
       @Override
       protected void onException(final Exception e) {
-        LOG.error("Could not create crawling for project " + project.getId(), e);
+        LOG.error("Could not create crawling for project " + projectId, e);
       };
     }.execute();
     return crawling;
   }
 
-  private List<Source> loadSources(final Project project, final StatelessSession statelessSession) {
+  private List<Source> loadSources(final long projectId, final StatelessSession statelessSession) {
     final List<Source> sources =
         new ExecuteWithTransactionAndResult<List<Source>>(statelessSession) {
           @Override
           protected List<Source> executeWithResult(final StatelessSession statelessSession) {
-            return sourceDao.getOfProject(statelessSession, project.getId());
+            return sourceDao.getOfProject(statelessSession, projectId);
           }
 
           @Override
           protected void onException(final Exception e) {
-            LOG.error("Could not create sources of project " + project.getId(), e);
+            LOG.error("Could not create sources of project " + projectId, e);
           };
         }.execute();
     return sources;
@@ -151,7 +150,7 @@ public class ProjectCrawler {
       public void doProcessing(final HibernateSessionProvider sessionProvider,
           final Source source) {
         try {
-          sourceCrawler.performCrawling(sessionProvider, taskExecution, crawling, source);
+          sourceCrawler.performCrawling(sessionProvider, taskExecution, crawling.getId(), source);
         } catch (final Exception e) {
           LOG.error("Could not perform crawling for source " + source.getId(), e);
         }

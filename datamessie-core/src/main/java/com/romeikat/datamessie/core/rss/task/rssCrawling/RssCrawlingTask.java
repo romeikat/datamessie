@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
-import com.romeikat.datamessie.core.domain.entity.impl.Project;
 
 @Service(RssCrawlingTask.BEAN_NAME)
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -38,13 +37,13 @@ public class RssCrawlingTask implements Task {
 
   public static final String NAME = "RSS crawling";
 
-  private Project project;
+  private final long projectId;
 
   @Autowired
   private ProjectCrawler projectCrawler;
 
-  private RssCrawlingTask(final Project project) {
-    this.project = project;
+  private RssCrawlingTask(final long projectId) {
+    this.projectId = projectId;
   }
 
   @Override
@@ -64,11 +63,7 @@ public class RssCrawlingTask implements Task {
 
   @Override
   public void execute(final TaskExecution taskExecution) throws Exception {
-    projectCrawler.performCrawling(taskExecution, project);
-  }
-
-  protected void setProject(final Project project) {
-    this.project = project;
+    projectCrawler.performCrawling(taskExecution, projectId);
   }
 
 }

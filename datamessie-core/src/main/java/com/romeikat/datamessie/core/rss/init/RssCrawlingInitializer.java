@@ -134,7 +134,7 @@ public class RssCrawlingInitializer {
             return null;
           }
           final RssCrawlingTask task =
-              (RssCrawlingTask) ctx.getBean(RssCrawlingTask.BEAN_NAME, project);
+              (RssCrawlingTask) ctx.getBean(RssCrawlingTask.BEAN_NAME, project.getId());
           return task;
         }
 
