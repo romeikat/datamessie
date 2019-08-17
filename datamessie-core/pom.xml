@@ -174,7 +174,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.sf.supercsv</groupId>
-			<artifactId>super-csv</artifactId>
+			<artifactId>super-csv-java8</artifactId>
 		</dependency>
 
 		<!-- UTILITY DEPENDENCIES -->
