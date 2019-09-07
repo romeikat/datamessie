@@ -22,6 +22,7 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.time.LocalDateTime;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -79,7 +80,9 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
     // Update
     else {
       rawContent.setDocumentId(documentId);
-      rawContent.setContent(content);
+      if (StringUtils.isNotBlank(content)) {
+        rawContent.setContent(content);
+      }
       rawContentDao.update(statelessSession, rawContent);
     }
 
@@ -94,13 +97,27 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
       return;
     }
 
-    document.setTitle(title);
-    document.setUrl(url);
-    document.setDescription(description);
-    document.setPublished(published);
-    document.setDownloaded(downloaded);
-    document.setState(state);
-    document.setStatusCode(statusCode);
+    if (StringUtils.isNotBlank(title)) {
+      document.setTitle(title);
+    }
+    if (StringUtils.isNotBlank(url)) {
+      document.setUrl(url);
+    }
+    if (StringUtils.isNotBlank(description)) {
+      document.setDescription(description);
+    }
+    if (published != null) {
+      document.setPublished(published);
+    }
+    if (downloaded != null) {
+      document.setDownloaded(downloaded);
+    }
+    if (state != null) {
+      document.setState(state);
+    }
+    if (statusCode != null) {
+      document.setStatusCode(statusCode);
+    }
     document.setCrawlingId(crawlingId);
 
     documentDao.update(statelessSession, document);

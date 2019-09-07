@@ -22,6 +22,7 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.time.LocalDateTime;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StatelessSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,10 +45,18 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
       return;
     }
 
-    document.setUrl(url);
-    document.setDownloaded(downloaded);
-    document.setState(state);
-    document.setStatusCode(statusCode);
+    if (StringUtils.isNotBlank(url)) {
+      document.setUrl(url);
+    }
+    if (downloaded != null) {
+      document.setDownloaded(downloaded);
+    }
+    if (state != null) {
+      document.setState(state);
+    }
+    if (statusCode != null) {
+      document.setStatusCode(statusCode);
+    }
 
     documentDao.update(statelessSession, document);
   }
@@ -58,7 +67,9 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
       return;
     }
 
-    document.setState(state);
+    if (state != null) {
+      document.setState(state);
+    }
 
     documentDao.update(statelessSession, document);
   }
