@@ -47,6 +47,7 @@ import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
+import com.romeikat.datamessie.core.domain.entity.impl.Document;
 
 public abstract class DocumentsCrawler {
 
@@ -164,12 +165,20 @@ public abstract class DocumentsCrawler {
     new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
       @Override
       protected void execute(final StatelessSession statelessSession) {
+        final boolean shouldProcess = onBeforeCrawlingUrl(url, downloadResult);
+        if (!shouldProcess) {
+          return;
+        }
+
         final String title = getTitle(url, downloadResult);
         final String description = getDescription(url, downloadResult);
         final LocalDateTime published = getPublished(url, downloadResult);
 
-        documentCrawler.performCrawling(statelessSession, title, description, published,
-            downloadResult, crawlingId, sourceId);
+        final Document result = documentCrawler.performCrawling(statelessSession, title,
+            description, published, downloadResult, crawlingId, sourceId);
+
+        onAfterCrawlingUrl(url, result);
+
         statisticsToBeRebuilt.putValues(documentCrawler.getStatisticsToBeRebuilt());
       }
 
@@ -203,6 +212,12 @@ public abstract class DocumentsCrawler {
 
     return downloadResults;
   }
+
+  protected boolean onBeforeCrawlingUrl(final String url, final DownloadResult downloadResult) {
+    return true;
+  }
+
+  protected void onAfterCrawlingUrl(final String url, final Document result) {}
 
   protected abstract String getTitle(String url, DownloadResult downloadResult);
 

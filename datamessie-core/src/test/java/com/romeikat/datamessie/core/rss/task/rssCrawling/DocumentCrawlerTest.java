@@ -156,8 +156,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         new DownloadResult(originalUrlNew, urlNew, newRawContentNew, downloadedNew, statusCodeNew);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), titleNew, descriptionNew,
-        publishedNew, downloadResultNew, crawling1.getId(), source1.getId());
+    final Document result =
+        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), titleNew,
+            descriptionNew, publishedNew, downloadResultNew, crawling1.getId(), source1.getId());
 
     // New document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -175,6 +176,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(statusCodeNew, documentNew.getStatusCode());
     assertEquals(crawling1.getId(), documentNew.getCrawlingId());
     assertEquals(source1.getId(), documentNew.getSourceId());
+
+    // Crawling result corresponds to new document
+    assertEquals(result.getId(), documentNew.getId());
 
     // Downloads are created
     final Collection<Download> downloadsNew =
@@ -213,8 +217,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         new DownloadResult(originalUrlNew, urlNew, newRawContentNew, downloadedNew, statusCodeNew);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), titleNew, descriptionNew,
-        publishedNew, downloadResultNew, crawling1.getId(), source1.getId());
+    final Document result =
+        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), titleNew,
+            descriptionNew, publishedNew, downloadResultNew, crawling1.getId(), source1.getId());
 
     // New document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -232,6 +237,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(statusCodeNew, documentNew.getStatusCode());
     assertEquals(crawling1.getId(), documentNew.getCrawlingId());
     assertEquals(source1.getId(), documentNew.getSourceId());
+
+    // Crawling result corresponds to new document
+    assertEquals(result.getId(), documentNew.getId());
 
     // Downloads are created
     final Collection<Download> downloadsNew =
@@ -275,8 +283,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent1New, downloaded1New, statusCode1New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
-        description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
+    final Document result =
+        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+            description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -292,6 +301,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(downloaded1New, document1.getDownloaded());
     assertEquals(DocumentProcessingState.DOWNLOADED, document1.getState());
     assertEquals(statusCode1New, document1.getStatusCode());
+
+    // Crawling result corresponds to existing document
+    assertEquals(result.getId(), document1.getId());
 
     // Additional downloads are created
     final Collection<Download> downloads1 =
@@ -343,8 +355,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent1New, downloaded1New, statusCode1New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
-        description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
+    final Document result =
+        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+            description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -360,6 +373,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(downloaded1Old, document1.getDownloaded());
     assertEquals(DocumentProcessingState.DOWNLOADED, document1.getState());
     assertEquals(statusCode1Old, document1.getStatusCode());
+
+    // Crawling result is empty
+    assertNull(result);
 
     // Additional downloads are created
     final Collection<Download> downloads1 =
@@ -404,8 +420,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent2New, downloaded2New, statusCode2New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title2New,
-        description2New, published2New, downloadResult2New, crawling1.getId(), source1.getId());
+    final Document result =
+        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title2New,
+            description2New, published2New, downloadResult2New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -420,6 +437,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(downloaded2New, document2.getDownloaded());
     assertEquals(DocumentProcessingState.DOWNLOADED, document2.getState());
     assertEquals(statusCode2New, document2.getStatusCode());
+
+    // Crawling result corresponds to existing document
+    assertEquals(result.getId(), document2.getId());
 
     // Additional downloads are created
     final Collection<Download> downloads2 =
@@ -465,8 +485,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent2New, downloaded2New, statusCode2New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title2New,
-        description2New, published2New, downloadResult2New, crawling1.getId(), source1.getId());
+    final Document result =
+        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title2New,
+            description2New, published2New, downloadResult2New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -481,6 +502,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     assertEquals(downloaded2New, document2.getDownloaded());
     assertEquals(DocumentProcessingState.DOWNLOAD_ERROR, document2.getState());
     assertEquals(statusCode2New, document2.getStatusCode());
+
+    // Crawling result corresponds to existing document
+    assertEquals(result.getId(), document2.getId());
 
     // Additional downloads are created
     final Collection<Download> downloads2 =
@@ -536,8 +560,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent1New, downloaded1New, statusCode1New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
-        description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
+    final Document result =
+        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+            description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -566,6 +591,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     // Document 2 is marked as deleted
     document2 = documentDao.getEntity(sessionProvider.getStatelessSession(), 2);
     assertEquals(DocumentProcessingState.TO_BE_DELETED, document2.getState());
+
+    // Crawling result corresponds to existing document with download success
+    assertEquals(result.getId(), document1.getId());
 
     // Downloads are reassigned from document 2 to document 1
     final Collection<Download> downloads1 =
@@ -627,8 +655,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent1New, downloaded1New, statusCode1New);
 
     // Crawl
-    documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
-        description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
+    final Document result =
+        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+            description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -657,6 +686,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     // Document 3 is marked as deleted
     document3 = documentDao.getEntity(sessionProvider.getStatelessSession(), 3);
     assertEquals(DocumentProcessingState.TO_BE_DELETED, document3.getState());
+
+    // Crawling result corresponds to existing document with download success
+    assertEquals(result.getId(), document1.getId());
 
     // Downloads are reassigned from document 3 to document 1
     final Collection<Download> downloads1 =

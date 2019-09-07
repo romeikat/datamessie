@@ -65,7 +65,7 @@ public class DocumentCrawler {
     statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
   }
 
-  public void performCrawling(final StatelessSession statelessSession, final String title,
+  public Document performCrawling(final StatelessSession statelessSession, final String title,
       final String description, final LocalDateTime published, final DownloadResult downloadResult,
       final long crawlingId, final long sourceId) {
     // Information from download result
@@ -76,22 +76,24 @@ public class DocumentCrawler {
     final String content = downloadResult.getContent();
     final DocumentProcessingState state = getState(content);
 
+    Document result = null;
+
     // Find existing documents for the two URLs
     final Collection<DocumentWithDownloads> existingDocumentsWithDownloads = downloadService
         .getDocumentsWithDownloads(statelessSession, sourceId, Sets.newHashSet(originalUrl, url));
 
     // No existing documents
     if (existingDocumentsWithDownloads.isEmpty()) {
-      processNewDownload(crawlingId, sourceId, originalUrl, url, downloaded, statusCode, content,
-          title, description, published, state, statelessSession);
+      result = processNewDownload(crawlingId, sourceId, originalUrl, url, downloaded, statusCode,
+          content, title, description, published, state, statelessSession);
     }
 
     // One existing document
     else if (existingDocumentsWithDownloads.size() == 1) {
       final DocumentWithDownloads masterDocumentWithDownloads =
           existingDocumentsWithDownloads.iterator().next();
-      processRepeatedDownload(statelessSession, title, originalUrl, url, description, published,
-          downloaded, state, statusCode, crawlingId, sourceId, content,
+      result = processRepeatedDownload(statelessSession, title, originalUrl, url, description,
+          published, downloaded, state, statusCode, crawlingId, sourceId, content,
           masterDocumentWithDownloads);
     }
 
@@ -104,17 +106,19 @@ public class DocumentCrawler {
           collectionUtil.getOthers(existingDocumentsWithDownloads, masterDocumentWithDownloads);
 
       // Process master
-      processRepeatedDownload(statelessSession, title, originalUrl, url, description, published,
-          downloaded, state, statusCode, crawlingId, sourceId, content,
+      result = processRepeatedDownload(statelessSession, title, originalUrl, url, description,
+          published, downloaded, state, statusCode, crawlingId, sourceId, content,
           masterDocumentWithDownloads);
 
       // Process slaves
       processSlaveDocuments(statelessSession, sourceId, url, masterDocumentWithDownloads,
           slaveDocumentsWithDownloads);
     }
+
+    return result;
   }
 
-  private void processNewDownload(final long crawlingId, final long sourceId,
+  private Document processNewDownload(final long crawlingId, final long sourceId,
       final String originalUrl, final String url, final LocalDateTime downloaded,
       final Integer statusCode, final String content, final String title, final String description,
       final LocalDateTime published, final DocumentProcessingState state,
@@ -142,15 +146,18 @@ public class DocumentCrawler {
     if (published != null) {
       statisticsToBeRebuilt.putValue(sourceId, published.toLocalDate(), true);
     }
+
+    return document;
   }
 
-  private void processRepeatedDownload(final StatelessSession statelessSession, final String title,
-      final String originalUrl, final String url, final String description,
+  private Document processRepeatedDownload(final StatelessSession statelessSession,
+      final String title, final String originalUrl, final String url, final String description,
       final LocalDateTime published, final LocalDateTime downloaded,
       final DocumentProcessingState state, final Integer statusCode, final long crawlingId,
       final long sourceId, final String content,
       final DocumentWithDownloads masterDocumentWithDownloads) {
     LOG.debug("Source {}: processing repeated download for URL {}", sourceId, url);
+    Document result = null;
 
     final long documentId = masterDocumentWithDownloads.getDocumentId();
     final boolean downloadSuccess = content != null;
@@ -181,6 +188,7 @@ public class DocumentCrawler {
         statisticsToBeRebuilt.putValue(sourceId, oldPublishedDate, true);
         statisticsToBeRebuilt.putValue(sourceId, newPublishedDate, true);
       }
+      result = document;
 
       // Create content (if successful)
       if (downloadSuccess) {
@@ -193,6 +201,8 @@ public class DocumentCrawler {
         documentId, downloadSuccess);
     downloadService.insertOrUpdateDownloadForUrl(statelessSession, url, sourceId, documentId,
         downloadSuccess);
+
+    return result;
   }
 
   private void processSlaveDocuments(final StatelessSession statelessSession, final long sourceId,
