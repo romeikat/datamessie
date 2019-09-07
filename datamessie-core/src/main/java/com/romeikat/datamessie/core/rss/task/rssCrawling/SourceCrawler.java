@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import com.google.common.collect.Maps;
+import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.service.download.RssFeedDownloader;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
@@ -111,7 +112,7 @@ public class SourceCrawler {
     // Process entries of feed
     final DocumentsCrawler documentsCrawler = new DocumentsCrawler(ctx) {
       @Override
-      protected String getTitle(final String url) {
+      protected String getTitle(final String url, final DownloadResult downloadResult) {
         final SyndEntry syndEntry = entriesPerUrl.get(url);
         if (syndEntry == null) {
           return null;
@@ -121,7 +122,7 @@ public class SourceCrawler {
       }
 
       @Override
-      protected String getDescription(final String url) {
+      protected String getDescription(final String url, final DownloadResult downloadResult) {
         final SyndEntry syndEntry = entriesPerUrl.get(url);
         if (syndEntry == null) {
           return null;
@@ -133,7 +134,7 @@ public class SourceCrawler {
       }
 
       @Override
-      protected LocalDateTime getPublished(final String url) {
+      protected LocalDateTime getPublished(final String url, final DownloadResult downloadResult) {
         final SyndEntry syndEntry = entriesPerUrl.get(url);
         if (syndEntry == null) {
           return null;

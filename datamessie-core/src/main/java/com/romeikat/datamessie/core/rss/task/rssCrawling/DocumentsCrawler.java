@@ -80,7 +80,7 @@ public abstract class DocumentsCrawler {
     final TaskExecutionWork work =
         taskExecution.reportWorkStart(String.format("Source %s: performing crawling", sourceId));
 
-    // Determie URLs to be crawled
+    // Determine URLs to be crawled
     final Set<String> urlsToBeCrawled =
         getUrlsToBeCrawled(sessionProvider.getStatelessSession(), sourceId, urls);
 
@@ -164,9 +164,9 @@ public abstract class DocumentsCrawler {
     new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
       @Override
       protected void execute(final StatelessSession statelessSession) {
-        final String title = getTitle(url);
-        final String description = getDescription(url);
-        final LocalDateTime published = getPublished(url);
+        final String title = getTitle(url, downloadResult);
+        final String description = getDescription(url, downloadResult);
+        final LocalDateTime published = getPublished(url, downloadResult);
 
         documentCrawler.performCrawling(statelessSession, title, description, published,
             downloadResult, crawlingId, sourceId);
@@ -204,11 +204,11 @@ public abstract class DocumentsCrawler {
     return downloadResults;
   }
 
-  protected abstract String getTitle(String url);
+  protected abstract String getTitle(String url, DownloadResult downloadResult);
 
-  protected abstract String getDescription(String url);
+  protected abstract String getDescription(String url, DownloadResult downloadResult);
 
-  protected abstract LocalDateTime getPublished(String url);
+  protected abstract LocalDateTime getPublished(String url, DownloadResult downloadResult);
 
   public StatisticsRebuildingSparseTable getStatisticsToBeRebuilt() {
     return statisticsToBeRebuilt;

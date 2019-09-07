@@ -137,17 +137,17 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     documentsCrawler = new DocumentsCrawler(ctx) {
       @Override
-      protected String getTitle(final String url) {
+      protected String getTitle(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected String getDescription(final String url) {
+      protected String getDescription(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected LocalDateTime getPublished(final String url) {
+      protected LocalDateTime getPublished(final String url, final DownloadResult downloadResult) {
         if (StringUtils.equals(url, url3)) {
           return newPublished3;
         } else {
@@ -201,17 +201,17 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     documentsCrawler = new DocumentsCrawler(ctx) {
       @Override
-      protected String getTitle(final String url) {
+      protected String getTitle(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected String getDescription(final String url) {
+      protected String getDescription(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected LocalDateTime getPublished(final String url) {
+      protected LocalDateTime getPublished(final String url, final DownloadResult downloadResult) {
         if (StringUtils.equals(url, url3)) {
           return newPublished3;
         } else {
@@ -275,17 +275,17 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     documentsCrawler = new DocumentsCrawler(ctx) {
       @Override
-      protected String getTitle(final String url) {
+      protected String getTitle(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected String getDescription(final String url) {
+      protected String getDescription(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected LocalDateTime getPublished(final String url) {
+      protected LocalDateTime getPublished(final String url, final DownloadResult downloadResult) {
         if (StringUtils.equals(url, url1)) {
           return newPublished1;
         } else {
@@ -337,17 +337,17 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     documentsCrawler = new DocumentsCrawler(ctx) {
       @Override
-      protected String getTitle(final String url) {
+      protected String getTitle(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected String getDescription(final String url) {
+      protected String getDescription(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected LocalDateTime getPublished(final String url) {
+      protected LocalDateTime getPublished(final String url, final DownloadResult downloadResult) {
         if (StringUtils.equals(url, url2)) {
           return newPublished2;
         } else {
@@ -403,17 +403,17 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     documentsCrawler = new DocumentsCrawler(ctx) {
       @Override
-      protected String getTitle(final String url) {
+      protected String getTitle(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected String getDescription(final String url) {
+      protected String getDescription(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected LocalDateTime getPublished(final String url) {
+      protected LocalDateTime getPublished(final String url, final DownloadResult downloadResult) {
         if (StringUtils.equals(url, url3)) {
           return newPublished3;
         } else if (StringUtils.equals(url, url4)) {
@@ -464,17 +464,17 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     documentsCrawler = new DocumentsCrawler(ctx) {
       @Override
-      protected String getTitle(final String url) {
+      protected String getTitle(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected String getDescription(final String url) {
+      protected String getDescription(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected LocalDateTime getPublished(final String url) {
+      protected LocalDateTime getPublished(final String url, final DownloadResult downloadResult) {
         if (StringUtils.equals(url, url3)) {
           return newPublished3;
         } else if (StringUtils.equals(url, url4)) {
@@ -528,17 +528,17 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     documentsCrawler = new DocumentsCrawler(ctx) {
       @Override
-      protected String getTitle(final String url) {
+      protected String getTitle(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected String getDescription(final String url) {
+      protected String getDescription(final String url, final DownloadResult downloadResult) {
         return null;
       }
 
       @Override
-      protected LocalDateTime getPublished(final String url) {
+      protected LocalDateTime getPublished(final String url, final DownloadResult downloadResult) {
         if (StringUtils.equals(url, url3)) {
           return newPublished3;
         } else if (StringUtils.equals(url, url4)) {
