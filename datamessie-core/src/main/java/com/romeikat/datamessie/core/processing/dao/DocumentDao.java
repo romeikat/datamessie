@@ -43,12 +43,13 @@ import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQuery;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
+import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.entity.impl.Project;
+import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -81,7 +82,7 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
         LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
 
     // Query: Project
-    final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(Project.class);
+    final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(ProjectImpl.class);
     projectQuery.addRestriction(Restrictions.eq("preprocessingEnabled", true));
     final Collection<Long> projectIds = projectQuery.listIds(ssc);
     if (projectIds.isEmpty()) {

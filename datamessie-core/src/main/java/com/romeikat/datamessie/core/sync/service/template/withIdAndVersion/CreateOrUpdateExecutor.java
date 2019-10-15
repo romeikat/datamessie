@@ -56,7 +56,7 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
   private final CreateOrUpdateDecisionResults decisionResults;
   private final int batchSizeEntities;
   private final EntityWithIdAndVersionDao<E> dao;
-  private final Class<E> clazz;
+  private final Class<? extends E> clazz;
   private final StatelessSession lhsStatelessSession;
   private final StatelessSession rhsStatelessSession;
   private final SessionFactory sessionFactory;
@@ -66,10 +66,10 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
   private final List<Long> failedLhsIds;
 
   public CreateOrUpdateExecutor(final CreateOrUpdateDecisionResults decisionResults,
-      final int batchSizeEntities, final EntityWithIdAndVersionDao<E> dao, final Class<E> clazz,
-      final StatelessSession lhsStatelessSession, final StatelessSession rhsStatelessSession,
-      final SessionFactory sessionFactory, final Double parallelismFactor,
-      final TaskExecution taskExecution) {
+      final int batchSizeEntities, final EntityWithIdAndVersionDao<E> dao,
+      final Class<? extends E> clazz, final StatelessSession lhsStatelessSession,
+      final StatelessSession rhsStatelessSession, final SessionFactory sessionFactory,
+      final Double parallelismFactor, final TaskExecution taskExecution) {
     this.decisionResults = decisionResults;
     this.batchSizeEntities = batchSizeEntities;
     this.dao = dao;

@@ -44,7 +44,7 @@ public class EntityWithIdQuery<E extends EntityWithId> extends EntityQuery<E> {
 
   private final List<Set<Long>> idRestrictions;
 
-  public EntityWithIdQuery(final Class<E> targetClass) {
+  public EntityWithIdQuery(final Class<? extends E> targetClass) {
     super(targetClass);
 
     idRestrictions = Lists.newLinkedList();

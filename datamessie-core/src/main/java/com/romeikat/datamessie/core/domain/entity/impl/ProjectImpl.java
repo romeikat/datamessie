@@ -27,14 +27,15 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.Project;
 
 @Entity
-@Table(name = Project.TABLE_NAME,
+@Table(name = ProjectImpl.TABLE_NAME,
     uniqueConstraints = {
         @UniqueConstraint(name = "project_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "project_name", columnNames = {"name"}),
         @UniqueConstraint(name = "project_id_version", columnNames = {"id", "version"})})
-public class Project extends AbstractEntityWithGeneratedIdAndVersion {
+public class ProjectImpl extends AbstractEntityWithGeneratedIdAndVersion implements Project {
 
   public static final String TABLE_NAME = "project";
 
@@ -46,9 +47,9 @@ public class Project extends AbstractEntityWithGeneratedIdAndVersion {
 
   private boolean preprocessingEnabled;
 
-  public Project() {}
+  public ProjectImpl() {}
 
-  public Project(final long id, final String name, final boolean crawlingEnabled,
+  public ProjectImpl(final long id, final String name, final boolean crawlingEnabled,
       final boolean preprocessingEnabled) {
     super(id);
     this.name = name;
@@ -56,41 +57,49 @@ public class Project extends AbstractEntityWithGeneratedIdAndVersion {
     this.preprocessingEnabled = preprocessingEnabled;
   }
 
+  @Override
   @Column(nullable = false)
   public String getName() {
     return name;
   }
 
-  public Project setName(final String name) {
+  @Override
+  public ProjectImpl setName(final String name) {
     this.name = name;
     return this;
   }
 
+  @Override
   @Column(nullable = false)
   public boolean getCrawlingEnabled() {
     return crawlingEnabled;
   }
 
-  public Project setCrawlingEnabled(final boolean crawlingEnabled) {
+  @Override
+  public ProjectImpl setCrawlingEnabled(final boolean crawlingEnabled) {
     this.crawlingEnabled = crawlingEnabled;
     return this;
   }
 
+  @Override
   public Integer getCrawlingInterval() {
     return crawlingInterval;
   }
 
-  public Project setCrawlingInterval(final Integer crawlingInterval) {
+  @Override
+  public ProjectImpl setCrawlingInterval(final Integer crawlingInterval) {
     this.crawlingInterval = crawlingInterval;
     return this;
   }
 
+  @Override
   @Column(nullable = false)
   public boolean getPreprocessingEnabled() {
     return preprocessingEnabled;
   }
 
-  public Project setPreprocessingEnabled(final boolean preprocessingEnabled) {
+  @Override
+  public ProjectImpl setPreprocessingEnabled(final boolean preprocessingEnabled) {
     this.preprocessingEnabled = preprocessingEnabled;
     return this;
   }

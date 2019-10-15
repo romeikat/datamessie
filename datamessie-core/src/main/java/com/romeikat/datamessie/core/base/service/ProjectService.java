@@ -30,9 +30,9 @@ import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
+import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.Project;
 
 @Service
 public class ProjectService {
@@ -65,7 +65,7 @@ public class ProjectService {
 
   public void createProject(final StatelessSession statelessSession, final ProjectDto projectDto) {
     // Create
-    final Project project = new Project();
+    final Project project = projectDao.create();
     project.setName(projectDto.getName());
     project.setCrawlingEnabled(projectDto.getCrawlingEnabled());
     project.setCrawlingInterval(projectDto.getCrawlingInterval());

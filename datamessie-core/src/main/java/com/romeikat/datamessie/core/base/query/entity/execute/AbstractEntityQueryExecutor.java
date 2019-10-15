@@ -60,7 +60,8 @@ public abstract class AbstractEntityQueryExecutor<E extends Entity, R> {
 
   protected abstract R executeCriteria(Criteria criteria);
 
-  public Criteria createCriteria(final SharedSessionContract ssc, final Class<E> targetClass) {
+  public Criteria createCriteria(final SharedSessionContract ssc,
+      final Class<? extends E> targetClass) {
     final Criteria criteria = ssc.createCriteria(targetClass);
     return criteria;
   }

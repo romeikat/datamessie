@@ -37,12 +37,13 @@ public class DeleteExecutor<E extends EntityWithIdAndVersion> {
 
   private final DeleteDecisionResults decisionResults;
   private final int batchSizeEntities;
-  private final Class<E> clazz;
+  private final Class<? extends E> clazz;
   private final SessionFactory sessionFactory;
   private final Double parallelismFactor;
 
   public DeleteExecutor(final DeleteDecisionResults decisionResults, final int batchSizeEntities,
-      final Class<E> clazz, final SessionFactory sessionFactory, final Double parallelismFactor) {
+      final Class<? extends E> clazz, final SessionFactory sessionFactory,
+      final Double parallelismFactor) {
     this.decisionResults = decisionResults;
     this.batchSizeEntities = batchSizeEntities;
     this.clazz = clazz;

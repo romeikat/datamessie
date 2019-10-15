@@ -26,6 +26,7 @@ import static com.ninja_squad.dbsetup.Operations.deleteAllFrom;
 import static com.ninja_squad.dbsetup.Operations.insertInto;
 import com.ninja_squad.dbsetup.operation.Insert;
 import com.ninja_squad.dbsetup.operation.Operation;
+import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
@@ -41,9 +42,9 @@ import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithoutIdAndVers
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2User;
+import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
@@ -63,7 +64,7 @@ public class CommonOperations {
       CleanedContent.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
       Document.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceType.TABLE_NAME, SourceType.TABLE_NAME,
-      Project2Source.TABLE_NAME, Source.TABLE_NAME, Project2User.TABLE_NAME, Project.TABLE_NAME,
+      Project2Source.TABLE_NAME, Source.TABLE_NAME, Project2User.TABLE_NAME, ProjectImpl.TABLE_NAME,
       User.TABLE_NAME);
 
   public static Insert insertIntoBarEntity(final BarEntity barEntity) {
@@ -104,7 +105,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoProject(final Project project) {
-    return insertInto(Project.TABLE_NAME)
+    return insertInto(ProjectImpl.TABLE_NAME)
         .columns("id", "version", "name", "crawlingEnabled", "crawlingInterval",
             "preprocessingEnabled")
         .values(project.getId(), project.getVersion(), project.getName(),

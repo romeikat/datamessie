@@ -28,10 +28,14 @@ import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.domain.entity.Entity;
 
 public abstract class AbstractEntityDao<E extends Entity> implements EntityDao<E> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractEntityDao.class);
 
   private final Class<E> entityClass;
 
@@ -40,6 +44,17 @@ public abstract class AbstractEntityDao<E extends Entity> implements EntityDao<E
   }
 
   protected abstract String defaultSortingProperty();
+
+  @Override
+  public E create() {
+    try {
+      return entityClass.newInstance();
+    } catch (final Exception e) {
+      final String msg = String.format("Could not instantiate %s", entityClass.getName());
+      LOG.error(msg, e);
+      return null;
+    }
+  }
 
   /**
    * Returns the class of the entity.

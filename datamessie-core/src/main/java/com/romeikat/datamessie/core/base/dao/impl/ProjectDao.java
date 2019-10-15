@@ -34,8 +34,9 @@ import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
-import com.romeikat.datamessie.core.domain.entity.impl.Project;
+import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2User;
+import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 
 @Repository
 public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
@@ -65,7 +66,7 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
     }
 
     // Query: Project
-    final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(Project.class);
+    final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(ProjectImpl.class);
     projectQuery.addIdRestriction(projectIdsForUser);
     projectQuery.addOrder(Order.asc("name"));
     projectQuery.setResultTransformer(new AliasToBeanResultTransformer(ProjectDto.class));
@@ -92,7 +93,7 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
     }
 
     // Query: Project
-    final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(Project.class);
+    final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(ProjectImpl.class);
     projectQuery.addRestriction(Restrictions.idEq(projectId));
     projectQuery.addIdRestriction(projectIdsForUser);
     projectQuery.addOrder(Order.desc("started"));

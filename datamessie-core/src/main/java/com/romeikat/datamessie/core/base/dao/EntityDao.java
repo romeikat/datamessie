@@ -30,6 +30,8 @@ import com.romeikat.datamessie.core.domain.entity.Entity;
 
 public interface EntityDao<E extends Entity> {
 
+  E create();
+
   List<E> getAllEntites(SharedSessionContract ssc);
 
   List<E> getEntites(SharedSessionContract ssc, Integer firstResult, Integer maxResults);

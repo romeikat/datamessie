@@ -1,4 +1,4 @@
-package com.romeikat.datamessie.core.base.query.entity.entities;
+package com.romeikat.datamessie.core.domain.entity;
 
 /*-
  * ============================LICENSE_START============================
@@ -22,28 +22,22 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import org.hibernate.criterion.Restrictions;
-import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
-import com.romeikat.datamessie.core.domain.entity.Project;
-import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
+public interface Project extends EntityWithIdAndVersion {
 
-public class ProjectQuery extends EntityWithIdQuery<Project> {
+  public String getName();
 
-  private final DocumentsFilterSettings dfs;
+  public Project setName(String name);
 
-  public ProjectQuery(final DocumentsFilterSettings dfs) {
-    super(ProjectImpl.class);
+  public boolean getCrawlingEnabled();
 
-    this.dfs = dfs;
+  public Project setCrawlingEnabled(boolean crawlingEnabled);
 
-    addRestrictions();
-  }
+  public Integer getCrawlingInterval();
 
-  private void addRestrictions() {
-    if (dfs.getProjectId() != null) {
-      addRestriction(Restrictions.idEq(dfs.getProjectId()));
-    }
-  }
+  public Project setCrawlingInterval(Integer crawlingInterval);
+
+  public boolean getPreprocessingEnabled();
+
+  public Project setPreprocessingEnabled(boolean preprocessingEnabled);
 
 }

@@ -47,7 +47,7 @@ public class EntityQuery<E extends Entity> {
     RETURN_NULL, RETURN_ALL;
   }
 
-  private final Class<E> targetClass;
+  private final Class<? extends E> targetClass;
   private final Set<Criterion> restrictions;
   private Integer firstResult;
   private Integer maxResults;
@@ -55,7 +55,7 @@ public class EntityQuery<E extends Entity> {
   private ResultTransformer resultTransformer;
   private ReturnMode returnModeForEmptyRestrictions;
 
-  public EntityQuery(final Class<E> targetClass) {
+  public EntityQuery(final Class<? extends E> targetClass) {
     this.targetClass = targetClass;
     restrictions = Sets.newHashSet();
     firstResult = null;
@@ -201,7 +201,7 @@ public class EntityQuery<E extends Entity> {
     return !restrictions.isEmpty();
   }
 
-  public Class<E> getTargetClass() {
+  public Class<? extends E> getTargetClass() {
     return targetClass;
   }
 
