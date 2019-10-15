@@ -19,6 +19,12 @@
 
 	<dependencies>
 
+		<!-- DATA.MESSIE DEPENDENCIES -->
+		<dependency>
+			<groupId>com.romeikat.datamessie</groupId>
+			<artifactId>datamessie-model</artifactId>
+		</dependency>
+
 		<!-- WICKET DEPENDENCIES -->
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
