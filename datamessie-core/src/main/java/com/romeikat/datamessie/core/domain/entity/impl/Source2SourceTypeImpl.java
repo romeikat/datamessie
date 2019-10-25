@@ -31,12 +31,14 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithoutIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 
 @Entity
-@Table(name = Source2SourceType.TABLE_NAME,
+@Table(name = Source2SourceTypeImpl.TABLE_NAME,
     indexes = {@Index(name = "FK_source_sourceType_source_id", columnList = "source_id"),
         @Index(name = "FK_source_sourceType_sourceType_id", columnList = "sourceType_id")})
-public class Source2SourceType extends AbstractEntityWithoutIdAndVersion implements Serializable {
+public class Source2SourceTypeImpl extends AbstractEntityWithoutIdAndVersion
+    implements Source2SourceType, Serializable {
 
   public static final String TABLE_NAME = "source_sourceType";
 
@@ -46,30 +48,34 @@ public class Source2SourceType extends AbstractEntityWithoutIdAndVersion impleme
 
   private long sourceTypeId;
 
-  public Source2SourceType() {}
+  public Source2SourceTypeImpl() {}
 
-  public Source2SourceType(final long sourceId, final long sourceTypeId) {
+  public Source2SourceTypeImpl(final long sourceId, final long sourceTypeId) {
     this.sourceId = sourceId;
     this.sourceTypeId = sourceTypeId;
   }
 
+  @Override
   @Id
   @Column(name = "source_id", nullable = false)
   public long getSourceId() {
     return sourceId;
   }
 
+  @Override
   public Source2SourceType setSourceId(final long sourceId) {
     this.sourceId = sourceId;
     return this;
   }
 
+  @Override
   @Id
   @Column(name = "sourceType_id", nullable = false)
   public long getSourceTypeId() {
     return sourceTypeId;
   }
 
+  @Override
   public Source2SourceType setSourceTypeId(final long sourceTypeId) {
     this.sourceTypeId = sourceTypeId;
     return this;
@@ -86,7 +92,7 @@ public class Source2SourceType extends AbstractEntityWithoutIdAndVersion impleme
     if (other.getClass() != getClass()) {
       return false;
     }
-    final Source2SourceType otherSource2SourceType = (Source2SourceType) other;
+    final Source2SourceTypeImpl otherSource2SourceType = (Source2SourceTypeImpl) other;
     final boolean equals = new EqualsBuilder().append(sourceId, otherSource2SourceType.sourceId)
         .append(sourceTypeId, otherSource2SourceType.sourceTypeId).isEquals();
     return equals;

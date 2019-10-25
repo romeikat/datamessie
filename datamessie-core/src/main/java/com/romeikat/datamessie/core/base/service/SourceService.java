@@ -56,8 +56,8 @@ import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Source;
+import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
-import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -368,9 +368,7 @@ public class SourceService {
 
       // Create assignment
       if (assignment == null) {
-        assignment = new Source2SourceType();
-        assignment.setSourceId(sourceId);
-        assignment.setSourceTypeId(sourceTypeId);
+        assignment = source2SourceTypeDao.create(sourceId, sourceTypeId);
         source2SourceTypeDao.update(statelessSession, assignment);
       }
     }

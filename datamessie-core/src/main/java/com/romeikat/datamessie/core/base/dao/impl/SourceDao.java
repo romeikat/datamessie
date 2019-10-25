@@ -48,9 +48,10 @@ import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Source;
+import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
+import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceTypeImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 
 @Repository
@@ -296,7 +297,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     Collection<Long> sourceIds2 = null;
     if (CollectionUtils.isNotEmpty(sourceTypeIds)) {
       final EntityQuery<Source2SourceType> source2SourceTypeQuery =
-          new EntityQuery<>(Source2SourceType.class);
+          new EntityQuery<>(Source2SourceTypeImpl.class);
       source2SourceTypeQuery.addRestriction(Restrictions.in("sourceTypeId", sourceTypeIds));
       sourceIds2 = source2SourceTypeQuery.listIdsForProperty(ssc, "sourceId");
       if (sourceIds2.isEmpty()) {
@@ -352,7 +353,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
   public List<Source> getOfSourceType(final SharedSessionContract ssc, final long sourceTypeId) {
     // Query: Source2SourceType
     final EntityQuery<Source2SourceType> project2SourceQuery =
-        new EntityQuery<>(Source2SourceType.class);
+        new EntityQuery<>(Source2SourceTypeImpl.class);
     project2SourceQuery.addRestriction(Restrictions.eq("sourceTypeId", sourceTypeId));
     final List<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
 

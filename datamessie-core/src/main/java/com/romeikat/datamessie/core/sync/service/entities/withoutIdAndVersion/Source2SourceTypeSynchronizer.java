@@ -25,7 +25,8 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.Source2SourceTypeDao;
-import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
+import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
+import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceTypeImpl;
 import com.romeikat.datamessie.core.sync.service.template.withoutIdAndVersion.EntityWithoutIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
@@ -33,7 +34,7 @@ public class Source2SourceTypeSynchronizer
     extends EntityWithoutIdAndVersionSynchronizer<Source2SourceType> {
 
   public Source2SourceTypeSynchronizer(final ApplicationContext ctx) {
-    super(Source2SourceType.class, ctx);
+    super(Source2SourceTypeImpl.class, ctx);
   }
 
   @Override
