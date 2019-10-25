@@ -56,6 +56,7 @@ import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Source;
+import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -63,7 +64,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.SourceType;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceTypeImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import jersey.repackaged.com.google.common.collect.Lists;
 import jersey.repackaged.com.google.common.collect.Sets;
@@ -242,7 +243,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     if (targetClass != ProjectImpl.class) {
       projectQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
-    if (targetClass != SourceType.class) {
+    if (targetClass != SourceTypeImpl.class) {
       sourceTypeQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
     if (targetClass != SourceImpl.class) {
@@ -275,7 +276,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     processedClasses.clear();
     if (targetClass == ProjectImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processProjectQuery(ssc);
-    } else if (targetClass == SourceType.class) {
+    } else if (targetClass == SourceTypeImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processSourceTypeQuery(ssc);
     } else if (targetClass == SourceImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processSourceQuery(ssc);
@@ -330,7 +331,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     final EntityWithIdQuery<SourceType> processedQuery =
         new EntityWithIdQuery<SourceType>(inputQuery);
 
-    processedClasses.add(SourceType.class);
+    processedClasses.add(SourceTypeImpl.class);
 
     if (!processedClasses.contains(SourceImpl.class)) {
       // Source...
@@ -368,7 +369,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       addInRestrictionForIds(processedQuery, "id", sourceIds);
     }
 
-    if (!processedClasses.contains(SourceType.class)) {
+    if (!processedClasses.contains(SourceTypeImpl.class)) {
       // SourceType...
       final EntityWithIdQuery<SourceType> processedSourceTypeQuery = processSourceTypeQuery(ssc);
       final Collection<Long> sourceTypeIds = processedSourceTypeQuery.listIds(ssc);
@@ -544,7 +545,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
   private EntityWithIdQuery<?> getQuery(final Class<?> clazz) {
     if (clazz == ProjectImpl.class) {
       return projectQuery;
-    } else if (clazz == SourceType.class) {
+    } else if (clazz == SourceTypeImpl.class) {
       return sourceTypeQuery;
     } else if (clazz == SourceImpl.class) {
       return sourceQuery;

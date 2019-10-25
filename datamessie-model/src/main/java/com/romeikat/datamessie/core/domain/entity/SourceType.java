@@ -22,14 +22,10 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-public interface Project2Source extends Entity {
+public interface SourceType extends EntityWithIdAndVersion {
 
-  public long getProjectId();
+  public String getName();
 
-  public Project2Source setProjectId(long projectId);
-
-  public long getSourceId();
-
-  public Project2Source setSourceId(long sourceId);
+  public SourceType setName(String name);
 
 }

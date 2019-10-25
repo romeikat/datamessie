@@ -29,6 +29,7 @@ import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Source;
+import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
@@ -51,7 +52,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.SourceType;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceTypeImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.User;
@@ -65,7 +66,7 @@ public class CommonOperations {
       NamedEntityCategory.TABLE_NAME, NamedEntity.TABLE_NAME, RawContent.TABLE_NAME,
       CleanedContent.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
       Document.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
-      RedirectingRule.TABLE_NAME, Source2SourceType.TABLE_NAME, SourceType.TABLE_NAME,
+      RedirectingRule.TABLE_NAME, Source2SourceType.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
       Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2User.TABLE_NAME,
       ProjectImpl.TABLE_NAME, User.TABLE_NAME);
 
@@ -89,7 +90,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoSourceType(final SourceType sourceType) {
-    return insertInto(SourceType.TABLE_NAME).columns("id", "name")
+    return insertInto(SourceTypeImpl.TABLE_NAME).columns("id", "name")
         .values(sourceType.getId(), sourceType.getName()).build();
   }
 

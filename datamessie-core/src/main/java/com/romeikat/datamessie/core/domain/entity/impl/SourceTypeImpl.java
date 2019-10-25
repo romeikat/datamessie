@@ -27,30 +27,33 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.SourceType;
 
 @Entity
-@Table(name = SourceType.TABLE_NAME,
+@Table(name = SourceTypeImpl.TABLE_NAME,
     uniqueConstraints = {
         @UniqueConstraint(name = "sourceType_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "sourceType_name", columnNames = {"name"})})
-public class SourceType extends AbstractEntityWithGeneratedIdAndVersion {
+public class SourceTypeImpl extends AbstractEntityWithGeneratedIdAndVersion implements SourceType {
 
   public static final String TABLE_NAME = "sourceType";
 
   private String name;
 
-  public SourceType() {}
+  public SourceTypeImpl() {}
 
-  public SourceType(final long id, final String name) {
+  public SourceTypeImpl(final long id, final String name) {
     super(id);
     this.name = name;
   }
 
+  @Override
   @Column(nullable = false)
   public String getName() {
     return name;
   }
 
+  @Override
   public SourceType setName(final String name) {
     this.name = name;
     return this;

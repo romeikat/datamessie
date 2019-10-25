@@ -33,14 +33,15 @@ import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
+import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
-import com.romeikat.datamessie.core.domain.entity.impl.SourceType;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceTypeImpl;
 
 @Repository
 public class SourceTypeDao extends AbstractEntityWithIdAndVersionDao<SourceType> {
 
   public SourceTypeDao() {
-    super(SourceType.class);
+    super(SourceTypeImpl.class);
   }
 
   @Override
@@ -50,7 +51,7 @@ public class SourceTypeDao extends AbstractEntityWithIdAndVersionDao<SourceType>
 
   public List<SourceTypeDto> getAsDtos(final SharedSessionContract ssc) {
     // Query: SourceType
-    final EntityWithIdQuery<SourceType> sourceQuery = new EntityWithIdQuery<>(SourceType.class);
+    final EntityWithIdQuery<SourceType> sourceQuery = new EntityWithIdQuery<>(SourceTypeImpl.class);
     sourceQuery.addOrder(Order.asc("name"));
     sourceQuery.setResultTransformer(new AliasToBeanResultTransformer(SourceTypeDto.class));
 
@@ -75,7 +76,7 @@ public class SourceTypeDao extends AbstractEntityWithIdAndVersionDao<SourceType>
     }
 
     // Query: SourceType
-    final EntityQuery<SourceType> sourceTypeQuery = new EntityQuery<>(SourceType.class);
+    final EntityQuery<SourceType> sourceTypeQuery = new EntityQuery<>(SourceTypeImpl.class);
     sourceTypeQuery.addRestriction(Restrictions.in("id", sourceTypeIds));
     sourceTypeQuery.addOrder(Order.asc("name"));
     sourceTypeQuery.setResultTransformer(new AliasToBeanResultTransformer(SourceTypeDto.class));
