@@ -55,12 +55,14 @@ import com.romeikat.datamessie.core.base.query.entity.entities.StemmedContentQue
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
+import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import jersey.repackaged.com.google.common.collect.Lists;
@@ -71,7 +73,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
   private static final Logger LOG = LoggerFactory.getLogger(DocumentFilterSettingsQuery.class);
 
   private DocumentsFilterSettings dfs;
-  private final Class<E> targetClass;
+  private final Class<? extends E> targetClass;
   private Integer firstResult;
   private Integer maxResults;
   private final List<Set<Long>> idRestrictions;
@@ -92,13 +94,13 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
 
   private final Set<Class<?>> processedClasses;
 
-  public DocumentFilterSettingsQuery(final DocumentsFilterSettings dfs, final Class<E> targetClass,
-      final SharedBeanProvider sharedBeanProvider) {
+  public DocumentFilterSettingsQuery(final DocumentsFilterSettings dfs,
+      final Class<? extends E> targetClass, final SharedBeanProvider sharedBeanProvider) {
     this(dfs, targetClass, null, null, sharedBeanProvider);
   }
 
-  public DocumentFilterSettingsQuery(final DocumentsFilterSettings dfs, final Class<E> targetClass,
-      final Integer firstResult, final Integer maxResults,
+  public DocumentFilterSettingsQuery(final DocumentsFilterSettings dfs,
+      final Class<? extends E> targetClass, final Integer firstResult, final Integer maxResults,
       final SharedBeanProvider sharedBeanProvider) {
     this.dfs = dfs;
     this.targetClass = targetClass;
@@ -237,13 +239,13 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
 
   private void setReturnModesOfSingleQueries() {
     // If the query only returns an intermediate result, use null as special return value
-    if (targetClass != Project.class) {
+    if (targetClass != ProjectImpl.class) {
       projectQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
     if (targetClass != SourceType.class) {
       sourceTypeQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
-    if (targetClass != Source.class) {
+    if (targetClass != SourceImpl.class) {
       sourceQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
     if (targetClass != Crawling.class) {
@@ -271,11 +273,11 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     EntityWithIdQuery<E> overallQuery = null;
 
     processedClasses.clear();
-    if (targetClass == Project.class) {
+    if (targetClass == ProjectImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processProjectQuery(ssc);
     } else if (targetClass == SourceType.class) {
       overallQuery = (EntityWithIdQuery<E>) processSourceTypeQuery(ssc);
-    } else if (targetClass == Source.class) {
+    } else if (targetClass == SourceImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processSourceQuery(ssc);
     } else if (targetClass == Crawling.class) {
       overallQuery = (EntityWithIdQuery<E>) processCrawlingQuery(ssc);
@@ -305,9 +307,9 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     final EntityWithIdQuery<Project> inputQuery = projectQuery;
     final EntityWithIdQuery<Project> processedQuery = new EntityWithIdQuery<Project>(inputQuery);
 
-    processedClasses.add(Project.class);
+    processedClasses.add(ProjectImpl.class);
 
-    if (!processedClasses.contains(Source.class)) {
+    if (!processedClasses.contains(SourceImpl.class)) {
       // Source...
       final EntityWithIdQuery<Source> processedSourceQuery = processSourceQuery(ssc);
       final Collection<Long> sourceIds = processedSourceQuery.listIds(ssc);
@@ -330,7 +332,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
 
     processedClasses.add(SourceType.class);
 
-    if (!processedClasses.contains(Source.class)) {
+    if (!processedClasses.contains(SourceImpl.class)) {
       // Source...
       final EntityWithIdQuery<Source> processedSourceQuery = processSourceQuery(ssc);
       final Collection<Long> sourceIds = processedSourceQuery.listIds(ssc);
@@ -351,9 +353,9 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     final EntityWithIdQuery<Source> inputQuery = sourceQuery;
     final EntityWithIdQuery<Source> processedQuery = new EntityWithIdQuery<Source>(inputQuery);
 
-    processedClasses.add(Source.class);
+    processedClasses.add(SourceImpl.class);
 
-    if (!processedClasses.contains(Project.class)) {
+    if (!processedClasses.contains(ProjectImpl.class)) {
       // Project...
       final EntityWithIdQuery<Project> processedProjectQuery = processProjectQuery(ssc);
       final Collection<Long> projectIds = processedProjectQuery.listIds(ssc);
@@ -419,7 +421,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       addInRestrictionForIds(processedQuery, "crawlingId", crawlingIds);
     }
 
-    if (!processedClasses.contains(Source.class)) {
+    if (!processedClasses.contains(SourceImpl.class)) {
       // Source to Document
       final EntityWithIdQuery<Source> processedSourceQuery = processSourceQuery(ssc);
       final Collection<Long> sourceIds = processedSourceQuery.listIds(ssc);
@@ -540,11 +542,11 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
   }
 
   private EntityWithIdQuery<?> getQuery(final Class<?> clazz) {
-    if (clazz == Project.class) {
+    if (clazz == ProjectImpl.class) {
       return projectQuery;
     } else if (clazz == SourceType.class) {
       return sourceTypeQuery;
-    } else if (clazz == Source.class) {
+    } else if (clazz == SourceImpl.class) {
       return sourceQuery;
     } else if (clazz == Crawling.class) {
       return crawlingQuery;

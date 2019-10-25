@@ -51,13 +51,14 @@ import com.romeikat.datamessie.core.base.query.document.DocumentFilterSettingsQu
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceType;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
@@ -70,10 +71,10 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   protected Operation initDb() {
     final SourceType sourceType1 = new SourceType(1, "SourceType1");
     final SourceType sourceType2 = new SourceType(2, "SourceType2");
-    final Source source11 = new Source(11, "Source11", "http://www.source11.de/", true, false);
-    final Source source12 = new Source(12, "Source12", "http://www.source12.de/", false, false);
-    final Source source21 = new Source(21, "Source21", "http://www.source21.de/", true, false);
-    final Source source22 = new Source(22, "Source22", "http://www.source22.de/", false, false);
+    final Source source11 = new SourceImpl(11, "Source11", "http://www.source11.de/", true, false);
+    final Source source12 = new SourceImpl(12, "Source12", "http://www.source12.de/", false, false);
+    final Source source21 = new SourceImpl(21, "Source21", "http://www.source21.de/", true, false);
+    final Source source22 = new SourceImpl(22, "Source22", "http://www.source22.de/", false, false);
     final Source2SourceType source2SourceType111 = new Source2SourceType(11, 1);
     final Source2SourceType source2SourceType211 = new Source2SourceType(21, 1);
     final Source2SourceType source2SourceType122 = new Source2SourceType(12, 2);
@@ -419,7 +420,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
     final DocumentFilterSettingsQuery<Source> query =
-        new DocumentFilterSettingsQuery<Source>(dfs, Source.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Source>(dfs, SourceImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -433,7 +434,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_sourceIdsByCrawlingId() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setCrawlingId(11l);
     final DocumentFilterSettingsQuery<Source> query =
-        new DocumentFilterSettingsQuery<Source>(dfs, Source.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Source>(dfs, SourceImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -448,7 +449,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
     final DocumentFilterSettingsQuery<Source> query =
-        new DocumentFilterSettingsQuery<Source>(dfs, Source.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Source>(dfs, SourceImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -462,7 +463,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_sourceIdsByProjectId() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setProjectId(1l);
     final DocumentFilterSettingsQuery<Source> query =
-        new DocumentFilterSettingsQuery<Source>(dfs, Source.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Source>(dfs, SourceImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -536,7 +537,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
     final DocumentFilterSettingsQuery<Project> query =
-        new DocumentFilterSettingsQuery<Project>(dfs, Project.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Project>(dfs, ProjectImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -550,7 +551,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_projectIdsByCrawlingId() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setCrawlingId(11l);
     final DocumentFilterSettingsQuery<Project> query =
-        new DocumentFilterSettingsQuery<Project>(dfs, Project.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Project>(dfs, ProjectImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(1, result.size());
@@ -563,7 +564,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_projectIdsBySourceId() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setSourceId(11l);
     final DocumentFilterSettingsQuery<Project> query =
-        new DocumentFilterSettingsQuery<Project>(dfs, Project.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Project>(dfs, ProjectImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(1, result.size());
@@ -577,7 +578,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
     final DocumentFilterSettingsQuery<Project> query =
-        new DocumentFilterSettingsQuery<Project>(dfs, Project.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Project>(dfs, ProjectImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());

@@ -54,10 +54,11 @@ import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.SourceDto;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
@@ -114,7 +115,7 @@ public class SourceService {
 
         // Create
         final String name = getNewName(statelessSession);
-        final Source source = new Source(0, name, "", true, false);
+        final Source source = sourceDao.create(0, name, "", true, false);
         sourceDao.insert(statelessSession, source);
 
         // Assign
@@ -145,7 +146,7 @@ public class SourceService {
 
   public String getNewName(final SharedSessionContract ssc) {
     // Get all names
-    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(SourceImpl.class);
     final ProjectionList projectionList = Projections.projectionList();
     projectionList.add(Projections.property("name"), "name");
     final List<String> names = (List<String>) sourceQuery.listForProjection(ssc, projectionList);

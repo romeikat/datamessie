@@ -46,10 +46,11 @@ import com.romeikat.datamessie.core.domain.dto.SourceNameDto;
 import com.romeikat.datamessie.core.domain.dto.SourceOverviewDto;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 
 @Repository
 public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
@@ -70,12 +71,17 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
   private SharedBeanProvider sharedBeanProvider;
 
   public SourceDao() {
-    super(Source.class);
+    super(SourceImpl.class);
   }
 
   @Override
   protected String defaultSortingProperty() {
     return "name";
+  }
+
+  public Source create(final long id, final String name, final String url, final boolean visible,
+      final boolean statisticsChecking) {
+    return new SourceImpl(id, name, url, visible, statisticsChecking);
   }
 
   public Map<Document, Source> getForDocuments(final SharedSessionContract ssc,
@@ -107,7 +113,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Source
-    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(SourceImpl.class);
     sourceQuery.addRestriction(Restrictions.in("id", sourceIds));
     if (visible != null) {
       sourceQuery.addRestriction(Restrictions.eq("visible", visible));
@@ -156,7 +162,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Source
-    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(SourceImpl.class);
     sourceQuery.addRestriction(Restrictions.idEq(id));
     sourceQuery.addRestriction(Restrictions.in("id", sourceIds));
 
@@ -185,7 +191,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Source
-    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(SourceImpl.class);
     sourceQuery.addRestriction(Restrictions.in("id", sourceIds));
     if (visible != null) {
       sourceQuery.addRestriction(Restrictions.eq("visible", visible));
@@ -222,7 +228,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Source
-    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(SourceImpl.class);
     sourceQuery.addRestriction(Restrictions.in("id", sourceIds));
     if (visible != null) {
       sourceQuery.addRestriction(Restrictions.eq("visible", visible));
@@ -292,7 +298,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Source
-    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(SourceImpl.class);
     if (sourceId != null) {
       sourceQuery.addRestriction(Restrictions.idEq(sourceId));
     }
@@ -326,7 +332,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Source
-    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(SourceImpl.class);
     sourceQuery.addRestriction(Restrictions.in("id", sourceIds));
     sourceQuery.addOrder(Order.asc("name"));
 
@@ -357,7 +363,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
 
     // Query for sources
     final DocumentFilterSettingsQuery<Source> query =
-        new DocumentFilterSettingsQuery<Source>(dfs, Source.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Source>(dfs, SourceImpl.class, sharedBeanProvider);
     query.addOrder(Order.asc("name"));
     final List<Source> sources = query.listObjects(ssc);
     return sources;

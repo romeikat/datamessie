@@ -42,10 +42,11 @@ import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
 
 public class ProjectCrawlerTest extends AbstractDbSetupBasedTest {
@@ -71,7 +72,7 @@ public class ProjectCrawlerTest extends AbstractDbSetupBasedTest {
   @Override
   protected Operation initDb() {
     final Project project1 = new ProjectImpl(1, "Project1", false, false);
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true, false);
+    final Source source1 = new SourceImpl(1, "Source1", "http://www.source1.de/", true, false);
     final Project2Source project2Source = new Project2Source(1, 1);
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,

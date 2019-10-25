@@ -29,14 +29,15 @@ import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.enums.Language;
 
 @Entity
-@Table(name = Source.TABLE_NAME,
+@Table(name = SourceImpl.TABLE_NAME,
     uniqueConstraints = {
         @UniqueConstraint(name = "source_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "source_name_url", columnNames = {"name", "url"})})
-public class Source extends AbstractEntityWithGeneratedIdAndVersion {
+public class SourceImpl extends AbstractEntityWithGeneratedIdAndVersion implements Source {
 
   public static final String TABLE_NAME = "source";
 
@@ -50,9 +51,9 @@ public class Source extends AbstractEntityWithGeneratedIdAndVersion {
 
   private boolean statisticsChecking;
 
-  public Source() {}
+  public SourceImpl() {}
 
-  public Source(final long id, final String name, final String url, final boolean visible,
+  public SourceImpl(final long id, final String name, final String url, final boolean visible,
       final boolean statisticsChecking) {
     super(id);
     this.name = name;
@@ -61,52 +62,62 @@ public class Source extends AbstractEntityWithGeneratedIdAndVersion {
     this.statisticsChecking = statisticsChecking;
   }
 
+  @Override
   @Column(nullable = false)
   public String getName() {
     return name;
   }
 
+  @Override
   public Source setName(final String name) {
     this.name = name;
     return this;
   }
 
+  @Override
   @Column(length = 2)
   @Enumerated(value = EnumType.STRING)
   public Language getLanguage() {
     return language;
   }
 
+  @Override
   public Source setLanguage(final Language language) {
     this.language = language;
     return this;
   }
 
+  @Override
   @Column(nullable = false, length = 511)
   public String getUrl() {
     return url;
   }
 
+  @Override
   public Source setUrl(final String url) {
     this.url = url;
     return this;
   }
 
+  @Override
   @Column(nullable = false)
   public boolean getVisible() {
     return visible;
   }
 
+  @Override
   public Source setVisible(final boolean visible) {
     this.visible = visible;
     return this;
   }
 
+  @Override
   @Column(nullable = false)
   public boolean getStatisticsChecking() {
     return statisticsChecking;
   }
 
+  @Override
   public void setStatisticsChecking(final boolean statisticsChecking) {
     this.statisticsChecking = statisticsChecking;
   }

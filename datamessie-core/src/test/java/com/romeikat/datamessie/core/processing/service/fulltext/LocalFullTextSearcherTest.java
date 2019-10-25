@@ -38,12 +38,13 @@ import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
 import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.processing.app.shared.LocalFullTextSearcher;
 
 public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
@@ -53,7 +54,7 @@ public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
 
   @Override
   protected Operation initDb() {
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true, false);
+    final Source source1 = new SourceImpl(1, "Source1", "http://www.source1.de/", true, false);
     final Project project1 = new ProjectImpl(1, "Project1", false, false);
     final Project2Source project2Source = new Project2Source(1, 1);
     final Crawling crawling1 = new Crawling(1, project1.getId());

@@ -58,11 +58,12 @@ import com.romeikat.datamessie.core.base.util.publishedDates.loading.sequence.Li
 import com.romeikat.datamessie.core.domain.dto.DocumentDto;
 import com.romeikat.datamessie.core.domain.dto.DocumentOverviewDto;
 import com.romeikat.datamessie.core.domain.dto.NamedEntityDto;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 
 @Repository
@@ -221,7 +222,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     final StemmedContent stemmedContent = stemmedContentQuery.uniqueObject(ssc);
 
     // Query: Source
-    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(SourceImpl.class);
     sourceQuery.addRestriction(Restrictions.idEq(document.getSourceId()));
     final Source source = sourceQuery.uniqueObject(ssc);
     if (source == null) {

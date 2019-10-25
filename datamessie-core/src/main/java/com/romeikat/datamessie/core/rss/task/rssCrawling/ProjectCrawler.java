@@ -41,8 +41,8 @@ import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransactionAndResult;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
 import com.romeikat.datamessie.core.rss.service.CrawlingService;
 

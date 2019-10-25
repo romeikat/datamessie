@@ -37,9 +37,9 @@ public abstract class AbstractEntityDao<E extends Entity> implements EntityDao<E
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractEntityDao.class);
 
-  private final Class<E> entityClass;
+  private final Class<? extends E> entityClass;
 
-  public AbstractEntityDao(final Class<E> entityClass) {
+  public AbstractEntityDao(final Class<? extends E> entityClass) {
     this.entityClass = entityClass;
   }
 
@@ -61,7 +61,7 @@ public abstract class AbstractEntityDao<E extends Entity> implements EntityDao<E
    *
    * @return
    */
-  protected Class<E> getEntityClass() {
+  protected Class<? extends E> getEntityClass() {
     return entityClass;
   }
 

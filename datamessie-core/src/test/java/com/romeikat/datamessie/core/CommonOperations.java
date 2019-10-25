@@ -27,6 +27,7 @@ import static com.ninja_squad.dbsetup.Operations.insertInto;
 import com.ninja_squad.dbsetup.operation.Insert;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
@@ -47,8 +48,8 @@ import com.romeikat.datamessie.core.domain.entity.impl.Project2User;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
@@ -64,8 +65,8 @@ public class CommonOperations {
       CleanedContent.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
       Document.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceType.TABLE_NAME, SourceType.TABLE_NAME,
-      Project2Source.TABLE_NAME, Source.TABLE_NAME, Project2User.TABLE_NAME, ProjectImpl.TABLE_NAME,
-      User.TABLE_NAME);
+      Project2Source.TABLE_NAME, SourceImpl.TABLE_NAME, Project2User.TABLE_NAME,
+      ProjectImpl.TABLE_NAME, User.TABLE_NAME);
 
   public static Insert insertIntoBarEntity(final BarEntity barEntity) {
     return insertInto(BarEntity.TABLE_NAME).columns("name", "active", "foo_id")
@@ -92,7 +93,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoSource(final Source source) {
-    return insertInto(Source.TABLE_NAME)
+    return insertInto(SourceImpl.TABLE_NAME)
         .columns("id", "version", "name", "language", "url", "visible", "statisticsChecking")
         .values(source.getId(), source.getVersion(), source.getName(), source.getLanguage(),
             source.getUrl(), source.getVisible(), source.getStatisticsChecking())

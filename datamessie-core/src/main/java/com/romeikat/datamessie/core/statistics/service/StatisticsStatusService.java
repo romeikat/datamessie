@@ -43,7 +43,8 @@ import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQue
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsSparseTable;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
+import com.romeikat.datamessie.core.domain.entity.Source;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.statistics.cache.DocumentsPerState;
 import com.romeikat.datamessie.core.statistics.task.StatisticsStatus;
@@ -110,7 +111,7 @@ public class StatisticsStatusService {
     }
 
     // Query: Source
-    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<Source>(Source.class);
+    final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<Source>(SourceImpl.class);
     sourceQuery.addRestriction(Restrictions.eq("statisticsChecking", true));
     if (sourceIds != null) {
       sourceQuery.addRestriction(Restrictions.in("id", sourceIds));

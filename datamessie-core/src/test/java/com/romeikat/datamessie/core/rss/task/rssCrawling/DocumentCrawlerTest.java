@@ -44,12 +44,13 @@ import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.Source;
+import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
 
@@ -79,7 +80,7 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
   @Override
   protected Operation initDb() {
     final Project project1 = new ProjectImpl(1, "Project1", false, false);
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true, false);
+    final Source source1 = new SourceImpl(1, "Source1", "http://www.source1.de/", true, false);
     final Crawling crawling1 = new Crawling(1, project1.getId());
     final LocalDateTime now = LocalDateTime.now();
     // Document1 with download success

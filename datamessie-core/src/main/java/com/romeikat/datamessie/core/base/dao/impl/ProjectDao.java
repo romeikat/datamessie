@@ -42,12 +42,17 @@ import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
 
   public ProjectDao() {
-    super(Project.class);
+    super(ProjectImpl.class);
   }
 
   @Override
   protected String defaultSortingProperty() {
     return "name";
+  }
+
+  public Project create(final long id, final String name, final boolean crawlingEnabled,
+      final boolean preprocessingEnabled) {
+    return new ProjectImpl(id, name, crawlingEnabled, preprocessingEnabled);
   }
 
   public List<Long> getIdsForUser(final SharedSessionContract ssc, final Long userId) {

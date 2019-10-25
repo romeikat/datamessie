@@ -39,7 +39,7 @@ import com.romeikat.datamessie.core.domain.util.IdAndVersion;
 public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAndVersion>
     extends AbstractEntityWithIdDao<E> implements EntityWithIdAndVersionDao<E> {
 
-  public AbstractEntityWithIdAndVersionDao(final Class<E> entityClass) {
+  public AbstractEntityWithIdAndVersionDao(final Class<? extends E> entityClass) {
     super(entityClass);
   }
 
