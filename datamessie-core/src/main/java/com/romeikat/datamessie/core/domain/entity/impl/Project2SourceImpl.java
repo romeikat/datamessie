@@ -31,12 +31,14 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithoutIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.Project2Source;
 
 @Entity
-@Table(name = Project2Source.TABLE_NAME,
+@Table(name = Project2SourceImpl.TABLE_NAME,
     indexes = {@Index(name = "FK_project_source_project_id", columnList = "project_id"),
         @Index(name = "FK_project_source_source_id", columnList = "source_id")})
-public class Project2Source extends AbstractEntityWithoutIdAndVersion implements Serializable {
+public class Project2SourceImpl extends AbstractEntityWithoutIdAndVersion
+    implements Project2Source, Serializable {
 
   public static final String TABLE_NAME = "project_source";
 
@@ -46,30 +48,34 @@ public class Project2Source extends AbstractEntityWithoutIdAndVersion implements
 
   private long sourceId;
 
-  public Project2Source() {}
+  public Project2SourceImpl() {}
 
-  public Project2Source(final long projectId, final long sourceId) {
+  public Project2SourceImpl(final long projectId, final long sourceId) {
     this.projectId = projectId;
     this.sourceId = sourceId;
   }
 
+  @Override
   @Id
   @Column(name = "project_id", nullable = false)
   public long getProjectId() {
     return projectId;
   }
 
+  @Override
   public Project2Source setProjectId(final long projectId) {
     this.projectId = projectId;
     return this;
   }
 
+  @Override
   @Id
   @Column(name = "source_id", nullable = false)
   public long getSourceId() {
     return sourceId;
   }
 
+  @Override
   public Project2Source setSourceId(final long sourceId) {
     this.sourceId = sourceId;
     return this;
@@ -86,7 +92,7 @@ public class Project2Source extends AbstractEntityWithoutIdAndVersion implements
     if (other.getClass() != getClass()) {
       return false;
     }
-    final Project2Source otherProject2Source = (Project2Source) other;
+    final Project2SourceImpl otherProject2Source = (Project2SourceImpl) other;
     final boolean equals = new EqualsBuilder().append(projectId, otherProject2Source.projectId)
         .append(sourceId, otherProject2Source.sourceId).isEquals();
     return equals;

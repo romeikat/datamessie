@@ -54,8 +54,8 @@ import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.SourceDto;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
+import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
@@ -120,7 +120,7 @@ public class SourceService {
 
         // Assign
         if (projectId != null) {
-          final Project2Source project2Source = new Project2Source(projectId, source.getId());
+          final Project2Source project2Source = project2SourceDao.create(projectId, source.getId());
           project2SourceDao.insert(statelessSession, project2Source);
         }
 

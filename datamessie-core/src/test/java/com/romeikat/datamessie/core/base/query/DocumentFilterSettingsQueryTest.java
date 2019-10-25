@@ -51,11 +51,12 @@ import com.romeikat.datamessie.core.base.query.document.DocumentFilterSettingsQu
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
+import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
@@ -81,10 +82,10 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final Source2SourceType source2SourceType222 = new Source2SourceType(22, 2);
     final Project project1 = new ProjectImpl(1, "Project1", false, false);
     final Project project2 = new ProjectImpl(2, "Project2", false, false);
-    final Project2Source project2Source111 = new Project2Source(1, 11);
-    final Project2Source project2Source112 = new Project2Source(1, 12);
-    final Project2Source project2Source221 = new Project2Source(2, 21);
-    final Project2Source project2Source222 = new Project2Source(2, 22);
+    final Project2Source project2Source111 = new Project2SourceImpl(1, 11);
+    final Project2Source project2Source112 = new Project2SourceImpl(1, 12);
+    final Project2Source project2Source221 = new Project2SourceImpl(2, 21);
+    final Project2Source project2Source222 = new Project2SourceImpl(2, 22);
     final Crawling crawling11 = new Crawling(11, project1.getId());
     final Crawling crawling12 = new Crawling(12, project1.getId());
     final Crawling crawling21 = new Crawling(21, project2.getId());

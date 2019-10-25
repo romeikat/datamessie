@@ -39,12 +39,12 @@ public abstract class Executor<E extends Entity> {
   private final DecisionResults<E> decisionResults;
   private final SyncMode syncMode;
   private final EntityDao<E> entityDao;
-  private final Class<E> clazz;
+  private final Class<? extends E> clazz;
   private final SessionFactory sessionFactory;
   private final Double parallelismFactor;;
 
   public Executor(final DecisionResults<E> decisionResults, final SyncMode syncMode,
-      final EntityDao<E> dao, final Class<E> clazz, final SessionFactory sessionFactory,
+      final EntityDao<E> dao, final Class<? extends E> clazz, final SessionFactory sessionFactory,
       final Double parallelismFactor) {
     this.decisionResults = decisionResults;
     this.syncMode = syncMode;

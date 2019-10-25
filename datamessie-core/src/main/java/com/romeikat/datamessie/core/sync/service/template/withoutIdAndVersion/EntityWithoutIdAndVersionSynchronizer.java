@@ -41,7 +41,7 @@ import com.romeikat.datamessie.core.sync.util.SyncMode;
 public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
     implements ISynchronizer {
 
-  private final Class<E> clazz;
+  private final Class<? extends E> clazz;
   private final EntityDao<E> entityDao;
   private final SyncMode syncMode;
   private final SyncData syncData;
@@ -53,7 +53,8 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
   private final Double parallelismFactor;
   private final long sleepingInterval = 60000;
 
-  public EntityWithoutIdAndVersionSynchronizer(final Class<E> clazz, final ApplicationContext ctx) {
+  public EntityWithoutIdAndVersionSynchronizer(final Class<? extends E> clazz,
+      final ApplicationContext ctx) {
     this.clazz = clazz;
     this.entityDao = getDao(ctx);
     syncMode = SyncMode.valueOf(SpringUtil.getPropertyValue(ctx, "sync.mode"));

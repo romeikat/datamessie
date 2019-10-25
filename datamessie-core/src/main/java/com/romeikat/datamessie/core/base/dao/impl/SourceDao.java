@@ -46,9 +46,10 @@ import com.romeikat.datamessie.core.domain.dto.SourceNameDto;
 import com.romeikat.datamessie.core.domain.dto.SourceOverviewDto;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
+import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
+import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 
@@ -105,7 +106,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Project2Source
-    final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    final EntityQuery<Project2Source> project2SourceQuery =
+        new EntityQuery<>(Project2SourceImpl.class);
     project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
     final Collection<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
     if (sourceIds.isEmpty()) {
@@ -136,7 +138,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Project2Source
-    final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    final EntityQuery<Project2Source> project2SourceQuery =
+        new EntityQuery<>(Project2SourceImpl.class);
     project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
     final Long count = project2SourceQuery.count(ssc, "projectId");
     return count;
@@ -154,7 +157,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Project2Source
-    final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    final EntityQuery<Project2Source> project2SourceQuery =
+        new EntityQuery<>(Project2SourceImpl.class);
     project2SourceQuery.addRestriction(Restrictions.in("projectId", projectIdsForUser));
     final Collection<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
     if (sourceIds.isEmpty()) {
@@ -183,7 +187,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Project2Source
-    final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    final EntityQuery<Project2Source> project2SourceQuery =
+        new EntityQuery<>(Project2SourceImpl.class);
     project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
     final Collection<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
     if (sourceIds.isEmpty()) {
@@ -219,7 +224,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Project2Source
-    final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    final EntityQuery<Project2Source> project2SourceQuery =
+        new EntityQuery<>(Project2SourceImpl.class);
     project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
     project2SourceQuery.addRestriction(Restrictions.in("projectId", projectIdsForUser));
     final Collection<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
@@ -277,7 +283,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
 
     // Query: Project2Source
     Collection<Long> sourceIds = null;
-    final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    final EntityQuery<Project2Source> project2SourceQuery =
+        new EntityQuery<>(Project2SourceImpl.class);
     project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
     project2SourceQuery.addRestriction(Restrictions.in("projectId", projectIdsForUser));
     sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
@@ -324,7 +331,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     }
 
     // Query: Project2Source
-    final EntityQuery<Project2Source> project2SourceQuery = new EntityQuery<>(Project2Source.class);
+    final EntityQuery<Project2Source> project2SourceQuery =
+        new EntityQuery<>(Project2SourceImpl.class);
     project2SourceQuery.addRestriction(Restrictions.eq("projectId", projectId));
     final Collection<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
     if (sourceIds.isEmpty()) {
