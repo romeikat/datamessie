@@ -26,6 +26,7 @@ import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoCleanedContent;
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoCrawling;
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoDocument;
+import static com.romeikat.datamessie.core.CommonOperations.insertIntoDownload;
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoNamedEntity;
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoNamedEntityOccurrence;
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoProject;
@@ -33,6 +34,8 @@ import static com.romeikat.datamessie.core.CommonOperations.insertIntoRawContent
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoSource;
 import static com.romeikat.datamessie.core.CommonOperations.insertIntoStemmedContent;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
@@ -62,6 +65,7 @@ import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSp
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
@@ -87,6 +91,8 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.
 public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
 
+  private static final String URL_1 = "http://www.document1.de/";
+  private static final String URL_2 = "http://www.document2.de/";
   private static final String REDIRECTED_URL = "http://www.this_is_a_redirected_url.com/";
   private static final String REDIRECTED_RAW_CONTENT = "This is a redirected raw content";
   private static final LocalDateTime REDIRECTED_DOWNLOADED = LocalDateTime.now();
@@ -156,9 +162,8 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     // Document1 with download success
     final LocalDateTime published1 = now.minusDays(1);
     final Document document1 = new Document(1, crawling1.getId(), source1.getId())
-        .setTitle("Title1").setUrl("http://www.document1.de/").setDescription("Description1")
-        .setPublished(published1).setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED)
-        .setStatusCode(200);
+        .setTitle("Title1").setUrl(URL_1).setDescription("Description1").setPublished(published1)
+        .setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
     final RawContent rawContent1 = new RawContent(document1.getId(), "RawContent1");
     final CleanedContent cleanedContent1 =
         new CleanedContent(document1.getId(), "Outdated CleanedContent1");
@@ -166,12 +171,13 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         new StemmedContent(document1.getId(), "Outdated StemmedContent1");
     final NamedEntityOccurrence namedEntityOccurrence1 = new NamedEntityOccurrence(1,
         namedEntity.getId(), namedEntity.getId(), NamedEntityType.MISC, 1, document1.getId());
+    final Download download1 =
+        new Download(1, source1.getId(), document1.getId(), true).setUrl(URL_1);
     // Document2 with failed download
     final LocalDateTime published2 = now.minusDays(2);
     final Document document2 = new Document(2, crawling1.getId(), source1.getId())
-        .setTitle("Title2").setUrl("http://www.document2.de/").setDescription("Description2")
-        .setPublished(published2).setDownloaded(now)
-        .setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);
+        .setTitle("Title2").setUrl(URL_2).setDescription("Description2").setPublished(published2)
+        .setDownloaded(now).setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);
     final RawContent rawContent2 = new RawContent(document2.getId(), "Outdated RawContent2");
     final CleanedContent cleanedContent2 =
         new CleanedContent(document2.getId(), "Outdated CleanedContent2");
@@ -179,6 +185,8 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         new StemmedContent(document2.getId(), "Outdated StemmedContent3");
     final NamedEntityOccurrence namedEntityOccurrence2 = new NamedEntityOccurrence(2,
         namedEntity.getId(), namedEntity.getId(), NamedEntityType.MISC, 1, document2.getId());
+    final Download download2 =
+        new Download(2, source1.getId(), document2.getId(), false).setUrl(URL_2);
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
         sequenceOf(insertIntoProject(project1), insertIntoSource(source1),
@@ -188,7 +196,8 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
             insertIntoNamedEntityOccurrence(namedEntityOccurrence1), insertIntoDocument(document2),
             insertIntoRawContent(rawContent2), insertIntoCleanedContent(cleanedContent2),
             insertIntoStemmedContent(stemmedContent2),
-            insertIntoNamedEntityOccurrence(namedEntityOccurrence2)));
+            insertIntoNamedEntityOccurrence(namedEntityOccurrence2), insertIntoDownload(download1),
+            insertIntoDownload(download2)));
   }
 
   @Override
@@ -284,6 +293,20 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     assertEquals(NAMED_ENTITY_NAME, namedEntity.getName());
     assertEquals(NAMED_ENTITY_CATEGORY_NAME, categoryNamedEntity.getName());
 
+    final List<Download> downloads =
+        downloadDao.getForDocument(sessionProvider.getStatelessSession(), 1);
+    assertEquals(2, downloads.size());
+    final Download download1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), URL_1, 1);
+    assertNotNull(download1);
+    assertEquals(1, download1.getDocumentId());
+    assertTrue(download1.getSuccess());
+    final Download redurectedDownload1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), REDIRECTED_URL, 1);
+    assertNotNull(redurectedDownload1);
+    assertEquals(1, redurectedDownload1.getDocumentId());
+    assertTrue(redurectedDownload1.getSuccess());
+
     // Statistics are rebuilt
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         documentsProcessor.getStatisticsToBeRebuilt();
@@ -323,6 +346,15 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final List<NamedEntityOccurrence> namedEntityOccurrences =
         namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 2);
     assertEquals(0, namedEntityOccurrences.size());
+
+    final List<Download> downloads =
+        downloadDao.getForDocument(sessionProvider.getStatelessSession(), 2);
+    assertEquals(1, downloads.size());
+    final Download download2 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), URL_2, 1);
+    assertNotNull(download2);
+    assertEquals(2, download2.getDocumentId());
+    assertFalse(download2.getSuccess());
 
     // Statistics are not rebuilt
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
@@ -368,6 +400,15 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final List<NamedEntityOccurrence> namedEntityOccurrences =
         namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 1);
     assertEquals(1, namedEntityOccurrences.size());
+
+    final List<Download> downloads =
+        downloadDao.getForDocument(sessionProvider.getStatelessSession(), 1);
+    assertEquals(1, downloads.size());
+    final Download download1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), URL_1, 1);
+    assertNotNull(download1);
+    assertEquals(1, download1.getDocumentId());
+    assertTrue(download1.getSuccess());
 
     // Statistics are rebuilt
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
@@ -416,6 +457,20 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 1);
     assertEquals(0, namedEntityOccurrences.size());
 
+    final List<Download> downloads =
+        downloadDao.getForDocument(sessionProvider.getStatelessSession(), 1);
+    assertEquals(2, downloads.size());
+    final Download download1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), URL_1, 1);
+    assertNotNull(download1);
+    assertEquals(1, download1.getDocumentId());
+    assertTrue(download1.getSuccess());
+    final Download redurectedDownload1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), REDIRECTED_URL, 1);
+    assertNotNull(redurectedDownload1);
+    assertEquals(1, redurectedDownload1.getDocumentId());
+    assertFalse(redurectedDownload1.getSuccess());
+
     // Statistics are rebuilt
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         documentsProcessor.getStatisticsToBeRebuilt();
@@ -459,6 +514,15 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final List<NamedEntityOccurrence> namedEntityOccurrences =
         namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 1);
     assertEquals(0, namedEntityOccurrences.size());
+
+    final List<Download> downloads =
+        downloadDao.getForDocument(sessionProvider.getStatelessSession(), 1);
+    assertEquals(1, downloads.size());
+    final Download download1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), URL_1, 1);
+    assertNotNull(download1);
+    assertEquals(1, download1.getDocumentId());
+    assertTrue(download1.getSuccess());
 
     // Statistics are rebuilt
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
@@ -506,6 +570,20 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 1);
     assertEquals(0, namedEntityOccurrences.size());
 
+    final List<Download> downloads =
+        downloadDao.getForDocument(sessionProvider.getStatelessSession(), 1);
+    assertEquals(2, downloads.size());
+    final Download download1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), URL_1, 1);
+    assertNotNull(download1);
+    assertEquals(1, download1.getDocumentId());
+    assertTrue(download1.getSuccess());
+    final Download redurectedDownload1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), REDIRECTED_URL, 1);
+    assertNotNull(redurectedDownload1);
+    assertEquals(1, redurectedDownload1.getDocumentId());
+    assertTrue(redurectedDownload1.getSuccess());
+
     // Statistics are rebuilt
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         documentsProcessor.getStatisticsToBeRebuilt();
@@ -550,6 +628,20 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 1);
     assertEquals(0, namedEntityOccurrences.size());
 
+    final List<Download> downloads =
+        downloadDao.getForDocument(sessionProvider.getStatelessSession(), 1);
+    assertEquals(2, downloads.size());
+    final Download download1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), URL_1, 1);
+    assertNotNull(download1);
+    assertEquals(1, download1.getDocumentId());
+    assertTrue(download1.getSuccess());
+    final Download redurectedDownload1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), REDIRECTED_URL, 1);
+    assertNotNull(redurectedDownload1);
+    assertEquals(1, redurectedDownload1.getDocumentId());
+    assertTrue(redurectedDownload1.getSuccess());
+
     // Statistics are rebuilt
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         documentsProcessor.getStatisticsToBeRebuilt();
@@ -593,6 +685,20 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final List<NamedEntityOccurrence> namedEntityOccurrences =
         namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 1);
     assertEquals(0, namedEntityOccurrences.size());
+
+    final List<Download> downloads =
+        downloadDao.getForDocument(sessionProvider.getStatelessSession(), 1);
+    assertEquals(2, downloads.size());
+    final Download download1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), URL_1, 1);
+    assertNotNull(download1);
+    assertEquals(1, download1.getDocumentId());
+    assertTrue(download1.getSuccess());
+    final Download redurectedDownload1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), REDIRECTED_URL, 1);
+    assertNotNull(redurectedDownload1);
+    assertEquals(1, redurectedDownload1.getDocumentId());
+    assertTrue(redurectedDownload1.getSuccess());
 
     // Statistics are rebuilt
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
