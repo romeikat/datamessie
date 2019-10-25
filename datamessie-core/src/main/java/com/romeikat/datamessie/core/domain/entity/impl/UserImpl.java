@@ -27,13 +27,14 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.User;
 
 @Entity
-@Table(name = User.TABLE_NAME,
+@Table(name = UserImpl.TABLE_NAME,
     uniqueConstraints = {
         @UniqueConstraint(name = "user_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "user_username", columnNames = {"username"})})
-public class User extends AbstractEntityWithGeneratedIdAndVersion {
+public class UserImpl extends AbstractEntityWithGeneratedIdAndVersion implements User {
 
   public static final String TABLE_NAME = "user";
 
@@ -43,9 +44,9 @@ public class User extends AbstractEntityWithGeneratedIdAndVersion {
 
   private byte[] passwordHash;
 
-  public User() {}
+  public UserImpl() {}
 
-  public User(final long id, final String username, final byte[] passwordSalt,
+  public UserImpl(final long id, final String username, final byte[] passwordSalt,
       final byte[] passwordHash) {
     super(id);
     this.username = username;
@@ -53,30 +54,36 @@ public class User extends AbstractEntityWithGeneratedIdAndVersion {
     this.passwordHash = passwordHash;
   }
 
+  @Override
   @Column(nullable = false)
   public String getUsername() {
     return username;
   }
 
+  @Override
   public User setUsername(final String username) {
     this.username = username;
     return this;
   }
 
+  @Override
   @Column(nullable = false)
   public byte[] getPasswordSalt() {
     return passwordSalt;
   }
 
+  @Override
   public void setPasswordSalt(final byte[] passwordSalt) {
     this.passwordSalt = passwordSalt;
   }
 
+  @Override
   @Column(nullable = false)
   public byte[] getPasswordHash() {
     return passwordHash;
   }
 
+  @Override
   public void setPasswordHash(final byte[] passwordHash) {
     this.passwordHash = passwordHash;
   }

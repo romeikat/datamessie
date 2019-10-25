@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.dao.impl.UserDao;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.domain.entity.impl.User;
+import com.romeikat.datamessie.core.domain.entity.User;
 
 @Service
 public class AuthenticationService {

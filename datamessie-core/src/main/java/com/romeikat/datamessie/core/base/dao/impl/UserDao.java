@@ -26,13 +26,14 @@ import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.impl.User;
+import com.romeikat.datamessie.core.domain.entity.User;
+import com.romeikat.datamessie.core.domain.entity.impl.UserImpl;
 
 @Repository
 public class UserDao extends AbstractEntityWithIdAndVersionDao<User> {
 
   public UserDao() {
-    super(User.class);
+    super(UserImpl.class);
   }
 
   @Override
@@ -40,9 +41,14 @@ public class UserDao extends AbstractEntityWithIdAndVersionDao<User> {
     return "username";
   }
 
+  public User create(final long id, final String username, final byte[] passwordSalt,
+      final byte[] passwordHash) {
+    return new UserImpl(id, username, passwordSalt, passwordHash);
+  }
+
   public User get(final SharedSessionContract ssc, final String username) {
     // Query: User
-    final EntityWithIdQuery<User> userQuery = new EntityWithIdQuery<>(User.class);
+    final EntityWithIdQuery<User> userQuery = new EntityWithIdQuery<>(UserImpl.class);
     userQuery.addRestriction(Restrictions.eq("username", username));
 
     // Done

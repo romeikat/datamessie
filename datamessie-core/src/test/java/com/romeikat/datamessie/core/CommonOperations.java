@@ -31,6 +31,7 @@ import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.SourceType;
+import com.romeikat.datamessie.core.domain.entity.User;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
@@ -56,7 +57,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceTypeImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
-import com.romeikat.datamessie.core.domain.entity.impl.User;
+import com.romeikat.datamessie.core.domain.entity.impl.UserImpl;
 
 public class CommonOperations {
 
@@ -69,7 +70,7 @@ public class CommonOperations {
       Document.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
       Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2User.TABLE_NAME,
-      ProjectImpl.TABLE_NAME, User.TABLE_NAME);
+      ProjectImpl.TABLE_NAME, UserImpl.TABLE_NAME);
 
   public static Insert insertIntoBarEntity(final BarEntity barEntity) {
     return insertInto(BarEntity.TABLE_NAME).columns("name", "active", "foo_id")
@@ -84,7 +85,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoUser(final User user) {
-    return insertInto(User.TABLE_NAME)
+    return insertInto(UserImpl.TABLE_NAME)
         .columns("id", "version", "username", "passwordSalt", "passwordHash").values(user.getId(),
             user.getVersion(), user.getUsername(), user.getPasswordSalt(), user.getPasswordHash())
         .build();

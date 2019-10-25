@@ -50,6 +50,10 @@ public class SourceTypeDao extends AbstractEntityWithIdAndVersionDao<SourceType>
     return "name";
   }
 
+  public SourceType create(final long id, final String name) {
+    return new SourceTypeImpl(id, name);
+  }
+
   public List<SourceTypeDto> getAsDtos(final SharedSessionContract ssc) {
     // Query: SourceType
     final EntityWithIdQuery<SourceType> sourceQuery = new EntityWithIdQuery<>(SourceTypeImpl.class);
