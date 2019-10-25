@@ -22,18 +22,23 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.domain.entity.impl.Project2User;
+import com.romeikat.datamessie.core.domain.entity.Project2User;
+import com.romeikat.datamessie.core.domain.entity.impl.Project2UserImpl;
 
 @Repository
 public class Project2UserDao extends AbstractEntityDao<Project2User> {
 
   public Project2UserDao() {
-    super(Project2User.class);
+    super(Project2UserImpl.class);
   }
 
   @Override
   protected String defaultSortingProperty() {
     return null;
+  }
+
+  public Project2User create(final long projectId, final long userId) {
+    return new Project2UserImpl(projectId, userId);
   }
 
 }

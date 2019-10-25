@@ -28,6 +28,7 @@ import com.ninja_squad.dbsetup.operation.Insert;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
+import com.romeikat.datamessie.core.domain.entity.Project2User;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.SourceType;
@@ -48,7 +49,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Project2User;
+import com.romeikat.datamessie.core.domain.entity.impl.Project2UserImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
@@ -69,7 +70,7 @@ public class CommonOperations {
       CleanedContent.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
       Document.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
-      Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2User.TABLE_NAME,
+      Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2UserImpl.TABLE_NAME,
       ProjectImpl.TABLE_NAME, UserImpl.TABLE_NAME);
 
   public static Insert insertIntoBarEntity(final BarEntity barEntity) {
@@ -120,7 +121,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoProject2User(final Project2User project2User) {
-    return insertInto(Project2User.TABLE_NAME).columns("project_id", "user_id")
+    return insertInto(Project2UserImpl.TABLE_NAME).columns("project_id", "user_id")
         .values(project2User.getProjectId(), project2User.getUserId()).build();
   }
 

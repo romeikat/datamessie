@@ -31,12 +31,14 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithoutIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.Project2User;
 
 @Entity
-@Table(name = Project2User.TABLE_NAME,
+@Table(name = Project2UserImpl.TABLE_NAME,
     indexes = {@Index(name = "FK_project_user_project_id", columnList = "project_id"),
         @Index(name = "FK_project_user_user_id", columnList = "user_id")})
-public class Project2User extends AbstractEntityWithoutIdAndVersion implements Serializable {
+public class Project2UserImpl extends AbstractEntityWithoutIdAndVersion
+    implements Project2User, Serializable {
 
   public static final String TABLE_NAME = "project_user";
 
@@ -46,30 +48,34 @@ public class Project2User extends AbstractEntityWithoutIdAndVersion implements S
 
   private long userId;
 
-  public Project2User() {}
+  public Project2UserImpl() {}
 
-  public Project2User(final long projectId, final long userId) {
+  public Project2UserImpl(final long projectId, final long userId) {
     this.projectId = projectId;
     this.userId = userId;
   }
 
+  @Override
   @Id
   @Column(name = "project_id", nullable = false)
   public long getProjectId() {
     return projectId;
   }
 
+  @Override
   public Project2User setProjectId(final long projectId) {
     this.projectId = projectId;
     return this;
   }
 
+  @Override
   @Id
   @Column(name = "user_id", nullable = false)
   public long getUserId() {
     return userId;
   }
 
+  @Override
   public Project2User setUserId(final long userId) {
     this.userId = userId;
     return this;
@@ -86,7 +92,7 @@ public class Project2User extends AbstractEntityWithoutIdAndVersion implements S
     if (other.getClass() != getClass()) {
       return false;
     }
-    final Project2User otherProject2User = (Project2User) other;
+    final Project2UserImpl otherProject2User = (Project2UserImpl) other;
     final boolean equals = new EqualsBuilder().append(projectId, otherProject2User.projectId)
         .append(userId, otherProject2User.userId).isEquals();
     return equals;

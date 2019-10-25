@@ -35,7 +35,8 @@ import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
 import com.romeikat.datamessie.core.domain.entity.Project;
-import com.romeikat.datamessie.core.domain.entity.impl.Project2User;
+import com.romeikat.datamessie.core.domain.entity.Project2User;
+import com.romeikat.datamessie.core.domain.entity.impl.Project2UserImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 
 @Repository
@@ -57,7 +58,7 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
 
   public List<Long> getIdsForUser(final SharedSessionContract ssc, final Long userId) {
     // Query: Project2User
-    final EntityQuery<Project2User> project2UserQuery = new EntityQuery<>(Project2User.class);
+    final EntityQuery<Project2User> project2UserQuery = new EntityQuery<>(Project2UserImpl.class);
     project2UserQuery.addRestriction(Restrictions.eq("userId", userId));
     final List<Long> projectIds = project2UserQuery.listIdsForProperty(ssc, "projectId");
     return projectIds;
