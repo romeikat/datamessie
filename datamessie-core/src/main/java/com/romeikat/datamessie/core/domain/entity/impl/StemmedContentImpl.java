@@ -30,12 +30,13 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 
 @Entity
-@Table(name = StemmedContent.TABLE_NAME,
+@Table(name = StemmedContentImpl.TABLE_NAME,
     uniqueConstraints = @UniqueConstraint(name = "stemmedContent_id_version",
         columnNames = {"document_id", "version"}))
-public class StemmedContent extends AbstractEntityWithIdAndVersion {
+public class StemmedContentImpl extends AbstractEntityWithIdAndVersion implements StemmedContent {
 
   public static final String TABLE_NAME = "stemmedContent";
 
@@ -43,30 +44,34 @@ public class StemmedContent extends AbstractEntityWithIdAndVersion {
 
   private String content;
 
-  public StemmedContent() {}
+  public StemmedContentImpl() {}
 
-  public StemmedContent(final long documentId, final String content) {
+  public StemmedContentImpl(final long documentId, final String content) {
     this.documentId = documentId;
     this.content = content;
   }
 
+  @Override
   @Id
   @Column(name = "document_id", nullable = false)
   public long getDocumentId() {
     return documentId;
   }
 
+  @Override
   public StemmedContent setDocumentId(final long documentId) {
     this.documentId = documentId;
     return this;
   }
 
+  @Override
   @Lob
   @Column(nullable = false)
   public String getContent() {
     return content;
   }
 
+  @Override
   public StemmedContent setContent(final String content) {
     this.content = content;
     return this;

@@ -28,13 +28,13 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
@@ -46,6 +46,7 @@ public class DocumentsStemmer {
 
   private static final Logger LOG = LoggerFactory.getLogger(DocumentsStemmer.class);
 
+  private final StemmedContentDao stemmedContentDao;
   private final Double processingParallelismFactor;
 
   private final DocumentsProcessingInput documentsProcessingInput;
@@ -56,6 +57,7 @@ public class DocumentsStemmer {
   public DocumentsStemmer(final DocumentsProcessingInput documentsProcessingInput,
       final DocumentsProcessingOutput documentsProcessingOutput, final StemCallback stemCallback,
       final ApplicationContext ctx) {
+    stemmedContentDao = ctx.getBean(StemmedContentDao.class);
     processingParallelismFactor = Double
         .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
 
@@ -137,7 +139,7 @@ public class DocumentsStemmer {
     final String stemmedContent =
         ObjectUtils.defaultIfNull(documentStemmingResult.getStemmedContent(), "");
     documentsProcessingOutput
-        .putStemmedContent(new StemmedContent(document.getId(), stemmedContent));
+        .putStemmedContent(stemmedContentDao.create(document.getId(), stemmedContent));
 
     final List<NamedEntityDetectionDto> namedEntityDetections =
         documentStemmingResult.getNamedEntityDetections();
@@ -148,7 +150,7 @@ public class DocumentsStemmer {
 
   private void outputEmptyResults(final Document document) {
     documentsProcessingOutput.putDocument(document);
-    documentsProcessingOutput.putStemmedContent(new StemmedContent(document.getId(), ""));
+    documentsProcessingOutput.putStemmedContent(stemmedContentDao.create(document.getId(), ""));
     documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
   }
 

@@ -58,6 +58,7 @@ import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
+import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
@@ -69,7 +70,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.StemmedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.domain.enums.Language;
@@ -180,7 +181,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
       final CleanedContent cleanedContent =
           new CleanedContentImpl(documentId, "Outdated CleanedContent" + documentId);
       final StemmedContent stemmedContent =
-          new StemmedContent(documentId, "Outdated StemmedContent" + documentId);
+          new StemmedContentImpl(documentId, "Outdated StemmedContent" + documentId);
       final NamedEntityOccurrence namedEntityOccurrence = new NamedEntityOccurrence(documentId,
           namedEntity.getId(), namedEntity.getId(), NamedEntityType.MISC, 1, document.getId());
       final Download download =

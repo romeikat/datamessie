@@ -35,6 +35,7 @@ import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.SourceType;
+import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.User;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
@@ -59,7 +60,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceTypeImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceTypeImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.StemmedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.UserImpl;
 
@@ -70,7 +71,7 @@ public class CommonOperations {
       FooEntityWithGeneratedIdAndVersion.TABLE_NAME, FooEntityWithoutIdAndVersion.TABLE_NAME,
       BarEntity.TABLE_NAME, BarEntityWithId.TABLE_NAME, NamedEntityOccurrence.TABLE_NAME,
       NamedEntityCategory.TABLE_NAME, NamedEntity.TABLE_NAME, RawContentImpl.TABLE_NAME,
-      CleanedContentImpl.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
+      CleanedContentImpl.TABLE_NAME, StemmedContentImpl.TABLE_NAME, Download.TABLE_NAME,
       DocumentImpl.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
       Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2UserImpl.TABLE_NAME,
@@ -176,7 +177,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoStemmedContent(final StemmedContent stemmedContent) {
-    return insertInto(StemmedContent.TABLE_NAME).columns("document_id", "version", "content")
+    return insertInto(StemmedContentImpl.TABLE_NAME).columns("document_id", "version", "content")
         .values(stemmedContent.getDocumentId(), stemmedContent.getVersion(),
             stemmedContent.getContent())
         .build();

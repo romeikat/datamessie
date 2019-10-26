@@ -62,12 +62,13 @@ import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
+import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.StemmedContentImpl;
 
 @Repository
 public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
@@ -225,7 +226,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
 
     // Query: StemmedContent
     final EntityWithIdQuery<StemmedContent> stemmedContentQuery =
-        new EntityWithIdQuery<>(StemmedContent.class);
+        new EntityWithIdQuery<>(StemmedContentImpl.class);
     stemmedContentQuery.addRestriction(Restrictions.eq("documentId", document.getId()));
     final StemmedContent stemmedContent = stemmedContentQuery.uniqueObject(ssc);
 

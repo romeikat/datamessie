@@ -25,14 +25,15 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
-import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
+import com.romeikat.datamessie.core.domain.entity.StemmedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.StemmedContentImpl;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class StemmedContentSynchronizer extends EntityWithIdAndVersionSynchronizer<StemmedContent> {
 
   public StemmedContentSynchronizer(final ApplicationContext ctx) {
-    super(StemmedContent.class, ctx);
+    super(StemmedContentImpl.class, ctx);
   }
 
   @Override

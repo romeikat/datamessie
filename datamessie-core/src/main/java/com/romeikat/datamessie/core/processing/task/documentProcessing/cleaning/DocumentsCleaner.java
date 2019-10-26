@@ -29,12 +29,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
+import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
@@ -47,6 +47,7 @@ public class DocumentsCleaner {
   private static final Logger LOG = LoggerFactory.getLogger(DocumentsCleaner.class);
 
   private final CleanedContentDao cleanedContentDao;
+  private final StemmedContentDao stemmedContentDao;
   private final Double processingParallelismFactor;
 
   private final DocumentsProcessingInput documentsProcessingInput;
@@ -58,6 +59,7 @@ public class DocumentsCleaner {
       final DocumentsProcessingOutput documentsProcessingOutput, final CleanCallback cleanCallback,
       final ApplicationContext ctx) {
     cleanedContentDao = ctx.getBean(CleanedContentDao.class);
+    stemmedContentDao = ctx.getBean(StemmedContentDao.class);
     processingParallelismFactor = Double
         .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
 
@@ -150,7 +152,7 @@ public class DocumentsCleaner {
   private void outputEmptyResults(final Document document) {
     documentsProcessingOutput.putDocument(document);
     documentsProcessingOutput.putCleanedContent(cleanedContentDao.create(document.getId(), ""));
-    documentsProcessingOutput.putStemmedContent(new StemmedContent(document.getId(), ""));
+    documentsProcessingOutput.putStemmedContent(stemmedContentDao.create(document.getId(), ""));
     documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
   }
 
