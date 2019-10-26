@@ -22,7 +22,7 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmingResult;
 

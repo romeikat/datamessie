@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
 
 public enum DocumentProcessingState {
 

@@ -27,7 +27,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.util.HtmlUtil;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
 import com.romeikat.datamessie.core.processing.service.stemming.namedEntity.NamedEntitiesDetector;

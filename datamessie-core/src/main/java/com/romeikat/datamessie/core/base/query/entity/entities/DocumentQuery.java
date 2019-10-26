@@ -29,7 +29,8 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.util.CollectionUtils;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 
 public class DocumentQuery extends EntityWithIdQuery<Document> {
 
@@ -38,7 +39,7 @@ public class DocumentQuery extends EntityWithIdQuery<Document> {
 
   public DocumentQuery(final DocumentsFilterSettings dfs,
       final Collection<? extends Collection<Long>> idRestrictions) {
-    super(Document.class);
+    super(DocumentImpl.class);
 
     this.dfs = dfs;
     this.idRestrictions = idRestrictions;

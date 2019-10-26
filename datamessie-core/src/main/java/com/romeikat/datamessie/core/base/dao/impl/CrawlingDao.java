@@ -38,8 +38,8 @@ import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.CrawlingDto;
 import com.romeikat.datamessie.core.domain.dto.CrawlingOverviewDto;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
 
 @Repository
 public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {

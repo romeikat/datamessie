@@ -43,10 +43,11 @@ import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
@@ -86,7 +87,7 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     // Document1 with download success
     final LocalDateTime published1 = now.minusDays(1);
     final Document document1 =
-        new Document(1, crawling1.getId(), source1.getId()).setTitle("Title1")
+        new DocumentImpl(1, crawling1.getId(), source1.getId()).setTitle("Title1")
             .setUrl("http://www.url1.de/").setDescription("Description1").setPublished(published1)
             .setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
     final Download download1 = new Download(1, 1, 1, true).setUrl("http://www.url1.de/");
@@ -95,14 +96,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     // Document2 with failed download
     final LocalDateTime published2 = now.minusDays(2);
     final Document document2 =
-        new Document(2, crawling1.getId(), source1.getId()).setTitle("Title2")
+        new DocumentImpl(2, crawling1.getId(), source1.getId()).setTitle("Title2")
             .setUrl("http://www.url2.de/").setDescription("Description2").setPublished(published2)
             .setDownloaded(now).setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);
     final Download download3 = new Download(3, 1, 2, false).setUrl("http://www.url2.de/");
     final Download download4 = new Download(4, 1, 2, false).setUrl("http://www.originalUrl2.de/");
     // Document3 with download success, but redirection error
     final LocalDateTime published3 = now.minusDays(3);
-    final Document document3 = new Document(3, crawling1.getId(), source1.getId())
+    final Document document3 = new DocumentImpl(3, crawling1.getId(), source1.getId())
         .setTitle("Title3").setUrl("http://www.url3.de/").setDescription("Description3")
         .setPublished(published3).setDownloaded(now)
         .setState(DocumentProcessingState.REDIRECTING_ERROR).setStatusCode(200);

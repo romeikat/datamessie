@@ -24,12 +24,12 @@ License along with this program.  If not, see
 
 public interface Source2SourceType extends Entity {
 
-  public long getSourceId();
+  long getSourceId();
 
-  public Source2SourceType setSourceId(long sourceId);
+  Source2SourceType setSourceId(long sourceId);
 
-  public long getSourceTypeId();
+  long getSourceTypeId();
 
-  public Source2SourceType setSourceTypeId(long sourceTypeId);
+  Source2SourceType setSourceTypeId(long sourceTypeId);
 
 }

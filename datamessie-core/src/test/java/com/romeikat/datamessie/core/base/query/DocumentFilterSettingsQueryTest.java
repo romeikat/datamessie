@@ -50,6 +50,7 @@ import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.query.document.DocumentFilterSettingsQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Source;
@@ -57,7 +58,7 @@ import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceTypeImpl;
@@ -92,35 +93,35 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final Crawling crawling12 = new Crawling(12, project1.getId());
     final Crawling crawling21 = new Crawling(21, project2.getId());
     final Crawling crawling22 = new Crawling(22, project2.getId());
-    final Document document11 = new Document(11, crawling11.getId(), source11.getId())
+    final Document document11 = new DocumentImpl(11, crawling11.getId(), source11.getId())
         .setPublished(LocalDateTime.of(2015, 9, 30, 12, 0))
         .setDownloaded(LocalDateTime.of(2015, 9, 30, 12, 0))
         .setState(DocumentProcessingState.DOWNLOADED);
-    final Document document12 = new Document(12, crawling12.getId(), source11.getId())
+    final Document document12 = new DocumentImpl(12, crawling12.getId(), source11.getId())
         .setPublished(LocalDateTime.of(2015, 9, 30, 13, 0))
         .setDownloaded(LocalDateTime.of(2015, 9, 30, 13, 0))
         .setState(DocumentProcessingState.DOWNLOAD_ERROR);
-    final Document document13 = new Document(13, crawling11.getId(), source12.getId())
+    final Document document13 = new DocumentImpl(13, crawling11.getId(), source12.getId())
         .setPublished(LocalDateTime.of(2015, 9, 30, 14, 0))
         .setDownloaded(LocalDateTime.of(2015, 9, 30, 14, 0))
         .setState(DocumentProcessingState.DOWNLOADED);
-    final Document document14 = new Document(14, crawling12.getId(), source12.getId())
+    final Document document14 = new DocumentImpl(14, crawling12.getId(), source12.getId())
         .setPublished(LocalDateTime.of(2015, 9, 30, 15, 0))
         .setDownloaded(LocalDateTime.of(2015, 9, 30, 15, 0))
         .setState(DocumentProcessingState.DOWNLOAD_ERROR);
-    final Document document21 = new Document(21, crawling21.getId(), source21.getId())
+    final Document document21 = new DocumentImpl(21, crawling21.getId(), source21.getId())
         .setPublished(LocalDateTime.of(2015, 10, 1, 12, 0))
         .setDownloaded(LocalDateTime.of(2015, 10, 1, 12, 0))
         .setState(DocumentProcessingState.DOWNLOADED);
-    final Document document22 = new Document(22, crawling22.getId(), source21.getId())
+    final Document document22 = new DocumentImpl(22, crawling22.getId(), source21.getId())
         .setPublished(LocalDateTime.of(2015, 10, 1, 13, 0))
         .setDownloaded(LocalDateTime.of(2015, 10, 1, 13, 0))
         .setState(DocumentProcessingState.DOWNLOAD_ERROR);
-    final Document document23 = new Document(23, crawling21.getId(), source22.getId())
+    final Document document23 = new DocumentImpl(23, crawling21.getId(), source22.getId())
         .setPublished(LocalDateTime.of(2015, 10, 1, 14, 0))
         .setDownloaded(LocalDateTime.of(2015, 10, 1, 14, 0))
         .setState(DocumentProcessingState.DOWNLOADED);
-    final Document document24 = new Document(24, crawling22.getId(), source22.getId())
+    final Document document24 = new DocumentImpl(24, crawling22.getId(), source22.getId())
         .setPublished(LocalDateTime.of(2015, 10, 1, 15, 0))
         .setDownloaded(LocalDateTime.of(2015, 10, 1, 15, 0))
         .setState(DocumentProcessingState.DOWNLOAD_ERROR);
@@ -174,7 +175,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_allDocuments() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings();
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(8, result.size());
@@ -186,7 +187,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_documentsByProjectId() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setProjectId(1l);
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(4, result.size());
@@ -198,7 +199,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_documentsBySourceId() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setSourceId(11l);
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -210,7 +211,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_documentsBySourceVisible() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setSourceVisible(true);
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(4, result.size());
@@ -223,7 +224,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(4, result.size());
@@ -235,7 +236,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_documentsByCrawlingId() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setCrawlingId(11l);
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -248,7 +249,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setFromDate(LocalDate.of(2015, 10, 1));
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(4, result.size());
@@ -261,7 +262,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setToDate(LocalDate.of(2015, 9, 30));
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(4, result.size());
@@ -275,7 +276,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
 
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setCleanedContent("foo");
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -288,7 +289,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setState(DocumentProcessingState.DOWNLOADED);
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(4, result.size());
@@ -301,7 +302,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 12l));
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -314,7 +315,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setCleanedContent("foo")
         .setDocumentIds(Lists.newArrayList(11l, 13l, 21l));
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     final Collection<Long> resultIds =
@@ -333,7 +334,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
         Sets.newHashSet(1l, 2l), 11l, LocalDate.of(2015, 9, 30), LocalDate.of(2015, 10, 1),
         "good is foo", DocumentProcessingState.getAllStates(), Lists.newArrayList(11l));
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final List<Document> result = query.listObjects(sessionProvider.getStatelessSession());
     assertEquals(1, result.size());
@@ -346,7 +347,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l));
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
 
     final Document result = query.uniqueObject(sessionProvider.getStatelessSession());
     assertEquals(11l, result.getId());

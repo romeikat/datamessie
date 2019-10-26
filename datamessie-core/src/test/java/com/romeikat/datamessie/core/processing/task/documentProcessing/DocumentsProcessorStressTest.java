@@ -53,11 +53,12 @@ import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
@@ -169,7 +170,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
     final List<Operation> operations = Lists.newArrayListWithExpectedSize(5 * NUMBER_OF_DOCUMENTS);
     for (final int documentId : getDocumentIds()) {
       final String url = "http://www.document" + documentId + ".de/";
-      final Document document = new Document(documentId, crawling1.getId(), source1.getId())
+      final Document document = new DocumentImpl(documentId, crawling1.getId(), source1.getId())
           .setTitle("Title" + documentId).setUrl(url).setDescription("Description" + documentId)
           .setPublished(LocalDateTime.now()).setDownloaded(LocalDateTime.now())
           .setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);

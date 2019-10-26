@@ -37,12 +37,13 @@ import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
@@ -59,8 +60,8 @@ public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
     final Project project1 = new ProjectImpl(1, "Project1", false, false);
     final Project2Source project2Source = new Project2SourceImpl(1, 1);
     final Crawling crawling1 = new Crawling(1, project1.getId());
-    final Document document1 = new Document(1, crawling1.getId(), source1.getId());
-    final Document document2 = new Document(2, crawling1.getId(), source1.getId());
+    final Document document1 = new DocumentImpl(1, crawling1.getId(), source1.getId());
+    final Document document2 = new DocumentImpl(2, crawling1.getId(), source1.getId());
     final CleanedContent cleanedContent1 = new CleanedContent(document1.getId(), "Foo is good");
     final CleanedContent cleanedContent2 = new CleanedContent(document2.getId(), "Bar is better");
 

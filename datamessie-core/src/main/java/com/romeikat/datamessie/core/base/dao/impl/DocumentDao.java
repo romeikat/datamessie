@@ -58,9 +58,10 @@ import com.romeikat.datamessie.core.base.util.publishedDates.loading.sequence.Li
 import com.romeikat.datamessie.core.domain.dto.DocumentDto;
 import com.romeikat.datamessie.core.domain.dto.DocumentOverviewDto;
 import com.romeikat.datamessie.core.domain.dto.NamedEntityDto;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
@@ -87,12 +88,16 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   private Double parallelismFactor;
 
   public DocumentDao() {
-    super(Document.class);
+    super(DocumentImpl.class);
   }
 
   @Override
   protected String defaultSortingProperty() {
     return null;
+  }
+
+  public Document create(final long id, final long crawlingId, final long sourceId) {
+    return new DocumentImpl(id, crawlingId, sourceId);
   }
 
   public Document getForUrlAndSource(final SharedSessionContract ssc, final String url,
@@ -107,7 +112,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     }
 
     // Query: Document
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
+    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(DocumentImpl.class);
     documentQuery.addRestriction(Restrictions.idEq(documentId));
     final Document document = documentQuery.uniqueObject(ssc);
     return document;
@@ -120,7 +125,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
         LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
 
     // Query: Document
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
+    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(DocumentImpl.class);
     documentQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
     documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
@@ -197,7 +202,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
 
   public DocumentDto getAsDto(final SharedSessionContract ssc, final long id) {
     // Query: Document
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
+    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(DocumentImpl.class);
     documentQuery.addRestriction(Restrictions.idEq(id));
     final Document document = documentQuery.uniqueObject(ssc);
     if (document == null) {
@@ -312,7 +317,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   private long countInternal(final SharedSessionContract ssc, final DocumentsFilterSettings dfs) {
     // Query for documents
     final DocumentFilterSettingsQuery<Document> query =
-        new DocumentFilterSettingsQuery<Document>(dfs, Document.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Document>(dfs, DocumentImpl.class, sharedBeanProvider);
     final Long count = query.count(ssc);
     return Objects.defaultIfNull(count, 0l);
   }
@@ -321,7 +326,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
       final DocumentsFilterSettings dfs, final long first, final long count) {
     // Query for documents
     final DocumentFilterSettingsQuery<Document> query = new DocumentFilterSettingsQuery<Document>(
-        dfs, Document.class, (int) first, (int) count, sharedBeanProvider);
+        dfs, DocumentImpl.class, (int) first, (int) count, sharedBeanProvider);
     query.addOrder(Order.desc("published"));
     query.addOrder(Order.asc("sourceId"));
     query.addOrder(Order.asc("id"));
@@ -356,7 +361,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
 
   public List<Document> get(final SharedSessionContract ssc, final LocalDateTime downloaded) {
     // Query: Document
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
+    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(DocumentImpl.class);
     documentQuery.addRestriction(Restrictions.eq("downloaded", downloaded));
 
     // Done
@@ -380,7 +385,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
 
   public LocalDateTime getMinDownloaded(final SharedSessionContract ssc) {
     // Query: Document
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
+    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(DocumentImpl.class);
 
     // Done
     final Projection projection = Projections.min("downloaded");
@@ -390,7 +395,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
 
   public LocalDateTime getMaxDownloaded(final SharedSessionContract ssc, final long crawlingId) {
     // Query: Document
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
+    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(DocumentImpl.class);
     documentQuery.addRestriction(Restrictions.eq("crawlingId", crawlingId));
 
     // Done

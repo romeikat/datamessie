@@ -32,7 +32,8 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.statistics.dto.DocumentStatisticsDto;
 
 @Repository("statisticsDocumentDao")
@@ -46,7 +47,7 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
         published == null ? null : LocalDateTime.of(published.plusDays(1), LocalTime.MIDNIGHT);
 
     // Query: Document
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
+    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(DocumentImpl.class);
     if (sourceId != null) {
       documentQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     }

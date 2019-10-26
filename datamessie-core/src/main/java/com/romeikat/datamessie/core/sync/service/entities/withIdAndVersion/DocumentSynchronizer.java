@@ -26,7 +26,8 @@ import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
@@ -36,7 +37,7 @@ public class DocumentSynchronizer extends EntityWithIdAndVersionSynchronizer<Doc
   private final SyncData syncData;
 
   public DocumentSynchronizer(final ApplicationContext ctx) {
-    super(Document.class, ctx);
+    super(DocumentImpl.class, ctx);
     syncData = SyncData.valueOf(SpringUtil.getPropertyValue(ctx, "sync.data"));
   }
 

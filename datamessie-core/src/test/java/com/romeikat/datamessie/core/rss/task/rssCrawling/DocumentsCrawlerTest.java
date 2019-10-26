@@ -52,10 +52,11 @@ import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
@@ -101,7 +102,7 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime now = LocalDateTime.now();
     // Document1 with download success
     final LocalDateTime published1 = now.minusDays(1);
-    final Document document1 = new Document(1, crawling1.getId(), source1.getId())
+    final Document document1 = new DocumentImpl(1, crawling1.getId(), source1.getId())
         .setTitle("Title1").setUrl("http://www.document1.de/").setDescription("Description1")
         .setPublished(published1).setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED)
         .setStatusCode(200);
@@ -109,7 +110,7 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
     final RawContent rawContent1 = new RawContent(document1.getId(), "RawContent1");
     // Document2 without download success
     final LocalDateTime published2 = now.minusDays(2);
-    final Document document2 = new Document(2, crawling1.getId(), source1.getId())
+    final Document document2 = new DocumentImpl(2, crawling1.getId(), source1.getId())
         .setTitle("Title2").setUrl("http://www.document2.de/").setDescription("Description2")
         .setPublished(published2).setDownloaded(now)
         .setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);

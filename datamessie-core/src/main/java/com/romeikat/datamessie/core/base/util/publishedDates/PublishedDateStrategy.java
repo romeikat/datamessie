@@ -43,7 +43,7 @@ import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.util.DateUtil;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 
 public abstract class PublishedDateStrategy {
 
@@ -120,7 +120,7 @@ public abstract class PublishedDateStrategy {
 
   private List<LocalDateTime> getAllPublishedTimestamps(final SharedSessionContract ssc) {
     // Query
-    final Criteria criteria = ssc.createCriteria(Document.class);
+    final Criteria criteria = ssc.createCriteria(DocumentImpl.class);
     criteria.add(Restrictions.isNotNull("published"));
     // Projection
     criteria.setProjection(Projections.property("published"));

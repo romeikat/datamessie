@@ -24,12 +24,12 @@ License along with this program.  If not, see
 
 public interface Project2Source extends Entity {
 
-  public long getProjectId();
+  long getProjectId();
 
-  public Project2Source setProjectId(long projectId);
+  Project2Source setProjectId(long projectId);
 
-  public long getSourceId();
+  long getSourceId();
 
-  public Project2Source setSourceId(long sourceId);
+  Project2Source setSourceId(long sourceId);
 
 }

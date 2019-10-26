@@ -24,16 +24,16 @@ License along with this program.  If not, see
 
 public interface User extends EntityWithIdAndVersion {
 
-  public String getUsername();
+  String getUsername();
 
-  public User setUsername(String username);
+  User setUsername(String username);
 
-  public byte[] getPasswordSalt();
+  byte[] getPasswordSalt();
 
-  public void setPasswordSalt(byte[] passwordSalt);
+  void setPasswordSalt(byte[] passwordSalt);
 
-  public byte[] getPasswordHash();
+  byte[] getPasswordHash();
 
-  public void setPasswordHash(byte[] passwordHash);
+  void setPasswordHash(byte[] passwordHash);
 
 }

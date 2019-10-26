@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
@@ -52,7 +52,7 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
       final LocalDateTime downloaded, final DocumentProcessingState state, final Integer statusCode,
       final Long crawlingId, final Long sourceId) {
     // Create
-    final Document document = new Document();
+    final Document document = documentDao.create();
     document.setTitle(title);
     document.setUrl(url);
     document.setDescription(description);

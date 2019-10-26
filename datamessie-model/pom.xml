@@ -18,6 +18,11 @@
 	</properties>
 
 	<dependencies>
+		<!-- UTILITY DEPENDENCIES -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

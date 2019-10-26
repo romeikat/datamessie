@@ -26,24 +26,24 @@ import com.romeikat.datamessie.core.domain.enums.Language;
 
 public interface Source extends EntityWithIdAndVersion {
 
-  public String getName();
+  String getName();
 
-  public Source setName(String name);
+  Source setName(String name);
 
-  public Language getLanguage();
+  Language getLanguage();
 
-  public Source setLanguage(Language language);
+  Source setLanguage(Language language);
 
-  public String getUrl();
+  String getUrl();
 
-  public Source setUrl(String url);
+  Source setUrl(String url);
 
-  public boolean getVisible();
+  boolean getVisible();
 
-  public Source setVisible(boolean visible);
+  Source setVisible(boolean visible);
 
-  public boolean getStatisticsChecking();
+  boolean getStatisticsChecking();
 
-  public void setStatisticsChecking(boolean statisticsChecking);
+  void setStatisticsChecking(boolean statisticsChecking);
 
 }

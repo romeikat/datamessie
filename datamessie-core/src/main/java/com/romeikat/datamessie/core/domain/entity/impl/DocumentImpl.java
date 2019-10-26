@@ -34,17 +34,18 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Entity
-@Table(name = Document.TABLE_NAME,
+@Table(name = DocumentImpl.TABLE_NAME,
     uniqueConstraints = @UniqueConstraint(name = "document_id_version",
         columnNames = {"id", "version"}),
     indexes = {@Index(name = "document_downloaded", columnList = "downloaded"),
         @Index(name = "document_published_source_id_state",
             columnList = "published, source_id, state"),
         @Index(name = "FK_document_crawling_id", columnList = "crawling_id")})
-public class Document extends AbstractEntityWithGeneratedIdAndVersion {
+public class DocumentImpl extends AbstractEntityWithGeneratedIdAndVersion implements Document {
 
   public static final String TABLE_NAME = "document";
 
@@ -70,73 +71,86 @@ public class Document extends AbstractEntityWithGeneratedIdAndVersion {
 
   private long sourceId;
 
-  public Document() {}
+  public DocumentImpl() {}
 
-  public Document(final long id, final long crawlingId, final long sourceId) {
+  public DocumentImpl(final long id, final long crawlingId, final long sourceId) {
     super(id);
     this.crawlingId = crawlingId;
     this.sourceId = sourceId;
   }
 
+  @Override
   @Column(length = 511)
   public String getTitle() {
     return title;
   }
 
+  @Override
   public Document setTitle(final String title) {
     this.title = title;
     return this;
   }
 
+  @Override
   @Column(length = 511)
   public String getStemmedTitle() {
     return stemmedTitle;
   }
 
+  @Override
   public Document setStemmedTitle(final String stemmedTitle) {
     this.stemmedTitle = stemmedTitle;
     return this;
   }
 
+  @Override
   @Column(length = 511)
   public String getUrl() {
     return url;
   }
 
+  @Override
   public Document setUrl(final String url) {
     this.url = url;
     return this;
   }
 
+  @Override
   @Lob
   public String getDescription() {
     return description;
   }
 
+  @Override
   public Document setDescription(final String description) {
     this.description = description;
     return this;
   }
 
+  @Override
   @Lob
   public String getStemmedDescription() {
     return stemmedDescription;
   }
 
+  @Override
   public Document setStemmedDescription(final String stemmedDescription) {
     this.stemmedDescription = stemmedDescription;
     return this;
   }
 
+  @Override
   public LocalDateTime getPublished() {
     return published;
   }
 
+  @Override
   public Document setPublished(final LocalDateTime published) {
     this.published = published;
     return this;
   }
 
+  @Override
   @Transient
   public LocalDate getPublishedDate() {
     if (published == null) {
@@ -146,49 +160,59 @@ public class Document extends AbstractEntityWithGeneratedIdAndVersion {
     return published.toLocalDate();
   }
 
+  @Override
   public LocalDateTime getDownloaded() {
     return downloaded;
   }
 
+  @Override
   public Document setDownloaded(final LocalDateTime downloaded) {
     this.downloaded = downloaded;
     return this;
   }
 
+  @Override
   @Enumerated(value = EnumType.ORDINAL)
   public DocumentProcessingState getState() {
     return state;
   }
 
+  @Override
   public Document setState(final DocumentProcessingState state) {
     this.state = state;
     return this;
   }
 
+  @Override
   public Integer getStatusCode() {
     return statusCode;
   }
 
+  @Override
   public Document setStatusCode(final Integer statusCode) {
     this.statusCode = statusCode;
     return this;
   }
 
+  @Override
   @Column(name = "crawling_id", nullable = false)
   public long getCrawlingId() {
     return crawlingId;
   }
 
+  @Override
   public Document setCrawlingId(final long crawlingId) {
     this.crawlingId = crawlingId;
     return this;
   }
 
+  @Override
   @Column(name = "source_id", nullable = false)
   public long getSourceId() {
     return sourceId;
   }
 
+  @Override
   public Document setSourceId(final long sourceId) {
     this.sourceId = sourceId;
     return this;

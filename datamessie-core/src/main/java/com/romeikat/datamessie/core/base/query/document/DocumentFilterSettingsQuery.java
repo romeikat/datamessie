@@ -53,13 +53,14 @@ import com.romeikat.datamessie.core.base.query.entity.entities.SourceQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.SourceTypeQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.StemmedContentQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
@@ -252,7 +253,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     if (targetClass != Crawling.class) {
       crawlingQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
-    if (targetClass != Document.class) {
+    if (targetClass != DocumentImpl.class) {
       documentQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
     if (targetClass != RawContent.class) {
@@ -282,7 +283,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       overallQuery = (EntityWithIdQuery<E>) processSourceQuery(ssc);
     } else if (targetClass == Crawling.class) {
       overallQuery = (EntityWithIdQuery<E>) processCrawlingQuery(ssc);
-    } else if (targetClass == Document.class) {
+    } else if (targetClass == DocumentImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processDocumentQuery(ssc);
     } else if (targetClass == RawContent.class) {
       overallQuery = (EntityWithIdQuery<E>) processRawContentQuery(ssc);
@@ -382,7 +383,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       addInRestrictionForIds(processedQuery, "id", sourceIds);
     }
 
-    if (!processedClasses.contains(Document.class)) {
+    if (!processedClasses.contains(DocumentImpl.class)) {
       // Document to Source
       final EntityWithIdQuery<Document> processedDocumentQuery = processDocumentQuery(ssc);
       final Collection<Long> sourceIds = processedDocumentQuery.listIdsForProperty(ssc, "sourceId");
@@ -398,7 +399,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
 
     processedClasses.add(Crawling.class);
 
-    if (!processedClasses.contains(Document.class)) {
+    if (!processedClasses.contains(DocumentImpl.class)) {
       // Document to Crawling
       final EntityWithIdQuery<Document> processedDocumentQuery = processDocumentQuery(ssc);
       final Collection<Long> crawlingIds =
@@ -413,7 +414,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     final EntityWithIdQuery<Document> inputQuery = documentQuery;
     final EntityWithIdQuery<Document> processedQuery = new EntityWithIdQuery<Document>(inputQuery);
 
-    processedClasses.add(Document.class);
+    processedClasses.add(DocumentImpl.class);
 
     if (!processedClasses.contains(Crawling.class)) {
       // Crawling to Document
@@ -465,7 +466,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     final EntityWithIdQuery<RawContent> processedQuery =
         new EntityWithIdQuery<RawContent>(inputQuery);
 
-    if (!processedClasses.contains(Document.class)) {
+    if (!processedClasses.contains(DocumentImpl.class)) {
       // Document to RawContent
       final EntityWithIdQuery<Document> processedDocumentQuery = processDocumentQuery(ssc);
       final Collection<Long> documentIds = processedDocumentQuery.listIds(ssc);
@@ -483,7 +484,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     final EntityWithIdQuery<CleanedContent> processedQuery =
         new EntityWithIdQuery<CleanedContent>(inputQuery);
 
-    if (!processedClasses.contains(Document.class)) {
+    if (!processedClasses.contains(DocumentImpl.class)) {
       // Document to RawContent
       final EntityWithIdQuery<Document> processedDocumentQuery = processDocumentQuery(ssc);
       final Collection<Long> documentIds = processedDocumentQuery.listIds(ssc);
@@ -501,7 +502,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     final EntityWithIdQuery<StemmedContent> processedQuery =
         new EntityWithIdQuery<StemmedContent>(inputQuery);
 
-    if (!processedClasses.contains(Document.class)) {
+    if (!processedClasses.contains(DocumentImpl.class)) {
       // Document to StemmedContent
       final EntityWithIdQuery<Document> processedDocumentQuery = processDocumentQuery(ssc);
       final Collection<Long> documentIds = processedDocumentQuery.listIds(ssc);
@@ -519,7 +520,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     final EntityWithIdQuery<NamedEntityOccurrence> processedQuery =
         new EntityWithIdQuery<NamedEntityOccurrence>(inputQuery);
 
-    if (!processedClasses.contains(Document.class)) {
+    if (!processedClasses.contains(DocumentImpl.class)) {
       // Document to NamedEntityOccurrence
       final EntityWithIdQuery<Document> processedDocumentQuery = processDocumentQuery(ssc);
       final Collection<Long> documentIds = processedDocumentQuery.listIds(ssc);
@@ -551,7 +552,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       return sourceQuery;
     } else if (clazz == Crawling.class) {
       return crawlingQuery;
-    } else if (clazz == Document.class) {
+    } else if (clazz == DocumentImpl.class) {
       return documentQuery;
     } else if (clazz == RawContent.class) {
       return rawContentQuery;

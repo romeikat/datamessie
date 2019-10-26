@@ -43,9 +43,10 @@ import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQuery;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
@@ -97,7 +98,7 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
     }
 
     // Query: Document
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
+    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(DocumentImpl.class);
     documentQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
     documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
     documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));

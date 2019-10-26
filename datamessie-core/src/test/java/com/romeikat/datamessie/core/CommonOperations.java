@@ -26,6 +26,7 @@ import static com.ninja_squad.dbsetup.Operations.deleteAllFrom;
 import static com.ninja_squad.dbsetup.Operations.insertInto;
 import com.ninja_squad.dbsetup.operation.Insert;
 import com.ninja_squad.dbsetup.operation.Operation;
+import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Project2User;
@@ -37,7 +38,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithGeneratedId;
@@ -68,7 +69,7 @@ public class CommonOperations {
       BarEntity.TABLE_NAME, BarEntityWithId.TABLE_NAME, NamedEntityOccurrence.TABLE_NAME,
       NamedEntityCategory.TABLE_NAME, NamedEntity.TABLE_NAME, RawContent.TABLE_NAME,
       CleanedContent.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
-      Document.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
+      DocumentImpl.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
       Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2UserImpl.TABLE_NAME,
       ProjectImpl.TABLE_NAME, UserImpl.TABLE_NAME);
@@ -139,7 +140,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoDocument(final Document document) {
-    return insertInto(Document.TABLE_NAME)
+    return insertInto(DocumentImpl.TABLE_NAME)
         .columns("id", "version", "title", "stemmedTitle", "url", "description",
             "stemmedDescription", "published", "downloaded", "state", "statusCode", "crawling_id",
             "source_id")

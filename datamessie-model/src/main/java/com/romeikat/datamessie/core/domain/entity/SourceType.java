@@ -24,8 +24,8 @@ License along with this program.  If not, see
 
 public interface SourceType extends EntityWithIdAndVersion {
 
-  public String getName();
+  String getName();
 
-  public SourceType setName(String name);
+  SourceType setName(String name);
 
 }

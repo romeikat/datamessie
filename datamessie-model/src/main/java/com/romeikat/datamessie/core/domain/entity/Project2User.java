@@ -24,12 +24,12 @@ License along with this program.  If not, see
 
 public interface Project2User extends Entity {
 
-  public long getProjectId();
+  long getProjectId();
 
-  public Project2User setProjectId(long projectId);
+  Project2User setProjectId(long projectId);
 
-  public long getUserId();
+  long getUserId();
 
-  public Project2User setUserId(long userId);
+  Project2User setUserId(long userId);
 
 }

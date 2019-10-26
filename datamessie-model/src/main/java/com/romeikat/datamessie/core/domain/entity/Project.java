@@ -24,20 +24,20 @@ License along with this program.  If not, see
 
 public interface Project extends EntityWithIdAndVersion {
 
-  public String getName();
+  String getName();
 
-  public Project setName(String name);
+  Project setName(String name);
 
-  public boolean getCrawlingEnabled();
+  boolean getCrawlingEnabled();
 
-  public Project setCrawlingEnabled(boolean crawlingEnabled);
+  Project setCrawlingEnabled(boolean crawlingEnabled);
 
-  public Integer getCrawlingInterval();
+  Integer getCrawlingInterval();
 
-  public Project setCrawlingInterval(Integer crawlingInterval);
+  Project setCrawlingInterval(Integer crawlingInterval);
 
-  public boolean getPreprocessingEnabled();
+  boolean getPreprocessingEnabled();
 
-  public Project setPreprocessingEnabled(boolean preprocessingEnabled);
+  Project setPreprocessingEnabled(boolean preprocessingEnabled);
 
 }
