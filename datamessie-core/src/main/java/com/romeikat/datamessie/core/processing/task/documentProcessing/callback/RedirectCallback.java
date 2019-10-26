@@ -24,7 +24,7 @@ License along with this program.  If not, see
 
 import java.util.List;
 import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirectingResult;
 

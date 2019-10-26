@@ -64,6 +64,7 @@ import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
@@ -73,7 +74,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
@@ -167,7 +168,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final Document document1 = new DocumentImpl(1, crawling1.getId(), source1.getId())
         .setTitle("Title1").setUrl(URL_1).setDescription("Description1").setPublished(published1)
         .setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
-    final RawContent rawContent1 = new RawContent(document1.getId(), "RawContent1");
+    final RawContent rawContent1 = new RawContentImpl(document1.getId(), "RawContent1");
     final CleanedContent cleanedContent1 =
         new CleanedContent(document1.getId(), "Outdated CleanedContent1");
     final StemmedContent stemmedContent1 =
@@ -181,7 +182,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final Document document2 = new DocumentImpl(2, crawling1.getId(), source1.getId())
         .setTitle("Title2").setUrl(URL_2).setDescription("Description2").setPublished(published2)
         .setDownloaded(now).setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);
-    final RawContent rawContent2 = new RawContent(document2.getId(), "Outdated RawContent2");
+    final RawContent rawContent2 = new RawContentImpl(document2.getId(), "Outdated RawContent2");
     final CleanedContent cleanedContent2 =
         new CleanedContent(document2.getId(), "Outdated CleanedContent2");
     final StemmedContent stemmedContent2 =

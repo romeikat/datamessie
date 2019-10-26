@@ -23,12 +23,13 @@ License along with this program.  If not, see
  */
 
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 
 public class RawContentQuery extends EntityWithIdQuery<RawContent> {
 
   public RawContentQuery() {
-    super(RawContent.class);
+    super(RawContentImpl.class);
   }
 
 }

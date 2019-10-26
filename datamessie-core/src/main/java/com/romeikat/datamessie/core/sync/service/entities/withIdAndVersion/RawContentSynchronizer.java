@@ -25,14 +25,15 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class RawContentSynchronizer extends EntityWithIdAndVersionSynchronizer<RawContent> {
 
   public RawContentSynchronizer(final ApplicationContext ctx) {
-    super(RawContent.class, ctx);
+    super(RawContentImpl.class, ctx);
   }
 
   @Override

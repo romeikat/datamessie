@@ -22,18 +22,23 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 
 @Repository
 public class RawContentDao extends AbstractEntityWithIdAndVersionDao<RawContent> {
 
   public RawContentDao() {
-    super(RawContent.class);
+    super(RawContentImpl.class);
   }
 
   @Override
   protected String defaultSortingProperty() {
     return "documentId";
+  }
+
+  public RawContent create(final long documentId, final String content) {
+    return new RawContentImpl(documentId, content);
   }
 
 }

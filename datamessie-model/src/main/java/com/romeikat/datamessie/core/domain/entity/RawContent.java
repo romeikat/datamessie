@@ -1,8 +1,8 @@
-package com.romeikat.datamessie.core.processing.task.documentProcessing.callback;
+package com.romeikat.datamessie.core.domain.entity;
 
 /*-
  * ============================LICENSE_START============================
- * data.messie (core)
+ * data.messie (model)
  * =====================================================================
  * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
  * =====================================================================
@@ -22,13 +22,14 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.enums.Language;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmingResult;
+public interface RawContent extends EntityWithIdAndVersion {
 
-@FunctionalInterface
-public interface StemCallback {
+  long getDocumentId();
 
-  DocumentStemmingResult stem(Document document, String cleanedContent, Language language);
+  RawContent setDocumentId(final long documentId);
+
+  String getContent();
+
+  RawContent setContent(final String content);
 
 }

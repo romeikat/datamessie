@@ -54,12 +54,13 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
@@ -107,7 +108,7 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
         .setPublished(published1).setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED)
         .setStatusCode(200);
     final Download download1 = new Download(1, 1, 1, true).setUrl("http://www.url1.de/");
-    final RawContent rawContent1 = new RawContent(document1.getId(), "RawContent1");
+    final RawContent rawContent1 = new RawContentImpl(document1.getId(), "RawContent1");
     // Document2 without download success
     final LocalDateTime published2 = now.minusDays(2);
     final Document document2 = new DocumentImpl(2, crawling1.getId(), source1.getId())

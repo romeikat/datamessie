@@ -31,14 +31,15 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import org.hibernate.search.annotations.Analyzer;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.processing.service.fulltext.query.FullTextIndexingAnalyzer;
 
 @Entity
-@Table(name = RawContent.TABLE_NAME,
+@Table(name = RawContentImpl.TABLE_NAME,
     uniqueConstraints = @UniqueConstraint(name = "rawContent_id_version",
         columnNames = {"document_id", "version"}))
 @Analyzer(impl = FullTextIndexingAnalyzer.class)
-public class RawContent extends AbstractEntityWithIdAndVersion {
+public class RawContentImpl extends AbstractEntityWithIdAndVersion implements RawContent {
 
   public static final String TABLE_NAME = "content";
 
@@ -46,30 +47,34 @@ public class RawContent extends AbstractEntityWithIdAndVersion {
 
   private String content;
 
-  public RawContent() {}
+  public RawContentImpl() {}
 
-  public RawContent(final long documentId, final String content) {
+  public RawContentImpl(final long documentId, final String content) {
     this.documentId = documentId;
     this.content = content;
   }
 
+  @Override
   @Id
   @Column(name = "document_id", nullable = false)
   public long getDocumentId() {
     return documentId;
   }
 
+  @Override
   public RawContent setDocumentId(final long documentId) {
     this.documentId = documentId;
     return this;
   }
 
+  @Override
   @Lob
   @Column(name = "rawContent", nullable = false)
   public String getContent() {
     return content;
   }
 
+  @Override
   public RawContent setContent(final String content) {
     this.content = content;
     return this;

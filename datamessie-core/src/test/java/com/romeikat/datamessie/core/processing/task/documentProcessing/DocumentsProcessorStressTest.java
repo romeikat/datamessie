@@ -55,6 +55,7 @@ import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
@@ -64,7 +65,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
@@ -174,7 +175,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
           .setTitle("Title" + documentId).setUrl(url).setDescription("Description" + documentId)
           .setPublished(LocalDateTime.now()).setDownloaded(LocalDateTime.now())
           .setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
-      final RawContent rawContent = new RawContent(documentId, "RawContent" + documentId);
+      final RawContent rawContent = new RawContentImpl(documentId, "RawContent" + documentId);
       final CleanedContent cleanedContent =
           new CleanedContent(documentId, "Outdated CleanedContent" + documentId);
       final StemmedContent stemmedContent =

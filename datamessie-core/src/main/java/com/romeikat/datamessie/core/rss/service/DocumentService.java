@@ -31,7 +31,7 @@ import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Service("rssDocumentService")
@@ -74,7 +74,7 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
 
     // Create
     if (rawContent == null) {
-      rawContent = new RawContent(documentId, content);
+      rawContent = rawContentDao.create(documentId, content);
       rawContentDao.insert(statelessSession, rawContent);
     }
     // Update
