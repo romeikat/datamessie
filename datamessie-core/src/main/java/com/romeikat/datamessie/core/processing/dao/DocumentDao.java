@@ -45,11 +45,11 @@ import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQue
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;

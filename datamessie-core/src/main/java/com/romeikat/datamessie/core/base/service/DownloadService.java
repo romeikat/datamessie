@@ -38,7 +38,7 @@ import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
 import com.romeikat.datamessie.core.base.util.DocumentWithDownloads;
 import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
+import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Service
@@ -135,7 +135,7 @@ public class DownloadService {
       }
       downloadDao.update(statelessSession, download);
     } else {
-      download = new Download();
+      download = downloadDao.create();
       download.setUrl(url);
       download.setSourceId(sourceId);
       download.setDocumentId(documentId);

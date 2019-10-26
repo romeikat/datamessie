@@ -60,12 +60,13 @@ import com.romeikat.datamessie.core.domain.dto.DocumentOverviewDto;
 import com.romeikat.datamessie.core.domain.dto.NamedEntityDto;
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
+import com.romeikat.datamessie.core.domain.entity.impl.DownloadImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContentImpl;
@@ -106,7 +107,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   public Document getForUrlAndSource(final SharedSessionContract ssc, final String url,
       final long sourceId) {
     // Query: Download
-    final EntityWithIdQuery<Download> downloadQuery = new EntityWithIdQuery<>(Download.class);
+    final EntityWithIdQuery<Download> downloadQuery = new EntityWithIdQuery<>(DownloadImpl.class);
     downloadQuery.addRestriction(Restrictions.eq("url", url));
     downloadQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     final Long documentId = downloadQuery.uniqueIdForProperty(ssc, "documentId");

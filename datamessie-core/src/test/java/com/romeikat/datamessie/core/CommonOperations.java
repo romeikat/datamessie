@@ -29,6 +29,7 @@ import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Project2User;
@@ -43,7 +44,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
+import com.romeikat.datamessie.core.domain.entity.impl.DownloadImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithGeneratedId;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithGeneratedIdAndVersion;
@@ -72,7 +73,7 @@ public class CommonOperations {
       FooEntityWithGeneratedIdAndVersion.TABLE_NAME, FooEntityWithoutIdAndVersion.TABLE_NAME,
       BarEntity.TABLE_NAME, BarEntityWithId.TABLE_NAME, NamedEntityOccurrence.TABLE_NAME,
       NamedEntityCategory.TABLE_NAME, NamedEntity.TABLE_NAME, RawContentImpl.TABLE_NAME,
-      CleanedContentImpl.TABLE_NAME, StemmedContentImpl.TABLE_NAME, Download.TABLE_NAME,
+      CleanedContentImpl.TABLE_NAME, StemmedContentImpl.TABLE_NAME, DownloadImpl.TABLE_NAME,
       DocumentImpl.TABLE_NAME, CrawlingImpl.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
       Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2UserImpl.TABLE_NAME,
@@ -157,7 +158,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoDownload(final Download download) {
-    return insertInto(Download.TABLE_NAME)
+    return insertInto(DownloadImpl.TABLE_NAME)
         .columns("id", "version", "url", "source_id", "document_id", "success")
         .values(download.getId(), download.getVersion(), download.getUrl(), download.getSourceId(),
             download.getDocumentId(), download.getSuccess())

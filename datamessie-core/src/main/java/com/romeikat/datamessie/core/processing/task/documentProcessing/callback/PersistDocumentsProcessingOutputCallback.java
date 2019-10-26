@@ -26,9 +26,9 @@ import java.util.Collection;
 import java.util.Map;
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.StemmedContent;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 

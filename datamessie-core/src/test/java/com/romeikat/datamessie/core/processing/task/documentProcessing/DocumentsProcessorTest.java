@@ -65,6 +65,7 @@ import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSp
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
@@ -72,7 +73,7 @@ import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
+import com.romeikat.datamessie.core.domain.entity.impl.DownloadImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
@@ -179,7 +180,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final NamedEntityOccurrence namedEntityOccurrence1 = new NamedEntityOccurrence(1,
         namedEntity.getId(), namedEntity.getId(), NamedEntityType.MISC, 1, document1.getId());
     final Download download1 =
-        new Download(1, source1.getId(), document1.getId(), true).setUrl(URL_1);
+        new DownloadImpl(1, source1.getId(), document1.getId(), true).setUrl(URL_1);
     // Document2 with failed download
     final LocalDateTime published2 = now.minusDays(2);
     final Document document2 = new DocumentImpl(2, crawling1.getId(), source1.getId())
@@ -193,7 +194,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final NamedEntityOccurrence namedEntityOccurrence2 = new NamedEntityOccurrence(2,
         namedEntity.getId(), namedEntity.getId(), NamedEntityType.MISC, 1, document2.getId());
     final Download download2 =
-        new Download(2, source1.getId(), document2.getId(), false).setUrl(URL_2);
+        new DownloadImpl(2, source1.getId(), document2.getId(), false).setUrl(URL_2);
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
         sequenceOf(insertIntoProject(project1), insertIntoSource(source1),

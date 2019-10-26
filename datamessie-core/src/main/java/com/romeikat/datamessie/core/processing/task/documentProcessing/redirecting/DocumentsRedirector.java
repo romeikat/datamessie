@@ -44,6 +44,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
+import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.DisjointSet;
@@ -54,8 +55,8 @@ import com.romeikat.datamessie.core.base.util.comparator.MasterDocumentWithDownl
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
@@ -73,6 +74,7 @@ public class DocumentsRedirector {
   private final CollectionUtil collectionUtil;
   private final CleanedContentDao cleanedContentDao;
   private final StemmedContentDao stemmedContentDao;
+  private final DownloadDao downloadDao;
   private final SessionFactory sessionFactory;
   private final Double processingParallelismFactor;
 
@@ -94,6 +96,7 @@ public class DocumentsRedirector {
     collectionUtil = ctx.getBean(CollectionUtil.class);
     cleanedContentDao = ctx.getBean(CleanedContentDao.class);
     stemmedContentDao = ctx.getBean(StemmedContentDao.class);
+    downloadDao = ctx.getBean(DownloadDao.class);
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
     processingParallelismFactor = Double
         .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
@@ -413,7 +416,8 @@ public class DocumentsRedirector {
       final long documentId, final boolean downloadSuccess,
       final DisjointSet<Document> documentsToBeMerged) {
     // Prepare new download
-    final Download possiblyNewDownload = new Download(0, sourceId, documentId, downloadSuccess);
+    final Download possiblyNewDownload =
+        downloadDao.create(0, sourceId, documentId, downloadSuccess);
     possiblyNewDownload.setUrl(url);
     final DownloadEntry possiblyNewDownloadEntry = new DownloadEntry(possiblyNewDownload);
 

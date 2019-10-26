@@ -56,6 +56,7 @@ import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSp
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
@@ -63,7 +64,7 @@ import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
+import com.romeikat.datamessie.core.domain.entity.impl.DownloadImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
@@ -186,7 +187,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
       final NamedEntityOccurrence namedEntityOccurrence = new NamedEntityOccurrence(documentId,
           namedEntity.getId(), namedEntity.getId(), NamedEntityType.MISC, 1, document.getId());
       final Download download =
-          new Download(documentId, source1.getId(), documentId, true).setUrl(url);
+          new DownloadImpl(documentId, source1.getId(), documentId, true).setUrl(url);
 
       operations.add(CommonOperations.insertIntoDocument(document));
       operations.add(CommonOperations.insertIntoRawContent(rawContent));

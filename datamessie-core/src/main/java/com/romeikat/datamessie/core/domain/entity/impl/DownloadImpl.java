@@ -28,14 +28,15 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.Download;
 
 @Entity
-@Table(name = Download.TABLE_NAME,
+@Table(name = DownloadImpl.TABLE_NAME,
     uniqueConstraints = {
         @UniqueConstraint(name = "download_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "download_url_source_id", columnNames = {"url", "source_id"})},
     indexes = @Index(name = "FK_download_document_id", columnList = "document_id"))
-public class Download extends AbstractEntityWithGeneratedIdAndVersion {
+public class DownloadImpl extends AbstractEntityWithGeneratedIdAndVersion implements Download {
 
   public static final String TABLE_NAME = "download";
 
@@ -47,9 +48,9 @@ public class Download extends AbstractEntityWithGeneratedIdAndVersion {
 
   private boolean success;
 
-  public Download() {}
+  public DownloadImpl() {}
 
-  public Download(final long id, final long sourceId, final long documentId,
+  public DownloadImpl(final long id, final long sourceId, final long documentId,
       final boolean success) {
     super(id);
     this.sourceId = sourceId;
@@ -57,41 +58,49 @@ public class Download extends AbstractEntityWithGeneratedIdAndVersion {
     this.success = success;
   }
 
+  @Override
   @Column(length = 511)
   public String getUrl() {
     return url;
   }
 
+  @Override
   public Download setUrl(final String url) {
     this.url = url;
     return this;
   }
 
+  @Override
   @Column(name = "source_id", nullable = false)
   public long getSourceId() {
     return sourceId;
   }
 
+  @Override
   public Download setSourceId(final long sourceId) {
     this.sourceId = sourceId;
     return this;
   }
 
+  @Override
   @Column(name = "document_id", nullable = false)
   public long getDocumentId() {
     return documentId;
   }
 
+  @Override
   public Download setDocumentId(final long documentId) {
     this.documentId = documentId;
     return this;
   }
 
+  @Override
   @Column(nullable = false)
   public boolean getSuccess() {
     return success;
   }
 
+  @Override
   public Download setSuccess(final boolean success) {
     this.success = success;
     return this;

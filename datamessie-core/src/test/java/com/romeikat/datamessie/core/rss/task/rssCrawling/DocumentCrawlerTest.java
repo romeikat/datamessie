@@ -45,12 +45,13 @@ import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
+import com.romeikat.datamessie.core.domain.entity.impl.DownloadImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
@@ -92,8 +93,9 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         new DocumentImpl(1, crawling1.getId(), source1.getId()).setTitle("Title1")
             .setUrl("http://www.url1.de/").setDescription("Description1").setPublished(published1)
             .setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
-    final Download download1 = new Download(1, 1, 1, true).setUrl("http://www.url1.de/");
-    final Download download2 = new Download(2, 1, 1, true).setUrl("http://www.originalUrl1.de/");
+    final Download download1 = new DownloadImpl(1, 1, 1, true).setUrl("http://www.url1.de/");
+    final Download download2 =
+        new DownloadImpl(2, 1, 1, true).setUrl("http://www.originalUrl1.de/");
     final RawContent rawContent1 = new RawContentImpl(document1.getId(), "RawContent1");
     // Document2 with failed download
     final LocalDateTime published2 = now.minusDays(2);
@@ -101,19 +103,22 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         new DocumentImpl(2, crawling1.getId(), source1.getId()).setTitle("Title2")
             .setUrl("http://www.url2.de/").setDescription("Description2").setPublished(published2)
             .setDownloaded(now).setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);
-    final Download download3 = new Download(3, 1, 2, false).setUrl("http://www.url2.de/");
-    final Download download4 = new Download(4, 1, 2, false).setUrl("http://www.originalUrl2.de/");
+    final Download download3 = new DownloadImpl(3, 1, 2, false).setUrl("http://www.url2.de/");
+    final Download download4 =
+        new DownloadImpl(4, 1, 2, false).setUrl("http://www.originalUrl2.de/");
     // Document3 with download success, but redirection error
     final LocalDateTime published3 = now.minusDays(3);
     final Document document3 = new DocumentImpl(3, crawling1.getId(), source1.getId())
         .setTitle("Title3").setUrl("http://www.url3.de/").setDescription("Description3")
         .setPublished(published3).setDownloaded(now)
         .setState(DocumentProcessingState.REDIRECTING_ERROR).setStatusCode(200);
-    final Download download5 = new Download(5, 1, 3, true).setUrl("http://www.url3.de/");
-    final Download download6 = new Download(6, 1, 3, true).setUrl("http://www.originalUrl3.de/");
-    final Download download7 = new Download(7, 1, 3, false).setUrl("http://www.redirectedUrl3.de/");
+    final Download download5 = new DownloadImpl(5, 1, 3, true).setUrl("http://www.url3.de/");
+    final Download download6 =
+        new DownloadImpl(6, 1, 3, true).setUrl("http://www.originalUrl3.de/");
+    final Download download7 =
+        new DownloadImpl(7, 1, 3, false).setUrl("http://www.redirectedUrl3.de/");
     final Download download8 =
-        new Download(8, 1, 3, false).setUrl("http://www.redirectedOriginalUrl3.de/");
+        new DownloadImpl(8, 1, 3, false).setUrl("http://www.redirectedOriginalUrl3.de/");
     // Obsolete content4
     final RawContent rawContent4 = new RawContentImpl(4, "RawContent4");
 
