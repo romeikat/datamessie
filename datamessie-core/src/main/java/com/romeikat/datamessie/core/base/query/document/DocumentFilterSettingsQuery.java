@@ -54,6 +54,7 @@ import com.romeikat.datamessie.core.base.query.entity.entities.SourceTypeQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.StemmedContentQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
 import com.romeikat.datamessie.core.domain.entity.Project;
@@ -62,7 +63,7 @@ import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
@@ -253,7 +254,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     if (targetClass != SourceImpl.class) {
       sourceQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
-    if (targetClass != Crawling.class) {
+    if (targetClass != CrawlingImpl.class) {
       crawlingQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
     if (targetClass != DocumentImpl.class) {
@@ -284,7 +285,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       overallQuery = (EntityWithIdQuery<E>) processSourceTypeQuery(ssc);
     } else if (targetClass == SourceImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processSourceQuery(ssc);
-    } else if (targetClass == Crawling.class) {
+    } else if (targetClass == CrawlingImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processCrawlingQuery(ssc);
     } else if (targetClass == DocumentImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processDocumentQuery(ssc);
@@ -400,7 +401,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     final EntityWithIdQuery<Crawling> inputQuery = crawlingQuery;
     final EntityWithIdQuery<Crawling> processedQuery = new EntityWithIdQuery<Crawling>(inputQuery);
 
-    processedClasses.add(Crawling.class);
+    processedClasses.add(CrawlingImpl.class);
 
     if (!processedClasses.contains(DocumentImpl.class)) {
       // Document to Crawling
@@ -419,7 +420,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
 
     processedClasses.add(DocumentImpl.class);
 
-    if (!processedClasses.contains(Crawling.class)) {
+    if (!processedClasses.contains(CrawlingImpl.class)) {
       // Crawling to Document
       final EntityWithIdQuery<Crawling> processedCrawlingQuery = processCrawlingQuery(ssc);
       final Collection<Long> crawlingIds = processedCrawlingQuery.listIds(ssc);
@@ -553,7 +554,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       return sourceTypeQuery;
     } else if (clazz == SourceImpl.class) {
       return sourceQuery;
-    } else if (clazz == Crawling.class) {
+    } else if (clazz == CrawlingImpl.class) {
       return crawlingQuery;
     } else if (clazz == DocumentImpl.class) {
       return documentQuery;

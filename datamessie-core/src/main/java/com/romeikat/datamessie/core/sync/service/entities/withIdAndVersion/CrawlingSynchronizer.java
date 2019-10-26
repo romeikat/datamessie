@@ -25,14 +25,15 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class CrawlingSynchronizer extends EntityWithIdAndVersionSynchronizer<Crawling> {
 
   public CrawlingSynchronizer(final ApplicationContext ctx) {
-    super(Crawling.class, ctx);
+    super(CrawlingImpl.class, ctx);
   }
 
   @Override

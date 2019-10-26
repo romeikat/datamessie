@@ -29,13 +29,14 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
 
 @Entity
-@Table(name = Crawling.TABLE_NAME,
+@Table(name = CrawlingImpl.TABLE_NAME,
     uniqueConstraints = @UniqueConstraint(name = "crawling_id_version",
         columnNames = {"id", "version"}),
     indexes = @Index(name = "FK_crawling_project_id", columnList = "project_id"))
-public class Crawling extends AbstractEntityWithGeneratedIdAndVersion {
+public class CrawlingImpl extends AbstractEntityWithGeneratedIdAndVersion implements Crawling {
 
   public static final String TABLE_NAME = "crawling";
 
@@ -45,9 +46,9 @@ public class Crawling extends AbstractEntityWithGeneratedIdAndVersion {
 
   private long projectId;
 
-  public Crawling() {}
+  public CrawlingImpl() {}
 
-  public Crawling(final long id, final long projectId) {
+  public CrawlingImpl(final long id, final long projectId) {
     super(id);
     this.projectId = projectId;
   }

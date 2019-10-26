@@ -27,6 +27,7 @@ import static com.ninja_squad.dbsetup.Operations.insertInto;
 import com.ninja_squad.dbsetup.operation.Insert;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
@@ -40,7 +41,7 @@ import com.romeikat.datamessie.core.domain.entity.User;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntity;
@@ -72,7 +73,7 @@ public class CommonOperations {
       BarEntity.TABLE_NAME, BarEntityWithId.TABLE_NAME, NamedEntityOccurrence.TABLE_NAME,
       NamedEntityCategory.TABLE_NAME, NamedEntity.TABLE_NAME, RawContentImpl.TABLE_NAME,
       CleanedContentImpl.TABLE_NAME, StemmedContentImpl.TABLE_NAME, Download.TABLE_NAME,
-      DocumentImpl.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
+      DocumentImpl.TABLE_NAME, CrawlingImpl.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
       Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2UserImpl.TABLE_NAME,
       ProjectImpl.TABLE_NAME, UserImpl.TABLE_NAME);
@@ -135,7 +136,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoCrawling(final Crawling crawling) {
-    return insertInto(Crawling.TABLE_NAME)
+    return insertInto(CrawlingImpl.TABLE_NAME)
         .columns("id", "version", "started", "completed", "project_id")
         .values(crawling.getId(), crawling.getVersion(), crawling.getStarted(),
             crawling.getCompleted(), crawling.getProjectId())

@@ -52,11 +52,12 @@ import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
@@ -99,7 +100,7 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
   protected Operation initDb() {
     final Project project1 = new ProjectImpl(1, "Project1", false, false);
     final Source source1 = new SourceImpl(1, "Source1", "http://www.source1.de/", true, false);
-    final Crawling crawling1 = new Crawling(1, project1.getId());
+    final Crawling crawling1 = new CrawlingImpl(1, project1.getId());
     final LocalDateTime now = LocalDateTime.now();
     // Document1 with download success
     final LocalDateTime published1 = now.minusDays(1);

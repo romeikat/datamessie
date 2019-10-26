@@ -2,9 +2,9 @@ package com.romeikat.datamessie.core.domain.entity;
 
 /*-
  * ============================LICENSE_START============================
- * data.messie (model)
+ * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,14 +22,20 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-public interface StemmedContent extends EntityWithIdAndVersion {
+import java.time.LocalDateTime;
 
-  long getDocumentId();
+public interface Crawling extends EntityWithIdAndVersion {
 
-  StemmedContent setDocumentId(final long documentId);
+  LocalDateTime getStarted();
 
-  String getContent();
+  Crawling setStarted(final LocalDateTime started);
 
-  StemmedContent setContent(final String content);
+  LocalDateTime getCompleted();
+
+  Crawling setCompleted(final LocalDateTime completed);
+
+  long getProjectId();
+
+  Crawling setProjectId(final long projectId);
 
 }

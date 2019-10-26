@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
 
 @Service
 public class CrawlingService {
@@ -39,7 +39,7 @@ public class CrawlingService {
   public Crawling createCrawling(final StatelessSession statelessSession,
       final LocalDateTime started, final long ProjectId) {
     // Create
-    final Crawling crawling = new Crawling();
+    final Crawling crawling = crawlingDao.create();
     crawling.setStarted(started);
     // Associate
     crawling.setProjectId(ProjectId);

@@ -30,7 +30,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 
 @Repository("rssCrawlingDao")
 public class CrawlingDao extends com.romeikat.datamessie.core.base.dao.impl.CrawlingDao {
@@ -38,7 +39,7 @@ public class CrawlingDao extends com.romeikat.datamessie.core.base.dao.impl.Craw
   public LocalDateTime getStartOfLatestCompletedCrawling(final SharedSessionContract ssc,
       final long projectId) {
     // Query: Crawling
-    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(Crawling.class);
+    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(CrawlingImpl.class);
     crawlingQuery.addRestriction(Restrictions.eq("projectId", projectId));
     crawlingQuery.addRestriction(Restrictions.isNotNull("started"));
     crawlingQuery.addRestriction(Restrictions.isNotNull("completed"));
@@ -52,7 +53,7 @@ public class CrawlingDao extends com.romeikat.datamessie.core.base.dao.impl.Craw
 
   public List<Crawling> getIncompleted(final SharedSessionContract ssc) {
     // Query: Crawling
-    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(Crawling.class);
+    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(CrawlingImpl.class);
     crawlingQuery.addRestriction(Restrictions.isNull("completed"));
     crawlingQuery.addOrder(Order.asc("started"));
 

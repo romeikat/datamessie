@@ -25,14 +25,15 @@ License along with this program.  If not, see
 import org.hibernate.criterion.Restrictions;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 
 public class CrawlingQuery extends EntityWithIdQuery<Crawling> {
 
   private final DocumentsFilterSettings dfs;
 
   public CrawlingQuery(final DocumentsFilterSettings dfs) {
-    super(Crawling.class);
+    super(CrawlingImpl.class);
 
     this.dfs = dfs;
 

@@ -51,6 +51,7 @@ import com.romeikat.datamessie.core.base.query.document.DocumentFilterSettingsQu
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
@@ -58,7 +59,7 @@ import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
@@ -90,10 +91,10 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final Project2Source project2Source112 = new Project2SourceImpl(1, 12);
     final Project2Source project2Source221 = new Project2SourceImpl(2, 21);
     final Project2Source project2Source222 = new Project2SourceImpl(2, 22);
-    final Crawling crawling11 = new Crawling(11, project1.getId());
-    final Crawling crawling12 = new Crawling(12, project1.getId());
-    final Crawling crawling21 = new Crawling(21, project2.getId());
-    final Crawling crawling22 = new Crawling(22, project2.getId());
+    final Crawling crawling11 = new CrawlingImpl(11, project1.getId());
+    final Crawling crawling12 = new CrawlingImpl(12, project1.getId());
+    final Crawling crawling21 = new CrawlingImpl(21, project2.getId());
+    final Crawling crawling22 = new CrawlingImpl(22, project2.getId());
     final Document document11 = new DocumentImpl(11, crawling11.getId(), source11.getId())
         .setPublished(LocalDateTime.of(2015, 9, 30, 12, 0))
         .setDownloaded(LocalDateTime.of(2015, 9, 30, 12, 0))
@@ -365,7 +366,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setDocumentIds(Lists.newArrayList(11l, 21l));
     final DocumentFilterSettingsQuery<Crawling> query =
-        new DocumentFilterSettingsQuery<Crawling>(dfs, Crawling.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Crawling>(dfs, CrawlingImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -379,7 +380,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_crawlingIdsBySourceId() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setSourceId(11l);
     final DocumentFilterSettingsQuery<Crawling> query =
-        new DocumentFilterSettingsQuery<Crawling>(dfs, Crawling.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Crawling>(dfs, CrawlingImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());
@@ -394,7 +395,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
     final DocumentsFilterSettings dfs =
         new DocumentsFilterSettings().setSourceTypeIds(Sets.newHashSet(1l));
     final DocumentFilterSettingsQuery<Crawling> query =
-        new DocumentFilterSettingsQuery<Crawling>(dfs, Crawling.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Crawling>(dfs, CrawlingImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(4, result.size());
@@ -410,7 +411,7 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
   public void list_crawlingIdsByProjectId() {
     final DocumentsFilterSettings dfs = new DocumentsFilterSettings().setProjectId(1l);
     final DocumentFilterSettingsQuery<Crawling> query =
-        new DocumentFilterSettingsQuery<Crawling>(dfs, Crawling.class, sharedBeanProvider);
+        new DocumentFilterSettingsQuery<Crawling>(dfs, CrawlingImpl.class, sharedBeanProvider);
 
     final List<Long> result = query.listIds(sessionProvider.getStatelessSession());
     assertEquals(2, result.size());

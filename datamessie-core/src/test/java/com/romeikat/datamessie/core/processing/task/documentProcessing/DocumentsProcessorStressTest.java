@@ -54,13 +54,14 @@ import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
@@ -159,7 +160,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
   protected Operation initDb() {
     final Project project1 = new ProjectImpl(1, "Project1", false, false);
     final Source source1 = new SourceImpl(1, "Source1", "http://www.source1.de/", true, false);
-    final Crawling crawling1 = new Crawling(1, project1.getId());
+    final Crawling crawling1 = new CrawlingImpl(1, project1.getId());
     final NamedEntity namedEntity = new NamedEntity(1, "NamedEntity");
 
     // Project, source, and crawling

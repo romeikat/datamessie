@@ -38,14 +38,15 @@ import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.CrawlingDto;
 import com.romeikat.datamessie.core.domain.dto.CrawlingOverviewDto;
+import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 
 @Repository
 public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
 
   public CrawlingDao() {
-    super(Crawling.class);
+    super(CrawlingImpl.class);
   }
 
   @Override
@@ -53,9 +54,13 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
     return "started";
   }
 
+  public Crawling create(final long id, final long projectId) {
+    return new CrawlingImpl(id, projectId);
+  }
+
   public List<Crawling> getForProject(final SharedSessionContract ssc, final long projectId) {
     // Query: Crawling
-    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(Crawling.class);
+    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(CrawlingImpl.class);
     crawlingQuery.addRestriction(Restrictions.eq("projectId", projectId));
     crawlingQuery.addOrder(Order.desc("started"));
 
@@ -80,7 +85,7 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
 
   public long count(final SharedSessionContract ssc, final long projectId) {
     // Query: Crawling
-    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(Crawling.class);
+    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(CrawlingImpl.class);
     crawlingQuery.addRestriction(Restrictions.eq("projectId", projectId));
 
     // Done
@@ -90,7 +95,7 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
 
   public List<CrawlingDto> getAsDtos(final SharedSessionContract ssc, final Long projectId) {
     // Query: Crawling
-    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(Crawling.class);
+    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(CrawlingImpl.class);
     crawlingQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
     crawlingQuery.addOrder(Order.desc("started"));
     crawlingQuery.setResultTransformer(new AliasToBeanResultTransformer(CrawlingDto.class));
@@ -113,7 +118,7 @@ public class CrawlingDao extends AbstractEntityWithIdAndVersionDao<Crawling> {
   public List<CrawlingOverviewDto> getAsOverviewDtos(final SharedSessionContract ssc,
       final Long projectId, final Long first, final Long count) {
     // Query: Crawling
-    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(Crawling.class);
+    final EntityWithIdQuery<Crawling> crawlingQuery = new EntityWithIdQuery<>(CrawlingImpl.class);
     crawlingQuery.addRestriction(Restrictions.eqOrIsNull("projectId", projectId));
     crawlingQuery.setFirstResult(first == null ? null : first.intValue());
     crawlingQuery.setMaxResults(count == null ? null : count.intValue());
