@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.app.shared.IFullTextSearcher;
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.processing.service.fulltext.query.QueryExecutor;
 
 @Service
@@ -50,7 +50,7 @@ public class LocalFullTextSearcher implements IFullTextSearcher {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
 
     final FullTextResult fullTextResult = queryExecutor.executeQuery(sessionProvider,
-        luceneQueryString, CleanedContent.class, "content");
+        luceneQueryString, CleanedContentImpl.class, "content");
 
     return fullTextResult;
   }

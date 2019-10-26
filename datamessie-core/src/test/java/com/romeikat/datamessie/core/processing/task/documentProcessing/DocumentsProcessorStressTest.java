@@ -53,11 +53,12 @@ import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
+import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
@@ -177,7 +178,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
           .setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
       final RawContent rawContent = new RawContentImpl(documentId, "RawContent" + documentId);
       final CleanedContent cleanedContent =
-          new CleanedContent(documentId, "Outdated CleanedContent" + documentId);
+          new CleanedContentImpl(documentId, "Outdated CleanedContent" + documentId);
       final StemmedContent stemmedContent =
           new StemmedContent(documentId, "Outdated StemmedContent" + documentId);
       final NamedEntityOccurrence namedEntityOccurrence = new NamedEntityOccurrence(documentId,

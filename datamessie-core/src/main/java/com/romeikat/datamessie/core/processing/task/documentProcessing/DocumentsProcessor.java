@@ -26,9 +26,9 @@ import java.util.Collection;
 import java.util.Map;
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
+import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
@@ -105,7 +105,7 @@ public class DocumentsProcessor {
     statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
 
     documentsValidator =
-        new DocumentsValidator(documentsProcessingInput, documentsProcessingOutput);
+        new DocumentsValidator(documentsProcessingInput, documentsProcessingOutput, ctx);
     documentsRedirector = new DocumentsRedirector(documentsProcessingInput,
         documentsProcessingOutput, redirectCallback, getDownloadIdsWithEntitiesCallback,
         getDocumentIdsWithEntitiesCallback, getDocumentIdsForUrlsAndSourceCallback, ctx);

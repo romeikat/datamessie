@@ -33,10 +33,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
-import com.romeikat.datamessie.core.processing.service.fulltext.query.LuceneQuery;
-import com.romeikat.datamessie.core.processing.service.fulltext.query.OutOfQuery;
-import com.romeikat.datamessie.core.processing.service.fulltext.query.QueryUtil;
+import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 
 public class QueryUtilTest extends AbstractTest {
 
@@ -51,7 +48,7 @@ public class QueryUtilTest extends AbstractTest {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     final FullTextSession fullTextSession = Search.getFullTextSession(sessionProvider.getSession());
     final SearchFactory searchFactory = fullTextSession.getSearchFactory();
-    final Analyzer analyzer = searchFactory.getAnalyzer(CleanedContent.class);
+    final Analyzer analyzer = searchFactory.getAnalyzer(CleanedContentImpl.class);
     final OutOfQuery outOfQuery =
         new OutOfQuery(2, Arrays.asList(new String[] {"abc", "def", "ghi"}));
 

@@ -24,10 +24,11 @@ License along with this program.  If not, see
  */
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
@@ -37,11 +38,15 @@ public class DocumentsValidator {
 
   private static final Logger LOG = LoggerFactory.getLogger(DocumentsValidator.class);
 
+  private final CleanedContentDao cleanedContentDao;
+
   private final DocumentsProcessingInput documentsProcessingInput;
   private final DocumentsProcessingOutput documentsProcessingOutput;
 
   public DocumentsValidator(final DocumentsProcessingInput documentsProcessingInput,
-      final DocumentsProcessingOutput documentsProcessingOutput) {
+      final DocumentsProcessingOutput documentsProcessingOutput, final ApplicationContext ctx) {
+    cleanedContentDao = ctx.getBean(CleanedContentDao.class);
+
     this.documentsProcessingInput = documentsProcessingInput;
     this.documentsProcessingOutput = documentsProcessingOutput;
   }
@@ -104,7 +109,7 @@ public class DocumentsValidator {
 
   private void outputEmptyResults(final Document document) {
     documentsProcessingOutput.putDocument(document);
-    documentsProcessingOutput.putCleanedContent(new CleanedContent(document.getId(), ""));
+    documentsProcessingOutput.putCleanedContent(cleanedContentDao.create(document.getId(), ""));
     documentsProcessingOutput.putStemmedContent(new StemmedContent(document.getId(), ""));
     documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
   }

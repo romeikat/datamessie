@@ -28,12 +28,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -46,6 +46,7 @@ public class DocumentsCleaner {
 
   private static final Logger LOG = LoggerFactory.getLogger(DocumentsCleaner.class);
 
+  private final CleanedContentDao cleanedContentDao;
   private final Double processingParallelismFactor;
 
   private final DocumentsProcessingInput documentsProcessingInput;
@@ -56,6 +57,7 @@ public class DocumentsCleaner {
   public DocumentsCleaner(final DocumentsProcessingInput documentsProcessingInput,
       final DocumentsProcessingOutput documentsProcessingOutput, final CleanCallback cleanCallback,
       final ApplicationContext ctx) {
+    cleanedContentDao = ctx.getBean(CleanedContentDao.class);
     processingParallelismFactor = Double
         .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
 
@@ -135,7 +137,7 @@ public class DocumentsCleaner {
 
       documentsProcessingOutput.putDocument(document);
       documentsProcessingOutput.putCleanedContent(
-          new CleanedContent(document.getId(), documentCleaningResult.getCleanedContent()));
+          cleanedContentDao.create(document.getId(), documentCleaningResult.getCleanedContent()));
     } else {
       document.setState(DocumentProcessingState.CLEANING_ERROR);
 
@@ -147,7 +149,7 @@ public class DocumentsCleaner {
 
   private void outputEmptyResults(final Document document) {
     documentsProcessingOutput.putDocument(document);
-    documentsProcessingOutput.putCleanedContent(new CleanedContent(document.getId(), ""));
+    documentsProcessingOutput.putCleanedContent(cleanedContentDao.create(document.getId(), ""));
     documentsProcessingOutput.putStemmedContent(new StemmedContent(document.getId(), ""));
     documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
   }

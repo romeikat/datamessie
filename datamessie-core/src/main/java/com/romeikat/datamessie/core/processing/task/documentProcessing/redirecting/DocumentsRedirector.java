@@ -43,6 +43,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.DisjointSet;
 import com.romeikat.datamessie.core.base.util.DocumentWithDownloads;
@@ -53,7 +54,6 @@ import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
@@ -71,6 +71,7 @@ public class DocumentsRedirector {
   private static final Logger LOG = LoggerFactory.getLogger(DocumentsRedirector.class);
 
   private final CollectionUtil collectionUtil;
+  private final CleanedContentDao cleanedContentDao;
   private final SessionFactory sessionFactory;
   private final Double processingParallelismFactor;
 
@@ -90,6 +91,7 @@ public class DocumentsRedirector {
       final GetDocumentIdsForUrlsAndSourceCallback getDocumentIdsForUrlsAndSourceCallback,
       final ApplicationContext ctx) {
     collectionUtil = ctx.getBean(CollectionUtil.class);
+    cleanedContentDao = ctx.getBean(CleanedContentDao.class);
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
     processingParallelismFactor = Double
         .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
@@ -530,7 +532,7 @@ public class DocumentsRedirector {
 
   private void outputEmptyResults(final Document document) {
     documentsProcessingOutput.putDocument(document);
-    documentsProcessingOutput.putCleanedContent(new CleanedContent(document.getId(), ""));
+    documentsProcessingOutput.putCleanedContent(cleanedContentDao.create(document.getId(), ""));
     documentsProcessingOutput.putStemmedContent(new StemmedContent(document.getId(), ""));
     documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
   }

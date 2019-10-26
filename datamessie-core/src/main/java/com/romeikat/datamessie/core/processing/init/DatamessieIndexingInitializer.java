@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 
 @Service
 public class DatamessieIndexingInitializer extends AbstractIndexingInitializer {
@@ -61,7 +61,7 @@ public class DatamessieIndexingInitializer extends AbstractIndexingInitializer {
 
   @Override
   protected Class<?>[] getClassesToIndex() {
-    return new Class<?>[] {CleanedContent.class};
+    return new Class<?>[] {CleanedContentImpl.class};
   }
 
 }

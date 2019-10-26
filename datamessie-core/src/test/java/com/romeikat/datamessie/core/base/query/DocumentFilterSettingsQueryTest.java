@@ -50,13 +50,14 @@ import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.query.document.DocumentFilterSettingsQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
+import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.SourceType;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
@@ -125,10 +126,12 @@ public class DocumentFilterSettingsQueryTest extends AbstractDbSetupBasedTest {
         .setPublished(LocalDateTime.of(2015, 10, 1, 15, 0))
         .setDownloaded(LocalDateTime.of(2015, 10, 1, 15, 0))
         .setState(DocumentProcessingState.DOWNLOAD_ERROR);
-    final CleanedContent cleanedContent11 = new CleanedContent(document11.getId(), "Foo is good");
-    final CleanedContent cleanedContent13 = new CleanedContent(document13.getId(), "Bar is better");
-    final CleanedContent cleanedContent21 = new CleanedContent(document21.getId(), "Foo rocks");
-    final CleanedContent cleanedContent23 = new CleanedContent(document23.getId(), "Bar hurts");
+    final CleanedContent cleanedContent11 =
+        new CleanedContentImpl(document11.getId(), "Foo is good");
+    final CleanedContent cleanedContent13 =
+        new CleanedContentImpl(document13.getId(), "Bar is better");
+    final CleanedContent cleanedContent21 = new CleanedContentImpl(document21.getId(), "Foo rocks");
+    final CleanedContent cleanedContent23 = new CleanedContentImpl(document23.getId(), "Bar hurts");
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
         // Source types 1, 2

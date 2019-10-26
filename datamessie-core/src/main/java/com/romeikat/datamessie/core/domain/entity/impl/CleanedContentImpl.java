@@ -34,15 +34,16 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.TermVector;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.processing.service.fulltext.query.FullTextIndexingAnalyzer;
 
 @Entity
-@Table(name = CleanedContent.TABLE_NAME,
+@Table(name = CleanedContentImpl.TABLE_NAME,
     uniqueConstraints = @UniqueConstraint(name = "cleanedContent_id_version",
         columnNames = {"document_id", "version"}))
 @Indexed
 @Analyzer(impl = FullTextIndexingAnalyzer.class)
-public class CleanedContent extends AbstractEntityWithIdAndVersion {
+public class CleanedContentImpl extends AbstractEntityWithIdAndVersion implements CleanedContent {
 
   public static final String TABLE_NAME = "cleanedContent";
 
@@ -50,24 +51,27 @@ public class CleanedContent extends AbstractEntityWithIdAndVersion {
 
   private String content;
 
-  public CleanedContent() {}
+  public CleanedContentImpl() {}
 
-  public CleanedContent(final long documentId, final String content) {
+  public CleanedContentImpl(final long documentId, final String content) {
     this.documentId = documentId;
     this.content = content;
   }
 
+  @Override
   @Id
   @Column(name = "document_id", nullable = false)
   public long getDocumentId() {
     return documentId;
   }
 
+  @Override
   public CleanedContent setDocumentId(final long documentId) {
     this.documentId = documentId;
     return this;
   }
 
+  @Override
   @Lob
   @Column(nullable = false)
   @Field(termVector = TermVector.WITH_POSITION_OFFSETS)
@@ -75,6 +79,7 @@ public class CleanedContent extends AbstractEntityWithIdAndVersion {
     return content;
   }
 
+  @Override
   public CleanedContent setContent(final String content) {
     this.content = content;
     return this;

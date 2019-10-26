@@ -1,4 +1,4 @@
-package com.romeikat.datamessie.core.base.dao.impl;
+package com.romeikat.datamessie.core.domain.entity;
 
 /*-
  * ============================LICENSE_START============================
@@ -21,24 +21,15 @@ License along with this program.  If not, see
 <http://www.gnu.org/licenses/gpl-3.0.html>.
  * =============================LICENSE_END=============================
  */
-import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.domain.entity.CleanedContent;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 
-@Repository
-public class CleanedContentDao extends AbstractEntityWithIdAndVersionDao<CleanedContent> {
+public interface CleanedContent extends EntityWithIdAndVersion {
 
-  public CleanedContentDao() {
-    super(CleanedContentImpl.class);
-  }
+  long getDocumentId();
 
-  @Override
-  protected String defaultSortingProperty() {
-    return "documentId";
-  }
+  CleanedContent setDocumentId(final long documentId);
 
-  public CleanedContent create(final long documentId, final String content) {
-    return new CleanedContentImpl(documentId, content);
-  }
+  String getContent();
+
+  CleanedContent setContent(final String content);
 
 }

@@ -26,6 +26,7 @@ import static com.ninja_squad.dbsetup.Operations.deleteAllFrom;
 import static com.ninja_squad.dbsetup.Operations.insertInto;
 import com.ninja_squad.dbsetup.operation.Insert;
 import com.ninja_squad.dbsetup.operation.Operation;
+import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
@@ -37,7 +38,7 @@ import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.User;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
@@ -69,7 +70,7 @@ public class CommonOperations {
       FooEntityWithGeneratedIdAndVersion.TABLE_NAME, FooEntityWithoutIdAndVersion.TABLE_NAME,
       BarEntity.TABLE_NAME, BarEntityWithId.TABLE_NAME, NamedEntityOccurrence.TABLE_NAME,
       NamedEntityCategory.TABLE_NAME, NamedEntity.TABLE_NAME, RawContentImpl.TABLE_NAME,
-      CleanedContent.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
+      CleanedContentImpl.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
       DocumentImpl.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
       RedirectingRule.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
       Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2UserImpl.TABLE_NAME,
@@ -168,7 +169,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoCleanedContent(final CleanedContent cleanedContent) {
-    return insertInto(CleanedContent.TABLE_NAME).columns("document_id", "version", "content")
+    return insertInto(CleanedContentImpl.TABLE_NAME).columns("document_id", "version", "content")
         .values(cleanedContent.getDocumentId(), cleanedContent.getVersion(),
             cleanedContent.getContent())
         .build();

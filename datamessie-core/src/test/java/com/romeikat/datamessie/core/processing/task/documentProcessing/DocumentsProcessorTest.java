@@ -62,11 +62,12 @@ import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
+import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
@@ -170,7 +171,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         .setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
     final RawContent rawContent1 = new RawContentImpl(document1.getId(), "RawContent1");
     final CleanedContent cleanedContent1 =
-        new CleanedContent(document1.getId(), "Outdated CleanedContent1");
+        new CleanedContentImpl(document1.getId(), "Outdated CleanedContent1");
     final StemmedContent stemmedContent1 =
         new StemmedContent(document1.getId(), "Outdated StemmedContent1");
     final NamedEntityOccurrence namedEntityOccurrence1 = new NamedEntityOccurrence(1,
@@ -184,7 +185,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         .setDownloaded(now).setState(DocumentProcessingState.DOWNLOAD_ERROR).setStatusCode(400);
     final RawContent rawContent2 = new RawContentImpl(document2.getId(), "Outdated RawContent2");
     final CleanedContent cleanedContent2 =
-        new CleanedContent(document2.getId(), "Outdated CleanedContent2");
+        new CleanedContentImpl(document2.getId(), "Outdated CleanedContent2");
     final StemmedContent stemmedContent2 =
         new StemmedContent(document2.getId(), "Outdated StemmedContent3");
     final NamedEntityOccurrence namedEntityOccurrence2 = new NamedEntityOccurrence(2,
