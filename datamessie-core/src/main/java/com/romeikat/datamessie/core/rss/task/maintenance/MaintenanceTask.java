@@ -47,8 +47,8 @@ import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
 import com.romeikat.datamessie.core.rss.service.DocumentService;

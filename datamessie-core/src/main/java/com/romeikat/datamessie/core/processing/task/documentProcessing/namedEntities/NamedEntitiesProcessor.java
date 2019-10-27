@@ -32,12 +32,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import com.google.common.collect.Sets;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
@@ -50,6 +51,7 @@ public class NamedEntitiesProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(NamedEntitiesProcessor.class);
 
+  private final NamedEntityOccurrenceDao namedEntityOccurrenceDao;
   private final Double processingParallelismFactor;
   private final SessionFactory sessionFactory;
 
@@ -67,6 +69,7 @@ public class NamedEntitiesProcessor {
       final GetNamedEntityNamesWithoutCategoryCallback getNamedEntityNamesWithoutCategoryCallback,
       final ProvideNamedEntityCategoryTitlesCallback provideNamedEntityCategoryTitlesCallback,
       final ApplicationContext ctx) {
+    namedEntityOccurrenceDao = ctx.getBean(NamedEntityOccurrenceDao.class);
     processingParallelismFactor = Double
         .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
@@ -146,7 +149,7 @@ public class NamedEntitiesProcessor {
               documentsProcessingInput.getNamedEntityDetections(document.getId());
           final List<NamedEntityOccurrence> namedEntityOccurrences =
               namedEntityOccurrencesCreator.createNamedEntityOccurrences(document.getId(),
-                  namedEntityDetections, namedEntityNames2NamedEntityId);
+                  namedEntityDetections, namedEntityNames2NamedEntityId, namedEntityOccurrenceDao);
           documentsProcessingOutput.putNamedEntityOccurrences(document.getId(),
               namedEntityOccurrences);
         } catch (final Exception e) {

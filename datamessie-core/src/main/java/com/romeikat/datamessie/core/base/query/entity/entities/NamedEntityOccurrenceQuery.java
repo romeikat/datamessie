@@ -24,12 +24,13 @@ License along with this program.  If not, see
 
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrenceImpl;
 
 public class NamedEntityOccurrenceQuery extends EntityWithIdQuery<NamedEntityOccurrence> {
 
   public NamedEntityOccurrenceQuery(final DocumentsFilterSettings dfs) {
-    super(NamedEntityOccurrence.class);
+    super(NamedEntityOccurrenceImpl.class);
 
     addRestrictions();
   }

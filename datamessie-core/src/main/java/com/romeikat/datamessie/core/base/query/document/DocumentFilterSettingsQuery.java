@@ -57,6 +57,7 @@ import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.Source;
@@ -65,7 +66,7 @@ import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrenceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
@@ -269,7 +270,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     if (targetClass != StemmedContentImpl.class) {
       stemmedContentQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
-    if (targetClass != NamedEntityOccurrence.class) {
+    if (targetClass != NamedEntityOccurrenceImpl.class) {
       namedEntityOccurrenceQuery.setReturnModeForEmptyRestrictions(ReturnMode.RETURN_NULL);
     }
   }
@@ -295,7 +296,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       overallQuery = (EntityWithIdQuery<E>) processCleanedContentQuery(ssc);
     } else if (targetClass == StemmedContentImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processStemmedContentQuery(ssc);
-    } else if (targetClass == NamedEntityOccurrence.class) {
+    } else if (targetClass == NamedEntityOccurrenceImpl.class) {
       overallQuery = (EntityWithIdQuery<E>) processNamedEntityOccurrenceQuery(ssc);
     }
     processedClasses.clear();
@@ -518,7 +519,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
 
   private EntityWithIdQuery<NamedEntityOccurrence> processNamedEntityOccurrenceQuery(
       final SharedSessionContract ssc) {
-    processedClasses.add(NamedEntityOccurrence.class);
+    processedClasses.add(NamedEntityOccurrenceImpl.class);
 
     final EntityWithIdQuery<NamedEntityOccurrence> inputQuery = namedEntityOccurrenceQuery;
     final EntityWithIdQuery<NamedEntityOccurrence> processedQuery =
@@ -564,7 +565,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       return cleanedContentQuery;
     } else if (clazz == StemmedContentImpl.class) {
       return stemmedContentQuery;
-    } else if (clazz == NamedEntityOccurrence.class) {
+    } else if (clazz == NamedEntityOccurrenceImpl.class) {
       return namedEntityOccurrenceQuery;
     } else {
       return null;

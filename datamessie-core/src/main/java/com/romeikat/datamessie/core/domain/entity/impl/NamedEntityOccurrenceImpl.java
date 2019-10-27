@@ -31,17 +31,19 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 
 @Entity
-@Table(name = NamedEntityOccurrence.TABLE_NAME, uniqueConstraints = {
+@Table(name = NamedEntityOccurrenceImpl.TABLE_NAME, uniqueConstraints = {
     @UniqueConstraint(name = "namedEntityOccurrence_id_version", columnNames = {"id", "version"}),
     @UniqueConstraint(name = "namedEntityOccurrence_namedEntity_id_type_document_id",
         columnNames = {"namedEntity_id", "type", "document_id"})},
     indexes = {
         @Index(name = "FK_namedEntityOccurrence_namedEntity_id", columnList = "namedEntity_id"),
         @Index(name = "FK_namedEntityOccurrence_document_id", columnList = "document_id")})
-public class NamedEntityOccurrence extends AbstractEntityWithGeneratedIdAndVersion {
+public class NamedEntityOccurrenceImpl extends AbstractEntityWithGeneratedIdAndVersion
+    implements NamedEntityOccurrence {
 
   public static final String TABLE_NAME = "namedEntityOccurrence";
 
@@ -55,9 +57,9 @@ public class NamedEntityOccurrence extends AbstractEntityWithGeneratedIdAndVersi
 
   private long documentId;
 
-  public NamedEntityOccurrence() {}
+  public NamedEntityOccurrenceImpl() {}
 
-  public NamedEntityOccurrence(final long id, final long namedEntityId,
+  public NamedEntityOccurrenceImpl(final long id, final long namedEntityId,
       final long parentNamedEntityId, final NamedEntityType type, final int quantity,
       final long documentId) {
     super(id);
@@ -68,57 +70,68 @@ public class NamedEntityOccurrence extends AbstractEntityWithGeneratedIdAndVersi
     this.documentId = documentId;
   }
 
+  @Override
   @Column(name = "namedEntity_id", nullable = false)
   public long getNamedEntityId() {
     return namedEntityId;
   }
 
+  @Override
   public NamedEntityOccurrence setNamedEntityId(final long namedEntityId) {
     this.namedEntityId = namedEntityId;
     return this;
   }
 
+  @Override
   @Column(name = "parentNamedEntity_id", nullable = false)
   public long getParentNamedEntityId() {
     return parentNamedEntityId;
   }
 
+  @Override
   public NamedEntityOccurrence setParentNamedEntityId(final long parentNamedEntityId) {
     this.parentNamedEntityId = parentNamedEntityId;
     return this;
   }
 
+  @Override
   @Column(nullable = false)
   @Enumerated(value = EnumType.ORDINAL)
   public NamedEntityType getType() {
     return type;
   }
 
+  @Override
   public NamedEntityOccurrence setType(final NamedEntityType type) {
     this.type = type;
     return this;
   }
 
+  @Override
   @Column(nullable = false)
   public int getQuantity() {
     return quantity;
   }
 
+  @Override
   public NamedEntityOccurrence setQuantity(final int quantity) {
     this.quantity = quantity;
     return this;
   }
 
+  @Override
   @Column(name = "document_id", nullable = false)
   public long getDocumentId() {
     return documentId;
   }
 
+  @Override
   public NamedEntityOccurrence setDocumentId(final long documentId) {
     this.documentId = documentId;
     return this;
   }
 
+  @Override
   @Transient
   public boolean hasDifferentParent() {
     return namedEntityId != parentNamedEntityId;

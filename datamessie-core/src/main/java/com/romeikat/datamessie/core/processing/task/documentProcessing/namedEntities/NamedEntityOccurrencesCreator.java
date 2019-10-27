@@ -26,7 +26,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
 
@@ -36,7 +37,8 @@ public class NamedEntityOccurrencesCreator {
 
   public List<NamedEntityOccurrence> createNamedEntityOccurrences(final long documentId,
       final Collection<NamedEntityDetectionDto> namedEntityDetections,
-      final Map<String, Long> namedEntityNames2NamedEntityId) {
+      final Map<String, Long> namedEntityNames2NamedEntityId,
+      final NamedEntityOccurrenceDao namedEntityOccurrenceDao) {
     if (namedEntityDetections == null) {
       return null;
     }
@@ -60,7 +62,7 @@ public class NamedEntityOccurrencesCreator {
       final NamedEntityType type = namedEntityDetection.getType();
       final Integer quantity = namedEntityDetection.getQuantity();
       // Create occurrence
-      final NamedEntityOccurrence namedEntityOccurrence = new NamedEntityOccurrence();
+      final NamedEntityOccurrence namedEntityOccurrence = namedEntityOccurrenceDao.create();
       namedEntityOccurrence.setNamedEntityId(namedEntityId);
       namedEntityOccurrence.setParentNamedEntityId(parentNamedEntityId);
       namedEntityOccurrence.setType(type);

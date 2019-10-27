@@ -28,7 +28,8 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrenceImpl;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 
 @Repository
@@ -36,12 +37,19 @@ public class NamedEntityOccurrenceDao
     extends AbstractEntityWithIdAndVersionDao<NamedEntityOccurrence> {
 
   public NamedEntityOccurrenceDao() {
-    super(NamedEntityOccurrence.class);
+    super(NamedEntityOccurrenceImpl.class);
   }
 
   @Override
   protected String defaultSortingProperty() {
     return null;
+  }
+
+  public NamedEntityOccurrence create(final long id, final long namedEntityId,
+      final long parentNamedEntityId, final NamedEntityType type, final int quantity,
+      final long documentId) {
+    return new NamedEntityOccurrenceImpl(id, namedEntityId, parentNamedEntityId, type, quantity,
+        documentId);
   }
 
   public List<NamedEntityOccurrence> getByDocument(final SharedSessionContract ssc,
@@ -52,7 +60,7 @@ public class NamedEntityOccurrenceDao
   public NamedEntityOccurrence getByNamedEntityAndTypeAndDocument(final SharedSessionContract ssc,
       final long namedEntityId, final NamedEntityType type, final long documentId) {
     final EntityWithIdQuery<NamedEntityOccurrence> query =
-        new EntityWithIdQuery<>(NamedEntityOccurrence.class);
+        new EntityWithIdQuery<>(NamedEntityOccurrenceImpl.class);
     query.addRestriction(Restrictions.eq("namedEntityId", namedEntityId));
     query.addRestriction(Restrictions.eq("type", type));
     query.addRestriction(Restrictions.eq("documentId", documentId));

@@ -31,6 +31,7 @@ import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Project2User;
@@ -56,7 +57,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithId2;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithoutIdAndVersion;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrenceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2UserImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
@@ -74,7 +75,7 @@ public class CommonOperations {
   public static final Operation DELETE_ALL_FOR_DATAMESSIE = deleteAllFrom(FooEntity.TABLE_NAME,
       FooEntityWithId.TABLE_NAME, FooEntityWithGeneratedId.TABLE_NAME, FooEntityWithId2.TABLE_NAME,
       FooEntityWithGeneratedIdAndVersion.TABLE_NAME, FooEntityWithoutIdAndVersion.TABLE_NAME,
-      BarEntity.TABLE_NAME, BarEntityWithId.TABLE_NAME, NamedEntityOccurrence.TABLE_NAME,
+      BarEntity.TABLE_NAME, BarEntityWithId.TABLE_NAME, NamedEntityOccurrenceImpl.TABLE_NAME,
       NamedEntityCategory.TABLE_NAME, NamedEntityImpl.TABLE_NAME, RawContentImpl.TABLE_NAME,
       CleanedContentImpl.TABLE_NAME, StemmedContentImpl.TABLE_NAME, DownloadImpl.TABLE_NAME,
       DocumentImpl.TABLE_NAME, CrawlingImpl.TABLE_NAME, TagSelectingRuleImpl.TABLE_NAME,
@@ -195,7 +196,7 @@ public class CommonOperations {
 
   public static Insert insertIntoNamedEntityOccurrence(
       final NamedEntityOccurrence namedEntityOccurrence) {
-    return insertInto(NamedEntityOccurrence.TABLE_NAME)
+    return insertInto(NamedEntityOccurrenceImpl.TABLE_NAME)
         .columns("id", "version", "namedEntity_id", "parentNamedEntity_id", "type", "quantity",
             "document_id")
         .values(namedEntityOccurrence.getId(), namedEntityOccurrence.getVersion(),

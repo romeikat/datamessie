@@ -67,6 +67,7 @@ import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
@@ -79,7 +80,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DownloadImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrenceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
@@ -178,7 +179,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         new CleanedContentImpl(document1.getId(), "Outdated CleanedContent1");
     final StemmedContent stemmedContent1 =
         new StemmedContentImpl(document1.getId(), "Outdated StemmedContent1");
-    final NamedEntityOccurrence namedEntityOccurrence1 = new NamedEntityOccurrence(1,
+    final NamedEntityOccurrence namedEntityOccurrence1 = new NamedEntityOccurrenceImpl(1,
         namedEntity.getId(), namedEntity.getId(), NamedEntityType.MISC, 1, document1.getId());
     final Download download1 =
         new DownloadImpl(1, source1.getId(), document1.getId(), true).setUrl(URL_1);
@@ -192,7 +193,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         new CleanedContentImpl(document2.getId(), "Outdated CleanedContent2");
     final StemmedContent stemmedContent2 =
         new StemmedContentImpl(document2.getId(), "Outdated StemmedContent3");
-    final NamedEntityOccurrence namedEntityOccurrence2 = new NamedEntityOccurrence(2,
+    final NamedEntityOccurrence namedEntityOccurrence2 = new NamedEntityOccurrenceImpl(2,
         namedEntity.getId(), namedEntity.getId(), NamedEntityType.MISC, 1, document2.getId());
     final Download download2 =
         new DownloadImpl(2, source1.getId(), document2.getId(), false).setUrl(URL_2);
