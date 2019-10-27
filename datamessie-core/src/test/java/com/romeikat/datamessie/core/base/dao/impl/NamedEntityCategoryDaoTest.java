@@ -31,9 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
-import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
 
 public class NamedEntityCategoryDaoTest extends AbstractDbSetupBasedTest {
 
@@ -42,8 +42,8 @@ public class NamedEntityCategoryDaoTest extends AbstractDbSetupBasedTest {
 
   @Override
   protected Operation initDb() {
-    final NamedEntity namedEntity1 = new NamedEntity(1, "NamedEntity1");
-    final NamedEntity namedEntity2 = new NamedEntity(2, "NamedEntity2");
+    final NamedEntity namedEntity1 = new NamedEntityImpl(1, "NamedEntity1");
+    final NamedEntity namedEntity2 = new NamedEntityImpl(2, "NamedEntity2");
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
         insertIntoNamedEntity(namedEntity1), insertIntoNamedEntity(namedEntity2));

@@ -25,14 +25,15 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class NamedEntitySynchronizer extends EntityWithIdAndVersionSynchronizer<NamedEntity> {
 
   public NamedEntitySynchronizer(final ApplicationContext ctx) {
-    super(NamedEntity.class, ctx);
+    super(NamedEntityImpl.class, ctx);
   }
 
   @Override

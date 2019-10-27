@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.cache.ILazyCache;
 import com.romeikat.datamessie.core.base.cache.NamedEntityName2CategoriesCache;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import jersey.repackaged.com.google.common.collect.Sets;
 

@@ -66,6 +66,7 @@ import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Download;
+import com.romeikat.datamessie.core.domain.entity.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
@@ -76,8 +77,8 @@ import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DownloadImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
@@ -165,7 +166,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final Project project1 = new ProjectImpl(1, "Project1", false, false);
     final Source source1 = new SourceImpl(1, "Source1", "http://www.source1.de/", true, false);
     final Crawling crawling1 = new CrawlingImpl(1, project1.getId());
-    final NamedEntity namedEntity = new NamedEntity(1, "Outdated NamedEntity");
+    final NamedEntity namedEntity = new NamedEntityImpl(1, "Outdated NamedEntity");
     final LocalDateTime now = LocalDateTime.now();
     // Document1 with download success
     final LocalDateTime published1 = now.minusDays(1);

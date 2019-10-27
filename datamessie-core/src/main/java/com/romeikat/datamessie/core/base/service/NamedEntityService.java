@@ -39,7 +39,7 @@ import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.util.comparator.CollatorComparator;
 import com.romeikat.datamessie.core.domain.dto.NamedEntityDto;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 
 @Service

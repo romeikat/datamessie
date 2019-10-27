@@ -38,8 +38,9 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
 import jersey.repackaged.com.google.common.collect.Maps;
 
 public class NamedEntityName2CategoriesCache
@@ -72,7 +73,7 @@ public class NamedEntityName2CategoriesCache
       final Collection<String> namedEntityNames) {
     // Query named entities for the given names
     final EntityWithIdQuery<NamedEntity> namedEntityQuery =
-        new EntityWithIdQuery<>(NamedEntity.class);
+        new EntityWithIdQuery<>(NamedEntityImpl.class);
     namedEntityQuery.addRestriction(Restrictions.in("name", namedEntityNames));
     final ProjectionList projectionList = Projections.projectionList()
         .add(Projections.property("name")).add(Projections.property("id"));
@@ -135,7 +136,7 @@ public class NamedEntityName2CategoriesCache
 
     // Query named entities for the given category named entity IDs
     final EntityWithIdQuery<NamedEntity> namedEntityQuery =
-        new EntityWithIdQuery<>(NamedEntity.class);
+        new EntityWithIdQuery<>(NamedEntityImpl.class);
     namedEntityQuery.addRestriction(Restrictions.in("id", allNamedEntityIds));
     final List<NamedEntity> namedEntities = namedEntityQuery.listObjects(ssc);
 

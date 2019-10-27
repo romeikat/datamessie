@@ -34,7 +34,8 @@ import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.cache.ILazyCache;
 import com.romeikat.datamessie.core.base.cache.NamedEntityName2NamedEntityIdCache;
 import com.romeikat.datamessie.core.base.service.NamedEntityService;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import jersey.repackaged.com.google.common.collect.Maps;
 import jersey.repackaged.com.google.common.collect.Sets;
@@ -50,9 +51,13 @@ public class NamedEntityDao extends AbstractEntityWithIdAndVersionCachingDao<Nam
   private NamedEntityService namedEntityService;
 
   public NamedEntityDao() {
-    super(NamedEntity.class);
+    super(NamedEntityImpl.class);
 
     namedEntityName2NamedEntityIdCache = new NamedEntityName2NamedEntityIdCache();
+  }
+
+  public NamedEntity create(final long id, final String name) {
+    return new NamedEntityImpl(id, name);
   }
 
   @Override
@@ -146,7 +151,7 @@ public class NamedEntityDao extends AbstractEntityWithIdAndVersionCachingDao<Nam
   }
 
   private NamedEntity insertIntoDb(final StatelessSession statelessSession, final String name) {
-    final NamedEntity namedEntity = new NamedEntity();
+    final NamedEntity namedEntity = create();
     namedEntity.setName(name);
     insert(statelessSession, namedEntity);
     return namedEntity;

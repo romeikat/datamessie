@@ -33,7 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.NamedEntity;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
 import jersey.repackaged.com.google.common.collect.Lists;
 
 public class NamedEntityDaoTest extends AbstractDbSetupBasedTest {
@@ -43,8 +44,8 @@ public class NamedEntityDaoTest extends AbstractDbSetupBasedTest {
 
   @Override
   protected Operation initDb() {
-    final NamedEntity namedEntity1 = new NamedEntity(1, "NamedEntity1");
-    final NamedEntity namedEntity2 = new NamedEntity(2, "NamedEntity2");
+    final NamedEntity namedEntity1 = new NamedEntityImpl(1, "NamedEntity1");
+    final NamedEntity namedEntity2 = new NamedEntityImpl(2, "NamedEntity2");
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,
         insertIntoNamedEntity(namedEntity1), insertIntoNamedEntity(namedEntity2));
@@ -86,7 +87,7 @@ public class NamedEntityDaoTest extends AbstractDbSetupBasedTest {
         namedEntityDao.get(sessionProvider.getStatelessSession(), "NamedEntity3");
     assertNull(namedEntity);
 
-    NamedEntity namedEntity3 = new NamedEntity();
+    NamedEntity namedEntity3 = new NamedEntityImpl();
     namedEntity3.setName("NamedEntity3");
     namedEntityDao.insert(sessionProvider.getStatelessSession(), namedEntity3);
 

@@ -30,6 +30,7 @@ import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Download;
+import com.romeikat.datamessie.core.domain.entity.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Project2User;
@@ -53,8 +54,8 @@ import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithGeneratedIdA
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithId;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithId2;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithoutIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2UserImpl;
@@ -74,7 +75,7 @@ public class CommonOperations {
       FooEntityWithId.TABLE_NAME, FooEntityWithGeneratedId.TABLE_NAME, FooEntityWithId2.TABLE_NAME,
       FooEntityWithGeneratedIdAndVersion.TABLE_NAME, FooEntityWithoutIdAndVersion.TABLE_NAME,
       BarEntity.TABLE_NAME, BarEntityWithId.TABLE_NAME, NamedEntityOccurrence.TABLE_NAME,
-      NamedEntityCategory.TABLE_NAME, NamedEntity.TABLE_NAME, RawContentImpl.TABLE_NAME,
+      NamedEntityCategory.TABLE_NAME, NamedEntityImpl.TABLE_NAME, RawContentImpl.TABLE_NAME,
       CleanedContentImpl.TABLE_NAME, StemmedContentImpl.TABLE_NAME, DownloadImpl.TABLE_NAME,
       DocumentImpl.TABLE_NAME, CrawlingImpl.TABLE_NAME, TagSelectingRuleImpl.TABLE_NAME,
       RedirectingRuleImpl.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
@@ -188,7 +189,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoNamedEntity(final NamedEntity namedEntity) {
-    return insertInto(NamedEntity.TABLE_NAME).columns("id", "version", "name")
+    return insertInto(NamedEntityImpl.TABLE_NAME).columns("id", "version", "name")
         .values(namedEntity.getId(), namedEntity.getVersion(), namedEntity.getName()).build();
   }
 
