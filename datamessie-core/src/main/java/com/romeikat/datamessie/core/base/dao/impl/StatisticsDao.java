@@ -31,7 +31,8 @@ import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.util.sparsetable.Cell;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsSparseTable;
-import com.romeikat.datamessie.core.domain.entity.impl.Statistics;
+import com.romeikat.datamessie.core.domain.entity.Statistics;
+import com.romeikat.datamessie.core.domain.entity.impl.StatisticsImpl;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.statistics.cache.DocumentsPerState;
 
@@ -39,12 +40,17 @@ import com.romeikat.datamessie.core.statistics.cache.DocumentsPerState;
 public class StatisticsDao extends AbstractEntityWithIdAndVersionDao<Statistics> {
 
   public StatisticsDao() {
-    super(Statistics.class);
+    super(StatisticsImpl.class);
   }
 
   @Override
   protected String defaultSortingProperty() {
     return null;
+  }
+
+  public Statistics create(final long id, final long sourceId, final LocalDate published,
+      final DocumentProcessingState state, final long documents) {
+    return new StatisticsImpl(id, sourceId, published, state, documents);
   }
 
   public int deleteStatistics(final SharedSessionContract ssc, final Long sourceId,
@@ -98,7 +104,7 @@ public class StatisticsDao extends AbstractEntityWithIdAndVersionDao<Statistics>
       return;
     }
 
-    final Statistics statistics = new Statistics();
+    final Statistics statistics = create();
     statistics.setSourceId(sourceId);
     statistics.setPublished(published);
     statistics.setState(state);

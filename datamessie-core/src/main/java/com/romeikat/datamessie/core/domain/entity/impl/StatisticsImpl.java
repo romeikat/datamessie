@@ -28,17 +28,18 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.Statistics;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Entity
-@Table(name = Statistics.TABLE_NAME,
+@Table(name = StatisticsImpl.TABLE_NAME,
     uniqueConstraints = {
         @UniqueConstraint(name = "statistics_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "statistics_source_id_published_state",
             columnNames = {"source_id", "published", "state"}),
         @UniqueConstraint(name = "statistics_published_source_id_state",
             columnNames = {"published", "source_id", "state"})})
-public class Statistics extends AbstractEntityWithGeneratedIdAndVersion {
+public class StatisticsImpl extends AbstractEntityWithGeneratedIdAndVersion implements Statistics {
 
   public static final String TABLE_NAME = "statistics";
 
@@ -50,9 +51,9 @@ public class Statistics extends AbstractEntityWithGeneratedIdAndVersion {
 
   private long documents;
 
-  public Statistics() {}
+  public StatisticsImpl() {}
 
-  public Statistics(final long id, final long sourceId, final LocalDate published,
+  public StatisticsImpl(final long id, final long sourceId, final LocalDate published,
       final DocumentProcessingState state, final long documents) {
     super(id);
     this.sourceId = sourceId;
@@ -61,40 +62,48 @@ public class Statistics extends AbstractEntityWithGeneratedIdAndVersion {
     this.documents = documents;
   }
 
+  @Override
   @Column(name = "source_id", nullable = false)
   public long getSourceId() {
     return sourceId;
   }
 
+  @Override
   public Statistics setSourceId(final long sourceId) {
     this.sourceId = sourceId;
     return this;
   }
 
+  @Override
   @Column(nullable = false)
   public LocalDate getPublished() {
     return published;
   }
 
+  @Override
   public Statistics setPublished(final LocalDate published) {
     this.published = published;
     return this;
   }
 
+  @Override
   @Column(nullable = false)
   public DocumentProcessingState getState() {
     return state;
   }
 
+  @Override
   public void setState(final DocumentProcessingState state) {
     this.state = state;
   }
 
+  @Override
   @Column(nullable = false)
   public long getDocuments() {
     return documents;
   }
 
+  @Override
   public void setDocuments(final long documents) {
     this.documents = documents;
   }

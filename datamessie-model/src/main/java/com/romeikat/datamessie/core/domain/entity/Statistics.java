@@ -2,9 +2,9 @@ package com.romeikat.datamessie.core.domain.entity;
 
 /*-
  * ============================LICENSE_START============================
- * data.messie (model)
+ * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,22 +22,25 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-public interface Download extends EntityWithIdAndVersion {
+import java.time.LocalDate;
+import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
-  String getUrl();
-
-  Download setUrl(final String url);
+public interface Statistics extends EntityWithIdAndVersion {
 
   long getSourceId();
 
-  Download setSourceId(final long sourceId);
+  Statistics setSourceId(long sourceId);
 
-  long getDocumentId();
+  LocalDate getPublished();
 
-  Download setDocumentId(final long documentId);
+  Statistics setPublished(LocalDate published);
 
-  boolean getSuccess();
+  DocumentProcessingState getState();
 
-  Download setSuccess(final boolean success);
+  void setState(DocumentProcessingState state);
+
+  long getDocuments();
+
+  void setDocuments(long documents);
 
 }
