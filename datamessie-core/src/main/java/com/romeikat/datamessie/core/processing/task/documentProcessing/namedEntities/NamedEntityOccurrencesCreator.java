@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
@@ -33,12 +34,15 @@ import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
 
 public class NamedEntityOccurrencesCreator {
 
-  public NamedEntityOccurrencesCreator() {}
+  private final NamedEntityOccurrenceDao namedEntityOccurrenceDao;
+
+  public NamedEntityOccurrencesCreator(final ApplicationContext ctx) {
+    namedEntityOccurrenceDao = ctx.getBean(NamedEntityOccurrenceDao.class);
+  }
 
   public List<NamedEntityOccurrence> createNamedEntityOccurrences(final long documentId,
       final Collection<NamedEntityDetectionDto> namedEntityDetections,
-      final Map<String, Long> namedEntityNames2NamedEntityId,
-      final NamedEntityOccurrenceDao namedEntityOccurrenceDao) {
+      final Map<String, Long> namedEntityNames2NamedEntityId) {
     if (namedEntityDetections == null) {
       return null;
     }

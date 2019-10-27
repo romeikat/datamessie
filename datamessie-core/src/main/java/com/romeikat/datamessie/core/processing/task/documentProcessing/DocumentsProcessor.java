@@ -29,10 +29,10 @@ import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSp
 import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.Download;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.StemmedContent;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.CleanCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsForUrlsAndSourceCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsWithEntitiesCallback;

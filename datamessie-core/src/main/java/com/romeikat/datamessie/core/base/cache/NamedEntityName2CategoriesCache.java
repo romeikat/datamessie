@@ -39,7 +39,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.NamedEntity;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategoryImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
 import jersey.repackaged.com.google.common.collect.Maps;
 
@@ -90,7 +91,7 @@ public class NamedEntityName2CategoriesCache
       final SharedSessionContract ssc, final BiMap<String, Long> namedEntityNames2NamedEntityId) {
     // Query named entity categories for the the given named entity IDs
     final EntityWithIdQuery<NamedEntityCategory> namedEntityCategoryQuery =
-        new EntityWithIdQuery<>(NamedEntityCategory.class);
+        new EntityWithIdQuery<>(NamedEntityCategoryImpl.class);
     namedEntityCategoryQuery
         .addRestriction(Restrictions.in("namedEntityId", namedEntityNames2NamedEntityId.values()));
     final Collection<NamedEntityCategory> namedEntityCategories =

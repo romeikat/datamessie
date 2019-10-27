@@ -33,7 +33,8 @@ import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.cache.ILazyCache;
 import com.romeikat.datamessie.core.base.cache.NamedEntityName2CategoriesCache;
 import com.romeikat.datamessie.core.domain.entity.NamedEntity;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategoryImpl;
 import jersey.repackaged.com.google.common.collect.Sets;
 
 @Repository
@@ -47,7 +48,7 @@ public class NamedEntityCategoryDao
   private NamedEntityDao namedEntityDao;
 
   public NamedEntityCategoryDao() {
-    super(NamedEntityCategory.class);
+    super(NamedEntityCategoryImpl.class);
 
     namedEntityName2CategoriesCache = new NamedEntityName2CategoriesCache();
   }
@@ -55,6 +56,11 @@ public class NamedEntityCategoryDao
   @Override
   protected String defaultSortingProperty() {
     return null;
+  }
+
+  public NamedEntityCategory create(final long id, final long namedEntityId,
+      final long categoryNamedEntityId) {
+    return new NamedEntityCategoryImpl(id, namedEntityId, categoryNamedEntityId);
   }
 
   @Override

@@ -32,7 +32,8 @@ import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
 import com.romeikat.datamessie.core.domain.entity.NamedEntity;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategoryImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
 
 public class NamedEntityCategoryDaoTest extends AbstractDbSetupBasedTest {
@@ -55,7 +56,7 @@ public class NamedEntityCategoryDaoTest extends AbstractDbSetupBasedTest {
         .getNamedEntityCategoryNames(sessionProvider.getStatelessSession(), "NamedEntity1");
     assertEquals(0, namedEntityCategoryNames.size());
 
-    final NamedEntityCategory namedEntityCategory = new NamedEntityCategory();
+    final NamedEntityCategory namedEntityCategory = new NamedEntityCategoryImpl();
     namedEntityCategory.setNamedEntityId(1l);
     namedEntityCategory.setCategoryNamedEntityId(2l);
     namedEntityCategoryDao.insert(sessionProvider.getStatelessSession(), namedEntityCategory);

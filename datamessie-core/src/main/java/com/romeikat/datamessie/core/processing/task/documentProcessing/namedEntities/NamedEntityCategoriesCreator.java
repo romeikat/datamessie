@@ -36,11 +36,12 @@ import org.springframework.context.ApplicationContext;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.NamedEntity;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetNamedEntityNamesWithoutCategoryCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetOrCreateNamedEntitiesCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.ProvideNamedEntityCategoryTitlesCallback;
@@ -50,6 +51,7 @@ public class NamedEntityCategoriesCreator {
 
   private static final Logger LOG = LoggerFactory.getLogger(NamedEntityCategoriesCreator.class);
 
+  private final NamedEntityCategoryDao namedEntityCategoryDao;
   private final Double processingParallelismFactor;
   private final SessionFactory sessionFactory;
 
@@ -62,6 +64,7 @@ public class NamedEntityCategoriesCreator {
       final GetNamedEntityNamesWithoutCategoryCallback getNamedEntityNamesWithoutCategoryCallback,
       final ProvideNamedEntityCategoryTitlesCallback provideNamedEntityCategoryTitlesCallback,
       final ApplicationContext ctx) {
+    namedEntityCategoryDao = ctx.getBean(NamedEntityCategoryDao.class);
     processingParallelismFactor = Double
         .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
@@ -130,7 +133,7 @@ public class NamedEntityCategoriesCreator {
 
   private NamedEntityCategory createNamedEntityCategory(final long namedEntityId,
       final long categoryNamedEntityId) {
-    final NamedEntityCategory namedEntityCategory = new NamedEntityCategory();
+    final NamedEntityCategory namedEntityCategory = namedEntityCategoryDao.create();
     namedEntityCategory.setNamedEntityId(namedEntityId);
     namedEntityCategory.setCategoryNamedEntityId(categoryNamedEntityId);
     return namedEntityCategory;

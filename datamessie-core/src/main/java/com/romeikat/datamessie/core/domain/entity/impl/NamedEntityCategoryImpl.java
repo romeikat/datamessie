@@ -27,14 +27,16 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
 
 @Entity
-@Table(name = NamedEntityCategory.TABLE_NAME,
+@Table(name = NamedEntityCategoryImpl.TABLE_NAME,
     uniqueConstraints = {
         @UniqueConstraint(name = "namedEntityCategory_id_version", columnNames = {"id", "version"}),
         @UniqueConstraint(name = "namedEntityCategory_namedEntity_id_categoryNamedEntity_id",
             columnNames = {"namedEntity_id", "categoryNamedEntity_id"})})
-public class NamedEntityCategory extends AbstractEntityWithGeneratedIdAndVersion {
+public class NamedEntityCategoryImpl extends AbstractEntityWithGeneratedIdAndVersion
+    implements NamedEntityCategory {
 
   public static final String TABLE_NAME = "namedEntityCategory";
 
@@ -42,30 +44,34 @@ public class NamedEntityCategory extends AbstractEntityWithGeneratedIdAndVersion
 
   private long categoryNamedEntityId;
 
-  public NamedEntityCategory() {}
+  public NamedEntityCategoryImpl() {}
 
-  public NamedEntityCategory(final long id, final long namedEntityId,
+  public NamedEntityCategoryImpl(final long id, final long namedEntityId,
       final long categoryNamedEntityId) {
     super(id);
     this.namedEntityId = namedEntityId;
     this.categoryNamedEntityId = categoryNamedEntityId;
   }
 
+  @Override
   @Column(name = "namedEntity_id", nullable = false)
   public long getNamedEntityId() {
     return namedEntityId;
   }
 
+  @Override
   public NamedEntityCategory setNamedEntityId(final long namedEntityId) {
     this.namedEntityId = namedEntityId;
     return this;
   }
 
+  @Override
   @Column(name = "categoryNamedEntity_id", nullable = false)
   public long getCategoryNamedEntityId() {
     return categoryNamedEntityId;
   }
 
+  @Override
   public NamedEntityCategory setCategoryNamedEntityId(final long categoryNamedEntityId) {
     this.categoryNamedEntityId = categoryNamedEntityId;
     return this;
