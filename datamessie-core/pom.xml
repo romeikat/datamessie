@@ -28,6 +28,10 @@
 			<groupId>com.romeikat.datamessie</groupId>
 			<artifactId>datamessie-dao</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.romeikat.datamessie</groupId>
+			<artifactId>datamessie-mysql</artifactId>
+		</dependency>
 
 		<!-- WICKET DEPENDENCIES -->
 		<dependency>
