@@ -24,6 +24,10 @@
 			<groupId>com.romeikat.datamessie</groupId>
 			<artifactId>datamessie-model</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.romeikat.datamessie</groupId>
+			<artifactId>datamessie-dao</artifactId>
+		</dependency>
 
 		<!-- WICKET DEPENDENCIES -->
 		<dependency>

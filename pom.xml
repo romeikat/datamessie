@@ -38,6 +38,7 @@
 	<modules>
 		<module>datamessie-core</module>
 		<module>datamessie-model</module>
+		<module>datamessie-dao</module>
 	</modules>
 
 	<properties>
@@ -113,6 +114,11 @@
 			<dependency>
 				<groupId>com.romeikat.datamessie</groupId>
 				<artifactId>datamessie-model</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.romeikat.datamessie</groupId>
+				<artifactId>datamessie-dao</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
