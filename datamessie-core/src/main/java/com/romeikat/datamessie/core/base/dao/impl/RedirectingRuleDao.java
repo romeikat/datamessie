@@ -35,13 +35,14 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
-import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
+import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
+import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRuleImpl;
 
 @Repository
 public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<RedirectingRule> {
 
   public RedirectingRuleDao() {
-    super(RedirectingRule.class);
+    super(RedirectingRuleImpl.class);
   }
 
   @Override
@@ -49,10 +50,14 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
     return "activeFrom";
   }
 
+  public RedirectingRule create(final long id, final long sourceId) {
+    return new RedirectingRuleImpl(id, sourceId);
+  }
+
   public List<RedirectingRule> getOfSource(final SharedSessionContract ssc, final long sourceId) {
     // Query: RedirectingRule
     final EntityWithIdQuery<RedirectingRule> redirectingRuleQuery =
-        new EntityWithIdQuery<>(RedirectingRule.class);
+        new EntityWithIdQuery<>(RedirectingRuleImpl.class);
     redirectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
     redirectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -66,7 +71,7 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
       final Collection<Long> sourceIds) {
     // Query: RedirectingRule
     final EntityWithIdQuery<RedirectingRule> redirectingRuleQuery =
-        new EntityWithIdQuery<>(RedirectingRule.class);
+        new EntityWithIdQuery<>(RedirectingRuleImpl.class);
     redirectingRuleQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
     redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
     redirectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -83,7 +88,7 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
   public List<RedirectingRuleDto> getAsDtos(final SharedSessionContract ssc, final long sourceId) {
     // Query: RedirectingRule
     final EntityWithIdQuery<RedirectingRule> redirectingRuleQuery =
-        new EntityWithIdQuery<>(RedirectingRule.class);
+        new EntityWithIdQuery<>(RedirectingRuleImpl.class);
     redirectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
     redirectingRuleQuery

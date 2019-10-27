@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.core.processing.task.documentProcessing.callback;
+package com.romeikat.datamessie.core.domain.entity;
 
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,16 +22,31 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import java.util.List;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirectingResult;
+import java.time.LocalDate;
+import com.romeikat.datamessie.core.domain.util.StringHashProvider;
 
-@FunctionalInterface
-public interface RedirectCallback {
+public interface RedirectingRule extends EntityWithIdAndVersion, StringHashProvider {
 
-  DocumentRedirectingResult redirect(Document document, RawContent rawContent,
-      List<RedirectingRule> redirectingRules);
+  String getRegex();
+
+  RedirectingRule setRegex(String regex);
+
+  Integer getRegexGroup();
+
+  RedirectingRule setRegexGroup(Integer regexGroup);
+
+  LocalDate getActiveFrom();
+
+  RedirectingRule setActiveFrom(LocalDate activeFrom);
+
+  LocalDate getActiveTo();
+
+  RedirectingRule setActiveTo(LocalDate activeTo);
+
+  boolean isActive(LocalDate localDate);
+
+  long getSourceId();
+
+  RedirectingRule setSourceId(Long sourceId);
 
 }

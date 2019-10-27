@@ -30,15 +30,15 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
-import com.romeikat.datamessie.core.domain.util.StringHashProvider;
+import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
 
 @Entity
-@Table(name = RedirectingRule.TABLE_NAME,
+@Table(name = RedirectingRuleImpl.TABLE_NAME,
     uniqueConstraints = @UniqueConstraint(name = "redirectomgRule_id_version",
         columnNames = {"id", "version"}),
     indexes = @Index(name = "FK_redirectingRule_source_id", columnList = "source_id"))
-public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion
-    implements StringHashProvider {
+public class RedirectingRuleImpl extends AbstractEntityWithGeneratedIdAndVersion
+    implements RedirectingRule {
 
   public static final String TABLE_NAME = "redirectingRule";
 
@@ -52,9 +52,9 @@ public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   private long sourceId;
 
-  public RedirectingRule() {}
+  public RedirectingRuleImpl() {}
 
-  public RedirectingRule(final long id, final long sourceId) {
+  public RedirectingRuleImpl(final long id, final long sourceId) {
     super(id);
     this.sourceId = sourceId;
   }
@@ -64,52 +64,51 @@ public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion
     return regex + "#" + regexGroup + "#" + activeFrom + "#" + activeTo + "#" + sourceId;
   }
 
+  @Override
   public String getRegex() {
     return regex;
   }
 
+  @Override
   public RedirectingRule setRegex(final String regex) {
     this.regex = regex;
     return this;
   }
 
+  @Override
   public Integer getRegexGroup() {
     return regexGroup;
   }
 
+  @Override
   public RedirectingRule setRegexGroup(final Integer regexGroup) {
     this.regexGroup = regexGroup;
     return this;
   }
 
+  @Override
   public LocalDate getActiveFrom() {
     return activeFrom;
   }
 
+  @Override
   public RedirectingRule setActiveFrom(final LocalDate activeFrom) {
     this.activeFrom = activeFrom;
     return this;
   }
 
+  @Override
   public LocalDate getActiveTo() {
     return activeTo;
   }
 
+  @Override
   public RedirectingRule setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
     return this;
   }
 
-  @Column(name = "source_id", nullable = false)
-  public long getSourceId() {
-    return sourceId;
-  }
-
-  public RedirectingRule setSourceId(final Long sourceId) {
-    this.sourceId = sourceId;
-    return this;
-  }
-
+  @Override
   @Transient
   public boolean isActive(final LocalDate localDate) {
     if (localDate == null) {
@@ -118,6 +117,18 @@ public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion
     final boolean activeFromOk = activeFrom == null || activeFrom.compareTo(localDate) <= 0;
     final boolean activeToOk = activeTo == null || activeTo.compareTo(localDate) >= 0;
     return activeFromOk && activeToOk;
+  }
+
+  @Override
+  @Column(name = "source_id", nullable = false)
+  public long getSourceId() {
+    return sourceId;
+  }
+
+  @Override
+  public RedirectingRule setSourceId(final Long sourceId) {
+    this.sourceId = sourceId;
+    return this;
   }
 
 }

@@ -34,6 +34,7 @@ import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.Project2User;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
+import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.SourceType;
@@ -58,7 +59,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2UserImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
+import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRuleImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceTypeImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceTypeImpl;
@@ -75,7 +76,7 @@ public class CommonOperations {
       NamedEntityCategory.TABLE_NAME, NamedEntity.TABLE_NAME, RawContentImpl.TABLE_NAME,
       CleanedContentImpl.TABLE_NAME, StemmedContentImpl.TABLE_NAME, DownloadImpl.TABLE_NAME,
       DocumentImpl.TABLE_NAME, CrawlingImpl.TABLE_NAME, TagSelectingRule.TABLE_NAME,
-      RedirectingRule.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
+      RedirectingRuleImpl.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
       Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2UserImpl.TABLE_NAME,
       ProjectImpl.TABLE_NAME, UserImpl.TABLE_NAME);
 
@@ -203,7 +204,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoTagRedirectingRule(final RedirectingRule redirectingRule) {
-    return insertInto(RedirectingRule.TABLE_NAME)
+    return insertInto(RedirectingRuleImpl.TABLE_NAME)
         .columns("id", "version", "regex", "regexGroup", "activeFrom", "activeTo", "source_id")
         .values(redirectingRule.getId(), redirectingRule.getVersion(), redirectingRule.getRegex(),
             redirectingRule.getRegexGroup(), redirectingRule.getActiveFrom(),
