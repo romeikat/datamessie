@@ -25,7 +25,8 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.TagSelectingRuleDao;
-import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRuleImpl;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
@@ -33,7 +34,7 @@ public class TagSelectingRuleSynchronizer
     extends EntityWithIdAndVersionSynchronizer<TagSelectingRule> {
 
   public TagSelectingRuleSynchronizer(final ApplicationContext ctx) {
-    super(TagSelectingRule.class, ctx);
+    super(TagSelectingRuleImpl.class, ctx);
   }
 
   @Override

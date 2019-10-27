@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.core.processing.task.documentProcessing.callback;
+package com.romeikat.datamessie.core.domain.entity;
 
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,17 +22,27 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import java.util.List;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaningResult;
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import java.time.LocalDate;
+import com.romeikat.datamessie.core.domain.util.StringHashProvider;
 
-@FunctionalInterface
-public interface CleanCallback {
+public interface TagSelectingRule extends EntityWithIdAndVersion, StringHashProvider {
 
-  DocumentCleaningResult clean(Document document, RawContent rawContent,
-      List<TagSelectingRule> tagSelectingRules) throws BoilerpipeProcessingException;
+  String getTagSelector();
+
+  TagSelectingRule setTagSelector(String tagSelector);
+
+  LocalDate getActiveFrom();
+
+  TagSelectingRule setActiveFrom(LocalDate activeFrom);
+
+  LocalDate getActiveTo();
+
+  TagSelectingRule setActiveTo(LocalDate activeTo);
+
+  boolean isActive(LocalDate localDate);
+
+  long getSourceId();
+
+  TagSelectingRule setSourceId(long sourceId);
 
 }

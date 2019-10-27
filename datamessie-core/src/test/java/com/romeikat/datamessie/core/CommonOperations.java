@@ -39,6 +39,7 @@ import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.StemmedContent;
+import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.entity.User;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
@@ -64,7 +65,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceTypeImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceTypeImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContentImpl;
-import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRuleImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.UserImpl;
 
 public class CommonOperations {
@@ -75,7 +76,7 @@ public class CommonOperations {
       BarEntity.TABLE_NAME, BarEntityWithId.TABLE_NAME, NamedEntityOccurrence.TABLE_NAME,
       NamedEntityCategory.TABLE_NAME, NamedEntity.TABLE_NAME, RawContentImpl.TABLE_NAME,
       CleanedContentImpl.TABLE_NAME, StemmedContentImpl.TABLE_NAME, DownloadImpl.TABLE_NAME,
-      DocumentImpl.TABLE_NAME, CrawlingImpl.TABLE_NAME, TagSelectingRule.TABLE_NAME,
+      DocumentImpl.TABLE_NAME, CrawlingImpl.TABLE_NAME, TagSelectingRuleImpl.TABLE_NAME,
       RedirectingRuleImpl.TABLE_NAME, Source2SourceTypeImpl.TABLE_NAME, SourceTypeImpl.TABLE_NAME,
       Project2SourceImpl.TABLE_NAME, SourceImpl.TABLE_NAME, Project2UserImpl.TABLE_NAME,
       ProjectImpl.TABLE_NAME, UserImpl.TABLE_NAME);
@@ -213,7 +214,7 @@ public class CommonOperations {
   }
 
   public static Insert insertIntoTagSelectingRule(final TagSelectingRule tagSelectingRule) {
-    return insertInto(TagSelectingRule.TABLE_NAME)
+    return insertInto(TagSelectingRuleImpl.TABLE_NAME)
         .columns("id", "version", "tagSelector", "activeFrom", "activeTo", "source_id")
         .values(tagSelectingRule.getId(), tagSelectingRule.getVersion(),
             tagSelectingRule.getTagSelector(), tagSelectingRule.getActiveFrom(),

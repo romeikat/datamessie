@@ -35,7 +35,7 @@ import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingOutput;

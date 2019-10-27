@@ -35,13 +35,14 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
-import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRuleImpl;
 
 @Repository
 public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSelectingRule> {
 
   public TagSelectingRuleDao() {
-    super(TagSelectingRule.class);
+    super(TagSelectingRuleImpl.class);
   }
 
   @Override
@@ -49,11 +50,15 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
     return "activeFrom";
   }
 
+  public TagSelectingRule create(final long id, final long sourceId) {
+    return new TagSelectingRuleImpl(id, sourceId);
+  }
+
   public ListMultimap<Long, TagSelectingRule> getPerSourceId(final SharedSessionContract ssc,
       final Collection<Long> sourceIds) {
     // Query: RedirectingRule
     final EntityWithIdQuery<TagSelectingRule> tagSelectingRuleQuery =
-        new EntityWithIdQuery<>(TagSelectingRule.class);
+        new EntityWithIdQuery<>(TagSelectingRuleImpl.class);
     tagSelectingRuleQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
     tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
     tagSelectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -70,7 +75,7 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
   public List<TagSelectingRule> getOfSource(final SharedSessionContract ssc, final long sourceId) {
     // Query: TagSelectingRule
     final EntityWithIdQuery<TagSelectingRule> tagSelectingRuleQuery =
-        new EntityWithIdQuery<>(TagSelectingRule.class);
+        new EntityWithIdQuery<>(TagSelectingRuleImpl.class);
     tagSelectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
     tagSelectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
@@ -83,7 +88,7 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
   public List<TagSelectingRuleDto> getAsDtos(final SharedSessionContract ssc, final long sourceId) {
     // Query: TagSelectingRule
     final EntityWithIdQuery<TagSelectingRule> tagSelectingRuleQuery =
-        new EntityWithIdQuery<>(TagSelectingRule.class);
+        new EntityWithIdQuery<>(TagSelectingRuleImpl.class);
     tagSelectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
     tagSelectingRuleQuery

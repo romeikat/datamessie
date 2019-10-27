@@ -30,15 +30,15 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
-import com.romeikat.datamessie.core.domain.util.StringHashProvider;
+import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
 
 @Entity
-@Table(name = TagSelectingRule.TABLE_NAME,
+@Table(name = TagSelectingRuleImpl.TABLE_NAME,
     uniqueConstraints = @UniqueConstraint(name = "tagSelectingRule_id_version",
         columnNames = {"id", "version"}),
     indexes = @Index(name = "FK_tagSelectingRule_source_id", columnList = "source_id"))
-public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
-    implements StringHashProvider {
+public class TagSelectingRuleImpl extends AbstractEntityWithGeneratedIdAndVersion
+    implements TagSelectingRule {
 
   public static final String TABLE_NAME = "tagSelectingRule";
 
@@ -50,9 +50,9 @@ public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   private long sourceId;
 
-  public TagSelectingRule() {}
+  public TagSelectingRuleImpl() {}
 
-  public TagSelectingRule(final long id, final long sourceId) {
+  public TagSelectingRuleImpl(final long id, final long sourceId) {
     super(id);
     this.sourceId = sourceId;
   }
@@ -62,43 +62,52 @@ public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
     return tagSelector + "#" + activeFrom + "#" + activeTo + "#" + sourceId;
   }
 
+  @Override
   public String getTagSelector() {
     return tagSelector;
   }
 
+  @Override
   public TagSelectingRule setTagSelector(final String tagSelector) {
     this.tagSelector = tagSelector;
     return this;
   }
 
+  @Override
   public LocalDate getActiveFrom() {
     return activeFrom;
   }
 
+  @Override
   public TagSelectingRule setActiveFrom(final LocalDate activeFrom) {
     this.activeFrom = activeFrom;
     return this;
   }
 
+  @Override
   public LocalDate getActiveTo() {
     return activeTo;
   }
 
+  @Override
   public TagSelectingRule setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
     return this;
   }
 
+  @Override
   @Column(name = "source_id", nullable = false)
   public long getSourceId() {
     return sourceId;
   }
 
+  @Override
   public TagSelectingRule setSourceId(final long sourceId) {
     this.sourceId = sourceId;
     return this;
   }
 
+  @Override
   @Transient
   public boolean isActive(final LocalDate localDate) {
     if (localDate == null) {
