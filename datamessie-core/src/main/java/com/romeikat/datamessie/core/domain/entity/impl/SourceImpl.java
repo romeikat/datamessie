@@ -29,8 +29,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.enums.Language;
+import com.romeikat.datamessie.model.core.Source;
+import com.romeikat.datamessie.model.enums.Language;
 
 @Entity
 @Table(name = SourceImpl.TABLE_NAME,

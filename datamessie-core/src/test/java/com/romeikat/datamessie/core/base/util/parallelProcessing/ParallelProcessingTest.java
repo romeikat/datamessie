@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 
 public class ParallelProcessingTest extends AbstractTest {
 

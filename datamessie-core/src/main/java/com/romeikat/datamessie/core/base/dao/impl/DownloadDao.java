@@ -28,8 +28,8 @@ import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.DownloadImpl;
+import com.romeikat.datamessie.model.core.Download;
 
 @Repository
 public class DownloadDao extends AbstractEntityWithIdAndVersionDao<Download> {

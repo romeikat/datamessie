@@ -54,14 +54,14 @@ import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.SourceDto;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
-import com.romeikat.datamessie.core.domain.entity.Project2Source;
-import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
-import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
-import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
+import com.romeikat.datamessie.model.core.Project2Source;
+import com.romeikat.datamessie.model.core.RedirectingRule;
+import com.romeikat.datamessie.model.core.Source;
+import com.romeikat.datamessie.model.core.Source2SourceType;
+import com.romeikat.datamessie.model.core.TagSelectingRule;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 @Service
 public class SourceService {

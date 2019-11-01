@@ -34,8 +34,8 @@ import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.TermVector;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.processing.service.fulltext.query.FullTextIndexingAnalyzer;
+import com.romeikat.datamessie.model.core.CleanedContent;
 
 @Entity
 @Table(name = CleanedContentImpl.TABLE_NAME,

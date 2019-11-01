@@ -22,9 +22,9 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmingResult;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.enums.Language;
 
 @FunctionalInterface
 public interface StemCallback {

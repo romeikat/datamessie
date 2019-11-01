@@ -31,10 +31,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
-import com.romeikat.datamessie.core.domain.entity.NamedEntity;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategoryImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
+import com.romeikat.datamessie.model.core.NamedEntity;
+import com.romeikat.datamessie.model.core.NamedEntityCategory;
 
 public class NamedEntityCategoryDaoTest extends AbstractDbSetupBasedTest {
 

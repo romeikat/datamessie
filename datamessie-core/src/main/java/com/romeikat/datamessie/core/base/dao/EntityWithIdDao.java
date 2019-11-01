@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.model.EntityWithId;
 
 
 public interface EntityWithIdDao<E extends EntityWithId> extends EntityDao<E> {

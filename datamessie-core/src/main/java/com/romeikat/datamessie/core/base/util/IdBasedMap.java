@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.romeikat.datamessie.core.domain.util.Identifiable;
+import com.romeikat.datamessie.model.util.Identifiable;
 
 public class IdBasedMap<V extends Identifiable> {
 

@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.base.dao.impl.AbstractEntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithGeneratedIdAndVersion;
 
 @Repository

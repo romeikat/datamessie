@@ -25,10 +25,10 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.Project2UserDao;
-import com.romeikat.datamessie.core.domain.entity.Project2User;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2UserImpl;
 import com.romeikat.datamessie.core.sync.service.template.withoutIdAndVersion.EntityWithoutIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
+import com.romeikat.datamessie.model.core.Project2User;
 
 public class Project2UserSynchronizer extends EntityWithoutIdAndVersionSynchronizer<Project2User> {
 

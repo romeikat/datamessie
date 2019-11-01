@@ -26,6 +26,7 @@ import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.OptimisticLockType;
 import org.hibernate.annotations.OptimisticLocking;
+import com.romeikat.datamessie.model.Entity;
 
 @MappedSuperclass
 // The following two annotations are required as no version column is available for optimistic

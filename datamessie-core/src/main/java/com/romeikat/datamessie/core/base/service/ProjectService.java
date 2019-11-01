@@ -30,9 +30,9 @@ import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
-import com.romeikat.datamessie.core.domain.entity.Crawling;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.Project;
+import com.romeikat.datamessie.model.core.Crawling;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.Project;
 
 @Service
 public class ProjectService {

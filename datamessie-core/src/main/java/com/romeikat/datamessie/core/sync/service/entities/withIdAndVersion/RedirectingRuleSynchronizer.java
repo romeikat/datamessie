@@ -25,10 +25,10 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
-import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRuleImpl;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
+import com.romeikat.datamessie.model.core.RedirectingRule;
 
 public class RedirectingRuleSynchronizer
     extends EntityWithIdAndVersionSynchronizer<RedirectingRule> {

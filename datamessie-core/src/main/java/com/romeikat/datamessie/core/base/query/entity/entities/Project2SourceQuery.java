@@ -23,8 +23,8 @@ License along with this program.  If not, see
  */
 
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
-import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
+import com.romeikat.datamessie.model.core.Project2Source;
 
 public class Project2SourceQuery extends EntityQuery<Project2Source> {
 

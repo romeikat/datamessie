@@ -30,9 +30,9 @@ import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 @Service("rssDocumentService")
 public class DocumentService extends com.romeikat.datamessie.core.base.service.DocumentService {

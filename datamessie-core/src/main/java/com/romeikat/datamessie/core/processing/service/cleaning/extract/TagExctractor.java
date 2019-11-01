@@ -34,9 +34,9 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.core.TagSelectingRule;
 
 @Service
 public class TagExctractor {

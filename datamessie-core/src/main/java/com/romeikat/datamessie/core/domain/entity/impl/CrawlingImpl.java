@@ -29,7 +29,7 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.Crawling;
+import com.romeikat.datamessie.model.core.Crawling;
 
 @Entity
 @Table(name = CrawlingImpl.TABLE_NAME,

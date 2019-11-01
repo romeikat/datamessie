@@ -37,12 +37,6 @@ import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
-import com.romeikat.datamessie.core.domain.entity.CleanedContent;
-import com.romeikat.datamessie.core.domain.entity.Crawling;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.Project;
-import com.romeikat.datamessie.core.domain.entity.Project2Source;
-import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
@@ -50,6 +44,12 @@ import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.processing.app.shared.LocalFullTextSearcher;
+import com.romeikat.datamessie.model.core.CleanedContent;
+import com.romeikat.datamessie.model.core.Crawling;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.Project;
+import com.romeikat.datamessie.model.core.Project2Source;
+import com.romeikat.datamessie.model.core.Source;
 
 public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
 

@@ -25,6 +25,7 @@ License along with this program.  If not, see
 import java.io.Serializable;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentityGenerator;
+import com.romeikat.datamessie.model.util.Identifiable;
 
 public class AssignedIdentityGenerator extends IdentityGenerator {
 

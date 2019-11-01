@@ -23,7 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
-import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
+import com.romeikat.datamessie.model.enums.NamedEntityType;
 
 public class NamedEntityDto implements Serializable, Cloneable {
 

@@ -25,8 +25,8 @@ License along with this program.  If not, see
 import org.hibernate.criterion.Restrictions;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
-import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
+import com.romeikat.datamessie.model.core.Project;
 
 public class ProjectQuery extends EntityWithIdQuery<Project> {
 

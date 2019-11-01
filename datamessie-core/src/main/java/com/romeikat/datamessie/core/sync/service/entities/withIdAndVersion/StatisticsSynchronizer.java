@@ -25,10 +25,10 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.StatisticsDao;
-import com.romeikat.datamessie.core.domain.entity.Statistics;
 import com.romeikat.datamessie.core.domain.entity.impl.StatisticsImpl;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
+import com.romeikat.datamessie.model.core.Statistics;
 
 public class StatisticsSynchronizer extends EntityWithIdAndVersionSynchronizer<Statistics> {
 

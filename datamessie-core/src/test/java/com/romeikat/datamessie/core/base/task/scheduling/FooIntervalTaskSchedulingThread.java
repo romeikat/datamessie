@@ -25,7 +25,6 @@ License along with this program.  If not, see
 import java.time.LocalDateTime;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
-import com.romeikat.datamessie.core.base.task.scheduling.IntervalTaskSchedulingThread;
 
 public class FooIntervalTaskSchedulingThread extends IntervalTaskSchedulingThread {
 

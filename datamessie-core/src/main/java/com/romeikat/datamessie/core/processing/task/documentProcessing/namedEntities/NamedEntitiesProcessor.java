@@ -35,16 +35,16 @@ import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingOutput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetNamedEntityNamesWithoutCategoryCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetOrCreateNamedEntitiesCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.ProvideNamedEntityCategoryTitlesCallback;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.NamedEntityCategory;
+import com.romeikat.datamessie.model.core.NamedEntityOccurrence;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public class NamedEntitiesProcessor {
 

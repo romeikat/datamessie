@@ -58,18 +58,18 @@ import com.romeikat.datamessie.core.base.util.publishedDates.loading.sequence.Li
 import com.romeikat.datamessie.core.domain.dto.DocumentDto;
 import com.romeikat.datamessie.core.domain.dto.DocumentOverviewDto;
 import com.romeikat.datamessie.core.domain.dto.NamedEntityDto;
-import com.romeikat.datamessie.core.domain.entity.CleanedContent;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.Download;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.DownloadImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContentImpl;
+import com.romeikat.datamessie.model.core.CleanedContent;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.Download;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.core.Source;
+import com.romeikat.datamessie.model.core.StemmedContent;
 
 @Repository
 public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {

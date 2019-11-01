@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.AbstractTest;
-import com.romeikat.datamessie.core.base.util.ParseUtil;
 import com.romeikat.datamessie.core.processing.service.fulltext.query.FullTextIndexingAnalyzer;
 
 public class ParseUtilTest extends AbstractTest {

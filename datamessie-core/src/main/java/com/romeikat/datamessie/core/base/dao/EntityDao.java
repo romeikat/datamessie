@@ -25,7 +25,7 @@ License along with this program.  If not, see
 import java.util.List;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
-import com.romeikat.datamessie.core.domain.entity.Entity;
+import com.romeikat.datamessie.model.Entity;
 
 
 public interface EntityDao<E extends Entity> {

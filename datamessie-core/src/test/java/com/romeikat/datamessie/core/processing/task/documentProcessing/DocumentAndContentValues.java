@@ -26,11 +26,11 @@ import java.time.LocalDateTime;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import com.romeikat.datamessie.core.domain.entity.CleanedContent;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.StemmedContent;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.core.CleanedContent;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.core.StemmedContent;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public class DocumentAndContentValues {
 

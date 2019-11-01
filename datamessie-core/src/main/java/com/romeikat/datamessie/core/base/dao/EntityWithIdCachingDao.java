@@ -23,7 +23,7 @@ License along with this program.  If not, see
  */
 
 import org.hibernate.StatelessSession;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.model.EntityWithId;
 
 
 public interface EntityWithIdCachingDao<E extends EntityWithId> extends EntityWithIdDao<E> {

@@ -22,8 +22,8 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContentImpl;
+import com.romeikat.datamessie.model.core.StemmedContent;
 
 @Repository
 public class StemmedContentDao extends AbstractEntityWithIdAndVersionDao<StemmedContent> {

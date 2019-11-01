@@ -29,8 +29,8 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.util.CollectionUtils;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
-import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
+import com.romeikat.datamessie.model.core.Document;
 
 public class DocumentQuery extends EntityWithIdQuery<Document> {
 

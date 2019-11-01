@@ -26,7 +26,6 @@ import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.FooEntityWithoutGeneratedIdAndVersionDao;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntityWithoutIdAndVersion;
-import com.romeikat.datamessie.core.sync.service.template.withoutIdAndVersion.EntityWithoutIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class FooEntityWithoutGeneratedIdAndVersionSynchronizer

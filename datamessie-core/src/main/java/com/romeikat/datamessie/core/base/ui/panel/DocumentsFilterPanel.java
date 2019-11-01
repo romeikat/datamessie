@@ -55,7 +55,7 @@ import com.romeikat.datamessie.core.base.ui.component.SourceIdFilter;
 import com.romeikat.datamessie.core.base.ui.component.SourceTypeIdFilter;
 import com.romeikat.datamessie.core.base.util.DateUtil;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public class DocumentsFilterPanel extends Panel {
 

@@ -26,7 +26,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import org.junit.Test;
 import com.romeikat.datamessie.core.AbstractTest;
-import com.romeikat.datamessie.core.base.cache.LinkedHashMapWithMaxSize;
 
 public class LinkedHashMapWithMaxSizeTest extends AbstractTest {
 

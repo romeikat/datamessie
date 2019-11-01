@@ -33,13 +33,13 @@ import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingOutput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.CleanCallback;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.core.TagSelectingRule;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 
 public class DocumentsCleaner {

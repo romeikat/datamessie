@@ -37,7 +37,7 @@ import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQuery
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryUniqueForProjectionExecutor;
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryUniqueIdOfPropertyExecutor;
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryUniqueObjectExecutor;
-import com.romeikat.datamessie.core.domain.entity.Entity;
+import com.romeikat.datamessie.model.Entity;
 import jersey.repackaged.com.google.common.collect.Lists;
 
 

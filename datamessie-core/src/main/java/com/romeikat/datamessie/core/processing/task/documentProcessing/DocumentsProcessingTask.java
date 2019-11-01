@@ -60,7 +60,6 @@ import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
-import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
 import com.romeikat.datamessie.core.processing.init.DatamessieIndexingInitializer;
 import com.romeikat.datamessie.core.processing.service.stemming.namedEntity.ClassifierPipelineProvider;
@@ -68,6 +67,7 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.
 import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirector;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmer;
 import com.romeikat.datamessie.core.processing.task.documentReindexing.DocumentsReindexer;
+import com.romeikat.datamessie.model.core.Document;
 
 @Service(DocumentsProcessingTask.BEAN_NAME)
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)

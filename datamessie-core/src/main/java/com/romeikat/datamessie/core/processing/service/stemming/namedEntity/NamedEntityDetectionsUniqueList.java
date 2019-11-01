@@ -24,9 +24,9 @@ License along with this program.  If not, see
 
 import java.util.ArrayList;
 import java.util.List;
-import com.romeikat.datamessie.core.domain.entity.NamedEntity;
-import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
+import com.romeikat.datamessie.model.core.NamedEntity;
+import com.romeikat.datamessie.model.enums.NamedEntityType;
 
 public class NamedEntityDetectionsUniqueList {
 

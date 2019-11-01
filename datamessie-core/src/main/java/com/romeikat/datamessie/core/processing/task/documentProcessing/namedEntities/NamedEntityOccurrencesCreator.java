@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
+import com.romeikat.datamessie.model.core.NamedEntityOccurrence;
+import com.romeikat.datamessie.model.enums.NamedEntityType;
 
 public class NamedEntityOccurrencesCreator {
 

@@ -37,7 +37,7 @@ import com.romeikat.datamessie.core.base.query.entity.execute.entityWithId.Entit
 import com.romeikat.datamessie.core.base.query.entity.execute.entityWithId.EntityWithIdQueryUniqueIdExecutor;
 import com.romeikat.datamessie.core.base.query.entity.execute.entityWithId.EntityWithIdQueryUniqueIdOfPropertyExecutor;
 import com.romeikat.datamessie.core.base.query.entity.execute.entityWithId.EntityWithIdQueryUniqueObjectExecutor;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.model.EntityWithId;
 import jersey.repackaged.com.google.common.collect.Lists;
 
 public class EntityWithIdQuery<E extends EntityWithId> extends EntityQuery<E> {

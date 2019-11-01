@@ -30,8 +30,8 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
+import com.romeikat.datamessie.model.core.NamedEntity;
 
 public class NamedEntityName2NamedEntityIdCache
     extends AbstractLazyCache<String, Long, SharedSessionContract> {

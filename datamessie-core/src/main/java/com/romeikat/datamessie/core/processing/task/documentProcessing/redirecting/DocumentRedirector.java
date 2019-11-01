@@ -37,9 +37,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.core.RedirectingRule;
 
 @Service
 public class DocumentRedirector {

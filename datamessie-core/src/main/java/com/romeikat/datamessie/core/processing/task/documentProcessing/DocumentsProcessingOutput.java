@@ -29,13 +29,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import com.google.common.collect.Sets;
-import com.romeikat.datamessie.core.domain.entity.CleanedContent;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.Download;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.StemmedContent;
+import com.romeikat.datamessie.model.core.CleanedContent;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.Download;
+import com.romeikat.datamessie.model.core.NamedEntityCategory;
+import com.romeikat.datamessie.model.core.NamedEntityOccurrence;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.core.StemmedContent;
 import jersey.repackaged.com.google.common.collect.Maps;
 
 public class DocumentsProcessingOutput {

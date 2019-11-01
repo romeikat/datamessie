@@ -22,8 +22,8 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.domain.entity.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2SourceImpl;
+import com.romeikat.datamessie.model.core.Project2Source;
 
 @Repository
 public class Project2SourceDao extends AbstractEntityDao<Project2Source> {

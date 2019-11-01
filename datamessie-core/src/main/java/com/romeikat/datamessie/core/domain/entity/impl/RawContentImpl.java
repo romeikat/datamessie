@@ -31,8 +31,8 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import org.hibernate.search.annotations.Analyzer;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.processing.service.fulltext.query.FullTextIndexingAnalyzer;
+import com.romeikat.datamessie.model.core.RawContent;
 
 @Entity
 @Table(name = RawContentImpl.TABLE_NAME,

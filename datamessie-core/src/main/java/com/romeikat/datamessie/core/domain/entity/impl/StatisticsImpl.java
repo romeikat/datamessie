@@ -28,8 +28,8 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.Statistics;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.core.Statistics;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 @Entity
 @Table(name = StatisticsImpl.TABLE_NAME,

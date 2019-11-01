@@ -25,10 +25,10 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrenceImpl;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
+import com.romeikat.datamessie.model.core.NamedEntityOccurrence;
 
 public class NamedEntityOccurrenceSynchronizer
     extends EntityWithIdAndVersionSynchronizer<NamedEntityOccurrence> {

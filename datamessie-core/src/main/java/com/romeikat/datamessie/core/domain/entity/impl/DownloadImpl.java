@@ -28,7 +28,7 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.Download;
+import com.romeikat.datamessie.model.core.Download;
 
 @Entity
 @Table(name = DownloadImpl.TABLE_NAME,

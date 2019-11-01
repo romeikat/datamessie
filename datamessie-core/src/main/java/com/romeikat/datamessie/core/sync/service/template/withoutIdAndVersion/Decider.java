@@ -23,7 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-import com.romeikat.datamessie.core.domain.entity.Entity;
+import com.romeikat.datamessie.model.Entity;
 
 public class Decider<E extends Entity> {
 

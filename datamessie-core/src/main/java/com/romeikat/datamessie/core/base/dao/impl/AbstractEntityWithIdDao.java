@@ -34,7 +34,7 @@ import org.hibernate.criterion.Restrictions;
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.model.EntityWithId;
 
 public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends AbstractEntityDao<E>
     implements EntityWithIdDao<E> {

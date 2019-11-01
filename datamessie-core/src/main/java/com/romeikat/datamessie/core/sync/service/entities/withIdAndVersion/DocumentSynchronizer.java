@@ -26,11 +26,11 @@ import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
-import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public class DocumentSynchronizer extends EntityWithIdAndVersionSynchronizer<Document> {
 

@@ -4,7 +4,7 @@ package com.romeikat.datamessie.core.base.util.converter;
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,8 +22,8 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
-import com.romeikat.datamessie.core.domain.enums.Language;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.Language;
 
 public class LanguageConverter extends AbstractConverter<Language> {
 

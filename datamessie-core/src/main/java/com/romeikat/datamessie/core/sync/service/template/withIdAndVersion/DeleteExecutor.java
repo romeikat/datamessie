@@ -31,7 +31,7 @@ import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
-import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
+import com.romeikat.datamessie.model.EntityWithIdAndVersion;
 
 public class DeleteExecutor<E extends EntityWithIdAndVersion> {
 

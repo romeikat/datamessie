@@ -24,7 +24,7 @@ License along with this program.  If not, see
 
 import java.util.Map;
 import java.util.Set;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 import jersey.repackaged.com.google.common.collect.Maps;
 
 public class DocumentsPerState {

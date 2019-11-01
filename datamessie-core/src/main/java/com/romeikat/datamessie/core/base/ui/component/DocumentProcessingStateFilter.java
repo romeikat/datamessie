@@ -28,7 +28,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.wicketstuff.select2.Select2MultiChoice;
 import org.wicketstuff.select2.Settings;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public class DocumentProcessingStateFilter extends Select2MultiChoice<DocumentProcessingState> {
 

@@ -31,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.romeikat.datamessie.core.base.app.shared.IFullTextSearcher;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public class DocumentsFilterSettings implements Serializable, Cloneable {
 

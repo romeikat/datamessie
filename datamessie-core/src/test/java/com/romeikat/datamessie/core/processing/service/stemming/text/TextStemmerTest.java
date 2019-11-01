@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.AbstractTest;
-import com.romeikat.datamessie.core.domain.enums.Language;
+import com.romeikat.datamessie.model.enums.Language;
 
 public class TextStemmerTest extends AbstractTest {
 

@@ -43,11 +43,11 @@ import com.romeikat.datamessie.core.base.util.sparsetable.SparseSingleTable;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsSparseTable;
 import com.romeikat.datamessie.core.domain.dto.StatisticsDto;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.statistics.cache.DocumentsPerState;
 import com.romeikat.datamessie.core.statistics.cache.GetNumberOfDocumentsFunction;
 import com.romeikat.datamessie.core.statistics.service.StatisticsService;
 import com.romeikat.datamessie.core.statistics.task.StatisticsRebuilder;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 @Service
 public class LocalStatisticsManager implements IStatisticsManager {

@@ -26,7 +26,7 @@ import org.hibernate.StatelessSession;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.cache.ILazyCache;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdCachingDao;
-import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
+import com.romeikat.datamessie.model.EntityWithIdAndVersion;
 
 @Repository
 public abstract class AbstractEntityWithIdAndVersionCachingDao<E extends EntityWithIdAndVersion>

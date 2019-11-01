@@ -40,11 +40,11 @@ import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
-import com.romeikat.datamessie.core.domain.entity.NamedEntity;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetNamedEntityNamesWithoutCategoryCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetOrCreateNamedEntitiesCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.ProvideNamedEntityCategoryTitlesCallback;
+import com.romeikat.datamessie.model.core.NamedEntity;
+import com.romeikat.datamessie.model.core.NamedEntityCategory;
 import jersey.repackaged.com.google.common.collect.Lists;
 
 public class NamedEntityCategoriesCreator {

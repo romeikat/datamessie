@@ -24,7 +24,7 @@ License along with this program.  If not, see
 
 import java.io.Serializable;
 import com.google.common.base.Function;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public class GetNumberOfDocumentsRateFunction
     implements Function<DocumentsPerState, Double>, Serializable {

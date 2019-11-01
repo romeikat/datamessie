@@ -33,7 +33,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.ResultTransformer;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
-import com.romeikat.datamessie.core.domain.entity.Entity;
+import com.romeikat.datamessie.model.Entity;
 import jersey.repackaged.com.google.common.base.Objects;
 
 public abstract class AbstractEntityQueryExecutor<E extends Entity, R> {

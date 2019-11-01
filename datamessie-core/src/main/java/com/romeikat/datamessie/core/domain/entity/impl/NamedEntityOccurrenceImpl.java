@@ -31,8 +31,8 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
+import com.romeikat.datamessie.model.core.NamedEntityOccurrence;
+import com.romeikat.datamessie.model.enums.NamedEntityType;
 
 @Entity
 @Table(name = NamedEntityOccurrenceImpl.TABLE_NAME, uniqueConstraints = {

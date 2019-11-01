@@ -25,7 +25,7 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.TreeMap;
 import org.hibernate.SharedSessionContract;
-import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
+import com.romeikat.datamessie.model.EntityWithIdAndVersion;
 
 
 public interface EntityWithIdAndVersionDao<E extends EntityWithIdAndVersion>

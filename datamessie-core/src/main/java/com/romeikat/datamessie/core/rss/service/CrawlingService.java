@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
-import com.romeikat.datamessie.core.domain.entity.Crawling;
+import com.romeikat.datamessie.model.core.Crawling;
 
 @Service
 public class CrawlingService {

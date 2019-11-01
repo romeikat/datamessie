@@ -24,7 +24,7 @@ License along with this program.  If not, see
 
 import java.io.Serializable;
 import java.util.List;
-import com.romeikat.datamessie.core.domain.enums.Language;
+import com.romeikat.datamessie.model.enums.Language;
 
 public class SourceOverviewDto implements Serializable {
 

@@ -26,8 +26,8 @@ import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.User;
 import com.romeikat.datamessie.core.domain.entity.impl.UserImpl;
+import com.romeikat.datamessie.model.core.User;
 
 @Repository
 public class UserDao extends AbstractEntityWithIdAndVersionDao<User> {

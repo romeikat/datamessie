@@ -44,12 +44,12 @@ import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.dao.impl.TagSelectingRuleDao;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
-import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.core.RedirectingRule;
+import com.romeikat.datamessie.model.core.Source;
+import com.romeikat.datamessie.model.core.TagSelectingRule;
 import jersey.repackaged.com.google.common.collect.Maps;
 
 public class DocumentsProcessingInput {

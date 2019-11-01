@@ -22,8 +22,8 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.domain.entity.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContentImpl;
+import com.romeikat.datamessie.model.core.CleanedContent;
 
 @Repository
 public class CleanedContentDao extends AbstractEntityWithIdAndVersionDao<CleanedContent> {

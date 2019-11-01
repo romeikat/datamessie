@@ -24,13 +24,13 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Map;
-import com.romeikat.datamessie.core.domain.entity.CleanedContent;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.Download;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.StemmedContent;
+import com.romeikat.datamessie.model.core.CleanedContent;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.Download;
+import com.romeikat.datamessie.model.core.NamedEntityCategory;
+import com.romeikat.datamessie.model.core.NamedEntityOccurrence;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.core.StemmedContent;
 
 @FunctionalInterface
 public interface PersistDocumentsProcessingOutputCallback {

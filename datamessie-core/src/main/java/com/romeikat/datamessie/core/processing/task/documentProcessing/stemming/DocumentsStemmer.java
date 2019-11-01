@@ -32,15 +32,15 @@ import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
-import com.romeikat.datamessie.core.domain.entity.CleanedContent;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.Source;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
-import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingOutput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.StemCallback;
+import com.romeikat.datamessie.model.core.CleanedContent;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.Source;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.Language;
 
 public class DocumentsStemmer {
 

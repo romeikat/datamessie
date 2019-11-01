@@ -24,7 +24,7 @@ License along with this program.  If not, see
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public class DocumentDto implements Serializable {
 

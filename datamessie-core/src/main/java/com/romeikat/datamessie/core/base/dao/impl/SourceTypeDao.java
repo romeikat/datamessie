@@ -33,10 +33,10 @@ import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
-import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
-import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceTypeImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceTypeImpl;
+import com.romeikat.datamessie.model.core.Source2SourceType;
+import com.romeikat.datamessie.model.core.SourceType;
 
 @Repository
 public class SourceTypeDao extends AbstractEntityWithIdAndVersionDao<SourceType> {

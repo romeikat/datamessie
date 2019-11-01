@@ -25,7 +25,7 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.Map;
 import org.hibernate.SharedSessionContract;
-import com.romeikat.datamessie.core.domain.entity.Download;
+import com.romeikat.datamessie.model.core.Download;
 
 @FunctionalInterface
 public interface GetDownloadIdsWithEntitiesCallback {

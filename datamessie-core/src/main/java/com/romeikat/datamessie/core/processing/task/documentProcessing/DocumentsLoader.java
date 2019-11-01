@@ -36,8 +36,8 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
-import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
+import com.romeikat.datamessie.model.core.Document;
 
 @Service
 public class DocumentsLoader {

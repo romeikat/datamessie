@@ -23,10 +23,10 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaningResult;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.core.TagSelectingRule;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 
 @FunctionalInterface

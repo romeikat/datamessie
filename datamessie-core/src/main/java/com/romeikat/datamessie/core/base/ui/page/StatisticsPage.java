@@ -51,7 +51,6 @@ import com.romeikat.datamessie.core.base.ui.panel.BookmarkablePageLinkPanel;
 import com.romeikat.datamessie.core.base.ui.panel.DocumentsFilterPanel;
 import com.romeikat.datamessie.core.base.util.model.Percentage0Model;
 import com.romeikat.datamessie.core.base.util.sparsetable.SparseSingleTable;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.domain.enums.StatisticsInterval;
 import com.romeikat.datamessie.core.domain.enums.StatisticsType;
 import com.romeikat.datamessie.core.statistics.cache.GetFirstDayOfMonthFunction;
@@ -60,6 +59,7 @@ import com.romeikat.datamessie.core.statistics.cache.GetFirstDayOfYearFunction;
 import com.romeikat.datamessie.core.statistics.cache.GetNumberOfDocumentsFunction;
 import com.romeikat.datamessie.core.statistics.cache.GetNumberOfDocumentsRateFunction;
 import com.romeikat.datamessie.core.view.ui.page.DocumentsPage;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 @AuthorizeInstantiation(DataMessieRoles.STATISTICS_PAGE)
 public class StatisticsPage extends AbstractTablePage {

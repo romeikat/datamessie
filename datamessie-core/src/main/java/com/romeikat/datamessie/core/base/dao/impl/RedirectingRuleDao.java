@@ -35,8 +35,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
-import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRuleImpl;
+import com.romeikat.datamessie.model.core.RedirectingRule;
 
 @Repository
 public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<RedirectingRule> {

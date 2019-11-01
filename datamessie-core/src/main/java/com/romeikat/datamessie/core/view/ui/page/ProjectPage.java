@@ -30,8 +30,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-import com.romeikat.datamessie.core.base.service.ProjectService;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
+import com.romeikat.datamessie.core.base.service.ProjectService;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
 

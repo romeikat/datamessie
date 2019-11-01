@@ -26,8 +26,8 @@ import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceTypeImpl;
+import com.romeikat.datamessie.model.core.Source2SourceType;
 
 @Repository
 public class Source2SourceTypeDao extends AbstractEntityDao<Source2SourceType> {

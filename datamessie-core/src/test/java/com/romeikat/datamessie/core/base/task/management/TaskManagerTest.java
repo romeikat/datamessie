@@ -31,8 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.AbstractTest;
 import com.romeikat.datamessie.core.base.task.Task;
-import com.romeikat.datamessie.core.base.task.management.TaskExecution;
-import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.base.task.scheduling.FooTask;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
 

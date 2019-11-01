@@ -32,9 +32,9 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.DocumentImpl;
 import com.romeikat.datamessie.core.statistics.dto.DocumentStatisticsDto;
+import com.romeikat.datamessie.model.core.Document;
 
 @Repository("statisticsDocumentDao")
 public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.DocumentDao {

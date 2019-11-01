@@ -34,10 +34,10 @@ import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
-import com.romeikat.datamessie.core.domain.entity.Project;
-import com.romeikat.datamessie.core.domain.entity.Project2User;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2UserImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.ProjectImpl;
+import com.romeikat.datamessie.model.core.Project;
+import com.romeikat.datamessie.model.core.Project2User;
 
 @Repository
 public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {

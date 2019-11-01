@@ -30,7 +30,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.StemmedContent;
+import com.romeikat.datamessie.model.core.StemmedContent;
 
 @Entity
 @Table(name = StemmedContentImpl.TABLE_NAME,

@@ -27,7 +27,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.model.EntityWithId;
 
 @Entity
 @Table(name = BarEntityWithId.TABLE_NAME,

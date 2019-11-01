@@ -26,7 +26,6 @@ import static org.junit.Assert.assertEquals;
 import org.apache.commons.lang3.SerializationUtils;
 import org.junit.Test;
 import com.romeikat.datamessie.core.AbstractTest;
-import com.romeikat.datamessie.core.base.util.sparsetable.SparseSingleTable;
 
 public class SparseSingleTableTest extends AbstractTest {
 

@@ -28,7 +28,6 @@ import java.util.List;
 import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.AbstractTest;
-import com.romeikat.datamessie.core.base.util.DateUtil;
 
 public class DateUtilTest extends AbstractTest {
 

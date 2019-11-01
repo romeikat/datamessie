@@ -37,9 +37,9 @@ import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
 import com.romeikat.datamessie.core.base.util.DocumentWithDownloads;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.Download;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.Download;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 @Service
 public class DownloadService {

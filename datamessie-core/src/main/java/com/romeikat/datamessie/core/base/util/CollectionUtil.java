@@ -41,7 +41,7 @@ import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.base.util.Function.InvalidValueException;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.model.EntityWithId;
 import jersey.repackaged.com.google.common.collect.Sets;
 
 @Service

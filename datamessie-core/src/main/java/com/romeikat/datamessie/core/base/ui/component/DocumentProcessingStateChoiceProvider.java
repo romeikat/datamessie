@@ -28,7 +28,7 @@ import org.wicketstuff.select2.Response;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public class DocumentProcessingStateChoiceProvider
     extends AbstractChoiceProvider<DocumentProcessingState> {

@@ -24,7 +24,7 @@ License along with this program.  If not, see
 
 import java.util.Set;
 import com.google.common.collect.Sets;
-import com.romeikat.datamessie.core.domain.entity.Entity;
+import com.romeikat.datamessie.model.Entity;
 
 public class DecisionResults<E extends Entity> {
 

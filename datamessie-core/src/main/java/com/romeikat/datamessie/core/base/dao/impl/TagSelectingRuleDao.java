@@ -35,8 +35,8 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
-import com.romeikat.datamessie.core.domain.entity.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRuleImpl;
+import com.romeikat.datamessie.model.core.TagSelectingRule;
 
 @Repository
 public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSelectingRule> {

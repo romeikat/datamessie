@@ -43,11 +43,11 @@ import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQue
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsSparseTable;
-import com.romeikat.datamessie.core.domain.entity.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceImpl;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.statistics.cache.DocumentsPerState;
 import com.romeikat.datamessie.core.statistics.task.StatisticsStatus;
+import com.romeikat.datamessie.model.core.Source;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 import edu.stanford.nlp.util.StringUtils;
 import jersey.repackaged.com.google.common.collect.Sets;
 

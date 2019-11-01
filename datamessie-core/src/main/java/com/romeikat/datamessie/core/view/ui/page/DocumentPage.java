@@ -42,7 +42,7 @@ import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.domain.dto.DocumentDto;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 @AuthorizeInstantiation(DataMessieRoles.DOCUMENT_PAGE)
 public class DocumentPage extends AbstractAuthenticatedPage {

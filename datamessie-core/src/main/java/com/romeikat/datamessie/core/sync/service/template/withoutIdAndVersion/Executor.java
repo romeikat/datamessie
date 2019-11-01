@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
-import com.romeikat.datamessie.core.domain.entity.Entity;
 import com.romeikat.datamessie.core.sync.util.SyncMode;
+import com.romeikat.datamessie.model.Entity;
 
 public abstract class Executor<E extends Entity> {
 

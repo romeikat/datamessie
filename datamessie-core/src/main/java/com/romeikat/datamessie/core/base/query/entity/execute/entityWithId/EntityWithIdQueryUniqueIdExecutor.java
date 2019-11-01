@@ -26,7 +26,7 @@ import org.hibernate.Criteria;
 import org.hibernate.SharedSessionContract;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.execute.entity.EntityQueryUniqueIdExecutor;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.model.EntityWithId;
 
 public class EntityWithIdQueryUniqueIdExecutor<E extends EntityWithId>
     extends EntityQueryUniqueIdExecutor<E> {

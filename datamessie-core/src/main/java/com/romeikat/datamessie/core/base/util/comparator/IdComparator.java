@@ -23,7 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.util.Comparator;
-import com.romeikat.datamessie.core.domain.util.Identifiable;
+import com.romeikat.datamessie.model.util.Identifiable;
 
 public class IdComparator<T extends Identifiable> implements Comparator<T> {
 

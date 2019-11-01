@@ -28,7 +28,7 @@ import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Projection;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.execute.AbstractEntityQueryExecutor;
-import com.romeikat.datamessie.core.domain.entity.Entity;
+import com.romeikat.datamessie.model.Entity;
 
 public class EntityQueryListForProjectionExecutor<E extends Entity>
     extends AbstractEntityQueryExecutor<E, List<?>> {

@@ -30,7 +30,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.RedirectingRule;
+import com.romeikat.datamessie.model.core.RedirectingRule;
 
 @Entity
 @Table(name = RedirectingRuleImpl.TABLE_NAME,

@@ -30,7 +30,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import org.hibernate.annotations.GenericGenerator;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.model.EntityWithId;
 
 @Entity
 @Table(name = FooEntityWithGeneratedId.TABLE_NAME, uniqueConstraints = {

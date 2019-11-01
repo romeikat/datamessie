@@ -41,9 +41,9 @@ import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.base.task.scheduling.IntervalTaskSchedulingThread;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.domain.entity.Project;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
 import com.romeikat.datamessie.core.rss.task.rssCrawling.RssCrawlingTask;
+import com.romeikat.datamessie.model.core.Project;
 
 @Service
 public class RssCrawlingInitializer {

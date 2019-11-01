@@ -28,7 +28,6 @@ License along with this program.  If not, see
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.StopFilter;

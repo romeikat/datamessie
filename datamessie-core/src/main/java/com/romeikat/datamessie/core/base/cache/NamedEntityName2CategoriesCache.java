@@ -38,10 +38,10 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.NamedEntity;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategoryImpl;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
+import com.romeikat.datamessie.model.core.NamedEntity;
+import com.romeikat.datamessie.model.core.NamedEntityCategory;
 import jersey.repackaged.com.google.common.collect.Maps;
 
 public class NamedEntityName2CategoriesCache

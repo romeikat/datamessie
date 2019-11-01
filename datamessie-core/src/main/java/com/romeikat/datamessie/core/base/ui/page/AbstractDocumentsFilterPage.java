@@ -35,7 +35,7 @@ import org.apache.wicket.util.string.StringValue;
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.ui.panel.DocumentsFilterPanel;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public abstract class AbstractDocumentsFilterPage extends AbstractAuthenticatedPage {
 

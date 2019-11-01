@@ -39,8 +39,8 @@ import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.util.DataMessieException;
 import com.romeikat.datamessie.core.base.util.ParseUtil;
 import com.romeikat.datamessie.core.base.util.TextUtil;
-import com.romeikat.datamessie.core.domain.entity.NamedEntity;
-import com.romeikat.datamessie.core.domain.enums.Language;
+import com.romeikat.datamessie.model.core.NamedEntity;
+import com.romeikat.datamessie.model.enums.Language;
 
 @Service
 public class TextStemmer {

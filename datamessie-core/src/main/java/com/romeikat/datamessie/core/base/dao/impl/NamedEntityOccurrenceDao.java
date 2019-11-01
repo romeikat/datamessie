@@ -28,9 +28,9 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrenceImpl;
-import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
+import com.romeikat.datamessie.model.core.NamedEntityOccurrence;
+import com.romeikat.datamessie.model.enums.NamedEntityType;
 
 @Repository
 public class NamedEntityOccurrenceDao

@@ -30,8 +30,8 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.CrawlingImpl;
+import com.romeikat.datamessie.model.core.Crawling;
 
 @Repository("rssCrawlingDao")
 public class CrawlingDao extends com.romeikat.datamessie.core.base.dao.impl.CrawlingDao {

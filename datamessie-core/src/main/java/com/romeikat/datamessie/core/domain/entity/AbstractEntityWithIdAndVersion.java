@@ -24,6 +24,7 @@ License along with this program.  If not, see
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
+import com.romeikat.datamessie.model.EntityWithIdAndVersion;
 
 @MappedSuperclass
 public abstract class AbstractEntityWithIdAndVersion implements EntityWithIdAndVersion {

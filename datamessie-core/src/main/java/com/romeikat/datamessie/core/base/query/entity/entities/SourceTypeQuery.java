@@ -26,8 +26,8 @@ import org.hibernate.criterion.Restrictions;
 import org.springframework.util.CollectionUtils;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
-import com.romeikat.datamessie.core.domain.entity.SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceTypeImpl;
+import com.romeikat.datamessie.model.core.SourceType;
 
 public class SourceTypeQuery extends EntityWithIdQuery<SourceType> {
 

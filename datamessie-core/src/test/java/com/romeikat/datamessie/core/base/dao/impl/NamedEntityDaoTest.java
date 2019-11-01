@@ -33,8 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.ninja_squad.dbsetup.operation.Operation;
 import com.romeikat.datamessie.core.AbstractDbSetupBasedTest;
 import com.romeikat.datamessie.core.CommonOperations;
-import com.romeikat.datamessie.core.domain.entity.NamedEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityImpl;
+import com.romeikat.datamessie.model.core.NamedEntity;
 import jersey.repackaged.com.google.common.collect.Lists;
 
 public class NamedEntityDaoTest extends AbstractDbSetupBasedTest {

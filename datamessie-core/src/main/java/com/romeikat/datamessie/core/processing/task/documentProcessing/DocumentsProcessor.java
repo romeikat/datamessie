@@ -26,13 +26,6 @@ import java.util.Collection;
 import java.util.Map;
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
-import com.romeikat.datamessie.core.domain.entity.CleanedContent;
-import com.romeikat.datamessie.core.domain.entity.Document;
-import com.romeikat.datamessie.core.domain.entity.Download;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityCategory;
-import com.romeikat.datamessie.core.domain.entity.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
-import com.romeikat.datamessie.core.domain.entity.StemmedContent;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.CleanCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsForUrlsAndSourceCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsWithEntitiesCallback;
@@ -48,6 +41,13 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.namedEnti
 import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentsRedirector;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentsStemmer;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.validate.DocumentsValidator;
+import com.romeikat.datamessie.model.core.CleanedContent;
+import com.romeikat.datamessie.model.core.Document;
+import com.romeikat.datamessie.model.core.Download;
+import com.romeikat.datamessie.model.core.NamedEntityCategory;
+import com.romeikat.datamessie.model.core.NamedEntityOccurrence;
+import com.romeikat.datamessie.model.core.RawContent;
+import com.romeikat.datamessie.model.core.StemmedContent;
 
 /**
  * Processes multiple documents at a time. The performance strategy is to use as few data access

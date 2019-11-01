@@ -33,8 +33,8 @@ import org.hibernate.transform.AliasToBeanResultTransformer;
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
-import com.romeikat.datamessie.core.domain.util.IdAndVersion;
+import com.romeikat.datamessie.model.EntityWithIdAndVersion;
+import com.romeikat.datamessie.model.util.IdAndVersion;
 
 public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAndVersion>
     extends AbstractEntityWithIdDao<E> implements EntityWithIdAndVersionDao<E> {

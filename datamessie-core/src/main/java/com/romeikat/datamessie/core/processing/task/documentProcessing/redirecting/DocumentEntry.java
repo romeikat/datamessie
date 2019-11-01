@@ -24,7 +24,7 @@ License along with this program.  If not, see
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import com.romeikat.datamessie.core.domain.entity.Document;
+import com.romeikat.datamessie.model.core.Document;
 
 public class DocumentEntry {
 

@@ -31,7 +31,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithoutIdAndVersion;
-import com.romeikat.datamessie.core.domain.entity.Source2SourceType;
+import com.romeikat.datamessie.model.core.Source2SourceType;
 
 @Entity
 @Table(name = Source2SourceTypeImpl.TABLE_NAME,

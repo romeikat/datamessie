@@ -31,7 +31,7 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(name = FooEntity.TABLE_NAME,
     uniqueConstraints = {@UniqueConstraint(name = "fooEntity_name", columnNames = {"name"})})
-public class FooEntity implements com.romeikat.datamessie.core.domain.entity.Entity {
+public class FooEntity implements com.romeikat.datamessie.model.Entity {
 
   public static final String TABLE_NAME = "fooEntity";
 

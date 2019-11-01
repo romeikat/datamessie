@@ -52,8 +52,8 @@ import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateTimeConverter;
 import com.romeikat.datamessie.core.base.util.converter.TaskExecutionStatusConverter;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
-import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
+import com.romeikat.datamessie.model.enums.Language;
 import jersey.repackaged.com.google.common.collect.Lists;
 
 @Component

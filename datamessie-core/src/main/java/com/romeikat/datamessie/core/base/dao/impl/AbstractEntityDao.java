@@ -31,7 +31,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
-import com.romeikat.datamessie.core.domain.entity.Entity;
+import com.romeikat.datamessie.model.Entity;
 
 public abstract class AbstractEntityDao<E extends Entity> implements EntityDao<E> {
 

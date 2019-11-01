@@ -25,8 +25,8 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.Set;
 import com.google.common.collect.Sets;
-import com.romeikat.datamessie.core.domain.entity.Download;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.model.core.Download;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 public class DocumentWithDownloads {
 

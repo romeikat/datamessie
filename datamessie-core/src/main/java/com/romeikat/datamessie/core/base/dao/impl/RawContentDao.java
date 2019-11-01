@@ -22,8 +22,8 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import org.springframework.stereotype.Repository;
-import com.romeikat.datamessie.core.domain.entity.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContentImpl;
+import com.romeikat.datamessie.model.core.RawContent;
 
 @Repository
 public class RawContentDao extends AbstractEntityWithIdAndVersionDao<RawContent> {

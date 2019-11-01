@@ -32,11 +32,11 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.domain.entity.Entity;
 import com.romeikat.datamessie.core.sync.service.SyncService;
 import com.romeikat.datamessie.core.sync.service.template.ISynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 import com.romeikat.datamessie.core.sync.util.SyncMode;
+import com.romeikat.datamessie.model.Entity;
 
 public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
     implements ISynchronizer {

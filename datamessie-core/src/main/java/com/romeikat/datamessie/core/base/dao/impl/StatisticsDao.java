@@ -31,10 +31,10 @@ import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.util.sparsetable.Cell;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsSparseTable;
-import com.romeikat.datamessie.core.domain.entity.Statistics;
 import com.romeikat.datamessie.core.domain.entity.impl.StatisticsImpl;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.statistics.cache.DocumentsPerState;
+import com.romeikat.datamessie.model.core.Statistics;
+import com.romeikat.datamessie.model.enums.DocumentProcessingState;
 
 @Repository
 public class StatisticsDao extends AbstractEntityWithIdAndVersionDao<Statistics> {

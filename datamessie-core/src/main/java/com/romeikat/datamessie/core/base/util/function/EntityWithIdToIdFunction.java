@@ -23,7 +23,7 @@ License along with this program.  If not, see
  */
 
 import com.google.common.base.Function;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.model.EntityWithId;
 
 public class EntityWithIdToIdFunction implements Function<EntityWithId, Long> {
 
