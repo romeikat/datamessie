@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.enums.CleaningMethod;
 import com.romeikat.datamessie.core.processing.service.cleaning.boilerpipe.BoilerplateRemover;
 import com.romeikat.datamessie.core.processing.service.cleaning.extract.TagExctractor;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
@@ -44,17 +45,34 @@ public class DocumentCleaner {
   private DocumentCleaner() {}
 
   public DocumentCleaningResult clean(final Document document, final RawContent rawContent,
-      final List<TagSelectingRule> tagSelectingRules) throws BoilerpipeProcessingException {
-    // Extract
-    final String extractedContent =
-        tagExctractor.extractContent(tagSelectingRules, rawContent, document);
+      final List<TagSelectingRule> tagSelectingRules, final CleaningMethod cleaningMethod)
+      throws BoilerpipeProcessingException {
+    if (cleaningMethod == CleaningMethod.TAG_SELECTION_BOILERPIPE) {
+      // Use tag selector to extract content
+      final String extractedContent =
+          tagExctractor.extractContent(tagSelectingRules, rawContent.getContent(), document);
 
-    // Remove boilerplate
-    String cleanedContent = boilerplateRemover.removeBoilerplate(extractedContent);
-    cleanedContent = StringEscapeUtils.unescapeHtml4(cleanedContent);
+      // Remove boilerplate from extracted content
+      String cleanedContent = boilerplateRemover.removeBoilerplate(extractedContent);
+      cleanedContent = StringEscapeUtils.unescapeHtml4(cleanedContent);
 
-    // Done
-    return new DocumentCleaningResult(cleanedContent);
+      // Done
+      return new DocumentCleaningResult(cleanedContent);
+    }
+
+    else if (cleaningMethod == CleaningMethod.BOILERPIPE) {
+      // Remove boilerplate from raw content
+      String cleanedContent = boilerplateRemover.removeBoilerplate(rawContent.getContent());
+      cleanedContent = StringEscapeUtils.unescapeHtml4(cleanedContent);
+
+      // Done
+      return new DocumentCleaningResult(cleanedContent);
+    }
+
+    else {
+      return new DocumentCleaningResult(null);
+    }
+
   }
 
 }

@@ -24,9 +24,12 @@ License along with this program.  If not, see
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.enums.CleaningMethod;
 
 @Entity
 @Table(name = Project.TABLE_NAME,
@@ -45,6 +48,8 @@ public class Project extends AbstractEntityWithGeneratedIdAndVersion {
   private Integer crawlingInterval;
 
   private boolean preprocessingEnabled;
+
+  private CleaningMethod cleaningMethod;
 
   public Project() {}
 
@@ -92,6 +97,16 @@ public class Project extends AbstractEntityWithGeneratedIdAndVersion {
 
   public Project setPreprocessingEnabled(final boolean preprocessingEnabled) {
     this.preprocessingEnabled = preprocessingEnabled;
+    return this;
+  }
+
+  @Enumerated(value = EnumType.ORDINAL)
+  public CleaningMethod getCleaningMethod() {
+    return cleaningMethod;
+  }
+
+  public Project setCleaningMethod(final CleaningMethod cleaningMethod) {
+    this.cleaningMethod = cleaningMethod;
     return this;
   }
 

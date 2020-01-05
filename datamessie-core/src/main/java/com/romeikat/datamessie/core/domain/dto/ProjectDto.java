@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
+import com.romeikat.datamessie.core.domain.enums.CleaningMethod;
 
 public class ProjectDto implements Serializable {
 
@@ -37,6 +38,8 @@ public class ProjectDto implements Serializable {
   private Integer crawlingInterval;
 
   private boolean preprocessingEnabled;
+
+  private CleaningMethod cleaningMethod;
 
   public long getId() {
     return id;
@@ -78,4 +81,11 @@ public class ProjectDto implements Serializable {
     this.preprocessingEnabled = preprocessingEnabled;
   }
 
+  public CleaningMethod getCleaningMethod() {
+    return cleaningMethod;
+  }
+
+  public void setCleaningMethod(final CleaningMethod cleaningMethod) {
+    this.cleaningMethod = cleaningMethod;
+  }
 }

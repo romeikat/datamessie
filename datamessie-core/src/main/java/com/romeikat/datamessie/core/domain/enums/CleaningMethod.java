@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.core.processing.task.documentProcessing.callback;
+package com.romeikat.datamessie.core.domain.enums;
 
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2020 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,19 +22,31 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import java.util.List;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
-import com.romeikat.datamessie.core.domain.enums.CleaningMethod;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaningResult;
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
+public enum CleaningMethod {
 
-@FunctionalInterface
-public interface CleanCallback {
+  /**
+   * First tag selection, afterwards boilerpipe.
+   */
+  TAG_SELECTION_BOILERPIPE("Tag selection and boilerpipe"),
 
-  DocumentCleaningResult clean(Document document, RawContent rawContent,
-      List<TagSelectingRule> tagSelectingRules, CleaningMethod cleaningMethod)
-      throws BoilerpipeProcessingException;
+  /**
+   * Boilerpipe only.
+   */
+  BOILERPIPE("Boilerpipe only");
+
+  private String name;
+
+  private CleaningMethod(final String name) {
+    this.name = name;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public String toString() {
+    return name;
+  }
 
 }

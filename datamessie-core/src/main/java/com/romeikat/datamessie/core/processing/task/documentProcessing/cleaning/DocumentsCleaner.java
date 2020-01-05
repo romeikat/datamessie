@@ -33,9 +33,11 @@ import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.enums.CleaningMethod;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingOutput;
@@ -118,11 +120,21 @@ public class DocumentsCleaner {
         documentsProcessingInput.getActiveTagSelectingRules(document, downloadDate);
 
     // Clean
+    final CleaningMethod cleaningMethod = getCleaningMethod(document.getId());
     final DocumentCleaningResult documentCleaningResult =
-        cleanCallback.clean(document, rawContent, tagSelectingRules);
+        cleanCallback.clean(document, rawContent, tagSelectingRules, cleaningMethod);
 
     // Interpret result
     interpretCleaningResult(documentCleaningResult, document);
+  }
+
+  private CleaningMethod getCleaningMethod(final long documentId) {
+    final Project project = documentsProcessingInput.getProject(documentId);
+    if (project == null) {
+      return null;
+    }
+
+    return project.getCleaningMethod();
   }
 
   private void interpretCleaningResult(final DocumentCleaningResult documentCleaningResult,

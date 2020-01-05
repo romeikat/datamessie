@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 
 @Service
@@ -43,9 +42,9 @@ public class TagExctractor {
 
   private static final Logger LOG = LoggerFactory.getLogger(TagExctractor.class);
 
-  public String extractContent(final List<TagSelectingRule> tagSelectingRules,
-      final RawContent rawContent, final Document document) {
-    if (rawContent == null) {
+  public String extractContent(final List<TagSelectingRule> tagSelectingRules, final String content,
+      final Document document) {
+    if (content == null) {
       return null;
     }
     // Apply tag selecting rules
@@ -59,13 +58,13 @@ public class TagExctractor {
     }
     // Without active rules, use whole document
     if (activeTagSelectingRules.isEmpty()) {
-      return rawContent.getContent();
+      return content;
     }
     // Process active rules one after another, until tag selection is successful
     for (final TagSelectingRule activeTagSelectingRule : activeTagSelectingRules) {
       // Extract content with tag selector
       final String tagSelector = activeTagSelectingRule.getTagSelector();
-      final String extractedContent = extractContent(rawContent, document, tagSelector);
+      final String extractedContent = extractContent(content, document, tagSelector);
       // If successful, done
       if (extractedContent != null) {
         return extractedContent;
@@ -83,7 +82,7 @@ public class TagExctractor {
     return null;
   }
 
-  private String extractContent(final RawContent rawContent, final Document document,
+  private String extractContent(final String content, final Document document,
       final String tagSelector) {
     if (tagSelector == null || tagSelector.isEmpty()) {
       return null;
@@ -119,7 +118,7 @@ public class TagExctractor {
       return null;
     }
     // With tag selector, search for appropriate element
-    final org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(rawContent.getContent());
+    final org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(content);
     final List<Element> matchingElements = new ArrayList<Element>();
     final Elements elementsWithTagName = jsoupDocument.getElementsByTag(tagName);
     for (final Element elementWithTagName : elementsWithTagName) {

@@ -69,6 +69,8 @@ public class ProjectService {
     project.setName(projectDto.getName());
     project.setCrawlingEnabled(projectDto.getCrawlingEnabled());
     project.setCrawlingInterval(projectDto.getCrawlingInterval());
+    project.setPreprocessingEnabled(projectDto.getPreprocessingEnabled());
+    project.setCleaningMethod(projectDto.getCleaningMethod());
     // Insert
     projectDao.insert(statelessSession, project);
   }
@@ -81,6 +83,7 @@ public class ProjectService {
     project.setCrawlingEnabled(projectDto.getCrawlingEnabled());
     project.setCrawlingInterval(projectDto.getCrawlingInterval());
     project.setPreprocessingEnabled(projectDto.getPreprocessingEnabled());
+    project.setCleaningMethod(projectDto.getCleaningMethod());
     projectDao.update(statelessSession, project);
   }
 

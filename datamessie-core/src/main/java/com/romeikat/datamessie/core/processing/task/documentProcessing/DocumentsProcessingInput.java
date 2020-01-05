@@ -39,12 +39,14 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
+import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.dao.impl.TagSelectingRuleDao;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
@@ -57,6 +59,7 @@ public class DocumentsProcessingInput {
   private final SessionFactory sessionFactory;
   private final RawContentDao rawContentDao;
   private final SourceDao sourceDao;
+  private final ProjectDao projectDao;
   private final RedirectingRuleDao redirectingRuleDao;
   private final TagSelectingRuleDao tagSelectingRuleDao;
 
@@ -64,6 +67,7 @@ public class DocumentsProcessingInput {
 
   private final Map<Long, RawContent> documentId2RawContent;
   private final Map<Long, Source> documentId2Source;
+  private final Map<Long, Project> documentId2Project;
   private final ListMultimap<Long, RedirectingRule> sourceId2RedirectingRules;
   private final ListMultimap<Long, TagSelectingRule> sourceId2TagSelectingRules;
 
@@ -74,6 +78,7 @@ public class DocumentsProcessingInput {
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
     rawContentDao = ctx.getBean(RawContentDao.class);
     sourceDao = ctx.getBean(SourceDao.class);
+    projectDao = ctx.getBean(ProjectDao.class);
     redirectingRuleDao = ctx.getBean(RedirectingRuleDao.class);
     tagSelectingRuleDao = ctx.getBean(TagSelectingRuleDao.class);
     namedEntityDetections = Multimaps.synchronizedSetMultimap(HashMultimap.create());
@@ -81,6 +86,7 @@ public class DocumentsProcessingInput {
     this.documentId2Document = new ConcurrentHashMap<Long, Document>();
     documentId2RawContent = Maps.newHashMap();
     documentId2Source = Maps.newHashMap();
+    documentId2Project = Maps.newHashMap();
     sourceId2RedirectingRules = ArrayListMultimap.create();
     sourceId2TagSelectingRules = ArrayListMultimap.create();
   }
@@ -91,6 +97,7 @@ public class DocumentsProcessingInput {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     loadAndPutRawContents(sessionProvider, documents);
     loadAndPutSources(sessionProvider, documents);
+    loadAndPutProjects(sessionProvider, documents);
     loadAndPutRedirectingRules(sessionProvider, documents);
     loadAndPutTagSelectingRules(sessionProvider, documents);
     sessionProvider.closeStatelessSession();
@@ -113,13 +120,20 @@ public class DocumentsProcessingInput {
 
   private void loadAndPutSources(final HibernateSessionProvider sessionProvider,
       final Collection<Document> documents) {
-    final Collection<Long> sourceIds =
-        documents.stream().map(d -> d.getSourceId()).collect(Collectors.toSet());
-    final Map<Long, Source> sourceId2Source =
-        sourceDao.getIdsWithEntities(sessionProvider.getStatelessSession(), sourceIds);
-    final Map<Long, Source> documentId2Source = documentId2Document.values().stream()
-        .collect(Collectors.toMap(d -> d.getId(), d -> sourceId2Source.get(d.getSourceId())));
+    final Map<Document, Source> document2Source =
+        sourceDao.getForDocuments(sessionProvider.getStatelessSession(), documents);
+    final Map<Long, Source> documentId2Source = document2Source.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey().getId(), e -> e.getValue()));
     this.documentId2Source.putAll(documentId2Source);
+  }
+
+  private void loadAndPutProjects(final HibernateSessionProvider sessionProvider,
+      final Collection<Document> documents) {
+    final Map<Document, Project> document2Project =
+        projectDao.getForDocuments(sessionProvider.getStatelessSession(), documents);
+    final Map<Long, Project> documentId2Project = document2Project.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getKey().getId(), e -> e.getValue()));
+    this.documentId2Project.putAll(documentId2Project);
   }
 
   private void loadAndPutRedirectingRules(final HibernateSessionProvider sessionProvider,
@@ -165,6 +179,10 @@ public class DocumentsProcessingInput {
 
   public Source getSource(final long documentId) {
     return documentId2Source.get(documentId);
+  }
+
+  public Project getProject(final long documentId) {
+    return documentId2Project.get(documentId);
   }
 
   public List<RedirectingRule> getActiveRedirectingRules(final Document document,

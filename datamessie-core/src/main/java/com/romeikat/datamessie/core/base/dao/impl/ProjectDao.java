@@ -24,21 +24,31 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.transform.AliasToBeanResultTransformer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
+import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2User;
 
 @Repository
 public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
+
+  @Autowired
+  private CrawlingDao crawlingDao;
 
   public ProjectDao() {
     super(Project.class);
@@ -47,6 +57,33 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
   @Override
   protected String defaultSortingProperty() {
     return "name";
+  }
+
+  public Map<Document, Project> getForDocuments(final SharedSessionContract ssc,
+      final Collection<Document> documents) {
+    final Set<Long> crawlingIds =
+        documents.stream().map(d -> d.getCrawlingId()).collect(Collectors.toSet());
+    final Map<Long, Crawling> crawlingsById = crawlingDao.getIdsWithEntities(ssc, crawlingIds);
+
+    final Set<Long> projectIds =
+        crawlingsById.values().stream().map(c -> c.getProjectId()).collect(Collectors.toSet());
+    final Map<Long, Project> projectsById = getIdsWithEntities(ssc, projectIds);
+
+    final Map<Document, Project> result = Maps.newHashMapWithExpectedSize(documents.size());
+    for (final Document document : documents) {
+      final Crawling crawling = crawlingsById.get(document.getCrawlingId());
+      if (crawling == null) {
+        continue;
+      }
+
+      final Project project = projectsById.get(crawling.getProjectId());
+      if (project == null) {
+        continue;
+      }
+
+      result.put(document, project);
+    }
+    return result;
   }
 
   public List<Long> getIdsForUser(final SharedSessionContract ssc, final Long userId) {
@@ -77,6 +114,7 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
     projectionList.add(Projections.property("crawlingEnabled"), "crawlingEnabled");
     projectionList.add(Projections.property("crawlingInterval"), "crawlingInterval");
     projectionList.add(Projections.property("preprocessingEnabled"), "preprocessingEnabled");
+    projectionList.add(Projections.property("cleaningMethod"), "cleaningMethod");
     @SuppressWarnings("unchecked")
     final List<ProjectDto> dtos =
         (List<ProjectDto>) projectQuery.listForProjection(ssc, projectionList);
@@ -105,6 +143,7 @@ public class ProjectDao extends AbstractEntityWithIdAndVersionDao<Project> {
     projectionList.add(Projections.property("crawlingEnabled"), "crawlingEnabled");
     projectionList.add(Projections.property("crawlingInterval"), "crawlingInterval");
     projectionList.add(Projections.property("preprocessingEnabled"), "preprocessingEnabled");
+    projectionList.add(Projections.property("cleaningMethod"), "cleaningMethod");
     final ProjectDto dto = (ProjectDto) projectQuery.uniqueForProjection(ssc, projectionList);
     return dto;
   }

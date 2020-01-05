@@ -66,6 +66,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.enums.CleaningMethod;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
@@ -208,7 +209,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
     final DocumentCleaningResult expectedDocumentCleaningResult =
         new DocumentCleaningResult(CLEANED_CONTENT);
     doReturn(expectedDocumentCleaningResult).when(cleanCallback).clean(any(Document.class),
-        any(RawContent.class), anyListOf(TagSelectingRule.class));
+        any(RawContent.class), anyListOf(TagSelectingRule.class), any(CleaningMethod.class));
     // Simulate successful stemming
     final NamedEntityDetectionDto namedEntityDetection =
         new NamedEntityDetectionDto().setName(NAMED_ENTITY_NAME).setParentName(NAMED_ENTITY_NAME)

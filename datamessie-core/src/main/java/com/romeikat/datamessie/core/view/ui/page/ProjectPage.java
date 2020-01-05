@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -30,8 +31,8 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-import com.romeikat.datamessie.core.base.service.ProjectService;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
+import com.romeikat.datamessie.core.base.service.ProjectService;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
 
@@ -93,17 +94,25 @@ public class ProjectPage extends AbstractAuthenticatedPage {
     // Name
     final TextField<String> nameTextField = new TextField<String>("name");
     nameTextField.setRequired(true);
+    nameTextField.setEnabled(false);
     projectForm.add(nameTextField);
     // Crawling enabled
     final CheckBox crawlingEnabledCheckBox = new CheckBox("crawlingEnabled");
+    crawlingEnabledCheckBox.setEnabled(false);
     projectForm.add(crawlingEnabledCheckBox);
     // Crawling interval
     final TextField<Integer> crawlingIntervalTextField = new TextField<Integer>("crawlingInterval");
     crawlingIntervalTextField.setRequired(true);
+    crawlingIntervalTextField.setEnabled(false);
     projectForm.add(crawlingIntervalTextField);
     // Preprocessing enabled
     final CheckBox preprocessingEnabledCheckBox = new CheckBox("preprocessingEnabled");
+    preprocessingEnabledCheckBox.setEnabled(false);
     projectForm.add(preprocessingEnabledCheckBox);
+    // Cleaning method
+    final Label cleaningMethodLabel = new Label("cleaningMethod");
+    cleaningMethodLabel.setEnabled(false);
+    projectForm.add(cleaningMethodLabel);
   }
 
 }

@@ -46,6 +46,7 @@ public class ProjectSynchronizer extends EntityWithIdAndVersionSynchronizer<Proj
     target.setCrawlingEnabled(source.getCrawlingEnabled());
     target.setCrawlingInterval(source.getCrawlingInterval());
     target.setPreprocessingEnabled(source.getPreprocessingEnabled());
+    target.setCleaningMethod(source.getCleaningMethod());
   }
 
   @Override

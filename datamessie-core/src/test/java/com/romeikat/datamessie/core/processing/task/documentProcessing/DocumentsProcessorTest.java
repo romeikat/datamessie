@@ -75,6 +75,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.enums.CleaningMethod;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.domain.enums.NamedEntityType;
@@ -215,7 +216,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final DocumentCleaningResult expectedDocumentCleaningResult =
         new DocumentCleaningResult(CLEANED_CONTENT);
     doReturn(expectedDocumentCleaningResult).when(cleanCallback).clean(any(Document.class),
-        any(RawContent.class), anyListOf(TagSelectingRule.class));
+        any(RawContent.class), anyListOf(TagSelectingRule.class), any(CleaningMethod.class));
     // Simulate successful stemming
     final NamedEntityDetectionDto namedEntityDetection =
         new NamedEntityDetectionDto().setName(NAMED_ENTITY_NAME).setParentName(NAMED_ENTITY_NAME)
@@ -545,7 +546,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     // Simulate error
     final DocumentCleaningResult expectedDocumentCleaningResult = new DocumentCleaningResult(null);
     doReturn(expectedDocumentCleaningResult).when(cleanCallback).clean(any(Document.class),
-        any(RawContent.class), anyListOf(TagSelectingRule.class));
+        any(RawContent.class), anyListOf(TagSelectingRule.class), any(CleaningMethod.class));
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
@@ -604,7 +605,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Simulate exception
     doThrow(Exception.class).when(cleanCallback).clean(any(Document.class), any(RawContent.class),
-        anyListOf(TagSelectingRule.class));
+        anyListOf(TagSelectingRule.class), any(CleaningMethod.class));
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
