@@ -42,8 +42,6 @@ import com.romeikat.datamessie.core.base.dao.impl.SourceTypeDao;
 import com.romeikat.datamessie.core.base.dao.impl.TagSelectingRuleDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.task.DocumentsDeprocessingTask;
-import com.romeikat.datamessie.core.base.task.Task;
-import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.base.util.EntitiesById;
 import com.romeikat.datamessie.core.base.util.EntitiesWithIdById;
@@ -60,7 +58,6 @@ import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
-import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
 
 @Service
 public class SourceService {
@@ -199,8 +196,7 @@ public class SourceService {
                 source.getId(), DocumentProcessingState.DOWNLOADED);
         taskManager.addTask(task);
       }
-    }
-    if (wereTagSelectingRulesUpdated) {
+    } else if (wereTagSelectingRulesUpdated) {
       // Only trigger if no task targeting the same source is being active
       final boolean taskAlreadyActive = isTaskActive(DocumentsDeprocessingTask.NAME, source.getId(),
           DocumentProcessingState.REDIRECTED);
@@ -298,18 +294,11 @@ public class SourceService {
 
   private boolean isTaskActive(final String name, final long sourceId,
       final DocumentProcessingState targetState) {
-    final List<TaskExecution> taskExecutions = taskManager.getTaskExecutions(name,
-        TaskExecutionStatus.EXECUTION_REQUESTED, TaskExecutionStatus.EXECUTING,
-        TaskExecutionStatus.PAUSE_REQUESTED, TaskExecutionStatus.PAUSING, TaskExecutionStatus.IDLE);
-    for (final TaskExecution taskExecution : taskExecutions) {
-      final Task task = taskExecution.getTask();
-      if (task instanceof DocumentsDeprocessingTask) {
-        final DocumentsDeprocessingTask documentsDeprocessingTask =
-            (DocumentsDeprocessingTask) task;
-        if (documentsDeprocessingTask.getSourceId() == sourceId
-            && documentsDeprocessingTask.getTargetState() == targetState) {
-          return true;
-        }
+    final Collection<DocumentsDeprocessingTask> activeTasks =
+        taskManager.getActiveTasks(name, DocumentsDeprocessingTask.class);
+    for (final DocumentsDeprocessingTask activeTask : activeTasks) {
+      if (activeTask.getSourceId() == sourceId && activeTask.getTargetState() == targetState) {
+        return true;
       }
     }
     return false;

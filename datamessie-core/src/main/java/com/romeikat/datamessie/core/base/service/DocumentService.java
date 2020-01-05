@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -40,15 +41,20 @@ import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
-import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
+import com.romeikat.datamessie.core.base.task.management.TaskManager;
+import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingTask;
 
 @Service
 public class DocumentService {
 
   private final static Logger LOG = LoggerFactory.getLogger(DocumentService.class);
+
+  @Autowired
+  private TaskManager taskManager;
 
   @Autowired
   private SharedBeanProvider sharedBeanProvider;
@@ -64,6 +70,9 @@ public class DocumentService {
   @Autowired
   @Qualifier("sourceDao")
   private SourceDao sourceDao;
+
+  @Autowired
+  private StringUtil stringUtil;
 
   public void deprocessDocumentsOfSource(final StatelessSession statelessSession,
       final TaskExecution taskExecution, final long sourceId,
@@ -87,6 +96,13 @@ public class DocumentService {
       // Prepare for next iteration
       final LocalDate nextDownloadedDate = getNextDownloadedDate(downloadedDate.getValue());
       downloadedDate.setValue(nextDownloadedDate);
+    }
+
+    // Notify DocumentsProcessingTask to start processing
+    final Collection<DocumentsProcessingTask> activeTasks =
+        taskManager.getActiveTasks(DocumentsProcessingTask.NAME, DocumentsProcessingTask.class);
+    for (final DocumentsProcessingTask activeTask : activeTasks) {
+      activeTask.restartFromDownloadedDate(minDownloadedDate);
     }
 
     // Rebuild statistics
@@ -115,18 +131,21 @@ public class DocumentService {
       final DocumentProcessingState targetState,
       final StatisticsRebuildingSparseTable statisticsToBeRebuilt, final LocalDate downloadedDate)
       throws TaskCancelledException {
-    final TaskExecutionWork work2 =
-        taskExecution.reportWorkStart(String.format("Deprocessing documents with download date %s",
-            LocalDateConverter.INSTANCE_UI.convertToString(downloadedDate)));
-
     // Load
-    final List<Document> documents =
+    final List<Document> documentsToDeprocess =
         documentDao.getForSourceAndDownloaded(statelessSession, sourceId, downloadedDate);
 
     // Deprocess
-    deprocessDocuments(statelessSession, documents, targetState, statisticsToBeRebuilt);
+    if (CollectionUtils.isNotEmpty(documentsToDeprocess)) {
+      final String singularPlural =
+          stringUtil.getSingularOrPluralTerm("document", documentsToDeprocess.size());
+      final TaskExecutionWork work = taskExecution.reportWorkStart(
+          String.format("Deprocessing %s %s", documentsToDeprocess.size(), singularPlural));
+      deprocessDocuments(statelessSession, documentsToDeprocess, targetState,
+          statisticsToBeRebuilt);
+      taskExecution.reportWorkEnd(work);
+    }
 
-    taskExecution.reportWorkEnd(work2);
     taskExecution.checkpoint();
   }
 

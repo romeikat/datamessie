@@ -28,11 +28,13 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.util.FileUtil;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
@@ -162,6 +164,22 @@ public class TaskManager {
         }
       }
     }
+  }
+
+  public <T extends Task> Set<T> getActiveTasks(final String name, final Class<T> clazz) {
+    final Set<T> result = Sets.newHashSet();
+    final List<TaskExecution> taskExecutions = getTaskExecutions(name,
+        TaskExecutionStatus.EXECUTION_REQUESTED, TaskExecutionStatus.EXECUTING,
+        TaskExecutionStatus.PAUSE_REQUESTED, TaskExecutionStatus.PAUSING, TaskExecutionStatus.IDLE);
+    for (final TaskExecution taskExecution : taskExecutions) {
+      final Task task = taskExecution.getTask();
+      if (clazz.isAssignableFrom(task.getClass())) {
+        @SuppressWarnings("unchecked")
+        final T typedTask = (T) task;
+        result.add(typedTask);
+      }
+    }
+    return result;
   }
 
   public List<TaskExecution> getVisibleTaskExecutionsOrderedByLatestActivityDesc() {

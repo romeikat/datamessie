@@ -57,6 +57,7 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.DateUtil;
 import com.romeikat.datamessie.core.base.util.StringUtil;
+import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
@@ -138,8 +139,20 @@ public class DocumentsProcessingTask implements Task {
 
   private final INamedEntityCategoryProider plugin;
 
+  /**
+   * The current downloadedDate being processed
+   */
+  private final MutableObject<LocalDate> downloadedDate;
+
+  /**
+   * A new downloadedDate to restart from
+   */
+  private LocalDate restartFromDownloadedDate;
+
+
   private DocumentsProcessingTask() {
     plugin = DateMessiePlugins.getInstance(ctx).getOrLoadPlugin(INamedEntityCategoryProider.class);
+    downloadedDate = new MutableObject<LocalDate>(null);
   }
 
   @PostConstruct
@@ -184,8 +197,11 @@ public class DocumentsProcessingTask implements Task {
     final LocalDate minDownloadedDate = getMinDownloadedDate(sessionProvider.getStatelessSession());
 
     // Process all download dates one after another, starting with the minimum downloaded date
-    final MutableObject<LocalDate> downloadedDate = new MutableObject<LocalDate>(minDownloadedDate);
+    downloadedDate.setValue(minDownloadedDate);
     while (true) {
+      // Apply provided date, if available
+      applyDownloadedDateToRestartFrom(taskExecution);
+
       // Load
       final List<Document> documentsToProcess = documentsLoader.loadDocumentsToProcess(
           sessionProvider.getStatelessSession(), taskExecution, downloadedDate.getValue());
@@ -221,7 +237,27 @@ public class DocumentsProcessingTask implements Task {
       }
 
       // Prepare for next iteration
-      prepareForNextIteration(taskExecution, downloadedDate, documentsToProcess);
+      prepareForNextIteration(taskExecution, documentsToProcess);
+    }
+  }
+
+  private void applyDownloadedDateToRestartFrom(final TaskExecution taskExecution) {
+    // No date provided
+    if (restartFromDownloadedDate == null) {
+      return;
+    }
+
+    // Processing has not yet started
+    final LocalDate currentDownloadedDate = downloadedDate.getValue();
+    if (currentDownloadedDate == null) {
+      return;
+    }
+
+    if (restartFromDownloadedDate.isBefore(currentDownloadedDate)) {
+      taskExecution.reportWork(String.format("Re-starting processing at %s",
+          (LocalDateConverter.INSTANCE_UI.convertToString(restartFromDownloadedDate))));
+      downloadedDate.setValue(restartFromDownloadedDate);
+      restartFromDownloadedDate = null;
     }
   }
 
@@ -262,8 +298,7 @@ public class DocumentsProcessingTask implements Task {
   }
 
   private void prepareForNextIteration(final TaskExecution taskExecution,
-      final MutableObject<LocalDate> downloadedDate, final List<Document> documentsToProcess)
-      throws TaskCancelledException {
+      final List<Document> documentsToProcess) throws TaskCancelledException {
     // No documents to process due to an error while loading
     final boolean errorOccurred = documentsToProcess == null;
     if (errorOccurred) {
@@ -330,6 +365,16 @@ public class DocumentsProcessingTask implements Task {
     }
     // Otherwise, go to next date
     return downloadedDate.plusDays(1);
+  }
+
+  public void restartFromDownloadedDate(final LocalDate downloadedDate) {
+    if (downloadedDate == null) {
+      return;
+    }
+
+    if (restartFromDownloadedDate == null || restartFromDownloadedDate.isAfter(downloadedDate)) {
+      restartFromDownloadedDate = downloadedDate;
+    }
   }
 
 }
