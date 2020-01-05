@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.model.core;
+package com.romeikat.datamessie.dao.query.entity.entities;
 
 /*-
  * ============================LICENSE_START============================
- * data.messie (model)
+ * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,31 +22,28 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.model.EntityWithIdAndVersion;
-import com.romeikat.datamessie.model.enums.NamedEntityType;
+import org.hibernate.criterion.Restrictions;
+import com.romeikat.datamessie.dao.query.entity.EntityWithIdQuery;
+import com.romeikat.datamessie.model.core.Project;
+import com.romeikat.datamessie.model.core.impl.ProjectImpl;
+import com.romeikat.datamessie.model.util.DocumentsFilterSettings;
 
-public interface NamedEntityOccurrence extends EntityWithIdAndVersion {
+public class ProjectQuery extends EntityWithIdQuery<Project> {
 
-  public long getNamedEntityId();
+  private final DocumentsFilterSettings dfs;
 
-  public NamedEntityOccurrence setNamedEntityId(final long namedEntityId);
+  public ProjectQuery(final DocumentsFilterSettings dfs) {
+    super(ProjectImpl.class);
 
-  public long getParentNamedEntityId();
+    this.dfs = dfs;
 
-  public NamedEntityOccurrence setParentNamedEntityId(final long parentNamedEntityId);
+    addRestrictions();
+  }
 
-  public NamedEntityType getType();
-
-  public NamedEntityOccurrence setType(final NamedEntityType type);
-
-  public int getQuantity();
-
-  public NamedEntityOccurrence setQuantity(final int quantity);
-
-  public long getDocumentId();
-
-  public NamedEntityOccurrence setDocumentId(final long documentId);
-
-  public boolean hasDifferentParent();
+  private void addRestrictions() {
+    if (dfs.getProjectId() != null) {
+      addRestriction(Restrictions.idEq(dfs.getProjectId()));
+    }
+  }
 
 }

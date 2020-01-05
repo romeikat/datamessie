@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.model.core;
+package com.romeikat.datamessie.model.util;
 
 /*-
  * ============================LICENSE_START============================
- * data.messie (model)
+ * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,31 +22,23 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.model.EntityWithIdAndVersion;
-import com.romeikat.datamessie.model.enums.NamedEntityType;
+import java.io.Serializable;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.id.IdentityGenerator;
 
-public interface NamedEntityOccurrence extends EntityWithIdAndVersion {
+public class AssignedIdentityGenerator extends IdentityGenerator {
 
-  public long getNamedEntityId();
+  @Override
+  public Serializable generate(final SharedSessionContractImplementor session, final Object obj) {
+    if (obj instanceof Identifiable) {
+      final Identifiable identifiable = (Identifiable) obj;
+      final long id = identifiable.getId();
+      if (id != 0) {
+        return id;
+      }
+    }
 
-  public NamedEntityOccurrence setNamedEntityId(final long namedEntityId);
-
-  public long getParentNamedEntityId();
-
-  public NamedEntityOccurrence setParentNamedEntityId(final long parentNamedEntityId);
-
-  public NamedEntityType getType();
-
-  public NamedEntityOccurrence setType(final NamedEntityType type);
-
-  public int getQuantity();
-
-  public NamedEntityOccurrence setQuantity(final int quantity);
-
-  public long getDocumentId();
-
-  public NamedEntityOccurrence setDocumentId(final long documentId);
-
-  public boolean hasDifferentParent();
+    return super.generate(session, obj);
+  }
 
 }

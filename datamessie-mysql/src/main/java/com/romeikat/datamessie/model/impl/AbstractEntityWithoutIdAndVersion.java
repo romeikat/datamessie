@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.model.core;
+package com.romeikat.datamessie.model.impl;
 
 /*-
  * ============================LICENSE_START============================
- * data.messie (model)
+ * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,31 +22,17 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.model.EntityWithIdAndVersion;
-import com.romeikat.datamessie.model.enums.NamedEntityType;
+import javax.persistence.MappedSuperclass;
+import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.OptimisticLockType;
+import org.hibernate.annotations.OptimisticLocking;
+import com.romeikat.datamessie.model.Entity;
 
-public interface NamedEntityOccurrence extends EntityWithIdAndVersion {
-
-  public long getNamedEntityId();
-
-  public NamedEntityOccurrence setNamedEntityId(final long namedEntityId);
-
-  public long getParentNamedEntityId();
-
-  public NamedEntityOccurrence setParentNamedEntityId(final long parentNamedEntityId);
-
-  public NamedEntityType getType();
-
-  public NamedEntityOccurrence setType(final NamedEntityType type);
-
-  public int getQuantity();
-
-  public NamedEntityOccurrence setQuantity(final int quantity);
-
-  public long getDocumentId();
-
-  public NamedEntityOccurrence setDocumentId(final long documentId);
-
-  public boolean hasDifferentParent();
+@MappedSuperclass
+// The following two annotations are required as no version column is available for optimistic
+// locking
+@DynamicUpdate
+@OptimisticLocking(type = OptimisticLockType.DIRTY)
+public abstract class AbstractEntityWithoutIdAndVersion implements Entity {
 
 }

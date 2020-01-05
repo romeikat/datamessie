@@ -1,8 +1,8 @@
-package com.romeikat.datamessie.model.core;
+package com.romeikat.datamessie.dao;
 
 /*-
  * ============================LICENSE_START============================
- * data.messie (model)
+ * data.messie (dao)
  * =====================================================================
  * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
  * =====================================================================
@@ -22,31 +22,17 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.model.EntityWithIdAndVersion;
-import com.romeikat.datamessie.model.enums.NamedEntityType;
+import com.romeikat.datamessie.model.EntityWithId;
 
-public interface NamedEntityOccurrence extends EntityWithIdAndVersion {
 
-  public long getNamedEntityId();
+public interface EntityWithIdCachingDao<E extends EntityWithId> extends EntityWithIdDao<E> {
 
-  public NamedEntityOccurrence setNamedEntityId(final long namedEntityId);
+  void clearCaches();
 
-  public long getParentNamedEntityId();
+  @Override
+  void update(E entity);
 
-  public NamedEntityOccurrence setParentNamedEntityId(final long parentNamedEntityId);
-
-  public NamedEntityType getType();
-
-  public NamedEntityOccurrence setType(final NamedEntityType type);
-
-  public int getQuantity();
-
-  public NamedEntityOccurrence setQuantity(final int quantity);
-
-  public long getDocumentId();
-
-  public NamedEntityOccurrence setDocumentId(final long documentId);
-
-  public boolean hasDifferentParent();
+  @Override
+  void delete(E entity);
 
 }

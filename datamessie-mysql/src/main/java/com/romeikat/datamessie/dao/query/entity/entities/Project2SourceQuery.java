@@ -1,8 +1,8 @@
-package com.romeikat.datamessie.model.core;
+package com.romeikat.datamessie.dao.query.entity.entities;
 
 /*-
  * ============================LICENSE_START============================
- * data.messie (model)
+ * data.messie (mysql)
  * =====================================================================
  * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
  * =====================================================================
@@ -22,31 +22,14 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.model.EntityWithIdAndVersion;
-import com.romeikat.datamessie.model.enums.NamedEntityType;
+import com.romeikat.datamessie.dao.query.entity.EntityQuery;
+import com.romeikat.datamessie.model.core.Project2Source;
+import com.romeikat.datamessie.model.core.impl.Project2SourceImpl;
 
-public interface NamedEntityOccurrence extends EntityWithIdAndVersion {
+public class Project2SourceQuery extends EntityQuery<Project2Source> {
 
-  public long getNamedEntityId();
-
-  public NamedEntityOccurrence setNamedEntityId(final long namedEntityId);
-
-  public long getParentNamedEntityId();
-
-  public NamedEntityOccurrence setParentNamedEntityId(final long parentNamedEntityId);
-
-  public NamedEntityType getType();
-
-  public NamedEntityOccurrence setType(final NamedEntityType type);
-
-  public int getQuantity();
-
-  public NamedEntityOccurrence setQuantity(final int quantity);
-
-  public long getDocumentId();
-
-  public NamedEntityOccurrence setDocumentId(final long documentId);
-
-  public boolean hasDifferentParent();
+  public Project2SourceQuery() {
+    super(Project2SourceImpl.class);
+  }
 
 }

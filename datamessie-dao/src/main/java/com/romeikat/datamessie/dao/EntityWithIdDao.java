@@ -1,4 +1,4 @@
-package com.romeikat.datamessie.core.dao;
+package com.romeikat.datamessie.dao;
 
 /*-
  * ============================LICENSE_START============================
@@ -25,7 +25,7 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import com.romeikat.datamessie.core.domain.entity.EntityWithId;
+import com.romeikat.datamessie.model.EntityWithId;
 
 
 public interface EntityWithIdDao<E extends EntityWithId> extends EntityDao<E> {

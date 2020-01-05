@@ -1,4 +1,4 @@
-package com.romeikat.datamessie.model.core;
+package com.romeikat.datamessie.model.callback;
 
 /*-
  * ============================LICENSE_START============================
@@ -22,31 +22,11 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.model.EntityWithIdAndVersion;
-import com.romeikat.datamessie.model.enums.NamedEntityType;
+import java.util.Set;
 
-public interface NamedEntityOccurrence extends EntityWithIdAndVersion {
+@FunctionalInterface
+public interface SearchForCleanedContentCallback {
 
-  public long getNamedEntityId();
-
-  public NamedEntityOccurrence setNamedEntityId(final long namedEntityId);
-
-  public long getParentNamedEntityId();
-
-  public NamedEntityOccurrence setParentNamedEntityId(final long parentNamedEntityId);
-
-  public NamedEntityType getType();
-
-  public NamedEntityOccurrence setType(final NamedEntityType type);
-
-  public int getQuantity();
-
-  public NamedEntityOccurrence setQuantity(final int quantity);
-
-  public long getDocumentId();
-
-  public NamedEntityOccurrence setDocumentId(final long documentId);
-
-  public boolean hasDifferentParent();
+  Set<Long> getDocumentIdsWithCleanedContent(String searchTerm);
 
 }

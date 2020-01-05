@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.model.core;
+package com.romeikat.datamessie.dao.query.entity.entities;
 
 /*-
  * ============================LICENSE_START============================
- * data.messie (model)
+ * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,31 +22,29 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.model.EntityWithIdAndVersion;
-import com.romeikat.datamessie.model.enums.NamedEntityType;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.util.CollectionUtils;
+import com.romeikat.datamessie.dao.query.entity.EntityWithIdQuery;
+import com.romeikat.datamessie.model.core.SourceType;
+import com.romeikat.datamessie.model.core.impl.SourceTypeImpl;
+import com.romeikat.datamessie.model.util.DocumentsFilterSettings;
 
-public interface NamedEntityOccurrence extends EntityWithIdAndVersion {
+public class SourceTypeQuery extends EntityWithIdQuery<SourceType> {
 
-  public long getNamedEntityId();
+  private final DocumentsFilterSettings dfs;
 
-  public NamedEntityOccurrence setNamedEntityId(final long namedEntityId);
+  public SourceTypeQuery(final DocumentsFilterSettings dfs) {
+    super(SourceTypeImpl.class);
 
-  public long getParentNamedEntityId();
+    this.dfs = dfs;
 
-  public NamedEntityOccurrence setParentNamedEntityId(final long parentNamedEntityId);
+    addRestrictions();
+  }
 
-  public NamedEntityType getType();
-
-  public NamedEntityOccurrence setType(final NamedEntityType type);
-
-  public int getQuantity();
-
-  public NamedEntityOccurrence setQuantity(final int quantity);
-
-  public long getDocumentId();
-
-  public NamedEntityOccurrence setDocumentId(final long documentId);
-
-  public boolean hasDifferentParent();
+  private void addRestrictions() {
+    if (!CollectionUtils.isEmpty(dfs.getSourceTypeIds())) {
+      addRestriction(Restrictions.in("id", dfs.getSourceTypeIds()));
+    }
+  }
 
 }
