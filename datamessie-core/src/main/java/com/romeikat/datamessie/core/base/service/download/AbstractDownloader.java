@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import com.romeikat.datamessie.core.base.util.XmlUtil;
+import com.rometools.utils.Strings;
 
 public abstract class AbstractDownloader {
 
@@ -53,8 +54,7 @@ public abstract class AbstractDownloader {
   private XmlUtil xmlUtil;
 
   protected boolean isValidRedirection(final String originalUrl, final String redirectedUrl) {
-    return redirectedUrl != null && !redirectedUrl.isEmpty() && !originalUrl.contains(redirectedUrl)
-        && !redirectedUrl.contains(originalUrl);
+    return Strings.isNotEmpty(redirectedUrl) && !StringUtils.equals(originalUrl, redirectedUrl);
   }
 
   protected URLConnection getConnection(final String url) throws IOException {
