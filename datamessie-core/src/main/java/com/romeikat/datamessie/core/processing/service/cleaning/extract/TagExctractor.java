@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -34,6 +35,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 
@@ -90,7 +92,8 @@ public class TagExctractor {
     // Parse tag selector
     String tagName = null;
     String idName = null;
-    List<String> classNames = null;
+    Set<String> classNames = null;
+    boolean exactClassNamesMatch = false;
     final String warningMessage = "Could not apply tag selecting rule on document "
         + document.getId() + " (" + document.getUrl() + ") due to malformed tag selector "
         + tagSelector + " of source " + document.getSourceId();
@@ -107,35 +110,45 @@ public class TagExctractor {
         }
       }
       if (parts.length >= 3) {
-        classNames = Arrays.asList(parts[2].split(" "));
+        exactClassNamesMatch = parts[2].startsWith("\"") && parts[2].endsWith("\"");
+        final String classDefinition =
+            exactClassNamesMatch ? parts[2].substring(1, parts[2].length() - 1) : parts[2];
+        classNames = Sets.newHashSet(Arrays.asList(classDefinition.split(" ")));
       }
       if (tagName == null || idName == null && classNames == null) {
         LOG.warn(warningMessage);
         return null;
       }
+      // With tag selector, search for appropriate element
+      final org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(content);
+      final List<Element> matchingElements = new ArrayList<Element>();
+      final Elements elementsWithTagName = jsoupDocument.getElementsByTag(tagName);
+      for (final Element elementWithTagName : elementsWithTagName) {
+        final boolean idNameMatches = idName == null || elementWithTagName.id().equals(idName);
+        final boolean classNamesMatch;
+        if (exactClassNamesMatch) {
+          classNamesMatch =
+              classNames == null || elementWithTagName.classNames().equals(classNames);
+        } else {
+          classNamesMatch =
+              classNames == null || elementWithTagName.classNames().containsAll(classNames);
+        }
+        if (idNameMatches && classNamesMatch) {
+          matchingElements.add(elementWithTagName);
+        }
+      }
+      // Unique match found
+      if (matchingElements.size() == 1) {
+        final Element matchingElement = matchingElements.get(0);
+        return matchingElement.html();
+      }
+      // No unique match found
+      return null;
     } catch (final Exception e) {
       LOG.warn(warningMessage, e);
       return null;
     }
-    // With tag selector, search for appropriate element
-    final org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(content);
-    final List<Element> matchingElements = new ArrayList<Element>();
-    final Elements elementsWithTagName = jsoupDocument.getElementsByTag(tagName);
-    for (final Element elementWithTagName : elementsWithTagName) {
-      final boolean idNameMatches = idName == null || elementWithTagName.id().equals(idName);
-      final boolean classNamesMatch =
-          classNames == null || elementWithTagName.classNames().containsAll(classNames);
-      if (idNameMatches && classNamesMatch) {
-        matchingElements.add(elementWithTagName);
-      }
-    }
-    // Unique match found
-    if (matchingElements.size() == 1) {
-      final Element matchingElement = matchingElements.get(0);
-      return matchingElement.html();
-    }
-    // No unique match found
-    return null;
+
   }
 
 }
