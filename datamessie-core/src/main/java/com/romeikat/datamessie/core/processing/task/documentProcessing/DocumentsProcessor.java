@@ -24,6 +24,9 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Map;
+import org.apache.commons.lang3.time.StopWatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
@@ -79,6 +82,8 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.validate.
  */
 public class DocumentsProcessor {
 
+  private static final Logger LOG = LoggerFactory.getLogger(DocumentsProcessor.class);
+
   private final DocumentsProcessingInput documentsProcessingInput;
   private final DocumentsProcessingOutput documentsProcessingOutput;
   private final StatisticsRebuildingSparseTable statisticsToBeRebuilt;
@@ -89,6 +94,9 @@ public class DocumentsProcessor {
   private final DocumentsStemmer documentsStemmer;
   private final NamedEntitiesProcessor namedEntitiesProcessor;
   private final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback;
+
+  private final boolean logExecutionTimes = false;
+  private final StopWatch sw = new StopWatch();
 
   public DocumentsProcessor(final RedirectCallback redirectCallback,
       final GetDownloadIdsWithEntitiesCallback getDownloadIdsWithEntitiesCallback,
@@ -120,26 +128,45 @@ public class DocumentsProcessor {
   }
 
   public void processDocuments(final Collection<Document> documents) {
+    if (logExecutionTimes) {
+      sw.start();
+    }
+
     documentsProcessingInput.addDocuments(documents);
+    logExecutionTime("Add");
 
     // Process documents
     doProcessing();
 
     // Mark statistics to be rebuilt
     rebuildStatistics();
+    logExecutionTime("Statistics");
 
     // Persist all changes
     persistDocumentsProcessingOutput();
+    logExecutionTime("Persist");
+
+    if (logExecutionTimes) {
+      sw.stop();
+    }
   }
 
   private void doProcessing() {
     documentsValidator.validateDocuments();
-    documentsRedirector.redirectDocuments();
-    documentsCleaner.cleanDocuments();
-    documentsStemmer.stemDocuments();
-    namedEntitiesProcessor.processNamedEntities();
-  }
+    logExecutionTime("Validate");
 
+    documentsRedirector.redirectDocuments();
+    logExecutionTime("Redirect");
+
+    documentsCleaner.cleanDocuments();
+    logExecutionTime("Clean");
+
+    documentsStemmer.stemDocuments();
+    logExecutionTime("Stem");
+
+    namedEntitiesProcessor.processNamedEntities();
+    logExecutionTime("Named entities");
+  }
 
   private void rebuildStatistics() {
     for (final Document document : documentsProcessingOutput.getDocuments()) {
@@ -180,6 +207,12 @@ public class DocumentsProcessor {
 
   public StatisticsRebuildingSparseTable getStatisticsToBeRebuilt() {
     return statisticsToBeRebuilt;
+  }
+
+  private void logExecutionTime(final String section) {
+    if (logExecutionTimes) {
+      LOG.info("{}: {}s", section, sw.getTime() / 1000);
+    }
   }
 
 }
