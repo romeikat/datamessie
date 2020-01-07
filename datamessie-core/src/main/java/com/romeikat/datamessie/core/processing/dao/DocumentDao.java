@@ -32,6 +32,8 @@ import java.util.Map.Entry;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
@@ -55,6 +57,8 @@ import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Repository("processingDocumentDao")
 public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.DocumentDao {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DocumentDao.class);
 
   @Autowired
   private DownloadDao downloadDao;
@@ -129,6 +133,11 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
         replaceNamedEntityOccurrences(statelessSession, namedEntityOccurrencesToBeReplaced);
         saveNamedEntityCategories(statelessSession, namedEntityCategoriesToBeSaved);
       }
+
+      @Override
+      protected boolean shouldRethrowException() {
+        return true;
+      }
     }.execute();
   }
 
@@ -178,7 +187,13 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
         .entrySet()) {
       final Collection<NamedEntityOccurrence> namedEntityOccurrences = entry.getValue();
       for (final NamedEntityOccurrence namedEntityOccurrence : namedEntityOccurrences) {
-        namedEntityOccurrenceDao.insert(statelessSession, namedEntityOccurrence);
+        try {
+          namedEntityOccurrenceDao.insert(statelessSession, namedEntityOccurrence);
+        } catch (final Exception e) {
+          final String msg =
+              String.format("Could not insert named entity occurrence %s", namedEntityOccurrences);
+          LOG.error(msg, e);
+        }
       }
     }
   }
@@ -186,7 +201,13 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
   private void saveNamedEntityCategories(final StatelessSession statelessSession,
       final Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved) {
     for (final NamedEntityCategory namedEntityCategory : namedEntityCategoriesToBeSaved) {
-      namedEntityCategoryDao.insert(statelessSession, namedEntityCategory);
+      try {
+        namedEntityCategoryDao.insert(statelessSession, namedEntityCategory);
+      } catch (final Exception e) {
+        final String msg =
+            String.format("Could not insert named entity category %s", namedEntityCategory);
+        LOG.error(msg, e);
+      }
     }
   }
 

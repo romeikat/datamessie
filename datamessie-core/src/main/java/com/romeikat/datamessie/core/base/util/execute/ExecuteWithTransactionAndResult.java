@@ -52,7 +52,11 @@ public abstract class ExecuteWithTransactionAndResult<T> {
         onException(e2);
       }
       statelessSession.close();
-      return null;
+      if (shouldRethrowException()) {
+        throw new RuntimeException(e);
+      } else {
+        return null;
+      }
     }
   }
 
@@ -60,6 +64,10 @@ public abstract class ExecuteWithTransactionAndResult<T> {
 
   protected void onException(final Exception e) {
     LOG.error("Could not execute transaction", e);
+  }
+
+  protected boolean shouldRethrowException() {
+    return false;
   }
 
   private Transaction beginTransaction(final StatelessSession statelessSession) {
