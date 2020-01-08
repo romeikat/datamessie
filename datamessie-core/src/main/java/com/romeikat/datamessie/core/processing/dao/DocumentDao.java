@@ -35,6 +35,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
@@ -59,6 +60,9 @@ import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.DocumentDao {
 
   private static final Logger LOG = LoggerFactory.getLogger(DocumentDao.class);
+
+  @Value("${documents.processing.stemming.enabled}")
+  private boolean stemmingEnabled;
 
   @Autowired
   private DownloadDao downloadDao;
@@ -104,8 +108,11 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
     documentQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
     documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
     documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
-    final Object[] statesForProcessing = new DocumentProcessingState[] {
-        DocumentProcessingState.DOWNLOADED, DocumentProcessingState.REDIRECTED};
+    final Object[] statesForProcessing = stemmingEnabled
+        ? new DocumentProcessingState[] {DocumentProcessingState.DOWNLOADED,
+            DocumentProcessingState.REDIRECTED, DocumentProcessingState.CLEANED}
+        : new DocumentProcessingState[] {DocumentProcessingState.DOWNLOADED,
+            DocumentProcessingState.REDIRECTED};
     documentQuery.addRestriction(Restrictions.in("state", statesForProcessing));
     documentQuery.setMaxResults(maxResults);
 

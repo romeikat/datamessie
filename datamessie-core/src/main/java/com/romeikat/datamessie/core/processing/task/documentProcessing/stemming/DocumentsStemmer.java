@@ -83,15 +83,21 @@ public class DocumentsStemmer {
    * to the {@code documentsProcessingOutput}. Also, empty stemmed content and named entity
    * detections are added to the {@code documentsProcessingOutput}.</li>
    * </ul>
+   *
+   * @param stemmingEnabled
    */
-  public void stemDocuments() {
+  public void stemDocuments(boolean stemmingEnabled) {
     new ParallelProcessing<Document>(null, documentsProcessingInput.getDocuments(),
         processingParallelismFactor) {
       @Override
       public void doProcessing(final HibernateSessionProvider sessionProvider,
           final Document document) {
         try {
-          stemDocument(document);
+          if (stemmingEnabled) {
+            stemDocument(document);
+          } else {
+            outputEmptyResults(document);
+          }
         } catch (final Exception e) {
           final String msg = String.format("Could not stem document %s", document.getId());
           LOG.error(msg, e);
@@ -147,6 +153,8 @@ public class DocumentsStemmer {
   }
 
   private void outputEmptyResults(final Document document) {
+    document.setStemmedTitle("");
+    document.setStemmedDescription("");
     documentsProcessingOutput.putDocument(document);
     documentsProcessingOutput.putStemmedContent(new StemmedContent(document.getId(), ""));
     documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
