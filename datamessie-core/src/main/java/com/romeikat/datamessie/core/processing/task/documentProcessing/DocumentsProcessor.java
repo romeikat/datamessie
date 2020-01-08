@@ -28,6 +28,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -84,6 +85,8 @@ public class DocumentsProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(DocumentsProcessor.class);
 
+  private boolean stemmingEnabled = true;
+
   private final DocumentsProcessingInput documentsProcessingInput;
   private final DocumentsProcessingOutput documentsProcessingOutput;
   private final StatisticsRebuildingSparseTable statisticsToBeRebuilt;
@@ -95,7 +98,7 @@ public class DocumentsProcessor {
   private final NamedEntitiesProcessor namedEntitiesProcessor;
   private final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback;
 
-  private final boolean logExecutionTimes = false;
+  private final boolean logExecutionTimes = true;
   private final StopWatch sw = new StopWatch();
 
   public DocumentsProcessor(final RedirectCallback redirectCallback,
@@ -108,6 +111,9 @@ public class DocumentsProcessor {
       final ProvideNamedEntityCategoryTitlesCallback provideNamedEntityCategoryTitlesCallback,
       final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback,
       final ApplicationContext ctx) {
+    stemmingEnabled = Boolean
+        .parseBoolean(SpringUtil.getPropertyValue(ctx, "documents.processing.stemming.enabled"));
+
     documentsProcessingInput = new DocumentsProcessingInput(ctx);
     documentsProcessingOutput = new DocumentsProcessingOutput();
     statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
@@ -161,11 +167,15 @@ public class DocumentsProcessor {
     documentsCleaner.cleanDocuments();
     logExecutionTime("Clean");
 
-    documentsStemmer.stemDocuments();
+    documentsStemmer.stemDocuments(stemmingEnabled);
     logExecutionTime("Stem");
 
-    namedEntitiesProcessor.processNamedEntities();
+    namedEntitiesProcessor.processNamedEntities(stemmingEnabled);
     logExecutionTime("Named entities");
+  }
+
+  protected void setStemmingEnabled(final boolean stemmingEnabled) {
+    this.stemmingEnabled = stemmingEnabled;
   }
 
   private void rebuildStatistics() {

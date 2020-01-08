@@ -162,9 +162,11 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final LocalDateTime now = LocalDateTime.now();
     // Document1 with download success
     final LocalDateTime published1 = now.minusDays(1);
-    final Document document1 = new Document(1, crawling1.getId(), source1.getId())
-        .setTitle("Title1").setUrl(URL_1).setDescription("Description1").setPublished(published1)
-        .setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
+    final Document document1 =
+        new Document(1, crawling1.getId(), source1.getId()).setTitle("Title1")
+            .setStemmedTitle("Outdated StemmedTitle1").setUrl(URL_1).setDescription("Description1")
+            .setStemmedDescription("Outdated StemmedDescription1").setPublished(published1)
+            .setDownloaded(now).setState(DocumentProcessingState.DOWNLOADED).setStatusCode(200);
     final RawContent rawContent1 = new RawContent(document1.getId(), "RawContent1");
     final CleanedContent cleanedContent1 =
         new CleanedContent(document1.getId(), "Outdated CleanedContent1");
@@ -293,6 +295,60 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         sessionProvider.getStatelessSession(), namedEntityCategory.getCategoryNamedEntityId());
     assertEquals(NAMED_ENTITY_NAME, namedEntity.getName());
     assertEquals(NAMED_ENTITY_CATEGORY_NAME, categoryNamedEntity.getName());
+
+    final List<Download> downloads =
+        downloadDao.getForDocument(sessionProvider.getStatelessSession(), 1);
+    assertEquals(2, downloads.size());
+    final Download download1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), URL_1, 1);
+    assertNotNull(download1);
+    assertEquals(1, download1.getDocumentId());
+    assertTrue(download1.getSuccess());
+    final Download redurectedDownload1 =
+        downloadDao.getForUrlAndSource(sessionProvider.getStatelessSession(), REDIRECTED_URL, 1);
+    assertNotNull(redurectedDownload1);
+    assertEquals(1, redurectedDownload1.getDocumentId());
+    assertTrue(redurectedDownload1.getSuccess());
+
+    // Statistics are rebuilt
+    final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
+        documentsProcessor.getStatisticsToBeRebuilt();
+    assertTrue(
+        statisticsToBeRebuilt.getValue(document1.getSourceId(), document1.getPublishedDate()));
+  }
+
+  @Test
+  public void processDocument_stemmingDisabled() {
+    Document document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    RawContent rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    CleanedContent cleanedContent1 =
+        cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    StemmedContent stemmedContent1 =
+        stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    final DocumentAndContentValues oldValues =
+        new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
+
+    // Process
+    documentsProcessor.setStemmingEnabled(false);
+    documentsProcessor.processDocuments(Lists.newArrayList(document1));
+
+    // Processing was successful (with redirection):
+    // state becomes CLEANED
+    document1 = documentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    rawContent1 = rawContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
+    final DocumentAndContentValues expectedValues = new DocumentAndContentValues(
+        oldValues.getTitle(), "", REDIRECTED_URL, oldValues.getDescription(), "",
+        oldValues.getPublished(), REDIRECTED_DOWNLOADED, DocumentProcessingState.CLEANED,
+        REDIRECTED_STATUS_CODE, REDIRECTED_RAW_CONTENT, CLEANED_CONTENT, "");
+    final DocumentAndContentValues actualValues =
+        new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
+    assertEquals(expectedValues, actualValues);
+
+    final List<NamedEntityOccurrence> namedEntityOccurrences =
+        namedEntityOccurrenceDao.getByDocument(sessionProvider.getStatelessSession(), 1);
+    assertEquals(0, namedEntityOccurrences.size());
 
     final List<Download> downloads =
         downloadDao.getForDocument(sessionProvider.getStatelessSession(), 1);
@@ -676,10 +732,9 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     cleanedContent1 = cleanedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     stemmedContent1 = stemmedContentDao.getEntity(sessionProvider.getStatelessSession(), 1);
     final DocumentAndContentValues expectedValues = new DocumentAndContentValues(
-        oldValues.getTitle(), oldValues.getStemmedTitle(), REDIRECTED_URL,
-        oldValues.getDescription(), oldValues.getStemmedDescription(), oldValues.getPublished(),
-        REDIRECTED_DOWNLOADED, DocumentProcessingState.TECHNICAL_ERROR, oldValues.getStatusCode(),
-        REDIRECTED_RAW_CONTENT, CLEANED_CONTENT, "");
+        oldValues.getTitle(), "", REDIRECTED_URL, oldValues.getDescription(), "",
+        oldValues.getPublished(), REDIRECTED_DOWNLOADED, DocumentProcessingState.TECHNICAL_ERROR,
+        oldValues.getStatusCode(), REDIRECTED_RAW_CONTENT, CLEANED_CONTENT, "");
     final DocumentAndContentValues actualValues =
         new DocumentAndContentValues(document1, rawContent1, cleanedContent1, stemmedContent1);
     assertEquals(expectedValues, actualValues);

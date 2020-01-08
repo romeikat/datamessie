@@ -31,6 +31,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionContract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
@@ -51,6 +52,9 @@ import com.romeikat.datamessie.core.statistics.task.StatisticsRebuilder;
 
 @Service
 public class LocalStatisticsManager implements IStatisticsManager {
+
+  @Value("${documents.processing.stemming.enabled}")
+  private boolean stemmingEnabled;
 
   @Autowired
   @Qualifier("sourceDao")
@@ -130,8 +134,10 @@ public class LocalStatisticsManager implements IStatisticsManager {
     dto.setDownloadedDocuments(downloadedDocuments);
 
     // Preprocessed documents
-    getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(
-        DocumentProcessingState.getWith(DocumentProcessingState.STEMMED));
+    states = stemmingEnabled ? DocumentProcessingState.getWith(DocumentProcessingState.STEMMED)
+        : DocumentProcessingState.getWith(DocumentProcessingState.CLEANED,
+            DocumentProcessingState.STEMMED);
+    getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(states);
     final SparseSingleTable<Long, LocalDate, Long> preprocessedDocumentsStatistics =
         statisticsService.getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction,
             getNumberOfDocumentsFunction);
@@ -149,9 +155,13 @@ public class LocalStatisticsManager implements IStatisticsManager {
     dto.setDownloadSuccess(downloadSuccess);
 
     // Preprocessing success
-    getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(
-        DocumentProcessingState.getWith(DocumentProcessingState.CLEANED,
-            DocumentProcessingState.CLEANING_ERROR, DocumentProcessingState.STEMMED));
+    states = stemmingEnabled
+        ? DocumentProcessingState.getWith(DocumentProcessingState.REDIRECTING_ERROR,
+            DocumentProcessingState.CLEANED, DocumentProcessingState.CLEANING_ERROR,
+            DocumentProcessingState.STEMMED)
+        : DocumentProcessingState.getWith(DocumentProcessingState.REDIRECTING_ERROR,
+            DocumentProcessingState.CLEANED, DocumentProcessingState.CLEANING_ERROR);
+    getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(states);
     final SparseSingleTable<Long, LocalDate, Long> preprocessingAttemtedDocumentsStatistics =
         statisticsService.getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction,
             getNumberOfDocumentsFunction);
@@ -169,9 +179,12 @@ public class LocalStatisticsManager implements IStatisticsManager {
     dto.setPreprocessingSuccess(preprocessingSuccess);
 
     // Documents to be preprocessed
-    getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(
-        DocumentProcessingState.getWith(DocumentProcessingState.DOWNLOADED,
-            DocumentProcessingState.REDIRECTED, DocumentProcessingState.CLEANED));
+    states = stemmingEnabled
+        ? DocumentProcessingState.getWith(DocumentProcessingState.DOWNLOADED,
+            DocumentProcessingState.REDIRECTED, DocumentProcessingState.CLEANED)
+        : DocumentProcessingState.getWith(DocumentProcessingState.DOWNLOADED,
+            DocumentProcessingState.REDIRECTED);
+    getNumberOfDocumentsFunction = new GetNumberOfDocumentsFunction(states);
     final SparseSingleTable<Long, LocalDate, Long> documentsToBePreprocessedStatistics =
         statisticsService.getStatistics(baseStatistics, sourceIds, from, to, transformDateFunction,
             getNumberOfDocumentsFunction);

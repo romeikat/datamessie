@@ -99,8 +99,10 @@ public class NamedEntitiesProcessor {
    * <li>Finally, missing named entity categories are created and added to the
    * {@code documentsProcessingOutput}.</li>
    * </ul>
+   *
+   * @param stemmingEnabled
    */
-  public void processNamedEntities() {
+  public void processNamedEntities(boolean stemmingEnabled) {
     // Collect named entity names
     final Collection<String> namedEntityNames = determineNamedEntityNames();
 
@@ -109,7 +111,7 @@ public class NamedEntitiesProcessor {
         getOrCreateNamedEntities(namedEntityNames);
 
     // Create NamedEntityOccurrences
-    createNamedEntityOccurrences(namedEntityNames2NamedEntityId);
+    createNamedEntityOccurrences(namedEntityNames2NamedEntityId, stemmingEnabled);
 
     // Create NamedEntityCategories
     createNamedEntityCategories(namedEntityNames2NamedEntityId);
@@ -134,21 +136,25 @@ public class NamedEntitiesProcessor {
     return namedEntityNames2NamedEntityId;
   }
 
-  private void createNamedEntityOccurrences(
-      final Map<String, Long> namedEntityNames2NamedEntityId) {
+  private void createNamedEntityOccurrences(final Map<String, Long> namedEntityNames2NamedEntityId,
+      boolean stemmingEnabled) {
     new ParallelProcessing<Document>(null, documentsProcessingInput.getDocuments(),
         processingParallelismFactor) {
       @Override
       public void doProcessing(final HibernateSessionProvider sessionProvider,
           final Document document) {
         try {
-          final Set<NamedEntityDetectionDto> namedEntityDetections =
-              documentsProcessingInput.getNamedEntityDetections(document.getId());
-          final List<NamedEntityOccurrence> namedEntityOccurrences =
-              namedEntityOccurrencesCreator.createNamedEntityOccurrences(document.getId(),
-                  namedEntityDetections, namedEntityNames2NamedEntityId);
-          documentsProcessingOutput.putNamedEntityOccurrences(document.getId(),
-              namedEntityOccurrences);
+          if (stemmingEnabled) {
+            final Set<NamedEntityDetectionDto> namedEntityDetections =
+                documentsProcessingInput.getNamedEntityDetections(document.getId());
+            final List<NamedEntityOccurrence> namedEntityOccurrences =
+                namedEntityOccurrencesCreator.createNamedEntityOccurrences(document.getId(),
+                    namedEntityDetections, namedEntityNames2NamedEntityId);
+            documentsProcessingOutput.putNamedEntityOccurrences(document.getId(),
+                namedEntityOccurrences);
+          } else {
+            outputEmptyResults(document);
+          }
         } catch (final Exception e) {
           final String msg =
               String.format("Could not process named entities of document %s", document.getId());
