@@ -27,6 +27,8 @@ import java.util.List;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.stereotype.Repository;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 
@@ -52,7 +54,7 @@ public class DownloadDao extends AbstractEntityWithIdAndVersionDao<Download> {
     return downloads;
   }
 
-  public List<Download> getForDocuments(final SharedSessionContract ssc,
+  public Multimap<Long, Download> getForDocuments(final SharedSessionContract ssc,
       final Collection<Long> documentIds) {
     // Query: Download
     final EntityWithIdQuery<Download> downloadQuery = new EntityWithIdQuery<>(Download.class);
@@ -60,7 +62,8 @@ public class DownloadDao extends AbstractEntityWithIdAndVersionDao<Download> {
 
     // Done
     final List<Download> downloads = downloadQuery.listObjects(ssc);
-    return downloads;
+    final Multimap<Long, Download> result = Multimaps.index(downloads, d -> d.getDocumentId());
+    return result;
   }
 
   public Download getForUrlAndSource(final SharedSessionContract ssc, final String url,

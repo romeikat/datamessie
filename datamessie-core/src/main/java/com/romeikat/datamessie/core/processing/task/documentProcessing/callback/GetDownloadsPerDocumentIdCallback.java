@@ -23,13 +23,14 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-import java.util.Map;
 import org.hibernate.SharedSessionContract;
+import com.google.common.collect.Multimap;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 
 @FunctionalInterface
-public interface GetDownloadIdsWithEntitiesCallback {
+public interface GetDownloadsPerDocumentIdCallback {
 
-  Map<Long, Download> getDownloadIdsWithEntities(SharedSessionContract ssc, Collection<Long> ids);
+  Multimap<Long, Download> getDownloadIdsWithEntities(SharedSessionContract ssc,
+      Collection<Long> ids);
 
 }

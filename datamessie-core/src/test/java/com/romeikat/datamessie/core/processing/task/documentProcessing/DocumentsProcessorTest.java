@@ -234,7 +234,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     doReturn(namedEntityCategories).when(provideNamedEntityCategoryTitlesCallback)
         .provideCategoryTitles(any(String.class));
 
-    documentsProcessor = new DocumentsProcessor(redirectCallback, downloadDao::getIdsWithEntities,
+    documentsProcessor = new DocumentsProcessor(redirectCallback, downloadDao::getForDocuments,
         documentDao::getIdsWithEntities, downloadDao::getDocumentIdsForUrlsAndSource, cleanCallback,
         stemCallback, namedEntityDao::getOrCreate, namedEntityCategoryDao::getWithoutCategories,
         provideNamedEntityCategoryTitlesCallback,
