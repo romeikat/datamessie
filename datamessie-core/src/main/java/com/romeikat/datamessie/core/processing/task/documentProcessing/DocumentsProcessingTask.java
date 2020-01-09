@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -214,7 +214,7 @@ public class DocumentsProcessingTask implements Task {
             String.format("Processing %s %s", documentsToProcess.size(), singularPlural));
 
         final DocumentsProcessor documentsProcessor = new DocumentsProcessor(
-            documentRedirector::redirect, downloadDao::getIdsWithEntities,
+            documentRedirector::redirect, downloadDao::getForDocuments,
             documentDao::getIdsWithEntities, downloadDao::getDocumentIdsForUrlsAndSource,
             documentCleaner::clean, documentStemmer::stem, namedEntityDao::getOrCreate,
             namedEntityCategoryDao::getWithoutCategories,

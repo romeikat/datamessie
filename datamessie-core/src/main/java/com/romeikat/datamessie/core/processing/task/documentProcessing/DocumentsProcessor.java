@@ -40,7 +40,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.CleanCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsForUrlsAndSourceCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsWithEntitiesCallback;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDownloadIdsWithEntitiesCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDownloadsPerDocumentIdCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetNamedEntityNamesWithoutCategoryCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetOrCreateNamedEntitiesCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.PersistDocumentsProcessingOutputCallback;
@@ -102,7 +102,7 @@ public class DocumentsProcessor {
   private final StopWatch sw = new StopWatch();
 
   public DocumentsProcessor(final RedirectCallback redirectCallback,
-      final GetDownloadIdsWithEntitiesCallback getDownloadIdsWithEntitiesCallback,
+      final GetDownloadsPerDocumentIdCallback getDownloadIdsWithEntitiesCallback,
       final GetDocumentIdsWithEntitiesCallback getDocumentIdsWithEntitiesCallback,
       final GetDocumentIdsForUrlsAndSourceCallback getDocumentIdsForUrlsAndSourceCallback,
       final CleanCallback cleanCallback, final StemCallback stemCallback,

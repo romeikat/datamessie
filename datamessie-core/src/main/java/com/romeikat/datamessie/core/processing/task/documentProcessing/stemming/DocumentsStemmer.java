@@ -86,7 +86,7 @@ public class DocumentsStemmer {
    *
    * @param stemmingEnabled
    */
-  public void stemDocuments(boolean stemmingEnabled) {
+  public void stemDocuments(final boolean stemmingEnabled) {
     new ParallelProcessing<Document>(null, documentsProcessingInput.getDocuments(),
         processingParallelismFactor) {
       @Override

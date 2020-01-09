@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
@@ -61,7 +62,7 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.Documents
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingOutput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsForUrlsAndSourceCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsWithEntitiesCallback;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDownloadIdsWithEntitiesCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDownloadsPerDocumentIdCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.RedirectCallback;
 import jersey.repackaged.com.google.common.collect.Maps;
 
@@ -77,14 +78,14 @@ public class DocumentsRedirector {
   private final DocumentsProcessingOutput documentsProcessingOutput;
 
   private final RedirectCallback redirectCallback;
-  private final GetDownloadIdsWithEntitiesCallback getDownloadIdsWithEntitiesCallback;
+  private final GetDownloadsPerDocumentIdCallback getDownloadsPerDocumentIdCallback;
   private final GetDocumentIdsWithEntitiesCallback getDocumentIdsWithEntitiesCallback;
   private final GetDocumentIdsForUrlsAndSourceCallback getDocumentIdsForUrlsAndSourceCallback;
 
   public DocumentsRedirector(final DocumentsProcessingInput documentsProcessingInput,
       final DocumentsProcessingOutput documentsProcessingOutput,
       final RedirectCallback redirectCallback,
-      final GetDownloadIdsWithEntitiesCallback getDownloadIdsWithEntitiesCallback,
+      final GetDownloadsPerDocumentIdCallback getDownloadsPerDocumentIdCallback,
       final GetDocumentIdsWithEntitiesCallback getDocumentIdsWithEntitiesCallback,
       final GetDocumentIdsForUrlsAndSourceCallback getDocumentIdsForUrlsAndSourceCallback,
       final ApplicationContext ctx) {
@@ -97,7 +98,7 @@ public class DocumentsRedirector {
     this.documentsProcessingOutput = documentsProcessingOutput;
 
     this.redirectCallback = redirectCallback;
-    this.getDownloadIdsWithEntitiesCallback = getDownloadIdsWithEntitiesCallback;
+    this.getDownloadsPerDocumentIdCallback = getDownloadsPerDocumentIdCallback;
     this.getDocumentIdsWithEntitiesCallback = getDocumentIdsWithEntitiesCallback;
     this.getDocumentIdsForUrlsAndSourceCallback = getDocumentIdsForUrlsAndSourceCallback;
   }
@@ -179,13 +180,20 @@ public class DocumentsRedirector {
         documentId2DocumentRedirectingResult);
 
     // Load downloads with document for all relevant document IDs:
-    final Map<Long, Download> relevantDownloads = getDownloadIdsWithEntitiesCallback
+    final Multimap<Long, Download> relevantDownloads = getDownloadsPerDocumentIdCallback
         .getDownloadIdsWithEntities(sessionProvider.getStatelessSession(), documentIds);
     final Map<Long, Document> relevantDocuments = Maps.newHashMap(getDocumentIdsWithEntitiesCallback
         .getDocumentIdsWithEntities(sessionProvider.getStatelessSession(), documentIds));
     // Prefer output cache
-    relevantDocuments.replaceAll((final Long documentId,
-        final Document document) -> documentsProcessingOutput.getDocument(documentId));
+    final BiFunction<Long, Document, Document> replacingWithOutputDocumentFunction =
+        new BiFunction<Long, Document, Document>() {
+          @Override
+          public Document apply(final Long documentId, final Document document) {
+            final Document outputDocument = documentsProcessingOutput.getDocument(documentId);
+            return outputDocument != null ? outputDocument : document;
+          }
+        };
+    relevantDocuments.replaceAll(replacingWithOutputDocumentFunction);
     final ManyToOne<DownloadEntry, DocumentEntry> downloadsWithDocument =
         getDownloadsWithDocument(relevantDownloads, relevantDocuments);
 
@@ -343,20 +351,23 @@ public class DocumentsRedirector {
   }
 
   private ManyToOne<DownloadEntry, DocumentEntry> getDownloadsWithDocument(
-      final Map<Long, Download> downloads, final Map<Long, Document> documents) {
-    // Combine
+      final Multimap<Long, Download> downloads, final Map<Long, Document> documents) {
     final ManyToOne<DownloadEntry, DocumentEntry> result =
         new ManyToOne<DownloadEntry, DocumentEntry>();
-    for (final Download download : downloads.values()) {
-      final DownloadEntry downloadEntry = new DownloadEntry(download);
 
-      final Document document = documents.get(download.getDocumentId());
+    // Combine
+    for (final Entry<Long, Download> entry : downloads.entries()) {
+      final long documentId = entry.getKey();
+      final Download download = entry.getValue();
+
+      final Document document = documents.get(documentId);
       if (document == null) {
         LOG.warn("No document found for download {}", download.getId());
         continue;
       }
-      final DocumentEntry documentEntry = new DocumentEntry(document);
 
+      final DownloadEntry downloadEntry = new DownloadEntry(download);
+      final DocumentEntry documentEntry = new DocumentEntry(document);
       result.put(downloadEntry, documentEntry);
     }
 
@@ -446,7 +457,8 @@ public class DocumentsRedirector {
   private void mergeOverlappingDocuments(
       final Collection<? extends Collection<Document>> overlappingDocuments,
       final ManyToOne<DownloadEntry, DocumentEntry> downloadsWithDocument,
-      final Map<Long, Download> relevantDownloads, final Map<Long, Document> relevantDocuments) {
+      final Multimap<Long, Download> relevantDownloads,
+      final Map<Long, Document> relevantDocuments) {
     // Prepare data structure for merge
     final Map<Long, DocumentWithDownloads> documentsWithDownloads = Maps.newHashMap();
     for (final Collection<Document> documents : overlappingDocuments) {
@@ -474,7 +486,8 @@ public class DocumentsRedirector {
 
   private void mergeDocuments(final Collection<Document> documentsToBeMerged,
       final Map<Long, DocumentWithDownloads> documentsWithDownloads,
-      final Map<Long, Download> relevantDownloads, final Map<Long, Document> relevantDocuments) {
+      final Multimap<Long, Download> relevantDownloads,
+      final Map<Long, Document> relevantDocuments) {
     final Collection<Long> documentsToBeMergedIds =
         documentsToBeMerged.stream().map(d -> d.getId()).collect(Collectors.toSet());
     final Set<DocumentWithDownloads> documentsToBeMergedWithDownloads = documentsWithDownloads
@@ -507,16 +520,18 @@ public class DocumentsRedirector {
   }
 
   private void mergeSlaveIntoMaster(final DocumentWithDownloads slave,
-      final DocumentWithDownloads master, final Map<Long, Download> relevantDownloads,
+      final DocumentWithDownloads master, final Multimap<Long, Download> relevantDownloads,
       final Map<Long, Document> relevantDocuments) {
     // Reassign downloads from slave to master
     final Collection<Long> downloadIds = slave.getDownloadIds();
     for (final long downloadId : downloadIds) {
-      final Download download = relevantDownloads.get(downloadId);
-      final boolean documentIdChanged = download.getDocumentId() != master.getDocumentId();
-      if (documentIdChanged) {
-        download.setDocumentId(master.getDocumentId());
-        documentsProcessingOutput.putDownload(download);
+      final Collection<Download> downloads = relevantDownloads.get(downloadId);
+      for (final Download download : downloads) {
+        final boolean documentIdChanged = download.getDocumentId() != master.getDocumentId();
+        if (documentIdChanged) {
+          download.setDocumentId(master.getDocumentId());
+          documentsProcessingOutput.putDownload(download);
+        }
       }
     }
 
