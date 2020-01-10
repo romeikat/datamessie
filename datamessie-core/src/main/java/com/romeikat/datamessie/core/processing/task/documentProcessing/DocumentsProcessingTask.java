@@ -1,18 +1,14 @@
 package com.romeikat.datamessie.core.processing.task.documentProcessing;
 
-import java.text.ParseException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.SessionFactory;
-import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 /*-
@@ -44,6 +40,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.app.plugin.DateMessiePlugins;
 import com.romeikat.datamessie.core.base.app.plugin.INamedEntityCategoryProider;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
@@ -55,13 +52,13 @@ import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
-import com.romeikat.datamessie.core.base.util.DateUtil;
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
 import com.romeikat.datamessie.core.processing.init.DatamessieIndexingInitializer;
 import com.romeikat.datamessie.core.processing.service.stemming.namedEntity.ClassifierPipelineProvider;
@@ -69,6 +66,7 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.
 import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirector;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmer;
 import com.romeikat.datamessie.core.processing.task.documentReindexing.DocumentsReindexer;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 @Service(DocumentsProcessingTask.BEAN_NAME)
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -79,6 +77,9 @@ public class DocumentsProcessingTask implements Task {
   public static final String BEAN_NAME = "documentsProcessingTask";
 
   public static final String NAME = "Documents processing";
+
+  @Value("${documents.processing.stemming.enabled}")
+  private boolean stemmingEnabled;
 
   @Autowired
   private ApplicationContext ctx;
@@ -193,18 +194,24 @@ public class DocumentsProcessingTask implements Task {
     // Initialize
     taskExecution.reportWork("Starting documents processing");
 
-    // Determine minimum downloaded date
-    final LocalDate minDownloadedDate = getMinDownloadedDate(sessionProvider.getStatelessSession());
+    // Determine downloaded dates
+    final Collection<DocumentProcessingState> statesForProcessing = getStatesForProcessing();
+    final Queue<LocalDate> downloadedDates =
+        Lists.newLinkedList(documentDao.getDownloadedDatesWithDocuments(
+            sessionProvider.getStatelessSession(), statesForProcessing));
 
-    // Process all download dates one after another, starting with the minimum downloaded date
+    // Process all download dates one after another, starting with the minimum one
+    final LocalDate minDownloadedDate =
+        downloadedDates.isEmpty() ? LocalDate.now() : downloadedDates.poll();
     downloadedDate.setValue(minDownloadedDate);
     while (true) {
       // Apply provided date, if available
       applyDownloadedDateToRestartFrom(taskExecution);
 
       // Load
-      final List<Document> documentsToProcess = documentsLoader.loadDocumentsToProcess(
-          sessionProvider.getStatelessSession(), taskExecution, downloadedDate.getValue());
+      final List<Document> documentsToProcess =
+          documentsLoader.loadDocumentsToProcess(sessionProvider.getStatelessSession(),
+              taskExecution, downloadedDate.getValue(), statesForProcessing);
 
       // Process
       if (CollectionUtils.isNotEmpty(documentsToProcess)) {
@@ -237,8 +244,15 @@ public class DocumentsProcessingTask implements Task {
       }
 
       // Prepare for next iteration
-      prepareForNextIteration(taskExecution, documentsToProcess);
+      prepareForNextIteration(taskExecution, documentsToProcess, downloadedDates);
     }
+  }
+
+  private Set<DocumentProcessingState> getStatesForProcessing() {
+    return stemmingEnabled
+        ? Sets.newHashSet(DocumentProcessingState.DOWNLOADED, DocumentProcessingState.REDIRECTED,
+            DocumentProcessingState.CLEANED)
+        : Sets.newHashSet(DocumentProcessingState.DOWNLOADED, DocumentProcessingState.REDIRECTED);
   }
 
   private void applyDownloadedDateToRestartFrom(final TaskExecution taskExecution) {
@@ -261,28 +275,6 @@ public class DocumentsProcessingTask implements Task {
     }
   }
 
-  private LocalDate getMinDownloadedDate(final StatelessSession statelessSession) {
-    if (StringUtils.isNotBlank(minDownloadedDate)) {
-      Date parseDate;
-      try {
-        parseDate = DateUtils.parseDate(minDownloadedDate, "yyyy-MM-dd");
-        return DateUtil.toLocalDate(parseDate);
-      } catch (final ParseException e) {
-        final String msg = String.format("Cound not parse minDownloadedDate %s", minDownloadedDate);
-        LOG.error(msg, e);
-        return null;
-      }
-    }
-
-    final LocalDateTime minDownloadedDateTime = documentDao.getMinDownloaded(statelessSession);
-    if (minDownloadedDateTime == null) {
-      return LocalDate.now();
-    }
-
-    final LocalDate minDownloadedDate = minDownloadedDateTime.toLocalDate();
-    return minDownloadedDate;
-  }
-
   private void rebuildStatistics(final StatisticsRebuildingSparseTable statisticsToBeRebuilt) {
     final IStatisticsManager statisticsManager =
         sharedBeanProvider.getSharedBean(IStatisticsManager.class);
@@ -298,7 +290,8 @@ public class DocumentsProcessingTask implements Task {
   }
 
   private void prepareForNextIteration(final TaskExecution taskExecution,
-      final List<Document> documentsToProcess) throws TaskCancelledException {
+      final List<Document> documentsToProcess, final Queue<LocalDate> downloadedDates)
+      throws TaskCancelledException {
     // No documents to process due to an error while loading
     final boolean errorOccurred = documentsToProcess == null;
     if (errorOccurred) {
@@ -315,7 +308,7 @@ public class DocumentsProcessingTask implements Task {
     if (noDocumentsToProcess) {
       // Determine next downloaded date
       final LocalDate previousDownloadDate = downloadedDate.getValue();
-      final LocalDate nextDownloadedDate = getNextDownloadedDate(previousDownloadDate);
+      final LocalDate nextDownloadedDate = getNextDownloadedDate(downloadedDates);
 
       // Current date is reached
       final boolean isCurrentDate = previousDownloadDate.equals(nextDownloadedDate);
@@ -338,10 +331,10 @@ public class DocumentsProcessingTask implements Task {
     if (noMoreDocumentsToProcess) {
       // Increase download date
       // Determine next downloaded date
-      final LocalDate previousDownloadDate = downloadedDate.getValue();
-      final LocalDate nextDownloadedDate = getNextDownloadedDate(previousDownloadDate);
+      final LocalDate nextDownloadedDate = getNextDownloadedDate(downloadedDates);
 
       // Current date is reached
+      final LocalDate previousDownloadDate = downloadedDate.getValue();
       final boolean isCurrentDate = previousDownloadDate.equals(nextDownloadedDate);
       if (isCurrentDate) {
         // Pause
@@ -357,14 +350,13 @@ public class DocumentsProcessingTask implements Task {
     }
   }
 
-  private LocalDate getNextDownloadedDate(final LocalDate downloadedDate) {
-    // If download date is current date (or future), remain at current date
-    final LocalDate now = LocalDate.now();
-    if (!downloadedDate.isBefore(now)) {
-      return now;
+  private LocalDate getNextDownloadedDate(final Queue<LocalDate> downloadedDates) {
+    // If no more download dates to process, remain at current date
+    if (downloadedDates.isEmpty()) {
+      return LocalDate.now();
     }
     // Otherwise, go to next date
-    return downloadedDate.plusDays(1);
+    return downloadedDates.poll();
   }
 
   public void restartFromDownloadedDate(final LocalDate downloadedDate) {

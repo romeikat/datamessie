@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,6 +65,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
+import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Repository
 public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
@@ -397,6 +399,27 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     final LocalDateTime maxDownloaded =
         (LocalDateTime) documentQuery.uniqueForProjection(ssc, projection);
     return maxDownloaded;
+  }
+
+  public List<LocalDate> getDownloadedDatesWithDocuments(final SharedSessionContract ssc,
+      Collection<DocumentProcessingState> states) {
+    if (states.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // Query
+    final StringBuilder hql = new StringBuilder();
+    hql.append("select to_date(downloaded) as downloadedDate ");
+    hql.append("from " + Document.class.getSimpleName() + " ");
+    hql.append("where state in :_states ");
+    hql.append("order by downloadedDate ");
+    @SuppressWarnings("unchecked")
+    final Query<Date> query = ssc.createQuery(hql.toString());
+    query.setParameter("_states", states);
+
+    // Done
+    final List<Date> publishedDates = query.list();
+    return Lists.transform(publishedDates, d -> DateUtil.toLocalDate(d));
   }
 
 }

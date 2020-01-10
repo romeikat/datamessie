@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
 
 @Service
@@ -59,12 +61,12 @@ public class DocumentsLoader {
   private DocumentsLoader() {}
 
   public List<Document> loadDocumentsToProcess(final StatelessSession statelessSession,
-      final TaskExecution taskExecution, final LocalDate downloadedDate)
-      throws TaskCancelledException {
+      final TaskExecution taskExecution, final LocalDate downloadedDate,
+      Collection<DocumentProcessingState> statesForProcessing) throws TaskCancelledException {
     try {
       // Load documents
-      final List<Document> documentsToProcess =
-          documentDao.getToProcess(statelessSession, downloadedDate, batchSize);
+      final List<Document> documentsToProcess = documentDao.getToProcess(statelessSession,
+          downloadedDate, statesForProcessing, batchSize);
 
       // Logging
       final String singularPlural =

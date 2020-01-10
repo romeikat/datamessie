@@ -35,7 +35,6 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
@@ -61,9 +60,6 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
 
   private static final Logger LOG = LoggerFactory.getLogger(DocumentDao.class);
 
-  @Value("${documents.processing.stemming.enabled}")
-  private boolean stemmingEnabled;
-
   @Autowired
   private DownloadDao downloadDao;
 
@@ -83,7 +79,11 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
   private NamedEntityCategoryDao namedEntityCategoryDao;
 
   public List<Document> getToProcess(final SharedSessionContract ssc, final LocalDate downloaded,
-      final int maxResults) {
+      Collection<DocumentProcessingState> statesForProcessing, final int maxResults) {
+    if (statesForProcessing.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     final LocalDateTime minDownloaded = LocalDateTime.of(downloaded, LocalTime.MIDNIGHT);
     final LocalDateTime maxDownloaded =
         LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
@@ -108,11 +108,6 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
     documentQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
     documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
     documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
-    final Object[] statesForProcessing = stemmingEnabled
-        ? new DocumentProcessingState[] {DocumentProcessingState.DOWNLOADED,
-            DocumentProcessingState.REDIRECTED, DocumentProcessingState.CLEANED}
-        : new DocumentProcessingState[] {DocumentProcessingState.DOWNLOADED,
-            DocumentProcessingState.REDIRECTED};
     documentQuery.addRestriction(Restrictions.in("state", statesForProcessing));
     documentQuery.setMaxResults(maxResults);
 

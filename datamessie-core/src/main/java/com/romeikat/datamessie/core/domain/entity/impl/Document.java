@@ -40,7 +40,9 @@ import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 @Table(name = Document.TABLE_NAME,
     uniqueConstraints = @UniqueConstraint(name = "document_id_version",
         columnNames = {"id", "version"}),
-    indexes = {@Index(name = "document_downloaded", columnList = "downloaded"),
+    indexes = {
+        @Index(name = "document_downloaded_state_source_id",
+            columnList = "downloaded, state, source_id"),
         @Index(name = "document_published_source_id_state",
             columnList = "published, source_id, state"),
         @Index(name = "FK_document_crawling_id", columnList = "crawling_id")})
