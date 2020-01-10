@@ -22,9 +22,11 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.hibernate.StatelessSession;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
@@ -47,6 +50,7 @@ import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSp
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingTask;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 @Service
 public class DocumentService {
@@ -83,15 +87,19 @@ public class DocumentService {
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         new StatisticsRebuildingSparseTable();
 
-    // Determine minimum downloaded date
-    final LocalDate minDownloadedDate = getMinDownloadedDate(statelessSession);
+    // Determine downloaded dates
+    final Collection<DocumentProcessingState> statesForDeprocessing =
+        getStatesForDeprocessing(targetState);
+    final Queue<LocalDate> downloadedDates = Lists.newLinkedList(
+        documentDao.getDownloadedDatesWithDocuments(statelessSession, statesForDeprocessing));
 
-    // Process all download dates one after another, starting with the minimum downloaded date
+    // Process all download dates one after another, starting with the minimum one
+    final LocalDate minDownloadedDate = downloadedDates.isEmpty() ? null : downloadedDates.poll();
     final MutableObject<LocalDate> downloadedDate = new MutableObject<LocalDate>(minDownloadedDate);
     while (downloadedDate.getValue() != null) {
       // Deprocess
       deprocessDocumentsOfSourceAndDownloadDate(statelessSession, taskExecution, sourceId,
-          targetState, statisticsToBeRebuilt, downloadedDate.getValue());
+          targetState, statisticsToBeRebuilt, downloadedDate.getValue(), statesForDeprocessing);
 
       // Prepare for next iteration
       final LocalDate nextDownloadedDate = getNextDownloadedDate(downloadedDate.getValue());
@@ -116,24 +124,15 @@ public class DocumentService {
     taskExecution.reportWorkEnd(work);
   }
 
-  private LocalDate getMinDownloadedDate(final StatelessSession statelessSession) {
-    final LocalDateTime minDownloadedDateTime = documentDao.getMinDownloaded(statelessSession);
-    if (minDownloadedDateTime == null) {
-      return null;
-    }
-
-    final LocalDate minDownloadedDate = minDownloadedDateTime.toLocalDate();
-    return minDownloadedDate;
-  }
-
   private void deprocessDocumentsOfSourceAndDownloadDate(final StatelessSession statelessSession,
       final TaskExecution taskExecution, final long sourceId,
       final DocumentProcessingState targetState,
-      final StatisticsRebuildingSparseTable statisticsToBeRebuilt, final LocalDate downloadedDate)
+      final StatisticsRebuildingSparseTable statisticsToBeRebuilt, final LocalDate downloadedDate,
+      final Collection<DocumentProcessingState> statesForDeprocessing)
       throws TaskCancelledException {
     // Load
-    final List<Document> documentsToDeprocess =
-        documentDao.getForSourceAndDownloaded(statelessSession, sourceId, downloadedDate);
+    final List<Document> documentsToDeprocess = documentDao.getForSourceAndDownloaded(
+        statelessSession, sourceId, downloadedDate, statesForDeprocessing);
 
     // Deprocess
     if (CollectionUtils.isNotEmpty(documentsToDeprocess)) {
@@ -153,55 +152,36 @@ public class DocumentService {
       final Collection<Document> documents, final DocumentProcessingState targetState,
       final StatisticsRebuildingSparseTable statisticsToBeRebuilt) {
     for (final Document document : documents) {
-      LOG.debug("Deprocessing document {}", document.getId());
       // Update state
-      if (document != null) {
-        final DocumentProcessingState oldState = document.getState();
-        if (!isValidDeprocessingStep(oldState, targetState)) {
-          continue;
-        }
-        document.setState(targetState);
-        documentDao.update(statelessSession, document);
-        // Rebuild statistics
-        final long sourceId = document.getSourceId();
-        final LocalDate publishedDate = document.getPublishedDate();
-        statisticsToBeRebuilt.putValue(sourceId, publishedDate, true);
-      }
+      document.setState(targetState);
+      documentDao.update(statelessSession, document);
+      // Rebuild statistics
+      final long sourceId = document.getSourceId();
+      final LocalDate publishedDate = document.getPublishedDate();
+      statisticsToBeRebuilt.putValue(sourceId, publishedDate, true);
     }
   }
 
-  private boolean isValidDeprocessingStep(final DocumentProcessingState sourceState,
+  private Set<DocumentProcessingState> getStatesForDeprocessing(
       final DocumentProcessingState targetState) {
-    // Check target state
-    if (DocumentProcessingState.getErrorStates().contains(targetState)) {
-      return false;
-    }
-    // Check source -> target states
-    switch (sourceState) {
+    switch (targetState) {
       case DOWNLOADED:
-      case DOWNLOAD_ERROR:
-        return false;
+        return Sets.newHashSet(DocumentProcessingState.REDIRECTED,
+            DocumentProcessingState.REDIRECTING_ERROR, DocumentProcessingState.CLEANED,
+            DocumentProcessingState.CLEANING_ERROR, DocumentProcessingState.STEMMED,
+            DocumentProcessingState.TECHNICAL_ERROR);
       case REDIRECTED:
-      case REDIRECTING_ERROR:
-        return targetState == DocumentProcessingState.DOWNLOADED;
+        return Sets.newHashSet(DocumentProcessingState.REDIRECTING_ERROR,
+            DocumentProcessingState.CLEANED, DocumentProcessingState.CLEANING_ERROR,
+            DocumentProcessingState.STEMMED, DocumentProcessingState.TECHNICAL_ERROR);
       case CLEANED:
-        return targetState == DocumentProcessingState.DOWNLOADED
-            || targetState == DocumentProcessingState.REDIRECTED;
-      case CLEANING_ERROR:
+        return Sets.newHashSet(DocumentProcessingState.CLEANING_ERROR,
+            DocumentProcessingState.STEMMED, DocumentProcessingState.TECHNICAL_ERROR);
       case STEMMED:
-        return targetState == DocumentProcessingState.DOWNLOADED
-            || targetState == DocumentProcessingState.REDIRECTED
-            || targetState == DocumentProcessingState.CLEANED;
-      case TECHNICAL_ERROR:
-        return targetState == DocumentProcessingState.DOWNLOADED
-            || targetState == DocumentProcessingState.REDIRECTED
-            || targetState == DocumentProcessingState.CLEANED
-            || targetState == DocumentProcessingState.STEMMED;
-      case TO_BE_DELETED:
-        return false;
+        return Sets.newHashSet(DocumentProcessingState.TECHNICAL_ERROR);
+      default:
+        return Collections.emptySet();
     }
-    // Done
-    return true;
   }
 
   private LocalDate getNextDownloadedDate(final LocalDate downloadedDate) {

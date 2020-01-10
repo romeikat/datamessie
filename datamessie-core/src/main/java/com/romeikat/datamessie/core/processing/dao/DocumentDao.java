@@ -79,7 +79,7 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
   private NamedEntityCategoryDao namedEntityCategoryDao;
 
   public List<Document> getToProcess(final SharedSessionContract ssc, final LocalDate downloaded,
-      Collection<DocumentProcessingState> statesForProcessing, final int maxResults) {
+      final Collection<DocumentProcessingState> statesForProcessing, final int maxResults) {
     if (statesForProcessing.isEmpty()) {
       return Collections.emptyList();
     }
@@ -105,10 +105,10 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
 
     // Query: Document
     final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
-    documentQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
     documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
     documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
     documentQuery.addRestriction(Restrictions.in("state", statesForProcessing));
+    documentQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
     documentQuery.setMaxResults(maxResults);
 
     // Done

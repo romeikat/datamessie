@@ -115,16 +115,22 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   }
 
   public List<Document> getForSourceAndDownloaded(final SharedSessionContract ssc,
-      final long sourceId, final LocalDate downloaded) {
+      final long sourceId, final LocalDate downloaded,
+      final Collection<DocumentProcessingState> statesForDeprocessing) {
+    if (statesForDeprocessing.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     final LocalDateTime minDownloaded = LocalDateTime.of(downloaded, LocalTime.MIDNIGHT);
     final LocalDateTime maxDownloaded =
         LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
 
     // Query: Document
     final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
-    documentQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
     documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
     documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
+    documentQuery.addRestriction(Restrictions.in("state", statesForDeprocessing));
+    documentQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
 
     // Done
     final List<Document> entities = documentQuery.listObjects(ssc);
@@ -402,7 +408,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   }
 
   public List<LocalDate> getDownloadedDatesWithDocuments(final SharedSessionContract ssc,
-      Collection<DocumentProcessingState> states) {
+      final Collection<DocumentProcessingState> states) {
     if (states.isEmpty()) {
       return Collections.emptyList();
     }
