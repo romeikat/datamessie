@@ -35,11 +35,11 @@ import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
-import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
+import jersey.repackaged.com.google.common.base.Objects;
 
 @Service
 public class DocumentsLoader {
@@ -55,25 +55,29 @@ public class DocumentsLoader {
   @Qualifier("processingDocumentDao")
   private DocumentDao documentDao;
 
-  @Autowired
-  private StringUtil stringUtil;
-
   private DocumentsLoader() {}
 
   public List<Document> loadDocumentsToProcess(final StatelessSession statelessSession,
-      final TaskExecution taskExecution, final LocalDate downloadedDate,
-      Collection<DocumentProcessingState> statesForProcessing) throws TaskCancelledException {
+      final TaskExecution taskExecution, final LocalDate fromDate, final LocalDate toDate,
+      final Collection<DocumentProcessingState> statesForProcessing,
+      final Collection<Long> sourceIds) throws TaskCancelledException {
     try {
-      // Load documents
-      final List<Document> documentsToProcess = documentDao.getToProcess(statelessSession,
-          downloadedDate, statesForProcessing, batchSize);
+      final boolean oneDateOnly = Objects.equal(fromDate, toDate);
+      final StringBuilder msg = new StringBuilder();
+      msg.append("Loading documents to process from download date");
+      if (oneDateOnly) {
+        msg.append(String.format(" %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate)));
+      } else {
+        msg.append(
+            String.format("s %s to %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate),
+                LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
+      }
+      work = taskExecution.reportWorkStart(msg.toString());
 
-      // Logging
-      final String singularPlural =
-          stringUtil.getSingularOrPluralTerm("document", documentsToProcess.size());
-      work = taskExecution.reportWorkStart(
-          String.format("Loaded %s %s to process with download date %s", documentsToProcess.size(),
-              singularPlural, LocalDateConverter.INSTANCE_UI.convertToString(downloadedDate)));
+      // Load documents
+      final List<Document> documentsToProcess = documentDao.getToProcess(statelessSession, fromDate,
+          toDate, statesForProcessing, sourceIds, batchSize);
+
       taskExecution.reportWorkEnd(work);
       taskExecution.checkpoint();
       return documentsToProcess;

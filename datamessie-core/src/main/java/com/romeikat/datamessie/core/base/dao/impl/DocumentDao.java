@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.wicket.util.lang.Objects;
@@ -115,15 +117,14 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   }
 
   public List<Document> getForSourceAndDownloaded(final SharedSessionContract ssc,
-      final long sourceId, final LocalDate downloaded,
-      final Collection<DocumentProcessingState> statesForDeprocessing) {
+      final long sourceId, final LocalDate fromDate, final LocalDate toDate,
+      final Collection<DocumentProcessingState> statesForDeprocessing, final int maxResults) {
     if (statesForDeprocessing.isEmpty()) {
       return Collections.emptyList();
     }
 
-    final LocalDateTime minDownloaded = LocalDateTime.of(downloaded, LocalTime.MIDNIGHT);
-    final LocalDateTime maxDownloaded =
-        LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
+    final LocalDateTime minDownloaded = LocalDateTime.of(fromDate, LocalTime.MIDNIGHT);
+    final LocalDateTime maxDownloaded = LocalDateTime.of(toDate.plusDays(1), LocalTime.MIDNIGHT);
 
     // Query: Document
     final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
@@ -131,6 +132,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
     documentQuery.addRestriction(Restrictions.in("state", statesForDeprocessing));
     documentQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
+    documentQuery.setMaxResults(maxResults);
 
     // Done
     final List<Document> entities = documentQuery.listObjects(ssc);
@@ -407,25 +409,41 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     return maxDownloaded;
   }
 
-  public List<LocalDate> getDownloadedDatesWithDocuments(final SharedSessionContract ssc,
-      final Collection<DocumentProcessingState> states) {
-    if (states.isEmpty()) {
-      return Collections.emptyList();
+  public SortedMap<LocalDate, Long> getDownloadedDatesWithNumberOfDocuments(
+      final SharedSessionContract ssc, final LocalDate fromDate,
+      final Collection<DocumentProcessingState> states,
+      final Collection<Long> sourceIdsForProcessing) {
+    if (states.isEmpty() || sourceIdsForProcessing.isEmpty()) {
+      return Maps.newTreeMap();
     }
 
     // Query
     final StringBuilder hql = new StringBuilder();
-    hql.append("select to_date(downloaded) as downloadedDate ");
+    hql.append("select to_date(downloaded), count(*) ");
     hql.append("from " + Document.class.getSimpleName() + " ");
     hql.append("where state in :_states ");
-    hql.append("order by downloadedDate ");
-    @SuppressWarnings("unchecked")
-    final Query<Date> query = ssc.createQuery(hql.toString());
+    hql.append("and source_id in :_source_ids ");
+    if (fromDate != null) {
+      hql.append("and downloaded >= :_fromDate ");
+    }
+    hql.append("group by to_date(downloaded) ");
+    final Query<?> query = ssc.createQuery(hql.toString());
     query.setParameter("_states", states);
+    query.setParameter("_source_ids", sourceIdsForProcessing);
+    if (fromDate != null) {
+      query.setParameter("_fromDate", fromDate.atStartOfDay());
+    }
 
     // Done
-    final List<Date> publishedDates = query.list();
-    return Lists.transform(publishedDates, d -> DateUtil.toLocalDate(d));
+    final TreeMap<LocalDate, Long> result = Maps.newTreeMap();
+    @SuppressWarnings("unchecked")
+    final List<Object[]> rows = (List<Object[]>) query.list();
+    for (final Object[] row : rows) {
+      final LocalDate downloadedDate = DateUtil.toLocalDate((Date) row[0]);
+      final long numberOfDocuments = (Long) row[1];
+      result.put(downloadedDate, numberOfDocuments);
+    }
+    return result;
   }
 
 }

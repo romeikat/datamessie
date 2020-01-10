@@ -3,11 +3,11 @@ package com.romeikat.datamessie.core.processing.task.documentProcessing;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
 import javax.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,12 +48,12 @@ import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
+import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.StringUtil;
-import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
@@ -66,7 +66,9 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.
 import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirector;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmer;
 import com.romeikat.datamessie.core.processing.task.documentReindexing.DocumentsReindexer;
-import jersey.repackaged.com.google.common.collect.Lists;
+import com.romeikat.datamessie.core.processing.util.DocumentsDatesConsumer;
+import com.romeikat.datamessie.core.processing.util.ProcessingDates;
+import jersey.repackaged.com.google.common.base.Objects;
 
 @Service(DocumentsProcessingTask.BEAN_NAME)
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -127,8 +129,8 @@ public class DocumentsProcessingTask implements Task {
   @Autowired
   private NamedEntityCategoryDao namedEntityCategoryDao;
 
-  @Value("${documents.processing.downloaded.date.min}")
-  private String minDownloadedDate;
+  @Autowired
+  private SourceDao sourceDao;
 
   @Value("${documents.processing.batch.size}")
   private int batchSize;
@@ -141,19 +143,28 @@ public class DocumentsProcessingTask implements Task {
   private final INamedEntityCategoryProider plugin;
 
   /**
-   * The current downloadedDate being processed
+   * The downloaded dates consumer; {@code null} indicates that processing should be restarted
    */
-  private final MutableObject<LocalDate> downloadedDate;
+  private DocumentsDatesConsumer documentsDatesConsumer;
+  /**
+   * The current dates range being processed
+   */
+  private final ProcessingDates processingDates;
 
   /**
-   * A new downloadedDate to restart from
+   * The source IDs to be processed.
    */
-  private LocalDate restartFromDownloadedDate;
+  private Collection<Long> sourceIdsForProcessing;
+
+  /**
+   * Whether processing should be restarted
+   */
+  private boolean restartProcessing;
 
 
   private DocumentsProcessingTask() {
     plugin = DateMessiePlugins.getInstance(ctx).getOrLoadPlugin(INamedEntityCategoryProider.class);
-    downloadedDate = new MutableObject<LocalDate>(null);
+    processingDates = new ProcessingDates();
   }
 
   @PostConstruct
@@ -191,29 +202,23 @@ public class DocumentsProcessingTask implements Task {
   }
 
   private void performProcessing(final TaskExecution taskExecution) throws TaskCancelledException {
-    // Initialize
     taskExecution.reportWork("Starting documents processing");
 
-    // Determine downloaded dates
-    final Collection<DocumentProcessingState> statesForProcessing = getStatesForProcessing();
-    final Queue<LocalDate> downloadedDates =
-        Lists.newLinkedList(documentDao.getDownloadedDatesWithDocuments(
-            sessionProvider.getStatelessSession(), statesForProcessing));
-
-    // Process all download dates one after another, starting with the minimum one
-    final LocalDate minDownloadedDate =
-        downloadedDates.isEmpty() ? LocalDate.now() : downloadedDates.poll();
-    downloadedDate.setValue(minDownloadedDate);
     while (true) {
-      // Apply provided date, if available
-      applyDownloadedDateToRestartFrom(taskExecution);
+      // Determine necessary states and sources
+      final Collection<DocumentProcessingState> statesForProcessing = getStatesForProcessing();
+      final Collection<Long> sourceIdsForProcessing = getSourceIdsForProcessing();
 
-      // Load
+      // Initialize
+      initializeProcessingIfNecessary(taskExecution, statesForProcessing, sourceIdsForProcessing);
+
+      // Load documents within date range
       final List<Document> documentsToProcess =
           documentsLoader.loadDocumentsToProcess(sessionProvider.getStatelessSession(),
-              taskExecution, downloadedDate.getValue(), statesForProcessing);
+              taskExecution, processingDates.getProcessingFromDate(),
+              processingDates.getProcessingToDate(), statesForProcessing, sourceIdsForProcessing);
 
-      // Process
+      // Process date range
       if (CollectionUtils.isNotEmpty(documentsToProcess)) {
         final String singularPlural =
             stringUtil.getSingularOrPluralTerm("document", documentsToProcess.size());
@@ -244,7 +249,8 @@ public class DocumentsProcessingTask implements Task {
       }
 
       // Prepare for next iteration
-      prepareForNextIteration(taskExecution, documentsToProcess, downloadedDates);
+      prepareForNextIteration(taskExecution, statesForProcessing, sourceIdsForProcessing,
+          documentsToProcess);
     }
   }
 
@@ -255,24 +261,142 @@ public class DocumentsProcessingTask implements Task {
         : Sets.newHashSet(DocumentProcessingState.DOWNLOADED, DocumentProcessingState.REDIRECTED);
   }
 
-  private void applyDownloadedDateToRestartFrom(final TaskExecution taskExecution) {
-    // No date provided
-    if (restartFromDownloadedDate == null) {
+  private Set<Long> getSourceIdsForProcessing() {
+    return Sets.newHashSet(sourceDao.getIdsToBeProcessed(sessionProvider.getStatelessSession()));
+  }
+
+  private void initializeProcessingIfNecessary(final TaskExecution taskExecution,
+      final Collection<DocumentProcessingState> statesForProcessing,
+      final Collection<Long> sourceIdsForProcessing) {
+    // Check whether sources changed
+    final boolean sourcesChanged =
+        !Objects.equal(this.sourceIdsForProcessing, sourceIdsForProcessing);
+    if (sourcesChanged) {
+      this.sourceIdsForProcessing = sourceIdsForProcessing;
+      restartProcessing = true;
+    }
+
+    // Processing should be restarted
+    if (restartProcessing) {
+      // Indicate that processing should be restarted
+      documentsDatesConsumer = null;
+
+      resetProcessingDates();
+    }
+
+    // Processing should be continued
+    if (documentsDatesConsumer != null) {
+      // No initialization necessary
       return;
     }
 
-    // Processing has not yet started
-    final LocalDate currentDownloadedDate = downloadedDate.getValue();
-    if (currentDownloadedDate == null) {
+    final TaskExecutionWork work =
+        taskExecution.reportWorkStart(String.format("Initializing processing"));
+
+    // Initialize all numbers and processing dates
+    initializeNumbersAndProcessingDates(null, statesForProcessing, sourceIdsForProcessing);
+    restartProcessing = false;
+
+    taskExecution.reportWorkEnd(work);
+  }
+
+  private void prepareForNextIteration(final TaskExecution taskExecution,
+      final Collection<DocumentProcessingState> statesForProcessing,
+      final Collection<Long> sourceIdsForProcessing, final List<Document> documentsToProcess)
+      throws TaskCancelledException {
+    // Error while loading documents
+    final boolean errorOccurred = documentsToProcess == null;
+    if (errorOccurred) {
+      // In case of an error, wait...
+      sessionProvider.closeStatelessSession();
+      taskExecution.checkpoint(pause);
+
+      // ... and try again with the current date range
       return;
     }
 
-    if (restartFromDownloadedDate.isBefore(currentDownloadedDate)) {
-      taskExecution.reportWork(String.format("Re-starting processing at %s",
-          (LocalDateConverter.INSTANCE_UI.convertToString(restartFromDownloadedDate))));
-      downloadedDate.setValue(restartFromDownloadedDate);
-      restartFromDownloadedDate = null;
+    // More documents to process for that date range
+    final boolean moreDocumentsToProcess = documentsToProcess.size() >= batchSize;
+    if (moreDocumentsToProcess) {
+      // Continue with the current date range
+      return;
     }
+
+    // No more documents to process for that date range => iterate to next date range
+
+    // Consume dates
+    documentsDatesConsumer.removeDates(processingDates.getProcessingToDate());
+
+    // No more dates available => re-determine numbers, starting from end of previous numbers
+    if (documentsDatesConsumer.isEmpty()) {
+      // Pause
+      sessionProvider.closeStatelessSession();
+      taskExecution.checkpoint(pause);
+
+      // Initialize next numbers and processing dates
+      final LocalDate previousToDate = processingDates.getProcessingToDate();
+      initializeNumbersAndProcessingDates(previousToDate, statesForProcessing,
+          sourceIdsForProcessing);
+    }
+    // More dates available => apply next date range from existing numbers
+    else {
+      applyNextDateRangeFromNumbers();
+    }
+  }
+
+  private void initializeNumbersAndProcessingDates(final LocalDate fromDate,
+      final Collection<DocumentProcessingState> statesForProcessing,
+      final Collection<Long> sourceIdsForProcessing) {
+    // Determine numbers
+    determineNumbers(fromDate, statesForProcessing, sourceIdsForProcessing);
+
+    // Determine initial date range to process
+    if (documentsDatesConsumer.isEmpty()) {
+      applyNewDateRange(fromDate);
+    } else {
+      applyNextDateRangeFromNumbers();
+    }
+  }
+
+  private void determineNumbers(final LocalDate fromDate,
+      final Collection<DocumentProcessingState> statesForProcessing,
+      final Collection<Long> sourceIdsForProcessing) {
+    final SortedMap<LocalDate, Long> datesWithDocuments =
+        documentDao.getDownloadedDatesWithNumberOfDocuments(sessionProvider.getStatelessSession(),
+            fromDate, statesForProcessing, sourceIdsForProcessing);
+    documentsDatesConsumer = new DocumentsDatesConsumer(datesWithDocuments, batchSize);
+  }
+
+  private void resetProcessingDates() {
+    processingDates.setNumbersToDate(null);
+    processingDates.setProcessingFromDate(null);
+    processingDates.setProcessingToDate(null);
+  }
+
+  private void applyNewDateRange(final LocalDate fromDate) {
+    // Use the provided starting date, if available
+    if (fromDate != null) {
+      processingDates.setProcessingFromDate(fromDate);
+
+      final LocalDate today = LocalDate.now();
+      final LocalDate toDate = today.isAfter(fromDate) ? today : fromDate;
+      processingDates.setProcessingToDate(toDate);
+    }
+
+    // Otherwise, start from yesterday (in case we just passed midnight)
+    else {
+      final LocalDate yesterday = LocalDate.now().minusDays(1);
+      processingDates.setProcessingFromDate(yesterday);
+
+      final LocalDate today = LocalDate.now();
+      processingDates.setProcessingToDate(today);
+    }
+  }
+
+  private void applyNextDateRangeFromNumbers() {
+    final Pair<LocalDate, LocalDate> dateRange = documentsDatesConsumer.getNextDateRange();
+    processingDates.setProcessingFromDate(dateRange.getLeft());
+    processingDates.setProcessingToDate(dateRange.getRight());
   }
 
   private void rebuildStatistics(final StatisticsRebuildingSparseTable statisticsToBeRebuilt) {
@@ -289,84 +413,8 @@ public class DocumentsProcessingTask implements Task {
     documentsReindexer.toBeReindexed(documentIds);
   }
 
-  private void prepareForNextIteration(final TaskExecution taskExecution,
-      final List<Document> documentsToProcess, final Queue<LocalDate> downloadedDates)
-      throws TaskCancelledException {
-    // No documents to process due to an error while loading
-    final boolean errorOccurred = documentsToProcess == null;
-    if (errorOccurred) {
-      // In case of an error, wait and continue with same downloaded date
-      sessionProvider.closeStatelessSession();
-      taskExecution.checkpoint(pause);
-
-      // Next download date to be processed is the same
-      return;
-    }
-
-    // No documents to process for that downloaded date
-    final boolean noDocumentsToProcess = documentsToProcess.isEmpty();
-    if (noDocumentsToProcess) {
-      // Determine next downloaded date
-      final LocalDate previousDownloadDate = downloadedDate.getValue();
-      final LocalDate nextDownloadedDate = getNextDownloadedDate(downloadedDates);
-
-      // Current date is reached
-      final boolean isCurrentDate = previousDownloadDate.equals(nextDownloadedDate);
-      if (isCurrentDate) {
-        // Pause
-        sessionProvider.closeStatelessSession();
-        taskExecution.checkpoint(pause);
-        // Next downloaded date to be processed is the same
-      }
-      // Current date is not yet reached
-      else {
-        // Next downloaded date to be processed is the next day
-        downloadedDate.setValue(nextDownloadedDate);
-      }
-      return;
-    }
-
-    // No more documents to process for that downloaded date
-    final boolean noMoreDocumentsToProcess = documentsToProcess.size() < batchSize;
-    if (noMoreDocumentsToProcess) {
-      // Increase download date
-      // Determine next downloaded date
-      final LocalDate nextDownloadedDate = getNextDownloadedDate(downloadedDates);
-
-      // Current date is reached
-      final LocalDate previousDownloadDate = downloadedDate.getValue();
-      final boolean isCurrentDate = previousDownloadDate.equals(nextDownloadedDate);
-      if (isCurrentDate) {
-        // Pause
-        sessionProvider.closeStatelessSession();
-        taskExecution.checkpoint(pause);
-        // Next downloaded date to be processed is the same
-      }
-      // Current date is not yet reached
-      else {
-        // Next downloaded date to be processed is the next day
-        downloadedDate.setValue(nextDownloadedDate);
-      }
-    }
-  }
-
-  private LocalDate getNextDownloadedDate(final Queue<LocalDate> downloadedDates) {
-    // If no more download dates to process, remain at current date
-    if (downloadedDates.isEmpty()) {
-      return LocalDate.now();
-    }
-    // Otherwise, go to next date
-    return downloadedDates.poll();
-  }
-
-  public void restartFromDownloadedDate(final LocalDate downloadedDate) {
-    if (downloadedDate == null) {
-      return;
-    }
-
-    if (restartFromDownloadedDate == null || restartFromDownloadedDate.isAfter(downloadedDate)) {
-      restartFromDownloadedDate = downloadedDate;
-    }
+  public void restartProcessing() {
+    restartProcessing = true;
   }
 
 }

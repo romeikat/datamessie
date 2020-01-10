@@ -43,14 +43,12 @@ import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
-import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQuery;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -78,30 +76,15 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
   @Autowired
   private NamedEntityCategoryDao namedEntityCategoryDao;
 
-  public List<Document> getToProcess(final SharedSessionContract ssc, final LocalDate downloaded,
-      final Collection<DocumentProcessingState> statesForProcessing, final int maxResults) {
-    if (statesForProcessing.isEmpty()) {
+  public List<Document> getToProcess(final SharedSessionContract ssc, final LocalDate fromDate,
+      final LocalDate toDate, final Collection<DocumentProcessingState> statesForProcessing,
+      final Collection<Long> sourceIds, final int maxResults) {
+    if (statesForProcessing.isEmpty() || sourceIds.isEmpty()) {
       return Collections.emptyList();
     }
 
-    final LocalDateTime minDownloaded = LocalDateTime.of(downloaded, LocalTime.MIDNIGHT);
-    final LocalDateTime maxDownloaded =
-        LocalDateTime.of(downloaded.plusDays(1), LocalTime.MIDNIGHT);
-
-    // Query: Project
-    final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(Project.class);
-    projectQuery.addRestriction(Restrictions.eq("preprocessingEnabled", true));
-    final Collection<Long> projectIds = projectQuery.listIds(ssc);
-    if (projectIds.isEmpty()) {
-      return Collections.emptyList();
-    }
-    // Query: Project2Source
-    final Project2SourceQuery project2SourceQuery = new Project2SourceQuery();
-    project2SourceQuery.addRestriction(Restrictions.in("projectId", projectIds));
-    final Collection<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
-    if (sourceIds.isEmpty()) {
-      return Collections.emptyList();
-    }
+    final LocalDateTime minDownloaded = LocalDateTime.of(fromDate, LocalTime.MIDNIGHT);
+    final LocalDateTime maxDownloaded = LocalDateTime.of(toDate.plusDays(1), LocalTime.MIDNIGHT);
 
     // Query: Document
     final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);

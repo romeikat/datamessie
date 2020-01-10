@@ -25,15 +25,17 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
@@ -46,16 +48,21 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.base.util.StringUtil;
+import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingTask;
+import com.romeikat.datamessie.core.processing.util.DocumentsDatesConsumer;
 import jersey.repackaged.com.google.common.collect.Lists;
 
 @Service
 public class DocumentService {
 
   private final static Logger LOG = LoggerFactory.getLogger(DocumentService.class);
+
+  @Value("${documents.processing.batch.size}")
+  private int batchSize;
 
   @Autowired
   private TaskManager taskManager;
@@ -87,30 +94,55 @@ public class DocumentService {
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         new StatisticsRebuildingSparseTable();
 
-    // Determine downloaded dates
+    // Determine necessary states and sources
     final Collection<DocumentProcessingState> statesForDeprocessing =
         getStatesForDeprocessing(targetState);
-    final Queue<LocalDate> downloadedDates = Lists.newLinkedList(
-        documentDao.getDownloadedDatesWithDocuments(statelessSession, statesForDeprocessing));
+    final List<Long> sourceIds = Lists.newArrayList(sourceId);
 
-    // Process all download dates one after another, starting with the minimum one
-    final LocalDate minDownloadedDate = downloadedDates.isEmpty() ? null : downloadedDates.poll();
-    final MutableObject<LocalDate> downloadedDate = new MutableObject<LocalDate>(minDownloadedDate);
-    while (downloadedDate.getValue() != null) {
-      // Deprocess
-      deprocessDocumentsOfSourceAndDownloadDate(statelessSession, taskExecution, sourceId,
-          targetState, statisticsToBeRebuilt, downloadedDate.getValue(), statesForDeprocessing);
-
-      // Prepare for next iteration
-      final LocalDate nextDownloadedDate = getNextDownloadedDate(downloadedDate.getValue());
-      downloadedDate.setValue(nextDownloadedDate);
+    // Determine downloaded dates
+    final SortedMap<LocalDate, Long> datesWithDocuments =
+        documentDao.getDownloadedDatesWithNumberOfDocuments(statelessSession, null,
+            statesForDeprocessing, sourceIds);
+    final DocumentsDatesConsumer documentsDatesConsumer =
+        new DocumentsDatesConsumer(datesWithDocuments, batchSize);
+    if (documentsDatesConsumer.isEmpty()) {
+      taskExecution.reportWorkEnd(work);
+      return;
     }
 
-    // Notify DocumentsProcessingTask to start processing
+    // Initialize first date range
+    MutablePair<LocalDate, LocalDate> downloadedDateRange = new MutablePair<LocalDate, LocalDate>();
+    final Pair<LocalDate, LocalDate> firstDateRange = documentsDatesConsumer.getNextDateRange();
+    downloadedDateRange.setLeft(firstDateRange.getLeft());
+    downloadedDateRange.setRight(firstDateRange.getRight());
+
+    // Process date ranges
+    while (downloadedDateRange != null) {
+      // Deprocess
+      final int deprocessedDocuments = deprocessDocuments(statelessSession, taskExecution, sourceId,
+          targetState, downloadedDateRange.getLeft(), downloadedDateRange.getRight(),
+          statesForDeprocessing, statisticsToBeRebuilt);
+
+      // Prepare for next iteration
+      final boolean noMoreDocumentsToDeprocess = deprocessedDocuments < batchSize;
+      if (noMoreDocumentsToDeprocess) {
+        documentsDatesConsumer.removeDates(downloadedDateRange.getRight());
+        if (documentsDatesConsumer.isEmpty()) {
+          downloadedDateRange = null;
+        } else {
+          final Pair<LocalDate, LocalDate> nextDateRange =
+              documentsDatesConsumer.getNextDateRange();
+          downloadedDateRange.setLeft(nextDateRange.getLeft());
+          downloadedDateRange.setRight(nextDateRange.getRight());
+        }
+      }
+    }
+
+    // Notify DocumentsProcessingTask to restart processing
     final Collection<DocumentsProcessingTask> activeTasks =
         taskManager.getActiveTasks(DocumentsProcessingTask.NAME, DocumentsProcessingTask.class);
     for (final DocumentsProcessingTask activeTask : activeTasks) {
-      activeTask.restartFromDownloadedDate(minDownloadedDate);
+      activeTask.restartProcessing();
     }
 
     // Rebuild statistics
@@ -124,21 +156,25 @@ public class DocumentService {
     taskExecution.reportWorkEnd(work);
   }
 
-  private void deprocessDocumentsOfSourceAndDownloadDate(final StatelessSession statelessSession,
+  private int deprocessDocuments(final StatelessSession statelessSession,
       final TaskExecution taskExecution, final long sourceId,
-      final DocumentProcessingState targetState,
-      final StatisticsRebuildingSparseTable statisticsToBeRebuilt, final LocalDate downloadedDate,
-      final Collection<DocumentProcessingState> statesForDeprocessing)
-      throws TaskCancelledException {
+      final DocumentProcessingState targetState, final LocalDate fromDate, final LocalDate toDate,
+      final Collection<DocumentProcessingState> statesForDeprocessing,
+      final StatisticsRebuildingSparseTable statisticsToBeRebuilt) throws TaskCancelledException {
     // Load
+    TaskExecutionWork work = taskExecution.reportWorkStart(
+        String.format("Loading documents to deprocess from download dates %s to %s",
+            LocalDateConverter.INSTANCE_UI.convertToString(fromDate),
+            LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
     final List<Document> documentsToDeprocess = documentDao.getForSourceAndDownloaded(
-        statelessSession, sourceId, downloadedDate, statesForDeprocessing);
+        statelessSession, sourceId, fromDate, toDate, statesForDeprocessing, batchSize);
+    taskExecution.reportWorkEnd(work);
 
     // Deprocess
     if (CollectionUtils.isNotEmpty(documentsToDeprocess)) {
       final String singularPlural =
           stringUtil.getSingularOrPluralTerm("document", documentsToDeprocess.size());
-      final TaskExecutionWork work = taskExecution.reportWorkStart(
+      work = taskExecution.reportWorkStart(
           String.format("Deprocessing %s %s", documentsToDeprocess.size(), singularPlural));
       deprocessDocuments(statelessSession, documentsToDeprocess, targetState,
           statisticsToBeRebuilt);
@@ -146,6 +182,8 @@ public class DocumentService {
     }
 
     taskExecution.checkpoint();
+
+    return documentsToDeprocess.size();
   }
 
   private void deprocessDocuments(final StatelessSession statelessSession,
@@ -182,16 +220,6 @@ public class DocumentService {
       default:
         return Collections.emptySet();
     }
-  }
-
-  private LocalDate getNextDownloadedDate(final LocalDate downloadedDate) {
-    // Increase only up to current date
-    final LocalDate now = LocalDate.now();
-    if (downloadedDate.isAfter(now)) {
-      return null;
-    }
-    // Otherwise, go to next date
-    return downloadedDate.plusDays(1);
   }
 
 }

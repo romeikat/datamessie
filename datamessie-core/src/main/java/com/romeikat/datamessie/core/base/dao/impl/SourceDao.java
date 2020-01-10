@@ -39,6 +39,7 @@ import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.query.document.DocumentFilterSettingsQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
+import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.SourceDto;
@@ -47,6 +48,7 @@ import com.romeikat.datamessie.core.domain.dto.SourceOverviewDto;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
@@ -344,6 +346,24 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
 
     final List<Source> sources = getEntities(ssc, sourceIds);
     return sources;
+  }
+
+  public List<Long> getIdsToBeProcessed(final SharedSessionContract ssc) {
+    // Query: Project
+    final EntityWithIdQuery<Project> projectQuery = new EntityWithIdQuery<>(Project.class);
+    projectQuery.addRestriction(Restrictions.eq("preprocessingEnabled", true));
+    final Collection<Long> projectIds = projectQuery.listIds(ssc);
+    if (projectIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // Query: Project2Source
+    final Project2SourceQuery project2SourceQuery = new Project2SourceQuery();
+    project2SourceQuery.addRestriction(Restrictions.in("projectId", projectIds));
+    final List<Long> sourceIds = project2SourceQuery.listIdsForProperty(ssc, "sourceId");
+
+    // Done
+    return sourceIds;
   }
 
   public List<Source> get(final SharedSessionContract ssc, final DocumentsFilterSettings dfs) {

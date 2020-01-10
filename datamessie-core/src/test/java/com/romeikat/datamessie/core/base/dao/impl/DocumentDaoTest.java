@@ -28,6 +28,7 @@ import static org.junit.Assert.assertEquals;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.SortedMap;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,10 +78,12 @@ public class DocumentDaoTest extends AbstractDbSetupBasedTest {
   public void getDownloadedDatesWithDocuments() {
     final List<DocumentProcessingState> states =
         Lists.newArrayList(DocumentProcessingState.CLEANED, DocumentProcessingState.STEMMED);
-    final List<LocalDate> downloadedDates =
-        documentDao.getDownloadedDatesWithDocuments(sessionProvider.getStatelessSession(), states);
-    assertEquals(Lists.newArrayList(LocalDate.of(2019, 11, 2), LocalDate.of(2019, 11, 3)),
-        downloadedDates);
+    final SortedMap<LocalDate, Long> downloadedDates =
+        documentDao.getDownloadedDatesWithNumberOfDocuments(sessionProvider.getStatelessSession(),
+            LocalDate.of(2019, 11, 1), states, Lists.newArrayList(1l));
+    assertEquals(2, downloadedDates.size());
+    assertEquals(Long.valueOf(1), downloadedDates.get(LocalDate.of(2019, 11, 2)));
+    assertEquals(Long.valueOf(1), downloadedDates.get(LocalDate.of(2019, 11, 3)));
 
     dbSetupTracker.skipNextLaunch();
   }
