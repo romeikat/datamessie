@@ -25,19 +25,14 @@ License along with this program.  If not, see
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
-import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class DocumentSynchronizer extends EntityWithIdAndVersionSynchronizer<Document> {
 
-  private final SyncData syncData;
-
   public DocumentSynchronizer(final ApplicationContext ctx) {
     super(Document.class, ctx);
-    syncData = SyncData.valueOf(SpringUtil.getPropertyValue(ctx, "sync.data"));
   }
 
   @Override
@@ -54,19 +49,7 @@ public class DocumentSynchronizer extends EntityWithIdAndVersionSynchronizer<Doc
     target.setStemmedDescription(source.getStemmedDescription());
     target.setPublished(source.getPublished());
     target.setDownloaded(source.getDownloaded());
-
-    final DocumentProcessingState sourceState = source.getState();
-    if (syncData.shouldUpdateOriginalData()) {
-      DocumentProcessingState targetState = sourceState;
-      if (targetState == DocumentProcessingState.CLEANED
-          || targetState == DocumentProcessingState.STEMMED) {
-        targetState = DocumentProcessingState.REDIRECTED;
-      }
-      target.setState(targetState);
-    } else if (syncData.shouldUpdateProcessedData()) {
-      target.setState(sourceState);
-    }
-
+    target.setState(source.getState());
     target.setStatusCode(source.getStatusCode());
     target.setCrawlingId(source.getCrawlingId());
     target.setSourceId(source.getSourceId());
