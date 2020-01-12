@@ -38,6 +38,7 @@ import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.DocumentWithDownloads;
 import com.romeikat.datamessie.core.base.util.comparator.MasterDocumentWithDownloadsComparator;
+import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -210,6 +211,7 @@ public class DocumentCrawler {
       final Collection<DocumentWithDownloads> slaveDocumentsWithDownloads) {
     LOG.debug("Source {}: processing slave documents for URL {}", sourceId, url);
 
+    // Update slave document
     final long masterDocumentId = masterDocumentWithDownloads.getDocumentId();
     final Collection<Long> slaveDownloadIds =
         downloadService.getDownloadIds(slaveDocumentsWithDownloads);
@@ -221,6 +223,21 @@ public class DocumentCrawler {
       documentDao.update(statelessSession, slaveDocument);
     }
 
+    // Delete processed entities
+    new ExecuteWithTransaction(statelessSession) {
+      @Override
+      protected void execute(final StatelessSession statelessSession) {
+        documentService.deleteProcessedEntitiesOfDocumentsWithState(statelessSession,
+            slaveDocuments, null, true, true, true, true);
+      }
+
+      @Override
+      protected boolean shouldRethrowException() {
+        return true;
+      }
+    }.execute();
+
+    // Rebuild statistics
     for (final Document slaveDocument : slaveDocuments) {
       statisticsToBeRebuilt.putValue(slaveDocument.getSourceId(), slaveDocument.getPublishedDate(),
           true);

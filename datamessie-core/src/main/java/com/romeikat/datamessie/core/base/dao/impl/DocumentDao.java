@@ -116,10 +116,10 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     return document;
   }
 
-  public List<Document> getForSourceAndDownloaded(final SharedSessionContract ssc,
-      final long sourceId, final LocalDate fromDate, final LocalDate toDate,
-      final Collection<DocumentProcessingState> statesForDeprocessing, final int maxResults) {
-    if (statesForDeprocessing.isEmpty()) {
+  public List<Document> getForDownloadedAndStatesAndSource(final SharedSessionContract ssc,
+      final LocalDate fromDate, final LocalDate toDate,
+      final Collection<DocumentProcessingState> states, final Long sourceId, final int maxResults) {
+    if (states.isEmpty()) {
       return Collections.emptyList();
     }
 
@@ -130,8 +130,10 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
     documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
     documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
-    documentQuery.addRestriction(Restrictions.in("state", statesForDeprocessing));
-    documentQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
+    documentQuery.addRestriction(Restrictions.in("state", states));
+    if (sourceId != null) {
+      documentQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
+    }
     documentQuery.setMaxResults(maxResults);
 
     // Done
@@ -411,9 +413,8 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
 
   public SortedMap<LocalDate, Long> getDownloadedDatesWithNumberOfDocuments(
       final SharedSessionContract ssc, final LocalDate fromDate,
-      final Collection<DocumentProcessingState> states,
-      final Collection<Long> sourceIdsForProcessing) {
-    if (states.isEmpty() || sourceIdsForProcessing.isEmpty()) {
+      final Collection<DocumentProcessingState> states, final Collection<Long> sourceIds) {
+    if (states.isEmpty()) {
       return Maps.newTreeMap();
     }
 
@@ -422,14 +423,18 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     hql.append("select to_date(downloaded), count(*) ");
     hql.append("from " + Document.class.getSimpleName() + " ");
     hql.append("where state in :_states ");
-    hql.append("and source_id in :_source_ids ");
+    if (sourceIds != null) {
+      hql.append("and source_id in :_source_ids ");
+    }
     if (fromDate != null) {
       hql.append("and downloaded >= :_fromDate ");
     }
     hql.append("group by to_date(downloaded) ");
     final Query<?> query = ssc.createQuery(hql.toString());
     query.setParameter("_states", states);
-    query.setParameter("_source_ids", sourceIdsForProcessing);
+    if (sourceIds != null) {
+      query.setParameter("_source_ids", sourceIds);
+    }
     if (fromDate != null) {
       query.setParameter("_fromDate", fromDate.atStartOfDay());
     }

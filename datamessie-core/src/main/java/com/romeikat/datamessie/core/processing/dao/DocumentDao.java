@@ -35,6 +35,7 @@ import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
@@ -43,6 +44,7 @@ import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
+import com.romeikat.datamessie.core.base.service.DocumentService;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -76,6 +78,10 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
   @Autowired
   private NamedEntityCategoryDao namedEntityCategoryDao;
 
+  @Autowired
+  @Qualifier("documentService")
+  private DocumentService documentService;
+
   public List<Document> getToProcess(final SharedSessionContract ssc, final LocalDate fromDate,
       final LocalDate toDate, final Collection<DocumentProcessingState> statesForProcessing,
       final Collection<Long> sourceIds, final int maxResults) {
@@ -107,6 +113,7 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
       final Collection<StemmedContent> stemmedContentsToBeCreatedOrUpdated,
       final Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced,
       final Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved) {
+    // Persist changes
     new ExecuteWithTransaction(statelessSession) {
       @Override
       protected void execute(final StatelessSession statelessSession) {
@@ -117,6 +124,9 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
         createOrUpdateStemmedContents(statelessSession, stemmedContentsToBeCreatedOrUpdated);
         replaceNamedEntityOccurrences(statelessSession, namedEntityOccurrencesToBeReplaced);
         saveNamedEntityCategories(statelessSession, namedEntityCategoriesToBeSaved);
+
+        documentService.deleteProcessedEntitiesOfDocumentsWithState(statelessSession,
+            documentsToBeUpdated, DocumentProcessingState.TO_BE_DELETED, true, true, true, true);
       }
 
       @Override

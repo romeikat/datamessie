@@ -64,7 +64,7 @@ public class DocumentsLoader {
     try {
       final boolean oneDateOnly = Objects.equal(fromDate, toDate);
       final StringBuilder msg = new StringBuilder();
-      msg.append("Loading documents to process from download date");
+      msg.append("Loading documents to process for download date");
       if (oneDateOnly) {
         msg.append(String.format(" %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate)));
       } else {

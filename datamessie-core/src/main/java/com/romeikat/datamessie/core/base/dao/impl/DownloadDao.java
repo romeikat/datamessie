@@ -25,7 +25,9 @@ License along with this program.  If not, see
  */
 import java.util.List;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
@@ -96,6 +98,19 @@ public class DownloadDao extends AbstractEntityWithIdAndVersionDao<Download> {
     // Done
     final List<Long> documentIds = downloadQuery.listIdsForProperty(ssc, "documentId");
     return documentIds;
+  }
+
+  public void deleteForDocuments(final StatelessSession statelessSession,
+      final Collection<Long> documentIds) {
+    if (documentIds.isEmpty()) {
+      return;
+    }
+
+    final String hql =
+        "delete from " + getEntityClass().getSimpleName() + " where documentId IN :_documentIds";
+    final Query<?> query = statelessSession.createQuery(hql);
+    query.setParameter("_documentIds", documentIds);
+    query.executeUpdate();
   }
 
 }

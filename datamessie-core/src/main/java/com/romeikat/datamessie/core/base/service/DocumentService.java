@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -40,9 +41,12 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
+import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
+import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
+import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
@@ -54,6 +58,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingTask;
 import com.romeikat.datamessie.core.processing.util.DocumentsDatesConsumer;
+import jersey.repackaged.com.google.common.base.Objects;
 import jersey.repackaged.com.google.common.collect.Lists;
 
 @Service
@@ -83,14 +88,26 @@ public class DocumentService {
   private SourceDao sourceDao;
 
   @Autowired
+  private CleanedContentDao cleanedContentDao;
+
+  @Autowired
+  private StemmedContentDao stemmedContentDao;
+
+  @Autowired
+  private StemmedContentDao downloadDao;
+
+  @Autowired
+  private NamedEntityOccurrenceDao namedEntityOccurrenceDao;
+
+  @Autowired
   private StringUtil stringUtil;
 
   public void deprocessDocumentsOfSource(final StatelessSession statelessSession,
       final TaskExecution taskExecution, final long sourceId,
       final DocumentProcessingState targetState) throws TaskCancelledException {
     // Initialize
-    final TaskExecutionWork work = taskExecution.reportWorkStart(String.format(
-        "Deprocessing documents of source %s to state %s", sourceId, targetState.getName()));
+    taskExecution.reportWork(String.format("Deprocessing documents of source %s to state %s",
+        sourceId, targetState.getName()));
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         new StatisticsRebuildingSparseTable();
 
@@ -106,7 +123,7 @@ public class DocumentService {
     final DocumentsDatesConsumer documentsDatesConsumer =
         new DocumentsDatesConsumer(datesWithDocuments, batchSize);
     if (documentsDatesConsumer.isEmpty()) {
-      taskExecution.reportWorkEnd(work);
+      taskExecution.reportWork("No documents to be deprocessed");
       return;
     }
 
@@ -151,9 +168,6 @@ public class DocumentService {
     if (statisticsManager != null) {
       statisticsManager.rebuildStatistics(statisticsToBeRebuilt);
     }
-
-    // Done
-    taskExecution.reportWorkEnd(work);
   }
 
   private int deprocessDocuments(final StatelessSession statelessSession,
@@ -162,12 +176,19 @@ public class DocumentService {
       final Collection<DocumentProcessingState> statesForDeprocessing,
       final StatisticsRebuildingSparseTable statisticsToBeRebuilt) throws TaskCancelledException {
     // Load
-    TaskExecutionWork work = taskExecution.reportWorkStart(
-        String.format("Loading documents to deprocess from download dates %s to %s",
-            LocalDateConverter.INSTANCE_UI.convertToString(fromDate),
-            LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
-    final List<Document> documentsToDeprocess = documentDao.getForSourceAndDownloaded(
-        statelessSession, sourceId, fromDate, toDate, statesForDeprocessing, batchSize);
+    final boolean oneDateOnly = Objects.equal(fromDate, toDate);
+    final StringBuilder msg = new StringBuilder();
+    msg.append("Loading documents to deprocess for download date");
+    if (oneDateOnly) {
+      msg.append(String.format(" %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate)));
+    } else {
+      msg.append(
+          String.format("s %s to %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate),
+              LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
+    }
+    TaskExecutionWork work = taskExecution.reportWorkStart(msg.toString());
+    final List<Document> documentsToDeprocess = documentDao.getForDownloadedAndStatesAndSource(
+        statelessSession, fromDate, toDate, statesForDeprocessing, sourceId, batchSize);
     taskExecution.reportWorkEnd(work);
 
     // Deprocess
@@ -219,6 +240,67 @@ public class DocumentService {
         return Sets.newHashSet(DocumentProcessingState.TECHNICAL_ERROR);
       default:
         return Collections.emptySet();
+    }
+  }
+
+  /**
+   * Deletes all processed entities assigned to documents. Does not delete their original data, i.e.
+   * keeps the document and its raw content.
+   *
+   * @param statelessSession
+   * @param documentIds
+   * @param deleteCleanedContents
+   * @param deleteStemmedContents
+   * @param deleteNamedEntityOccurrences
+   * @param deleteDownloads
+   */
+  public void deleteProcessedEntitiesOfDocumentIdsWithState(final StatelessSession statelessSession,
+      final Collection<Long> documentIds, final DocumentProcessingState state,
+      final boolean deleteCleanedContents, final boolean deleteStemmedContents,
+      final boolean deleteNamedEntityOccurrences, final boolean deleteDownloads) {
+    final Collection<Document> documents = documentDao.getEntities(statelessSession, documentIds);
+    deleteProcessedEntitiesOfDocumentsWithState(statelessSession, documents, state,
+        deleteCleanedContents, deleteStemmedContents, deleteNamedEntityOccurrences,
+        deleteDownloads);
+  }
+
+  /**
+   * Deletes all processed entities assigned to documents. Does not delete their original data, i.e.
+   * keeps the document and its raw content.
+   *
+   * @param statelessSession
+   * @param documents
+   * @param deleteCleanedContents
+   * @param deleteStemmedContents
+   * @param deleteNamedEntityOccurrences
+   * @param deleteDownloads
+   */
+  public void deleteProcessedEntitiesOfDocumentsWithState(final StatelessSession statelessSession,
+      final Collection<Document> documents, final DocumentProcessingState state,
+      final boolean deleteCleanedContents, final boolean deleteStemmedContents,
+      final boolean deleteNamedEntityOccurrences, final boolean deleteDownloads) {
+    if (documents.isEmpty()) {
+      return;
+    }
+
+    // Filter for documents to be deleted (security check)
+    final Collection<Document> documentsForDeletion = state == null ? documents
+        : documents.stream().filter(d -> d.getState() == state).collect(Collectors.toSet());
+    final Collection<Long> documentIdsForDeletion =
+        documentsForDeletion.stream().map(d -> d.getId()).collect(Collectors.toSet());
+
+    // Delete
+    if (deleteCleanedContents) {
+      cleanedContentDao.deleteForDocuments(statelessSession, documentIdsForDeletion);
+    }
+    if (deleteStemmedContents) {
+      stemmedContentDao.deleteForDocuments(statelessSession, documentIdsForDeletion);
+    }
+    if (deleteNamedEntityOccurrences) {
+      namedEntityOccurrenceDao.deleteForDocuments(statelessSession, documentIdsForDeletion);
+    }
+    if (deleteDownloads) {
+      downloadDao.deleteForDocuments(statelessSession, documentIdsForDeletion);
     }
   }
 

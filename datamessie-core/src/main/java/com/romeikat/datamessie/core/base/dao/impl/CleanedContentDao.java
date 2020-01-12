@@ -1,5 +1,8 @@
 package com.romeikat.datamessie.core.base.dao.impl;
 
+import java.util.Collection;
+import org.hibernate.StatelessSession;
+import org.hibernate.query.Query;
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -34,6 +37,19 @@ public class CleanedContentDao extends AbstractEntityWithIdAndVersionDao<Cleaned
   @Override
   protected String defaultSortingProperty() {
     return "documentId";
+  }
+
+  public void deleteForDocuments(final StatelessSession statelessSession,
+      final Collection<Long> documentIds) {
+    if (documentIds.isEmpty()) {
+      return;
+    }
+
+    final String hql =
+        "delete from " + getEntityClass().getSimpleName() + " where documentId IN :_documentIds";
+    final Query<?> query = statelessSession.createQuery(hql);
+    query.setParameter("_documentIds", documentIds);
+    query.executeUpdate();
   }
 
 }
