@@ -24,7 +24,6 @@ License along with this program.  If not, see
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -113,7 +112,7 @@ public class TagExctractor {
         exactClassNamesMatch = parts[2].startsWith("\"") && parts[2].endsWith("\"");
         final String classDefinition =
             exactClassNamesMatch ? parts[2].substring(1, parts[2].length() - 1) : parts[2];
-        classNames = Sets.newHashSet(Arrays.asList(classDefinition.split(" ")));
+        classNames = Sets.newHashSet(classDefinition.split("\\s+"));
       }
       if (tagName == null || idName == null && classNames == null) {
         LOG.warn(warningMessage);
@@ -148,7 +147,6 @@ public class TagExctractor {
       LOG.warn(warningMessage, e);
       return null;
     }
-
   }
 
 }
