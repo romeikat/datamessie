@@ -33,6 +33,7 @@ import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.CleanedContentSynchronizer;
 import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.CrawlingSynchronizer;
+import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.DeletingRuleSynchronizer;
 import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.DocumentSynchronizer;
 import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.DownloadSynchronizer;
 import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.NamedEntityCategorySynchronizer;
@@ -84,8 +85,9 @@ public class SyncService {
     synchronizers.add(new SourceTypeSynchronizer(ctx));
     synchronizers.add(new SourceSynchronizer(ctx));
     synchronizers.add(new Source2SourceTypeSynchronizer(ctx));
-    synchronizers.add(new TagSelectingRuleSynchronizer(ctx));
     synchronizers.add(new RedirectingRuleSynchronizer(ctx));
+    synchronizers.add(new DeletingRuleSynchronizer(ctx));
+    synchronizers.add(new TagSelectingRuleSynchronizer(ctx));
 
     synchronizers.add(new ProjectSynchronizer(ctx));
     synchronizers.add(new Project2UserSynchronizer(ctx));

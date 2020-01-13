@@ -25,16 +25,21 @@ License along with this program.  If not, see
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.enums.CleaningMethod;
 import com.romeikat.datamessie.core.processing.service.cleaning.boilerpipe.BoilerplateRemover;
+import com.romeikat.datamessie.core.processing.service.cleaning.delete.ContentDeletor;
 import com.romeikat.datamessie.core.processing.service.cleaning.extract.TagExctractor;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 
 @Service
 public class DocumentCleaner {
+
+  @Autowired
+  private ContentDeletor contentDeletor;
 
   @Autowired
   private TagExctractor tagExctractor;
@@ -45,12 +50,16 @@ public class DocumentCleaner {
   private DocumentCleaner() {}
 
   public DocumentCleaningResult clean(final Document document, final RawContent rawContent,
-      final List<TagSelectingRule> tagSelectingRules, final CleaningMethod cleaningMethod)
-      throws BoilerpipeProcessingException {
+      final List<DeletingRule> deletingRules, final List<TagSelectingRule> tagSelectingRules,
+      final CleaningMethod cleaningMethod) throws BoilerpipeProcessingException {
+    // Delete from raw content
+    final String remainingContent =
+        contentDeletor.deleteContent(deletingRules, rawContent.getContent(), document);
+
     if (cleaningMethod == CleaningMethod.TAG_SELECTION_BOILERPIPE) {
       // Use tag selector to extract content
       final String extractedContent =
-          tagExctractor.extractContent(tagSelectingRules, rawContent.getContent(), document);
+          tagExctractor.extractContent(tagSelectingRules, remainingContent, document);
 
       // Remove boilerplate from extracted content
       String cleanedContent = boilerplateRemover.removeBoilerplate(extractedContent);
@@ -62,7 +71,7 @@ public class DocumentCleaner {
 
     else if (cleaningMethod == CleaningMethod.BOILERPIPE) {
       // Remove boilerplate from raw content
-      String cleanedContent = boilerplateRemover.removeBoilerplate(rawContent.getContent());
+      String cleanedContent = boilerplateRemover.removeBoilerplate(remainingContent);
       cleanedContent = StringEscapeUtils.unescapeHtml4(cleanedContent);
 
       // Done

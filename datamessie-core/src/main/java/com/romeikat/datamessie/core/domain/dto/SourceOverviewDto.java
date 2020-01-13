@@ -45,6 +45,8 @@ public class SourceOverviewDto implements Serializable {
 
   private Integer numberOfRedirectingRules;
 
+  private Integer numberOfDeletingRules;
+
   private Integer numberOfTagSelectingRules;
 
   private boolean visible;
@@ -100,6 +102,14 @@ public class SourceOverviewDto implements Serializable {
 
   public void setNumberOfRedirectingRules(final Integer numberOfRedirectingRules) {
     this.numberOfRedirectingRules = numberOfRedirectingRules;
+  }
+
+  public Integer getNumberOfDeletingRules() {
+    return numberOfDeletingRules;
+  }
+
+  public void setNumberOfDeletingRules(final Integer numberOfDeletingRules) {
+    this.numberOfDeletingRules = numberOfDeletingRules;
   }
 
   public Integer getNumberOfTagSelectingRules() {

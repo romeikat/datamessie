@@ -188,7 +188,8 @@ public class SourcesOverviewPanel extends Panel {
             item.add(statisticsCheckingCheckBox);
             // Number of rules
             final Label numberOfRulesLabel = new Label("numberOfRules",
-                source.getNumberOfRedirectingRules() + "/" + source.getNumberOfTagSelectingRules());
+                source.getNumberOfRedirectingRules() + "/" + source.getNumberOfDeletingRules() + "/"
+                    + source.getNumberOfTagSelectingRules());
             item.add(numberOfRulesLabel);
           }
         };

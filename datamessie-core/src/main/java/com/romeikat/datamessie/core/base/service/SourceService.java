@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import com.romeikat.datamessie.core.base.dao.impl.DeletingRuleDao;
 import com.romeikat.datamessie.core.base.dao.impl.Project2SourceDao;
 import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
@@ -48,10 +49,12 @@ import com.romeikat.datamessie.core.base.util.EntitiesWithIdById;
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.UpdateTracker;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransactionAndResult;
+import com.romeikat.datamessie.core.domain.dto.DeletingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.SourceDto;
 import com.romeikat.datamessie.core.domain.dto.SourceTypeDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
+import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
@@ -80,6 +83,9 @@ public class SourceService {
 
   @Autowired
   private RedirectingRuleDao redirectingRuleDao;
+
+  @Autowired
+  private DeletingRuleDao deletingRuleDao;
 
   @Autowired
   private TagSelectingRuleDao tagSelectingRuleDao;
@@ -179,6 +185,8 @@ public class SourceService {
     // Set new rules
     final boolean wereRedirectingRulesUpdated =
         updateRedirectingRules(statelessSession, sourceDto.getRedirectingRules(), source.getId());
+    final boolean wereDeletingRulesUpdated =
+        updateDeletingRules(statelessSession, sourceDto.getDeletingRules(), source.getId());
     final boolean wereTagSelectingRulesUpdated =
         updateTagSelectingRules(statelessSession, sourceDto.getTagSelectingRules(), source.getId());
 
@@ -196,7 +204,7 @@ public class SourceService {
                 source.getId(), DocumentProcessingState.DOWNLOADED);
         taskManager.addTask(task);
       }
-    } else if (wereTagSelectingRulesUpdated) {
+    } else if (wereDeletingRulesUpdated || wereTagSelectingRulesUpdated) {
       // Only trigger if no task targeting the same source is being active
       final boolean taskAlreadyActive = isTaskActive(DocumentsDeprocessingTask.NAME, source.getId(),
           DocumentProcessingState.REDIRECTED);
@@ -245,6 +253,46 @@ public class SourceService {
     // Delete rules
     for (final RedirectingRule redirectingRule : redirectingRulesById.getObjects()) {
       redirectingRuleDao.delete(statelessSession, redirectingRule);
+      updated = true;
+    }
+
+    return updated;
+  }
+
+  private boolean updateDeletingRules(final StatelessSession statelessSession,
+      final List<DeletingRuleDto> deletingRuleDtos, final long sourceId) {
+    boolean updated = false;
+
+    final Collection<DeletingRule> deletingRules =
+        deletingRuleDao.getOfSource(statelessSession, sourceId);
+    final EntitiesById<DeletingRule> deletingRulesById = new EntitiesWithIdById<>(deletingRules);
+    for (final DeletingRuleDto deletingRuleDto : deletingRuleDtos) {
+      DeletingRule deletingRule = deletingRulesById.poll(deletingRuleDto.getId());
+
+      // Create rule (DTO without ID or with unknown ID)
+      if (deletingRule == null) {
+        deletingRule = new DeletingRule();
+        deletingRuleDao.insert(statelessSession, deletingRule);
+        updated = true;
+      }
+
+      // Update rule
+      final UpdateTracker<DeletingRule> updateTracker =
+          new UpdateTracker<>(deletingRule).beginUpdate();
+      deletingRule.setRegex(deletingRuleDto.getRegex());
+      deletingRule.setActiveFrom(deletingRuleDto.getActiveFrom());
+      deletingRule.setActiveTo(deletingRuleDto.getActiveTo());
+      deletingRule.setSourceId(sourceId);
+      updateTracker.endUpdate();
+      if (updateTracker.wasObjectUpdated()) {
+        deletingRuleDao.update(statelessSession, deletingRule);
+        updated = true;
+      }
+    }
+
+    // Delete rules
+    for (final DeletingRule entity : deletingRulesById.getObjects()) {
+      deletingRuleDao.delete(statelessSession, entity);
       updated = true;
     }
 

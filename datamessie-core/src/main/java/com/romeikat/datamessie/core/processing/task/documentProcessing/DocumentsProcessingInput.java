@@ -39,12 +39,14 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Sets;
+import com.romeikat.datamessie.core.base.dao.impl.DeletingRuleDao;
 import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.RedirectingRuleDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.dao.impl.TagSelectingRuleDao;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
+import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
@@ -61,6 +63,7 @@ public class DocumentsProcessingInput {
   private final SourceDao sourceDao;
   private final ProjectDao projectDao;
   private final RedirectingRuleDao redirectingRuleDao;
+  private final DeletingRuleDao deletingRuleDao;
   private final TagSelectingRuleDao tagSelectingRuleDao;
 
   private final ConcurrentMap<Long, Document> documentId2Document;
@@ -69,6 +72,7 @@ public class DocumentsProcessingInput {
   private final Map<Long, Source> documentId2Source;
   private final Map<Long, Project> documentId2Project;
   private final ListMultimap<Long, RedirectingRule> sourceId2RedirectingRules;
+  private final ListMultimap<Long, DeletingRule> sourceId2DeletingRules;
   private final ListMultimap<Long, TagSelectingRule> sourceId2TagSelectingRules;
 
   private final SetMultimap<Long, NamedEntityDetectionDto> namedEntityDetections;
@@ -81,6 +85,7 @@ public class DocumentsProcessingInput {
     projectDao = ctx.getBean(ProjectDao.class);
     redirectingRuleDao = ctx.getBean(RedirectingRuleDao.class);
     tagSelectingRuleDao = ctx.getBean(TagSelectingRuleDao.class);
+    deletingRuleDao = ctx.getBean(DeletingRuleDao.class);
     namedEntityDetections = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
     this.documentId2Document = new ConcurrentHashMap<Long, Document>();
@@ -88,6 +93,7 @@ public class DocumentsProcessingInput {
     documentId2Source = Maps.newHashMap();
     documentId2Project = Maps.newHashMap();
     sourceId2RedirectingRules = ArrayListMultimap.create();
+    sourceId2DeletingRules = ArrayListMultimap.create();
     sourceId2TagSelectingRules = ArrayListMultimap.create();
   }
 
@@ -99,6 +105,7 @@ public class DocumentsProcessingInput {
     loadAndPutSources(sessionProvider, documents);
     loadAndPutProjects(sessionProvider, documents);
     loadAndPutRedirectingRules(sessionProvider, documents);
+    loadAndPutDeletingRules(sessionProvider, documents);
     loadAndPutTagSelectingRules(sessionProvider, documents);
     sessionProvider.closeStatelessSession();
   }
@@ -143,6 +150,16 @@ public class DocumentsProcessingInput {
     final ListMultimap<Long, RedirectingRule> sourceId2RedirectingRules =
         redirectingRuleDao.getPerSourceId(sessionProvider.getStatelessSession(), sourceIds);
     this.sourceId2RedirectingRules.putAll(sourceId2RedirectingRules);
+  }
+
+  private void loadAndPutDeletingRules(final HibernateSessionProvider sessionProvider,
+      final Collection<Document> documents) {
+    final Collection<Long> sourceIds =
+        documents.stream().map(d -> d.getSourceId()).collect(Collectors.toSet());
+    final ListMultimap<Long, DeletingRule> sourceId2DeletingRules =
+        deletingRuleDao.getPerSourceId(sessionProvider.getStatelessSession(), sourceIds);
+
+    this.sourceId2DeletingRules.putAll(sourceId2DeletingRules);
   }
 
   private void loadAndPutTagSelectingRules(final HibernateSessionProvider sessionProvider,
@@ -202,15 +219,30 @@ public class DocumentsProcessingInput {
     return activeRedirectingRules;
   }
 
+  public List<DeletingRule> getActiveDeletingRules(final Document document, final LocalDate date) {
+    // Rules of source
+    final List<DeletingRule> deletingRules = sourceId2DeletingRules.get(document.getSourceId());
+
+    // Active rules
+    final List<DeletingRule> activeDeletingRules = new LinkedList<DeletingRule>();
+    for (final DeletingRule deletingRule : deletingRules) {
+      if (deletingRule.isActive(date)) {
+        activeDeletingRules.add(deletingRule);
+      }
+    }
+
+    return activeDeletingRules;
+  }
+
   public List<TagSelectingRule> getActiveTagSelectingRules(final Document document,
       final LocalDate date) {
     // Rules of source
-    final List<TagSelectingRule> tagSelectingRuleRules =
+    final List<TagSelectingRule> tagSelectingRules =
         sourceId2TagSelectingRules.get(document.getSourceId());
 
     // Active rules
     final List<TagSelectingRule> activeTagSelectingRules = new LinkedList<TagSelectingRule>();
-    for (final TagSelectingRule tagSelectingRule : tagSelectingRuleRules) {
+    for (final TagSelectingRule tagSelectingRule : tagSelectingRules) {
       if (tagSelectingRule.isActive(date)) {
         activeTagSelectingRules.add(tagSelectingRule);
       }

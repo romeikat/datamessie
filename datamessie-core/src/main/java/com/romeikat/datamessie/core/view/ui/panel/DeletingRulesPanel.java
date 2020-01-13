@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.core.processing.task.documentProcessing.callback;
+package com.romeikat.datamessie.core.view.ui.panel;
 
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -23,19 +23,28 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
-import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
-import com.romeikat.datamessie.core.domain.enums.CleaningMethod;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaningResult;
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
+import com.romeikat.datamessie.core.base.ui.panel.DynamicListViewPanel;
+import com.romeikat.datamessie.core.domain.dto.DeletingRuleDto;
 
-@FunctionalInterface
-public interface CleanCallback {
+public class DeletingRulesPanel extends DynamicListViewPanel<DeletingRuleDto> {
 
-  DocumentCleaningResult clean(Document document, RawContent rawContent,
-      List<DeletingRule> deletingRules, List<TagSelectingRule> tagSelectingRules,
-      CleaningMethod cleaningMethod) throws BoilerpipeProcessingException;
+  private static final long serialVersionUID = 1L;
+
+  public DeletingRulesPanel(final String id, final IModel<List<DeletingRuleDto>> itemsModel) {
+    super(id, itemsModel);
+  }
+
+  @Override
+  protected Panel getItemPanel(final String id, final IModel<DeletingRuleDto> deletingRuleModel) {
+    final Panel deletingRulePanel = new DeletingRulePanel(id, deletingRuleModel);
+    return deletingRulePanel;
+  }
+
+  @Override
+  protected DeletingRuleDto newItem() {
+    return new DeletingRuleDto();
+  }
 
 }

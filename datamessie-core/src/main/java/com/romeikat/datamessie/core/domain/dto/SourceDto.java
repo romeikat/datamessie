@@ -45,9 +45,13 @@ public class SourceDto implements Serializable {
 
   private List<RedirectingRuleDto> redirectingRules;
 
+  private List<DeletingRuleDto> deletingRules;
+
   private List<TagSelectingRuleDto> tagSelectingRules;
 
   private Integer numberOfRedirectingRules;
+
+  private Integer numberOfDeletingRules;
 
   private Integer numberOfTagSelectingRules;
 
@@ -106,6 +110,14 @@ public class SourceDto implements Serializable {
     this.redirectingRules = redirectingRules;
   }
 
+  public List<DeletingRuleDto> getDeletingRules() {
+    return deletingRules;
+  }
+
+  public void setDeletingRules(final List<DeletingRuleDto> deletingRules) {
+    this.deletingRules = deletingRules;
+  }
+
   public List<TagSelectingRuleDto> getTagSelectingRules() {
     return tagSelectingRules;
   }
@@ -120,6 +132,14 @@ public class SourceDto implements Serializable {
 
   public void setNumberOfRedirectingRules(final Integer numberOfRedirectingRules) {
     this.numberOfRedirectingRules = numberOfRedirectingRules;
+  }
+
+  public Integer getNumberOfDeletingRules() {
+    return numberOfDeletingRules;
+  }
+
+  public void setNumberOfDeletingRules(final Integer numberOfDeletingRules) {
+    this.numberOfDeletingRules = numberOfDeletingRules;
   }
 
   public Integer getNumberOfTagSelectingRules() {

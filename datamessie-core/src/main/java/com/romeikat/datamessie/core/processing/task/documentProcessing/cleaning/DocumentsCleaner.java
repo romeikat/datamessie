@@ -32,6 +32,7 @@ import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
+import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
@@ -116,13 +117,15 @@ public class DocumentsCleaner {
 
     // Determine active rules
     final LocalDate downloadDate = document.getDownloaded().toLocalDate();
+    final List<DeletingRule> deletingRules =
+        documentsProcessingInput.getActiveDeletingRules(document, downloadDate);
     final List<TagSelectingRule> tagSelectingRules =
         documentsProcessingInput.getActiveTagSelectingRules(document, downloadDate);
 
     // Clean
     final CleaningMethod cleaningMethod = getCleaningMethod(document.getId());
     final DocumentCleaningResult documentCleaningResult =
-        cleanCallback.clean(document, rawContent, tagSelectingRules, cleaningMethod);
+        cleanCallback.clean(document, rawContent, deletingRules, tagSelectingRules, cleaningMethod);
 
     // Interpret result
     interpretCleaningResult(documentCleaningResult, document);

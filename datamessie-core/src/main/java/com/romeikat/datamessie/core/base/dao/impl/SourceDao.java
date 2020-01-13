@@ -41,6 +41,7 @@ import com.romeikat.datamessie.core.base.query.entity.EntityQuery;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.query.entity.entities.Project2SourceQuery;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
+import com.romeikat.datamessie.core.domain.dto.DeletingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.SourceDto;
 import com.romeikat.datamessie.core.domain.dto.SourceNameDto;
@@ -61,6 +62,9 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
 
   @Autowired
   private RedirectingRuleDao redirectingRuleDao;
+
+  @Autowired
+  private DeletingRuleDao deletingRuleDao;
 
   @Autowired
   private TagSelectingRuleDao tagSelectingRuleDao;
@@ -398,10 +402,13 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     final List<RedirectingRuleDto> redirectingRules =
         redirectingRuleDao.getAsDtos(ssc, source.getId());
     dto.setRedirectingRules(redirectingRules);
+    final List<DeletingRuleDto> deletingRules = deletingRuleDao.getAsDtos(ssc, source.getId());
+    dto.setDeletingRules(deletingRules);
     final List<TagSelectingRuleDto> tagSelectingRules =
         tagSelectingRuleDao.getAsDtos(ssc, source.getId());
     dto.setTagSelectingRules(tagSelectingRules);
     dto.setNumberOfRedirectingRules(redirectingRules.size());
+    dto.setNumberOfDeletingRules(deletingRules.size());
     dto.setNumberOfTagSelectingRules(tagSelectingRules.size());
     dto.setVisible(source.getVisible());
     dto.setStatisticsChecking(source.getStatisticsChecking());
@@ -423,9 +430,11 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     dto.setUrl(source.getUrl());
     final List<RedirectingRuleDto> redirectingRules =
         redirectingRuleDao.getAsDtos(ssc, source.getId());
+    final List<DeletingRuleDto> deletingRules = deletingRuleDao.getAsDtos(ssc, source.getId());
     final List<TagSelectingRuleDto> tagSelectingRules =
         tagSelectingRuleDao.getAsDtos(ssc, source.getId());
     dto.setNumberOfRedirectingRules(redirectingRules.size());
+    dto.setNumberOfDeletingRules(deletingRules.size());
     dto.setNumberOfTagSelectingRules(tagSelectingRules.size());
     dto.setVisible(source.getVisible());
     dto.setStatisticsChecking(source.getStatisticsChecking());

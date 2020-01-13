@@ -55,6 +55,7 @@ import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
@@ -209,7 +210,8 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
     final DocumentCleaningResult expectedDocumentCleaningResult =
         new DocumentCleaningResult(CLEANED_CONTENT);
     doReturn(expectedDocumentCleaningResult).when(cleanCallback).clean(any(Document.class),
-        any(RawContent.class), anyListOf(TagSelectingRule.class), any(CleaningMethod.class));
+        any(RawContent.class), anyListOf(DeletingRule.class), anyListOf(TagSelectingRule.class),
+        any(CleaningMethod.class));
     // Simulate successful stemming
     final NamedEntityDetectionDto namedEntityDetection =
         new NamedEntityDetectionDto().setName(NAMED_ENTITY_NAME).setParentName(NAMED_ENTITY_NAME)

@@ -1,10 +1,10 @@
-package com.romeikat.datamessie.core.processing.task.documentProcessing.callback;
+package com.romeikat.datamessie.core.domain.dto;
 
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2019 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,20 +22,51 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import java.util.List;
-import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
-import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
-import com.romeikat.datamessie.core.domain.enums.CleaningMethod;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaningResult;
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import java.io.Serializable;
+import java.time.LocalDate;
 
-@FunctionalInterface
-public interface CleanCallback {
+public class DeletingRuleDto implements Serializable {
 
-  DocumentCleaningResult clean(Document document, RawContent rawContent,
-      List<DeletingRule> deletingRules, List<TagSelectingRule> tagSelectingRules,
-      CleaningMethod cleaningMethod) throws BoilerpipeProcessingException;
+  private static final long serialVersionUID = 1L;
+
+  private Long id;
+
+  private String regex;
+
+  private LocalDate activeFrom;
+
+  private LocalDate activeTo;
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(final Long id) {
+    this.id = id;
+  }
+
+  public String getRegex() {
+    return regex;
+  }
+
+  public void setRegex(final String regex) {
+    this.regex = regex;
+  }
+
+  public LocalDate getActiveFrom() {
+    return activeFrom;
+  }
+
+  public void setActiveFrom(final LocalDate activeFrom) {
+    this.activeFrom = activeFrom;
+  }
+
+  public LocalDate getActiveTo() {
+    return activeTo;
+  }
+
+  public void setActiveTo(final LocalDate activeTo) {
+    this.activeTo = activeTo;
+  }
 
 }

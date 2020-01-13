@@ -47,9 +47,11 @@ import com.romeikat.datamessie.core.base.ui.component.SourceTypeChoice;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
+import com.romeikat.datamessie.core.domain.dto.DeletingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
 import com.romeikat.datamessie.core.domain.dto.SourceDto;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
+import com.romeikat.datamessie.core.view.ui.panel.DeletingRulesPanel;
 import com.romeikat.datamessie.core.view.ui.panel.RedirectingRulesPanel;
 import com.romeikat.datamessie.core.view.ui.panel.TagSelectingRulesPanel;
 
@@ -88,7 +90,8 @@ public class SourcePage extends AbstractAuthenticatedPage {
     final SourceDto source = idParameter.isNull() ? null
         : sourceDao.getAsDto(sessionProvider.getStatelessSession(), userId, idParameter.toLong());
     // Model cannot be a LoadableDetachableModel as the contained DTO will be edited across
-    // multiple Ajax requests (by RedirectingRulesPanel and TagSelectingRulesPanel)
+    // multiple Ajax requests (by RedirectingRulesPanel, DeletingRulesPanel, and
+    // TagSelectingRulesPanel)
     sourceModel = new Model<SourceDto>(source) {
       private static final long serialVersionUID = 1L;
 
@@ -165,6 +168,12 @@ public class SourcePage extends AbstractAuthenticatedPage {
     final RedirectingRulesPanel redirectingRulesPanel =
         new RedirectingRulesPanel("redirectingRules", redirectingRulesModel);
     sourceForm.add(redirectingRulesPanel);
+    // Deleting rules
+    final IModel<List<DeletingRuleDto>> deletingRulesModel =
+        new PropertyModel<List<DeletingRuleDto>>(sourceModel, "deletingRules");
+    final DeletingRulesPanel deletingRulesPanel =
+        new DeletingRulesPanel("deletingRules", deletingRulesModel);
+    sourceForm.add(deletingRulesPanel);
     // Tag selecting rules
     final IModel<List<TagSelectingRuleDto>> tagSelectingRulesModel =
         new PropertyModel<List<TagSelectingRuleDto>>(sourceModel, "tagSelectingRules");

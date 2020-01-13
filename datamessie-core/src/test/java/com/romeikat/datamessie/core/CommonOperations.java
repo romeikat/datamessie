@@ -30,6 +30,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.BarEntity;
 import com.romeikat.datamessie.core.domain.entity.impl.BarEntityWithId;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
+import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.entity.impl.FooEntity;
@@ -61,8 +62,8 @@ public class CommonOperations {
       BarEntity.TABLE_NAME, BarEntityWithId.TABLE_NAME, NamedEntityOccurrence.TABLE_NAME,
       NamedEntityCategory.TABLE_NAME, NamedEntity.TABLE_NAME, RawContent.TABLE_NAME,
       CleanedContent.TABLE_NAME, StemmedContent.TABLE_NAME, Download.TABLE_NAME,
-      Document.TABLE_NAME, Crawling.TABLE_NAME, TagSelectingRule.TABLE_NAME,
-      RedirectingRule.TABLE_NAME, Source2SourceType.TABLE_NAME, SourceType.TABLE_NAME,
+      Document.TABLE_NAME, Crawling.TABLE_NAME, RedirectingRule.TABLE_NAME, DeletingRule.TABLE_NAME,
+      TagSelectingRule.TABLE_NAME, Source2SourceType.TABLE_NAME, SourceType.TABLE_NAME,
       Project2Source.TABLE_NAME, Source.TABLE_NAME, Project2User.TABLE_NAME, Project.TABLE_NAME,
       User.TABLE_NAME);
 
@@ -195,6 +196,14 @@ public class CommonOperations {
         .values(redirectingRule.getId(), redirectingRule.getVersion(), redirectingRule.getRegex(),
             redirectingRule.getRegexGroup(), redirectingRule.getActiveFrom(),
             redirectingRule.getActiveTo(), redirectingRule.getSourceId())
+        .build();
+  }
+
+  public static Insert insertIntoDeletingRule(final DeletingRule deletingRule) {
+    return insertInto(DeletingRule.TABLE_NAME)
+        .columns("id", "version", "regex", "activeFrom", "activeTo", "source_id")
+        .values(deletingRule.getId(), deletingRule.getVersion(), deletingRule.getRegex(),
+            deletingRule.getActiveFrom(), deletingRule.getActiveTo(), deletingRule.getSourceId())
         .build();
   }
 
