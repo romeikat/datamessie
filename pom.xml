@@ -67,6 +67,7 @@
 		<junit.version>4.12</junit.version>
 		<mockito.version>1.10.19</mockito.version>
 		<dbsetup.version>2.0.0</dbsetup.version>
+		<activation.version>1.1.1</activation.version>
 
 		<maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
 		<license-maven-plugin.version>1.12</license-maven-plugin.version>
@@ -146,7 +147,6 @@
 				<artifactId>wicketstuff-select2</artifactId>
 				<version>${wicket.version}</version>
 			</dependency>
-
 
 			<!-- SPRING DEPENDENCIES -->
 			<dependency>
@@ -361,6 +361,13 @@
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-log4j12</artifactId>
 				<version>${slf4j.version}</version>
+			</dependency>
+			
+			<!-- JAVA DEPENDENCIES -->
+			<dependency>
+				<groupId>javax.activation</groupId>
+				<artifactId>activation</artifactId>
+				<version>${activation.version}</version>
 			</dependency>
 
 			<!-- TESTING DEPENDENCIES -->

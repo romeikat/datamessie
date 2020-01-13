@@ -208,6 +208,12 @@
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
 
+		<!-- JAVA DEPENDENCIES -->
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+		</dependency>
+
 		<!-- TESTING DEPENDENCIES -->
 		<dependency>
 			<groupId>junit</groupId>
