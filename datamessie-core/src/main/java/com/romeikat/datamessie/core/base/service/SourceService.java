@@ -407,7 +407,7 @@ public class SourceService {
         assignment = new Source2SourceType();
         assignment.setSourceId(sourceId);
         assignment.setSourceTypeId(sourceTypeId);
-        source2SourceTypeDao.update(statelessSession, assignment);
+        source2SourceTypeDao.insert(statelessSession, assignment);
       }
     }
 
