@@ -71,6 +71,7 @@ import com.romeikat.datamessie.core.processing.task.documentReindexing.Documents
 import com.romeikat.datamessie.core.processing.util.DocumentsDatesConsumer;
 import com.romeikat.datamessie.core.processing.util.ProcessingDates;
 import jersey.repackaged.com.google.common.base.Objects;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 @Service(DocumentsProcessingTask.BEAN_NAME)
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -169,6 +170,8 @@ public class DocumentsProcessingTask implements Task {
    */
   private boolean restartProcessing;
 
+  private final Long documentIdForTesting = null;
+
 
   private DocumentsProcessingTask() {
     plugin = DateMessiePlugins.getInstance(ctx).getOrLoadPlugin(INamedEntityCategoryProider.class);
@@ -212,8 +215,8 @@ public class DocumentsProcessingTask implements Task {
   private void performProcessing(final TaskExecution taskExecution) throws TaskCancelledException {
     taskExecution.reportWork("Starting documents processing");
 
-    final LocalDate fromDate = parseDate(minDownloadedDate);
-    final LocalDate toDate = parseDate(maxDownloadedDate);
+    LocalDate fromDate = parseDate(minDownloadedDate);
+    LocalDate toDate = parseDate(maxDownloadedDate);
 
     Collection<Document> documentsToProcess = Collections.emptyList();
 
@@ -222,6 +225,16 @@ public class DocumentsProcessingTask implements Task {
       final Collection<DocumentProcessingState> statesForProcessing = getStatesForProcessing();
       final Collection<Long> sourceIdsForProcessing = getSourceIdsForProcessing();
 
+      // Testing
+      Document documentForTesting = null;
+      if (documentIdForTesting != null) {
+        documentForTesting =
+            documentDao.getEntity(sessionProvider.getStatelessSession(), documentIdForTesting);
+        if (documentForTesting != null) {
+          fromDate = toDate = documentForTesting.getDownloaded().toLocalDate();
+        }
+      }
+
       // Initialize
       initializeProcessingIfNecessary(taskExecution, fromDate, toDate, statesForProcessing,
           sourceIdsForProcessing);
@@ -229,10 +242,14 @@ public class DocumentsProcessingTask implements Task {
       // Load documents within date range
       final Collection<Long> previousDocumentIds =
           Collections2.transform(documentsToProcess, new EntityWithIdToIdFunction());
-      documentsToProcess = documentsLoader.loadDocumentsToProcess(
-          sessionProvider.getStatelessSession(), taskExecution,
-          processingDates.getProcessingFromDate(), processingDates.getProcessingToDate(),
-          statesForProcessing, sourceIdsForProcessing, previousDocumentIds);
+      if (documentForTesting != null) {
+        documentsToProcess = Lists.newArrayList(documentForTesting);
+      } else {
+        documentsToProcess = documentsLoader.loadDocumentsToProcess(
+            sessionProvider.getStatelessSession(), taskExecution,
+            processingDates.getProcessingFromDate(), processingDates.getProcessingToDate(),
+            statesForProcessing, sourceIdsForProcessing, previousDocumentIds);
+      }
 
       // Process date range
       if (CollectionUtils.isNotEmpty(documentsToProcess)) {
