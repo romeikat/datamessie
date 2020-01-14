@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,12 +39,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
-import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
@@ -53,9 +54,13 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
+import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
+import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
+import com.romeikat.datamessie.core.base.util.parallelProcessing.SequentialAsynchronousTask;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.core.processing.dao.DocumentDao;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingTask;
 import com.romeikat.datamessie.core.processing.util.DocumentsDatesConsumer;
 import jersey.repackaged.com.google.common.base.Objects;
@@ -65,6 +70,7 @@ import jersey.repackaged.com.google.common.collect.Lists;
 public class DocumentService {
 
   private final static Logger LOG = LoggerFactory.getLogger(DocumentService.class);
+
 
   @Value("${documents.processing.batch.size}")
   private int batchSize;
@@ -76,7 +82,7 @@ public class DocumentService {
   private SharedBeanProvider sharedBeanProvider;
 
   @Autowired
-  @Qualifier("documentDao")
+  @Qualifier("processingDocumentDao")
   private DocumentDao documentDao;
 
   @Autowired
@@ -101,6 +107,9 @@ public class DocumentService {
 
   @Autowired
   private StringUtil stringUtil;
+
+  @Autowired
+  private SessionFactory sessionFactory;
 
   public void deprocessDocumentsOfSource(final StatelessSession statelessSession,
       final TaskExecution taskExecution, final long sourceId,
@@ -134,14 +143,18 @@ public class DocumentService {
     downloadedDateRange.setRight(firstDateRange.getRight());
 
     // Process date ranges
+    Collection<Document> deprocessedDocuments = Collections.emptyList();
+    final SequentialAsynchronousTask persistingTask = new SequentialAsynchronousTask();
     while (downloadedDateRange != null) {
       // Deprocess
-      final int deprocessedDocuments = deprocessDocuments(statelessSession, taskExecution, sourceId,
-          targetState, downloadedDateRange.getLeft(), downloadedDateRange.getRight(),
-          statesForDeprocessing, statisticsToBeRebuilt);
+      final Collection<Long> previousDocumentIds =
+          Collections2.transform(deprocessedDocuments, new EntityWithIdToIdFunction());
+      deprocessedDocuments = deprocessDocuments(statelessSession, persistingTask, taskExecution,
+          sourceId, targetState, downloadedDateRange.getLeft(), downloadedDateRange.getRight(),
+          statesForDeprocessing, previousDocumentIds, statisticsToBeRebuilt);
 
       // Prepare for next iteration
-      final boolean noMoreDocumentsToDeprocess = deprocessedDocuments < batchSize;
+      final boolean noMoreDocumentsToDeprocess = deprocessedDocuments.size() < batchSize;
       if (noMoreDocumentsToDeprocess) {
         documentsDatesConsumer.removeDates(downloadedDateRange.getRight());
         if (documentsDatesConsumer.isEmpty()) {
@@ -154,6 +167,7 @@ public class DocumentService {
         }
       }
     }
+    persistingTask.waitUntilCompleted();
 
     // Notify DocumentsProcessingTask to restart processing
     final Collection<DocumentsProcessingTask> activeTasks =
@@ -170,10 +184,11 @@ public class DocumentService {
     }
   }
 
-  private int deprocessDocuments(final StatelessSession statelessSession,
-      final TaskExecution taskExecution, final long sourceId,
-      final DocumentProcessingState targetState, final LocalDate fromDate, final LocalDate toDate,
-      final Collection<DocumentProcessingState> statesForDeprocessing,
+  private List<Document> deprocessDocuments(final StatelessSession statelessSession,
+      final SequentialAsynchronousTask persistingTask, final TaskExecution taskExecution,
+      final long sourceId, final DocumentProcessingState targetState, final LocalDate fromDate,
+      final LocalDate toDate, final Collection<DocumentProcessingState> statesForDeprocessing,
+      final Collection<Long> previousDocumentIds,
       final StatisticsRebuildingSparseTable statisticsToBeRebuilt) throws TaskCancelledException {
     // Load
     final boolean oneDateOnly = Objects.equal(fromDate, toDate);
@@ -187,8 +202,9 @@ public class DocumentService {
               LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
     }
     TaskExecutionWork work = taskExecution.reportWorkStart(msg.toString());
-    final List<Document> documentsToDeprocess = documentDao.getForDownloadedAndStatesAndSource(
-        statelessSession, fromDate, toDate, statesForDeprocessing, sourceId, batchSize);
+    final List<Document> documentsToDeprocess =
+        documentDao.getToProcess(statelessSession, fromDate, toDate, statesForDeprocessing,
+            Lists.newArrayList(sourceId), previousDocumentIds, batchSize);
     taskExecution.reportWorkEnd(work);
 
     // Deprocess
@@ -197,28 +213,38 @@ public class DocumentService {
           stringUtil.getSingularOrPluralTerm("document", documentsToDeprocess.size());
       work = taskExecution.reportWorkStart(
           String.format("Deprocessing %s %s", documentsToDeprocess.size(), singularPlural));
-      deprocessDocuments(statelessSession, documentsToDeprocess, targetState,
+      deprocessDocumentsAsynchronously(persistingTask, documentsToDeprocess, targetState,
           statisticsToBeRebuilt);
       taskExecution.reportWorkEnd(work);
     }
 
     taskExecution.checkpoint();
 
-    return documentsToDeprocess.size();
+    return documentsToDeprocess;
   }
 
-  private void deprocessDocuments(final StatelessSession statelessSession,
+  private void deprocessDocumentsAsynchronously(final SequentialAsynchronousTask persistingTask,
       final Collection<Document> documents, final DocumentProcessingState targetState,
       final StatisticsRebuildingSparseTable statisticsToBeRebuilt) {
-    for (final Document document : documents) {
+    final Runnable runnable = () -> {
+      final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
       // Update state
-      document.setState(targetState);
-      documentDao.update(statelessSession, document);
+      for (final Document document : documents) {
+        document.setState(targetState);
+      }
+      // Persist
+      for (final Document document : documents) {
+        documentDao.update(sessionProvider.getStatelessSession(), document);
+      }
+      sessionProvider.closeStatelessSession();
       // Rebuild statistics
-      final long sourceId = document.getSourceId();
-      final LocalDate publishedDate = document.getPublishedDate();
-      statisticsToBeRebuilt.putValue(sourceId, publishedDate, true);
-    }
+      for (final Document document : documents) {
+        final long sourceId = document.getSourceId();
+        final LocalDate publishedDate = document.getPublishedDate();
+        statisticsToBeRebuilt.putValue(sourceId, publishedDate, true);
+      }
+    };
+    persistingTask.submit(runnable);
   }
 
   private Set<DocumentProcessingState> getStatesForDeprocessing(

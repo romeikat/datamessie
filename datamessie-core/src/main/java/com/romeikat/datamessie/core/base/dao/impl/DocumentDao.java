@@ -24,9 +24,7 @@ License along with this program.  If not, see
  */
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -114,31 +112,6 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     documentQuery.addRestriction(Restrictions.idEq(documentId));
     final Document document = documentQuery.uniqueObject(ssc);
     return document;
-  }
-
-  public List<Document> getForDownloadedAndStatesAndSource(final SharedSessionContract ssc,
-      final LocalDate fromDate, final LocalDate toDate,
-      final Collection<DocumentProcessingState> states, final Long sourceId, final int maxResults) {
-    if (states.isEmpty()) {
-      return Collections.emptyList();
-    }
-
-    final LocalDateTime minDownloaded = LocalDateTime.of(fromDate, LocalTime.MIDNIGHT);
-    final LocalDateTime maxDownloaded = LocalDateTime.of(toDate.plusDays(1), LocalTime.MIDNIGHT);
-
-    // Query: Document
-    final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
-    documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
-    documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
-    documentQuery.addRestriction(Restrictions.in("state", states));
-    if (sourceId != null) {
-      documentQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
-    }
-    documentQuery.setMaxResults(maxResults);
-
-    // Done
-    final List<Document> entities = documentQuery.listObjects(ssc);
-    return entities;
   }
 
   public Map<RawContent, Document> getForRawContents(final SharedSessionContract ssc,

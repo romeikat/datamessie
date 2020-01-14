@@ -3,7 +3,7 @@ package com.romeikat.datamessie.core.processing.task.documentProcessing;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 import java.util.SortedMap;
 import javax.annotation.PostConstruct;
@@ -215,6 +215,8 @@ public class DocumentsProcessingTask implements Task {
     final LocalDate fromDate = parseDate(minDownloadedDate);
     final LocalDate toDate = parseDate(maxDownloadedDate);
 
+    Collection<Document> documentsToProcess = Collections.emptyList();
+
     while (true) {
       // Determine necessary states and sources
       final Collection<DocumentProcessingState> statesForProcessing = getStatesForProcessing();
@@ -225,10 +227,12 @@ public class DocumentsProcessingTask implements Task {
           sourceIdsForProcessing);
 
       // Load documents within date range
-      final List<Document> documentsToProcess =
-          documentsLoader.loadDocumentsToProcess(sessionProvider.getStatelessSession(),
-              taskExecution, processingDates.getProcessingFromDate(),
-              processingDates.getProcessingToDate(), statesForProcessing, sourceIdsForProcessing);
+      final Collection<Long> previousDocumentIds =
+          Collections2.transform(documentsToProcess, new EntityWithIdToIdFunction());
+      documentsToProcess = documentsLoader.loadDocumentsToProcess(
+          sessionProvider.getStatelessSession(), taskExecution,
+          processingDates.getProcessingFromDate(), processingDates.getProcessingToDate(),
+          statesForProcessing, sourceIdsForProcessing, previousDocumentIds);
 
       // Process date range
       if (CollectionUtils.isNotEmpty(documentsToProcess)) {
@@ -237,20 +241,20 @@ public class DocumentsProcessingTask implements Task {
         final TaskExecutionWork work = taskExecution.reportWorkStart(
             String.format("Processing %s %s", documentsToProcess.size(), singularPlural));
 
-        final DocumentsProcessor documentsProcessor = new DocumentsProcessor(
-            documentRedirector::redirect, downloadDao::getForDocuments,
-            documentDao::getIdsWithEntities, downloadDao::getDocumentIdsForUrlsAndSource,
-            documentCleaner::clean, documentStemmer::stem, namedEntityDao::getOrCreate,
-            namedEntityCategoryDao::getWithoutCategories,
-            plugin == null ? null : plugin::provideCategoryTitles,
-            (documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
-                cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
-                namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved) -> documentDao
-                    .persistDocumentsProcessingOutput(sessionProvider.getStatelessSession(),
+        final DocumentsProcessor documentsProcessor =
+            new DocumentsProcessor(documentRedirector::redirect, downloadDao::getForDocuments,
+                documentDao::getIdsWithEntities, downloadDao::getDocumentIdsForUrlsAndSource,
+                documentCleaner::clean, documentStemmer::stem, namedEntityDao::getOrCreate,
+                namedEntityCategoryDao::getWithoutCategories,
+                plugin == null ? null : plugin::provideCategoryTitles,
+                (documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
+                    cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
+                    namedEntityOccurrencesToBeReplaced,
+                    namedEntityCategoriesToBeSaved) -> documentDao.persistDocumentsProcessingOutput(
                         documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
                         cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
                         namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved),
-            ctx);
+                ctx);
         documentsProcessor.processDocuments(documentsToProcess);
 
         rebuildStatistics(documentsProcessor.getStatisticsToBeRebuilt());
@@ -330,7 +334,7 @@ public class DocumentsProcessingTask implements Task {
 
   private void prepareForNextIteration(final TaskExecution taskExecution, final LocalDate toDate,
       final Collection<DocumentProcessingState> statesForProcessing,
-      final Collection<Long> sourceIdsForProcessing, final List<Document> documentsToProcess)
+      final Collection<Long> sourceIdsForProcessing, final Collection<Document> documentsToProcess)
       throws TaskCancelledException {
     // Error while loading documents
     final boolean errorOccurred = documentsToProcess == null;
@@ -449,7 +453,8 @@ public class DocumentsProcessingTask implements Task {
     }
   }
 
-  private void reindexDocuments(final List<Document> documents) throws TaskCancelledException {
+  private void reindexDocuments(final Collection<Document> documents)
+      throws TaskCancelledException {
     final Collection<Long> documentIds =
         Collections2.transform(documents, new EntityWithIdToIdFunction());
     documentsReindexer.toBeReindexed(documentIds);

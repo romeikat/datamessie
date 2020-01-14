@@ -45,7 +45,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
@@ -65,6 +64,7 @@ import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
+import com.romeikat.datamessie.core.processing.dao.DocumentDao;
 import com.romeikat.datamessie.core.processing.util.DocumentsDatesConsumer;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
 import com.romeikat.datamessie.core.rss.service.DocumentService;
@@ -96,6 +96,7 @@ public class MaintenanceTask implements Task {
   private CrawlingDao crawlingDao;
 
   @Autowired
+  @Qualifier("processingDocumentDao")
   private DocumentDao documentDao;
 
   @Autowired
@@ -327,8 +328,8 @@ public class MaintenanceTask implements Task {
               LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
     }
     TaskExecutionWork work = taskExecution.reportWorkStart(msg.toString());
-    final List<Document> documentsToMaintain = documentDao.getForDownloadedAndStatesAndSource(
-        statelessSession, fromDate, toDate, statesForProcessing, null, batchSize);
+    final List<Document> documentsToMaintain = documentDao.getToProcess(statelessSession, fromDate,
+        toDate, statesForProcessing, null, null, batchSize);
     taskExecution.reportWorkEnd(work);
 
     // Process

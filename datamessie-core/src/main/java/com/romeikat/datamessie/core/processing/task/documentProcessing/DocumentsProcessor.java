@@ -24,10 +24,13 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import com.google.common.collect.Multimap;
 import com.romeikat.datamessie.core.base.util.ExecutionTimeLogger;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
+import com.romeikat.datamessie.core.base.util.parallelProcessing.SequentialAsynchronousTask;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -81,6 +84,10 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.validate.
  * @author Dr. Raphael Romeikat
  */
 public class DocumentsProcessor {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DocumentsProcessor.class);
+
+  private static SequentialAsynchronousTask PERSISTING_TASK = new SequentialAsynchronousTask();
 
   private boolean stemmingEnabled = true;
 
@@ -138,15 +145,17 @@ public class DocumentsProcessor {
     executionTimeLogger.log("Add");
 
     // Process documents
+    PERSISTING_TASK.waitUntilCompleted();
+    executionTimeLogger.log("Wait");
     doProcessing();
+
+    // Persist all changes (asynchronously)
+    persistDocumentsProcessingOutputAsynchronously();
+    executionTimeLogger.log("Trigger persisting");
 
     // Mark statistics to be rebuilt
     rebuildStatistics();
     executionTimeLogger.log("Statistics");
-
-    // Persist all changes
-    persistDocumentsProcessingOutput();
-    executionTimeLogger.log("Persist");
 
     executionTimeLogger.stop();
   }
@@ -168,6 +177,10 @@ public class DocumentsProcessor {
     executionTimeLogger.log("Named entities");
   }
 
+  protected void waitUntilPersistingDone() {
+    PERSISTING_TASK.waitUntilCompleted();
+  }
+
   protected void setStemmingEnabled(final boolean stemmingEnabled) {
     this.stemmingEnabled = stemmingEnabled;
   }
@@ -178,7 +191,7 @@ public class DocumentsProcessor {
     }
   }
 
-  private void persistDocumentsProcessingOutput() {
+  private void persistDocumentsProcessingOutputAsynchronously() {
     // Retrieve output
     final Map<Long, Document> documentsToBeUpdated = documentsProcessingOutput.getDocuments();
     final Multimap<Long, Download> downloadsToBeCreatedOrUpdated =
@@ -193,11 +206,14 @@ public class DocumentsProcessor {
     final Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved =
         documentsProcessingOutput.getNamedEntityCategories();
 
-    // Persist
-    persistDocumentsProcessingOutputCallback.persistDocumentsProcessingOutput(documentsToBeUpdated,
-        downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated, cleanedContentsToBeCreatedOrUpdated,
-        stemmedContentsToBeCreatedOrUpdated, namedEntityOccurrencesToBeReplaced,
-        namedEntityCategoriesToBeSaved);
+    final Runnable runnable = () -> {
+      // Persist
+      persistDocumentsProcessingOutputCallback.persistDocumentsProcessingOutput(
+          documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
+          cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
+          namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved);
+    };
+    PERSISTING_TASK.submit(runnable);
   }
 
   protected DocumentsProcessingInput getDocumentsProcessingInput() {

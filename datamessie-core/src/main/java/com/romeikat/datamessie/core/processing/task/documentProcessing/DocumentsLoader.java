@@ -60,7 +60,8 @@ public class DocumentsLoader {
   public List<Document> loadDocumentsToProcess(final StatelessSession statelessSession,
       final TaskExecution taskExecution, final LocalDate fromDate, final LocalDate toDate,
       final Collection<DocumentProcessingState> statesForProcessing,
-      final Collection<Long> sourceIds) throws TaskCancelledException {
+      final Collection<Long> sourceIds, final Collection<Long> excludedDocumentIds)
+      throws TaskCancelledException {
     try {
       final boolean oneDateOnly = Objects.equal(fromDate, toDate);
       final StringBuilder msg = new StringBuilder();
@@ -76,7 +77,7 @@ public class DocumentsLoader {
 
       // Load documents
       final List<Document> documentsToProcess = documentDao.getToProcess(statelessSession, fromDate,
-          toDate, statesForProcessing, sourceIds, batchSize);
+          toDate, statesForProcessing, sourceIds, excludedDocumentIds, batchSize);
 
       taskExecution.reportWorkEnd(work);
       taskExecution.checkpoint();

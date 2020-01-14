@@ -242,11 +242,11 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
         provideNamedEntityCategoryTitlesCallback,
         (documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
             cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
-            namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved) -> documentDao
-                .persistDocumentsProcessingOutput(sessionProvider.getStatelessSession(),
-                    documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
-                    cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
-                    namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved),
+            namedEntityOccurrencesToBeReplaced,
+            namedEntityCategoriesToBeSaved) -> documentDao.persistDocumentsProcessingOutput(
+                documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
+                cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
+                namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved),
         ctx);
   }
 
@@ -263,6 +263,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
+    documentsProcessor.waitUntilPersistingDone();
 
     // Processing was successful (with redirection):
     // state becomes STEMMED
@@ -333,6 +334,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     // Process
     documentsProcessor.setStemmingEnabled(false);
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
+    documentsProcessor.waitUntilPersistingDone();
 
     // Processing was successful (with redirection):
     // state becomes CLEANED
@@ -386,6 +388,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document2));
+    documentsProcessor.waitUntilPersistingDone();
 
     // Processing failed:
     // state becomes DOWNLOAD_ERROR; raw content remains unchanged, cleaned and stemmed contents
@@ -441,6 +444,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
+    documentsProcessor.waitUntilPersistingDone();
 
     // Processing was successful (without redirection):
     // state becomes STEMMED
@@ -496,6 +500,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
+    documentsProcessor.waitUntilPersistingDone();
 
     // Processing failed:
     // state becomes REDIRECTING_ERROR; cleaned and stemmed contents become empty; other fields
@@ -554,6 +559,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
+    documentsProcessor.waitUntilPersistingDone();
 
     // Processing failed:
     // state becomes TECHNICAL_ERROR; cleaned and stemmed contents become empty; other fields remain
@@ -609,6 +615,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
+    documentsProcessor.waitUntilPersistingDone();
 
     // Processing failed:
     // state becomes CLEANING_ERROR; redirection succeeds, cleaned and stemmed contents become
@@ -669,6 +676,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
+    documentsProcessor.waitUntilPersistingDone();
 
     // Processing failed:
     // state becomes TECHNICAL_ERROR; redirection succeeds; cleaned and stemmed contents become
@@ -727,6 +735,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
+    documentsProcessor.waitUntilPersistingDone();
 
     // Processing failed:
     // state becomes TECHNICAL_ERROR; redirection succeeds; cleaning succeeds, stemmed content

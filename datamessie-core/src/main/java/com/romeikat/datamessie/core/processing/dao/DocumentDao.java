@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
 import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
@@ -94,9 +95,10 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
   private SessionFactory sessionFactory;
 
   public List<Document> getToProcess(final SharedSessionContract ssc, final LocalDate fromDate,
-      final LocalDate toDate, final Collection<DocumentProcessingState> statesForProcessing,
-      final Collection<Long> sourceIds, final int maxResults) {
-    if (statesForProcessing.isEmpty() || sourceIds.isEmpty()) {
+      final LocalDate toDate, final Collection<DocumentProcessingState> states,
+      final Collection<Long> sourceIds, final Collection<Long> excludedDocumentIds,
+      final int maxResults) {
+    if (fromDate == null || toDate == null || states.isEmpty() || sourceIds.isEmpty()) {
       return Collections.emptyList();
     }
 
@@ -107,8 +109,11 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
     final EntityWithIdQuery<Document> documentQuery = new EntityWithIdQuery<>(Document.class);
     documentQuery.addRestriction(Restrictions.ge("downloaded", minDownloaded));
     documentQuery.addRestriction(Restrictions.lt("downloaded", maxDownloaded));
-    documentQuery.addRestriction(Restrictions.in("state", statesForProcessing));
+    documentQuery.addRestriction(Restrictions.in("state", states));
     documentQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
+    if (CollectionUtils.isNotEmpty(excludedDocumentIds)) {
+      documentQuery.addRestriction(Restrictions.not(Restrictions.in("id", excludedDocumentIds)));
+    }
     documentQuery.setMaxResults(maxResults);
 
     // Done
@@ -116,8 +121,7 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
     return entities;
   }
 
-  public void persistDocumentsProcessingOutput(final StatelessSession statelessSession,
-      final Map<Long, Document> documentsToBeUpdated,
+  public void persistDocumentsProcessingOutput(final Map<Long, Document> documentsToBeUpdated,
       final Multimap<Long, Download> downloadsToBeCreatedOrUpdated,
       final Map<Long, RawContent> rawContentsToBeUpdated,
       final Map<Long, CleanedContent> cleanedContentsToBeCreatedOrUpdated,
@@ -125,7 +129,8 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
       final Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced,
       final Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved) {
     // Persist document-independent entities
-    new ExecuteWithTransaction(statelessSession) {
+    final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
+    new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
       @Override
       protected void execute(final StatelessSession statelessSession) {
         saveNamedEntityCategories(statelessSession, namedEntityCategoriesToBeSaved);
