@@ -23,6 +23,8 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
@@ -41,28 +43,57 @@ public class TaskExecutionsPanel extends Panel {
 
   private static final long serialVersionUID = 1L;
 
-  private final IModel<List<TaskExecutionDto>> taskExecutionsModel;
+  private final TaskExecutionsModel taskExecutionsModel;
 
   private final ListView<TaskExecutionDto> taskExecutionsList;
 
   @SpringBean
   private TaskExecutionService taskExecutionService;
 
+  public class TaskExecutionsModel extends LoadableDetachableModel<List<TaskExecutionDto>> {
+    private static final long serialVersionUID = 1L;
+
+    private Map<Long, TaskExecutionDto> taskExecutions;
+
+    @Override
+    protected List<TaskExecutionDto> load() {
+      final List<TaskExecutionDto> taskExecutionsOrdered =
+          taskExecutionService.getVisibleTaskExecutionsOrderedByLatestActivityDesc();
+      // Store for later retrieval
+      taskExecutions =
+          taskExecutionsOrdered.stream().collect(Collectors.toMap(t -> t.getId(), t -> t));
+      // Reverse so the latest one is the first one
+      return taskExecutionsOrdered;
+    }
+
+    public TaskExecutionDto getTaskExecution(final long id) {
+      return taskExecutions.get(id);
+    }
+  }
+
+  public class CallbackModel extends LoadableDetachableModel<TaskExecutionDto> {
+    private static final long serialVersionUID = 1L;
+
+    private final long taskExecutionId;
+    private final TaskExecutionsModel taskExecutionsModel;
+
+    public CallbackModel(final long taskExecutionId,
+        final TaskExecutionsModel taskExecutionsModel) {
+      this.taskExecutionId = taskExecutionId;
+      this.taskExecutionsModel = taskExecutionsModel;
+    }
+
+    @Override
+    protected TaskExecutionDto load() {
+      return taskExecutionsModel.getTaskExecution(taskExecutionId);
+    }
+  }
+
   public TaskExecutionsPanel(final String id) {
     super(id);
 
     // Model
-    taskExecutionsModel = new LoadableDetachableModel<List<TaskExecutionDto>>() {
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      protected List<TaskExecutionDto> load() {
-        final List<TaskExecutionDto> taskExecutions =
-            taskExecutionService.getVisibleTaskExecutionsOrderedByLatestActivityDesc();
-        // Reverse so the latest one is the first one
-        return taskExecutions;
-      }
-    };
+    taskExecutionsModel = new TaskExecutionsModel();
 
     // Task executions
     taskExecutionsList = new ListView<TaskExecutionDto>("taskExecutionsList", taskExecutionsModel) {
@@ -70,8 +101,9 @@ public class TaskExecutionsPanel extends Panel {
 
       @Override
       protected void populateItem(final ListItem<TaskExecutionDto> item) {
-        final IModel<TaskExecutionDto> taskExecutionModel = item.getModel();
-        final TaskExecutionDto taskExecution = taskExecutionModel.getObject();
+        final TaskExecutionDto taskExecution = item.getModel().getObject();
+        final IModel<TaskExecutionDto> callbackModel =
+            new CallbackModel(taskExecution.getId(), taskExecutionsModel);
         // Link to works
         final AjaxLink<Void> modalContentWindowLink = new AjaxLink<Void>("modalContentWindowLink") {
           private static final long serialVersionUID = 1L;
@@ -82,7 +114,7 @@ public class TaskExecutionsPanel extends Panel {
                 TaskExecutionsPanel.this.allocateModalWindow();
             if (modalContentWindow != null) {
               final TaskExecutionWorksPanel detailsPanel =
-                  new TaskExecutionWorksPanel(modalContentWindow, taskExecutionModel);
+                  new TaskExecutionWorksPanel(modalContentWindow, callbackModel);
               detailsPanel.show(target);
             }
           }
