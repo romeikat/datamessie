@@ -33,8 +33,6 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,9 +66,6 @@ import jersey.repackaged.com.google.common.collect.Lists;
 
 @Service
 public class DocumentService {
-
-  private final static Logger LOG = LoggerFactory.getLogger(DocumentService.class);
-
 
   @Value("${documents.processing.batch.size}")
   private int batchSize;
@@ -115,8 +110,8 @@ public class DocumentService {
       final TaskExecution taskExecution, final long sourceId,
       final DocumentProcessingState targetState) throws TaskCancelledException {
     // Initialize
-    taskExecution.reportWork(String.format("Deprocessing documents of source %s to state %s",
-        sourceId, targetState.getName()));
+    taskExecution.reportWork(String.format("Resetting documents of source %s to state %s", sourceId,
+        targetState.getName()));
     final StatisticsRebuildingSparseTable statisticsToBeRebuilt =
         new StatisticsRebuildingSparseTable();
 
@@ -132,7 +127,7 @@ public class DocumentService {
     final DocumentsDatesConsumer documentsDatesConsumer =
         new DocumentsDatesConsumer(datesWithDocuments, batchSize);
     if (documentsDatesConsumer.isEmpty()) {
-      taskExecution.reportWork("No documents to be deprocessed");
+      taskExecution.reportWork("No documents to be reset");
       return;
     }
 
@@ -193,7 +188,7 @@ public class DocumentService {
     // Load
     final boolean oneDateOnly = Objects.equal(fromDate, toDate);
     final StringBuilder msg = new StringBuilder();
-    msg.append("Loading documents to deprocess for download date");
+    msg.append("Loading documents to reset for download date");
     if (oneDateOnly) {
       msg.append(String.format(" %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate)));
     } else {
@@ -201,7 +196,7 @@ public class DocumentService {
           String.format("s %s to %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate),
               LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
     }
-    TaskExecutionWork work = taskExecution.reportWorkStart(msg.toString());
+    final TaskExecutionWork work = taskExecution.reportWorkStart(msg.toString());
     final List<Document> documentsToDeprocess =
         documentDao.getToProcess(statelessSession, fromDate, toDate, statesForDeprocessing,
             Lists.newArrayList(sourceId), previousDocumentIds, batchSize);
@@ -209,13 +204,8 @@ public class DocumentService {
 
     // Deprocess
     if (CollectionUtils.isNotEmpty(documentsToDeprocess)) {
-      final String singularPlural =
-          stringUtil.getSingularOrPluralTerm("document", documentsToDeprocess.size());
-      work = taskExecution.reportWorkStart(
-          String.format("Deprocessing %s %s", documentsToDeprocess.size(), singularPlural));
-      deprocessDocumentsAsynchronously(persistingTask, documentsToDeprocess, targetState,
-          statisticsToBeRebuilt);
-      taskExecution.reportWorkEnd(work);
+      deprocessDocumentsAsynchronously(taskExecution, persistingTask, documentsToDeprocess,
+          targetState, statisticsToBeRebuilt);
     }
 
     taskExecution.checkpoint();
@@ -223,10 +213,16 @@ public class DocumentService {
     return documentsToDeprocess;
   }
 
-  private void deprocessDocumentsAsynchronously(final SequentialAsynchronousTask persistingTask,
-      final Collection<Document> documents, final DocumentProcessingState targetState,
+  private void deprocessDocumentsAsynchronously(final TaskExecution taskExecution,
+      final SequentialAsynchronousTask persistingTask, final Collection<Document> documents,
+      final DocumentProcessingState targetState,
       final StatisticsRebuildingSparseTable statisticsToBeRebuilt) {
     final Runnable runnable = () -> {
+      final String singularPlural =
+          stringUtil.getSingularOrPluralTerm("document", documents.size());
+      final TaskExecutionWork work = taskExecution
+          .reportWorkStart(String.format("Resetting %s %s", documents.size(), singularPlural));
+
       final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
       // Update state
       for (final Document document : documents) {
@@ -243,6 +239,8 @@ public class DocumentService {
         final LocalDate publishedDate = document.getPublishedDate();
         statisticsToBeRebuilt.putValue(sourceId, publishedDate, true);
       }
+
+      taskExecution.reportWorkEnd(work);
     };
     persistingTask.submit(runnable);
   }

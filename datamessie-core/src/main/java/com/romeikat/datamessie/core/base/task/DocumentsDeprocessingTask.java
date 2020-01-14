@@ -40,7 +40,7 @@ public class DocumentsDeprocessingTask implements Task {
 
   public static final String BEAN_NAME = "documentsDeprocessingTask";
 
-  public static final String NAME = "Documents deprocessing";
+  public static final String NAME = "Documents resetting";
 
   private final long sourceId;
 
