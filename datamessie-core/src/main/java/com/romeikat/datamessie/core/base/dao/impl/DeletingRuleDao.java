@@ -55,7 +55,7 @@ public class DeletingRuleDao extends AbstractEntityWithIdAndVersionDao<DeletingR
     final EntityWithIdQuery<DeletingRule> deletingRuleQuery =
         new EntityWithIdQuery<>(DeletingRule.class);
     deletingRuleQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
-    deletingRuleQuery.addOrder(Order.asc("activeFrom"));
+    deletingRuleQuery.addOrder(Order.asc("position"));
     deletingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
     // Done
@@ -72,7 +72,7 @@ public class DeletingRuleDao extends AbstractEntityWithIdAndVersionDao<DeletingR
     final EntityWithIdQuery<DeletingRule> deletingRuleQuery =
         new EntityWithIdQuery<>(DeletingRule.class);
     deletingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
-    deletingRuleQuery.addOrder(Order.asc("activeFrom"));
+    deletingRuleQuery.addOrder(Order.asc("position"));
     deletingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
     // Done
@@ -85,7 +85,7 @@ public class DeletingRuleDao extends AbstractEntityWithIdAndVersionDao<DeletingR
     final EntityWithIdQuery<DeletingRule> deletingRuleQuery =
         new EntityWithIdQuery<>(DeletingRule.class);
     deletingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
-    deletingRuleQuery.addOrder(Order.asc("activeFrom"));
+    deletingRuleQuery.addOrder(Order.asc("position"));
     deletingRuleQuery.setResultTransformer(new AliasToBeanResultTransformer(DeletingRuleDto.class));
 
     // Done

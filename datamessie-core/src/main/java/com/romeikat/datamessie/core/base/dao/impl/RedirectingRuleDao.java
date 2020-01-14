@@ -54,7 +54,7 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
     final EntityWithIdQuery<RedirectingRule> redirectingRuleQuery =
         new EntityWithIdQuery<>(RedirectingRule.class);
     redirectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
-    redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
+    redirectingRuleQuery.addOrder(Order.asc("position"));
     redirectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
     // Done
@@ -68,7 +68,7 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
     final EntityWithIdQuery<RedirectingRule> redirectingRuleQuery =
         new EntityWithIdQuery<>(RedirectingRule.class);
     redirectingRuleQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
-    redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
+    redirectingRuleQuery.addOrder(Order.asc("position"));
     redirectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
     // Done
@@ -85,7 +85,7 @@ public class RedirectingRuleDao extends AbstractEntityWithIdAndVersionDao<Redire
     final EntityWithIdQuery<RedirectingRule> redirectingRuleQuery =
         new EntityWithIdQuery<>(RedirectingRule.class);
     redirectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
-    redirectingRuleQuery.addOrder(Order.asc("activeFrom"));
+    redirectingRuleQuery.addOrder(Order.asc("position"));
     redirectingRuleQuery
         .setResultTransformer(new AliasToBeanResultTransformer(RedirectingRuleDto.class));
 

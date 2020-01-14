@@ -48,6 +48,8 @@ public class DeletingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   private LocalDate activeTo;
 
+  private Integer position;
+
   private long sourceId;
 
   public DeletingRule() {}
@@ -59,7 +61,7 @@ public class DeletingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   @Override
   public String asStringHash() {
-    return regex + "#" + activeFrom + "#" + activeTo + "#" + sourceId;
+    return regex + "#" + activeFrom + "#" + activeTo + "#" + "#" + position + sourceId;
   }
 
   public String getRegex() {
@@ -87,6 +89,14 @@ public class DeletingRule extends AbstractEntityWithGeneratedIdAndVersion
   public DeletingRule setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
     return this;
+  }
+
+  public Integer getPosition() {
+    return position;
+  }
+
+  public void setPosition(final Integer position) {
+    this.position = position;
   }
 
   @Column(name = "source_id", nullable = false)

@@ -225,6 +225,7 @@ public class SourceService {
         redirectingRuleDao.getOfSource(statelessSession, sourceId);
     final EntitiesById<RedirectingRule> redirectingRulesById =
         new EntitiesWithIdById<>(redirectingRules);
+    int position = 0;
     for (final RedirectingRuleDto redirectingRuleDto : redirectingRuleDtos) {
       RedirectingRule redirectingRule = redirectingRulesById.poll(redirectingRuleDto.getId());
 
@@ -242,12 +243,15 @@ public class SourceService {
       redirectingRule.setRegexGroup(redirectingRuleDto.getRegexGroup());
       redirectingRule.setActiveFrom(redirectingRuleDto.getActiveFrom());
       redirectingRule.setActiveTo(redirectingRuleDto.getActiveTo());
+      redirectingRule.setPosition(position);
       redirectingRule.setSourceId(sourceId);
       updateTracker.endUpdate();
       if (updateTracker.wasObjectUpdated()) {
         redirectingRuleDao.update(statelessSession, redirectingRule);
         updated = true;
       }
+
+      position++;
     }
 
     // Delete rules
@@ -266,6 +270,7 @@ public class SourceService {
     final Collection<DeletingRule> deletingRules =
         deletingRuleDao.getOfSource(statelessSession, sourceId);
     final EntitiesById<DeletingRule> deletingRulesById = new EntitiesWithIdById<>(deletingRules);
+    int position = 0;
     for (final DeletingRuleDto deletingRuleDto : deletingRuleDtos) {
       DeletingRule deletingRule = deletingRulesById.poll(deletingRuleDto.getId());
 
@@ -282,12 +287,15 @@ public class SourceService {
       deletingRule.setRegex(deletingRuleDto.getRegex());
       deletingRule.setActiveFrom(deletingRuleDto.getActiveFrom());
       deletingRule.setActiveTo(deletingRuleDto.getActiveTo());
+      deletingRule.setPosition(position);
       deletingRule.setSourceId(sourceId);
       updateTracker.endUpdate();
       if (updateTracker.wasObjectUpdated()) {
         deletingRuleDao.update(statelessSession, deletingRule);
         updated = true;
       }
+
+      position++;
     }
 
     // Delete rules
@@ -307,6 +315,7 @@ public class SourceService {
         tagSelectingRuleDao.getOfSource(statelessSession, sourceId);
     final EntitiesById<TagSelectingRule> tagSelectingRulesById =
         new EntitiesWithIdById<>(tagSelectingRules);
+    int position = 0;
     for (final TagSelectingRuleDto tagSelectingRuleDto : tagSelectingRuleDtos) {
       TagSelectingRule tagSelectingRule = tagSelectingRulesById.poll(tagSelectingRuleDto.getId());
 
@@ -323,12 +332,15 @@ public class SourceService {
       tagSelectingRule.setTagSelector(tagSelectingRuleDto.getTagSelector());
       tagSelectingRule.setActiveFrom(tagSelectingRuleDto.getActiveFrom());
       tagSelectingRule.setActiveTo(tagSelectingRuleDto.getActiveTo());
+      tagSelectingRule.setPosition(position);
       tagSelectingRule.setSourceId(sourceId);
       updateTracker.endUpdate();
       if (updateTracker.wasObjectUpdated()) {
         tagSelectingRuleDao.update(statelessSession, tagSelectingRule);
         updated = true;
       }
+
+      position++;
     }
 
     // Delete rules

@@ -50,6 +50,8 @@ public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   private LocalDate activeTo;
 
+  private Integer position;
+
   private long sourceId;
 
   public RedirectingRule() {}
@@ -61,7 +63,8 @@ public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   @Override
   public String asStringHash() {
-    return regex + "#" + regexGroup + "#" + activeFrom + "#" + activeTo + "#" + sourceId;
+    return regex + "#" + regexGroup + "#" + activeFrom + "#" + activeTo + "#" + position + "#"
+        + sourceId;
   }
 
   public String getRegex() {
@@ -98,6 +101,14 @@ public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion
   public RedirectingRule setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
     return this;
+  }
+
+  public Integer getPosition() {
+    return position;
+  }
+
+  public void setPosition(final Integer position) {
+    this.position = position;
   }
 
   @Column(name = "source_id", nullable = false)

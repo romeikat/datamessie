@@ -48,6 +48,8 @@ public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   private LocalDate activeTo;
 
+  private Integer position;
+
   private long sourceId;
 
   public TagSelectingRule() {}
@@ -59,7 +61,7 @@ public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   @Override
   public String asStringHash() {
-    return tagSelector + "#" + activeFrom + "#" + activeTo + "#" + sourceId;
+    return tagSelector + "#" + activeFrom + "#" + activeTo + "#" + position + "#" + sourceId;
   }
 
   public String getTagSelector() {
@@ -87,6 +89,14 @@ public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
   public TagSelectingRule setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
     return this;
+  }
+
+  public Integer getPosition() {
+    return position;
+  }
+
+  public void setPosition(final Integer position) {
+    this.position = position;
   }
 
   @Column(name = "source_id", nullable = false)

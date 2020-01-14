@@ -55,7 +55,7 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
     final EntityWithIdQuery<TagSelectingRule> tagSelectingRuleQuery =
         new EntityWithIdQuery<>(TagSelectingRule.class);
     tagSelectingRuleQuery.addRestriction(Restrictions.in("sourceId", sourceIds));
-    tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
+    tagSelectingRuleQuery.addOrder(Order.asc("position"));
     tagSelectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
     // Done
@@ -72,7 +72,7 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
     final EntityWithIdQuery<TagSelectingRule> tagSelectingRuleQuery =
         new EntityWithIdQuery<>(TagSelectingRule.class);
     tagSelectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
-    tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
+    tagSelectingRuleQuery.addOrder(Order.asc("position"));
     tagSelectingRuleQuery.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 
     // Done
@@ -85,7 +85,7 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
     final EntityWithIdQuery<TagSelectingRule> tagSelectingRuleQuery =
         new EntityWithIdQuery<>(TagSelectingRule.class);
     tagSelectingRuleQuery.addRestriction(Restrictions.eq("sourceId", sourceId));
-    tagSelectingRuleQuery.addOrder(Order.asc("activeFrom"));
+    tagSelectingRuleQuery.addOrder(Order.asc("position"));
     tagSelectingRuleQuery
         .setResultTransformer(new AliasToBeanResultTransformer(TagSelectingRuleDto.class));
 
