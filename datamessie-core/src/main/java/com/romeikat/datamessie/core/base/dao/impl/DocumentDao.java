@@ -412,7 +412,7 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   }
 
   public SortedMap<LocalDate, Long> getDownloadedDatesWithNumberOfDocuments(
-      final SharedSessionContract ssc, final LocalDate fromDate,
+      final SharedSessionContract ssc, final LocalDate fromDate, final LocalDate toDate,
       final Collection<DocumentProcessingState> states, final Collection<Long> sourceIds) {
     if (states.isEmpty()) {
       return Maps.newTreeMap();
@@ -429,6 +429,9 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     if (fromDate != null) {
       hql.append("and downloaded >= :_fromDate ");
     }
+    if (toDate != null) {
+      hql.append("and downloaded < :_toDate ");
+    }
     hql.append("group by to_date(downloaded) ");
     final Query<?> query = ssc.createQuery(hql.toString());
     query.setParameter("_states", states);
@@ -437,6 +440,9 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     }
     if (fromDate != null) {
       query.setParameter("_fromDate", fromDate.atStartOfDay());
+    }
+    if (toDate != null) {
+      query.setParameter("_toDate", toDate.plusDays(1).atStartOfDay());
     }
 
     // Done

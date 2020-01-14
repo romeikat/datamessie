@@ -118,7 +118,7 @@ public class DocumentService {
 
     // Determine downloaded dates
     final SortedMap<LocalDate, Long> datesWithDocuments =
-        documentDao.getDownloadedDatesWithNumberOfDocuments(statelessSession, null,
+        documentDao.getDownloadedDatesWithNumberOfDocuments(statelessSession, null, null,
             statesForDeprocessing, sourceIds);
     final DocumentsDatesConsumer documentsDatesConsumer =
         new DocumentsDatesConsumer(datesWithDocuments, batchSize);

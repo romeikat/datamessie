@@ -1,12 +1,14 @@
 package com.romeikat.datamessie.core.processing.task.documentProcessing;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import javax.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
@@ -132,6 +134,12 @@ public class DocumentsProcessingTask implements Task {
   @Autowired
   private SourceDao sourceDao;
 
+  @Value("${documents.processing.downloaded.date.min}")
+  private String minDownloadedDate;
+
+  @Value("${documents.processing.downloaded.date.max}")
+  private String maxDownloadedDate;
+
   @Value("${documents.processing.batch.size}")
   private int batchSize;
 
@@ -204,13 +212,17 @@ public class DocumentsProcessingTask implements Task {
   private void performProcessing(final TaskExecution taskExecution) throws TaskCancelledException {
     taskExecution.reportWork("Starting documents processing");
 
+    final LocalDate fromDate = parseDate(minDownloadedDate);
+    final LocalDate toDate = parseDate(maxDownloadedDate);
+
     while (true) {
       // Determine necessary states and sources
       final Collection<DocumentProcessingState> statesForProcessing = getStatesForProcessing();
       final Collection<Long> sourceIdsForProcessing = getSourceIdsForProcessing();
 
       // Initialize
-      initializeProcessingIfNecessary(taskExecution, statesForProcessing, sourceIdsForProcessing);
+      initializeProcessingIfNecessary(taskExecution, fromDate, toDate, statesForProcessing,
+          sourceIdsForProcessing);
 
       // Load documents within date range
       final List<Document> documentsToProcess =
@@ -249,8 +261,22 @@ public class DocumentsProcessingTask implements Task {
       }
 
       // Prepare for next iteration
-      prepareForNextIteration(taskExecution, statesForProcessing, sourceIdsForProcessing,
+      prepareForNextIteration(taskExecution, toDate, statesForProcessing, sourceIdsForProcessing,
           documentsToProcess);
+    }
+  }
+
+  private LocalDate parseDate(final String dateAsString) {
+    if (StringUtils.isBlank(dateAsString)) {
+      return null;
+    }
+
+    try {
+      return LocalDate.parse(dateAsString);
+    } catch (final DateTimeParseException e) {
+      final String msg = String.format("Cound not parse date %s", dateAsString);
+      LOG.error(msg, e);
+      return null;
     }
   }
 
@@ -266,6 +292,7 @@ public class DocumentsProcessingTask implements Task {
   }
 
   private void initializeProcessingIfNecessary(final TaskExecution taskExecution,
+      final LocalDate fromDate, final LocalDate toDate,
       final Collection<DocumentProcessingState> statesForProcessing,
       final Collection<Long> sourceIdsForProcessing) {
     // Check whether sources changed
@@ -294,13 +321,14 @@ public class DocumentsProcessingTask implements Task {
         taskExecution.reportWorkStart(String.format("Initializing processing"));
 
     // Initialize all numbers and processing dates
-    initializeNumbersAndProcessingDates(null, statesForProcessing, sourceIdsForProcessing);
+    initializeNumbersAndProcessingDates(fromDate, toDate, statesForProcessing,
+        sourceIdsForProcessing);
     restartProcessing = false;
 
     taskExecution.reportWorkEnd(work);
   }
 
-  private void prepareForNextIteration(final TaskExecution taskExecution,
+  private void prepareForNextIteration(final TaskExecution taskExecution, final LocalDate toDate,
       final Collection<DocumentProcessingState> statesForProcessing,
       final Collection<Long> sourceIdsForProcessing, final List<Document> documentsToProcess)
       throws TaskCancelledException {
@@ -335,7 +363,7 @@ public class DocumentsProcessingTask implements Task {
 
       // Initialize next numbers and processing dates
       final LocalDate previousToDate = processingDates.getProcessingToDate();
-      initializeNumbersAndProcessingDates(previousToDate, statesForProcessing,
+      initializeNumbersAndProcessingDates(previousToDate, toDate, statesForProcessing,
           sourceIdsForProcessing);
     }
     // More dates available => apply next date range from existing numbers
@@ -344,26 +372,26 @@ public class DocumentsProcessingTask implements Task {
     }
   }
 
-  private void initializeNumbersAndProcessingDates(final LocalDate fromDate,
+  private void initializeNumbersAndProcessingDates(final LocalDate fromDate, final LocalDate toDate,
       final Collection<DocumentProcessingState> statesForProcessing,
       final Collection<Long> sourceIdsForProcessing) {
     // Determine numbers
-    determineNumbers(fromDate, statesForProcessing, sourceIdsForProcessing);
+    determineNumbers(fromDate, toDate, statesForProcessing, sourceIdsForProcessing);
 
     // Determine initial date range to process
     if (documentsDatesConsumer.isEmpty()) {
-      applyNewDateRange(fromDate);
+      applyNewDateRange(fromDate, toDate);
     } else {
       applyNextDateRangeFromNumbers();
     }
   }
 
-  private void determineNumbers(final LocalDate fromDate,
+  private void determineNumbers(final LocalDate fromDate, final LocalDate toDate,
       final Collection<DocumentProcessingState> statesForProcessing,
       final Collection<Long> sourceIdsForProcessing) {
     final SortedMap<LocalDate, Long> datesWithDocuments =
         documentDao.getDownloadedDatesWithNumberOfDocuments(sessionProvider.getStatelessSession(),
-            fromDate, statesForProcessing, sourceIdsForProcessing);
+            fromDate, toDate, statesForProcessing, sourceIdsForProcessing);
     documentsDatesConsumer = new DocumentsDatesConsumer(datesWithDocuments, batchSize);
   }
 
@@ -373,24 +401,38 @@ public class DocumentsProcessingTask implements Task {
     processingDates.setProcessingToDate(null);
   }
 
-  private void applyNewDateRange(final LocalDate fromDate) {
+  private void applyNewDateRange(final LocalDate fromDate, final LocalDate toDate) {
+    LocalDate processingFromDate;
+    LocalDate processingToDate;
+
     // Use the provided starting date, if available
     if (fromDate != null) {
-      processingDates.setProcessingFromDate(fromDate);
-
-      final LocalDate today = LocalDate.now();
-      final LocalDate toDate = today.isAfter(fromDate) ? today : fromDate;
-      processingDates.setProcessingToDate(toDate);
+      processingFromDate = fromDate;
     }
-
     // Otherwise, start from yesterday (in case we just passed midnight)
     else {
       final LocalDate yesterday = LocalDate.now().minusDays(1);
-      processingDates.setProcessingFromDate(yesterday);
-
-      final LocalDate today = LocalDate.now();
-      processingDates.setProcessingToDate(today);
+      processingFromDate = yesterday;
     }
+
+    // Use the provided ending date, if available
+    if (toDate != null) {
+      processingToDate = toDate;
+    }
+    // Otherwise, stop at today
+    else {
+      final LocalDate today = LocalDate.now();
+      processingToDate = today;
+    }
+
+    // Prevent negative intervals
+    if (processingToDate.isBefore(processingFromDate)) {
+      processingToDate = processingFromDate;
+    }
+
+    // Done
+    processingDates.setProcessingFromDate(processingFromDate);
+    processingDates.setProcessingToDate(processingToDate);
   }
 
   private void applyNextDateRangeFromNumbers() {

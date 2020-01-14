@@ -273,7 +273,7 @@ public class MaintenanceTask implements Task {
     final TaskExecutionWork work = taskExecution.reportWorkStart(String.format("Initializing"));
     final SortedMap<LocalDate, Long> datesWithDocuments =
         documentDao.getDownloadedDatesWithNumberOfDocuments(sessionProvider.getStatelessSession(),
-            null, statesForMaintenance, null);
+            null, null, statesForMaintenance, null);
     final DocumentsDatesConsumer documentsDatesConsumer =
         new DocumentsDatesConsumer(datesWithDocuments, batchSize);
     taskExecution.reportWorkEnd(work);

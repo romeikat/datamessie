@@ -80,7 +80,7 @@ public class DocumentDaoTest extends AbstractDbSetupBasedTest {
         Lists.newArrayList(DocumentProcessingState.CLEANED, DocumentProcessingState.STEMMED);
     final SortedMap<LocalDate, Long> downloadedDates =
         documentDao.getDownloadedDatesWithNumberOfDocuments(sessionProvider.getStatelessSession(),
-            LocalDate.of(2019, 11, 1), states, Lists.newArrayList(1l));
+            LocalDate.of(2019, 11, 1), null, states, Lists.newArrayList(1l));
     assertEquals(2, downloadedDates.size());
     assertEquals(Long.valueOf(1), downloadedDates.get(LocalDate.of(2019, 11, 2)));
     assertEquals(Long.valueOf(1), downloadedDates.get(LocalDate.of(2019, 11, 3)));
