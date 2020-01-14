@@ -28,6 +28,7 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import com.google.common.collect.Multimap;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
@@ -179,21 +180,20 @@ public class DocumentsProcessor {
   }
 
   private void rebuildStatistics() {
-    for (final Document document : documentsProcessingOutput.getDocuments()) {
+    for (final Document document : documentsProcessingOutput.getDocuments().values()) {
       statisticsToBeRebuilt.putValue(document.getSourceId(), document.getPublishedDate(), true);
     }
   }
 
   private void persistDocumentsProcessingOutput() {
     // Retrieve output
-    final Collection<Document> documentsToBeUpdated = documentsProcessingOutput.getDocuments();
-    final Collection<Download> downloadsToBeCreatedOrUpdated =
+    final Map<Long, Document> documentsToBeUpdated = documentsProcessingOutput.getDocuments();
+    final Multimap<Long, Download> downloadsToBeCreatedOrUpdated =
         documentsProcessingOutput.getDownloads();
-    final Collection<RawContent> rawContentsToBeUpdated =
-        documentsProcessingOutput.getRawContents();
-    final Collection<CleanedContent> cleanedContentsToBeCreatedOrUpdated =
+    final Map<Long, RawContent> rawContentsToBeUpdated = documentsProcessingOutput.getRawContents();
+    final Map<Long, CleanedContent> cleanedContentsToBeCreatedOrUpdated =
         documentsProcessingOutput.getCleanedContents();
-    final Collection<StemmedContent> stemmedContentsToBeCreatedOrUpdated =
+    final Map<Long, StemmedContent> stemmedContentsToBeCreatedOrUpdated =
         documentsProcessingOutput.getStemmedContents();
     final Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced =
         documentsProcessingOutput.getNamedEntityOccurrences();

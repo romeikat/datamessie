@@ -24,6 +24,7 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Map;
+import com.google.common.collect.Multimap;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
@@ -35,11 +36,11 @@ import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 @FunctionalInterface
 public interface PersistDocumentsProcessingOutputCallback {
 
-  void persistDocumentsProcessingOutput(Collection<Document> documentsToBeUpdated,
-      Collection<Download> downloadsToBeCreatedOrUpdated,
-      Collection<RawContent> rawContentsToBeUpdated,
-      Collection<CleanedContent> cleanedContentsToBeCreatedOrUpdated,
-      Collection<StemmedContent> stemmedContentsToBeCreatedOrUpdated,
+  void persistDocumentsProcessingOutput(final Map<Long, Document> documentsToBeUpdated,
+      final Multimap<Long, Download> downloadsToBeCreatedOrUpdated,
+      final Map<Long, RawContent> rawContentsToBeUpdated,
+      final Map<Long, CleanedContent> cleanedContentsToBeCreatedOrUpdated,
+      final Map<Long, StemmedContent> stemmedContentsToBeCreatedOrUpdated,
       Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced,
       Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved);
 

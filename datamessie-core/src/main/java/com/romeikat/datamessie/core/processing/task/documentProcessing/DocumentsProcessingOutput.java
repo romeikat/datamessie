@@ -28,7 +28,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import com.google.common.collect.Sets;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
@@ -52,7 +55,7 @@ public class DocumentsProcessingOutput {
    * exist or ones that are new.<br>
    * The persistence provider will decide how to persist in the most efficient way.
    */
-  private final Set<Download> downloads;
+  private final SetMultimap<Long, Download> downloads;
 
   /**
    * {@link RawContent RawContents} to be persisted. Only contains {@link RawContent RawContents}
@@ -82,7 +85,7 @@ public class DocumentsProcessingOutput {
    * deleted.<br>
    * The persistence provider will decide how to persist in the most efficient way.
    */
-  private final Map<Long, List<NamedEntityOccurrence>> namedEntityOccurrences;
+  private final ConcurrentMap<Long, List<NamedEntityOccurrence>> namedEntityOccurrences;
 
   /**
    * {@link NamedEntityCategory NamedEntityCategorys} to be persisted. Only contains
@@ -94,7 +97,7 @@ public class DocumentsProcessingOutput {
 
   public DocumentsProcessingOutput() {
     this.documents = Maps.newConcurrentMap();
-    downloads = ConcurrentHashMap.newKeySet();
+    downloads = Multimaps.synchronizedSetMultimap(HashMultimap.create());
     rawContents = Maps.newConcurrentMap();
     cleanedContents = Maps.newConcurrentMap();
     stemmedContents = Maps.newConcurrentMap();
@@ -116,15 +119,15 @@ public class DocumentsProcessingOutput {
     return documents.get(documentId);
   }
 
-  public Set<Document> getDocuments() {
-    return Sets.newHashSet(documents.values());
+  public Map<Long, Document> getDocuments() {
+    return documents;
   }
 
   public void putDownload(final Download download) {
-    downloads.add(download);
+    downloads.put(download.getDocumentId(), download);
   }
 
-  public Set<Download> getDownloads() {
+  public Multimap<Long, Download> getDownloads() {
     return downloads;
   }
 
@@ -132,8 +135,8 @@ public class DocumentsProcessingOutput {
     rawContents.put(rawContent.getId(), rawContent);
   }
 
-  public Set<RawContent> getRawContents() {
-    return Sets.newHashSet(rawContents.values());
+  public Map<Long, RawContent> getRawContents() {
+    return rawContents;
   }
 
   public void putCleanedContent(final CleanedContent cleanedContent) {
@@ -144,8 +147,8 @@ public class DocumentsProcessingOutput {
     return cleanedContents.get(documentId);
   }
 
-  public Set<CleanedContent> getCleanedContents() {
-    return Sets.newHashSet(cleanedContents.values());
+  public Map<Long, CleanedContent> getCleanedContents() {
+    return cleanedContents;
   }
 
   public void putStemmedContent(final StemmedContent stemmedContent) {
@@ -156,17 +159,13 @@ public class DocumentsProcessingOutput {
     return stemmedContents.get(documentId);
   }
 
-  public Set<StemmedContent> getStemmedContents() {
-    return Sets.newHashSet(stemmedContents.values());
+  public Map<Long, StemmedContent> getStemmedContents() {
+    return stemmedContents;
   }
 
   public void putNamedEntityOccurrences(final long documentId,
       final List<NamedEntityOccurrence> namedEntityOccurrences) {
     this.namedEntityOccurrences.put(documentId, namedEntityOccurrences);
-  }
-
-  public List<NamedEntityOccurrence> getNamedEntityOccurrences(final long documentId) {
-    return namedEntityOccurrences.get(documentId);
   }
 
   public Map<Long, List<NamedEntityOccurrence>> getNamedEntityOccurrences() {
