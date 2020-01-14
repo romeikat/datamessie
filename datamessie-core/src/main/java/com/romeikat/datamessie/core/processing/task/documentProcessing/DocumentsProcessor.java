@@ -24,11 +24,9 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Map;
-import org.apache.commons.lang3.time.StopWatch;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import com.google.common.collect.Multimap;
+import com.romeikat.datamessie.core.base.util.ExecutionTimeLogger;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
@@ -84,8 +82,6 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.validate.
  */
 public class DocumentsProcessor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DocumentsProcessor.class);
-
   private boolean stemmingEnabled = true;
 
   private final DocumentsProcessingInput documentsProcessingInput;
@@ -99,8 +95,7 @@ public class DocumentsProcessor {
   private final NamedEntitiesProcessor namedEntitiesProcessor;
   private final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback;
 
-  private final boolean logExecutionTimes = false;
-  private final StopWatch sw = new StopWatch();
+  private final ExecutionTimeLogger executionTimeLogger;
 
   public DocumentsProcessor(final RedirectCallback redirectCallback,
       final GetDownloadsPerDocumentIdCallback getDownloadIdsWithEntitiesCallback,
@@ -132,47 +127,45 @@ public class DocumentsProcessor {
         documentsProcessingOutput, getOrCreateNamedEntitiesCallback,
         getNamedEntityNamesWithoutCategoryCallback, provideNamedEntityCategoryTitlesCallback, ctx);
     this.persistDocumentsProcessingOutputCallback = persistDocumentsProcessingOutputCallback;
+
+    executionTimeLogger = new ExecutionTimeLogger(getClass());
   }
 
   public void processDocuments(final Collection<Document> documents) {
-    if (logExecutionTimes) {
-      sw.start();
-    }
+    executionTimeLogger.start();
 
     documentsProcessingInput.addDocuments(documents);
-    logExecutionTime("Add");
+    executionTimeLogger.log("Add");
 
     // Process documents
     doProcessing();
 
     // Mark statistics to be rebuilt
     rebuildStatistics();
-    logExecutionTime("Statistics");
+    executionTimeLogger.log("Statistics");
 
     // Persist all changes
     persistDocumentsProcessingOutput();
-    logExecutionTime("Persist");
+    executionTimeLogger.log("Persist");
 
-    if (logExecutionTimes) {
-      sw.stop();
-    }
+    executionTimeLogger.stop();
   }
 
   private void doProcessing() {
     documentsValidator.validateDocuments();
-    logExecutionTime("Validate");
+    executionTimeLogger.log("Validate");
 
     documentsRedirector.redirectDocuments();
-    logExecutionTime("Redirect");
+    executionTimeLogger.log("Redirect");
 
     documentsCleaner.cleanDocuments();
-    logExecutionTime("Clean");
+    executionTimeLogger.log("Clean");
 
     documentsStemmer.stemDocuments(stemmingEnabled);
-    logExecutionTime("Stem");
+    executionTimeLogger.log("Stem");
 
     namedEntitiesProcessor.processNamedEntities(stemmingEnabled);
-    logExecutionTime("Named entities");
+    executionTimeLogger.log("Named entities");
   }
 
   protected void setStemmingEnabled(final boolean stemmingEnabled) {
@@ -217,12 +210,6 @@ public class DocumentsProcessor {
 
   public StatisticsRebuildingSparseTable getStatisticsToBeRebuilt() {
     return statisticsToBeRebuilt;
-  }
-
-  private void logExecutionTime(final String section) {
-    if (logExecutionTimes) {
-      LOG.info("{}: {}s", section, sw.getTime() / 1000);
-    }
   }
 
 }
