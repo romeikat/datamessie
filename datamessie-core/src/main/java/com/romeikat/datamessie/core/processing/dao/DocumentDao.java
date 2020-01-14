@@ -33,6 +33,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,6 +120,25 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
     // Done
     final List<Document> entities = documentQuery.listObjects(ssc);
     return entities;
+  }
+
+  public void updateStates(final SharedSessionContract ssc, final Collection<Long> documentIds,
+      final DocumentProcessingState state) {
+    if (documentIds.isEmpty() || state == null) {
+      return;
+    }
+
+    // Query
+    final StringBuilder hql = new StringBuilder();
+    hql.append("UPDATE " + getEntityClass().getSimpleName() + " ");
+    hql.append("SET state = :_state ");
+    hql.append("WHERE id IN :_ids ");
+    final Query<?> query = ssc.createQuery(hql.toString());
+    query.setParameter("_state", state);
+    query.setParameter("_ids", documentIds);
+
+    // Execute
+    query.executeUpdate();
   }
 
   public void persistDocumentsProcessingOutput(final Map<Long, Document> documentsToBeUpdated,

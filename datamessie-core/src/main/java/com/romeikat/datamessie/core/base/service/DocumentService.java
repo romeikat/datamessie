@@ -52,6 +52,7 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
+import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.SequentialAsynchronousTask;
@@ -223,16 +224,23 @@ public class DocumentService {
       final TaskExecutionWork work = taskExecution
           .reportWorkStart(String.format("Resetting %s %s", documents.size(), singularPlural));
 
+      // Update state and persist
+      final Collection<Long> documentIds =
+          documents.stream().map(d -> d.getId()).collect(Collectors.toSet());
       final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
-      // Update state
-      for (final Document document : documents) {
-        document.setState(targetState);
-      }
-      // Persist
-      for (final Document document : documents) {
-        documentDao.update(sessionProvider.getStatelessSession(), document);
-      }
+      new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
+        @Override
+        protected void execute(final StatelessSession statelessSession) {
+          documentDao.updateStates(statelessSession, documentIds, targetState);
+        }
+
+        @Override
+        protected boolean shouldRethrowException() {
+          return true;
+        }
+      }.execute();
       sessionProvider.closeStatelessSession();
+
       // Rebuild statistics
       for (final Document document : documents) {
         final long sourceId = document.getSourceId();
