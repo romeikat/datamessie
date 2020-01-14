@@ -1,5 +1,6 @@
 # Java
 *.class
+logs/
 *.log
 *.ctxt
 .mtj.tmp/
