@@ -71,7 +71,7 @@ public class DocumentsDeprocessingTask implements Task {
 
   @Override
   public Integer getPriority() {
-    return 4;
+    return null;
   }
 
   @Override

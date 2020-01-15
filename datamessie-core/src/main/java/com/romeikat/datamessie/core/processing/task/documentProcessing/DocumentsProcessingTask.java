@@ -195,7 +195,7 @@ public class DocumentsProcessingTask implements Task {
 
   @Override
   public Integer getPriority() {
-    return 7;
+    return null;
   }
 
   @Override
