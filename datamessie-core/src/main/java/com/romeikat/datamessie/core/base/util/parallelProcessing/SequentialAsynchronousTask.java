@@ -33,7 +33,7 @@ public class SequentialAsynchronousTask {
 
   private static final Logger LOG = LoggerFactory.getLogger(SequentialAsynchronousTask.class);
 
-  private static final boolean ASYNC = true;
+  private static final boolean ASYNC = false;
 
   private final ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private Future<?> future;
