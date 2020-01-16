@@ -36,7 +36,7 @@ import com.romeikat.datamessie.core.processing.service.cleaning.extract.TagExctr
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 
 @Service
-public class DocumentCleaner {
+public class DocumentCleaningService {
 
   @Autowired
   private ContentDeletor contentDeletor;
@@ -47,7 +47,7 @@ public class DocumentCleaner {
   @Autowired
   private BoilerplateRemover boilerplateRemover;
 
-  private DocumentCleaner() {}
+  private DocumentCleaningService() {}
 
   public DocumentCleaningResult clean(final Document document, final RawContent rawContent,
       final List<DeletingRule> deletingRules, final List<TagSelectingRule> tagSelectingRules,

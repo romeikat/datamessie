@@ -44,6 +44,8 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.Documents
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingOutput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetNamedEntityNamesWithoutCategoryCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetOrCreateNamedEntitiesCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.PersistDocumentProcessingOutputCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.PersistDocumentsProcessingOutputCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.ProvideNamedEntityCategoryTitlesCallback;
 
 public class NamedEntitiesProcessor {
@@ -60,12 +62,16 @@ public class NamedEntitiesProcessor {
   private final NamedEntityCategoriesCreator namedEntityCategoriesCreator;
 
   private final GetOrCreateNamedEntitiesCallback getOrCreateNamedEntitiesCallback;
+  private final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback;
+  private final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback;
 
   public NamedEntitiesProcessor(final DocumentsProcessingInput documentsProcessingInput,
       final DocumentsProcessingOutput documentsProcessingOutput,
       final GetOrCreateNamedEntitiesCallback getOrCreateNamedEntitiesCallback,
       final GetNamedEntityNamesWithoutCategoryCallback getNamedEntityNamesWithoutCategoryCallback,
       final ProvideNamedEntityCategoryTitlesCallback provideNamedEntityCategoryTitlesCallback,
+      final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback,
+      final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback,
       final ApplicationContext ctx) {
     processingParallelismFactor = Double
         .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
@@ -80,12 +86,14 @@ public class NamedEntitiesProcessor {
         provideNamedEntityCategoryTitlesCallback, ctx);
 
     this.getOrCreateNamedEntitiesCallback = getOrCreateNamedEntitiesCallback;
+    this.persistDocumentProcessingOutputCallback = persistDocumentProcessingOutputCallback;
+    this.persistDocumentsProcessingOutputCallback = persistDocumentsProcessingOutputCallback;
   }
 
   /**
    * Processes the named entity detections for the documents in {@code documentsProcessingInput}.
    *
-   * Depending on the result, {@code documentsProcessingInput} and {@code documentsProcessingInput}
+   * Depending on the result, {@code documentsProcessingInput} and {@code documentsProcessingOutput}
    * are modified as follows.
    * <ul>
    * <li>Missing named entites are created and persisted them immediately, so they can be assigned
@@ -102,7 +110,7 @@ public class NamedEntitiesProcessor {
    *
    * @param stemmingEnabled
    */
-  public void processNamedEntities(boolean stemmingEnabled) {
+  public void processNamedEntities(final boolean stemmingEnabled) {
     // Collect named entity names
     final Collection<String> namedEntityNames = determineNamedEntityNames();
 
@@ -115,6 +123,9 @@ public class NamedEntitiesProcessor {
 
     // Create NamedEntityCategories
     createNamedEntityCategories(namedEntityNames2NamedEntityId);
+
+    // Persist
+    persistProperResults();
   }
 
   private Set<String> determineNamedEntityNames() {
@@ -137,7 +148,7 @@ public class NamedEntitiesProcessor {
   }
 
   private void createNamedEntityOccurrences(final Map<String, Long> namedEntityNames2NamedEntityId,
-      boolean stemmingEnabled) {
+      final boolean stemmingEnabled) {
     new ParallelProcessing<Document>(null, documentsProcessingInput.getDocuments(),
         processingParallelismFactor) {
       @Override
@@ -176,9 +187,29 @@ public class NamedEntitiesProcessor {
     documentsProcessingOutput.putNamedEntityCategories(namedEntityCategories);
   }
 
+  private void persistProperResults() {
+    final Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrences =
+        documentsProcessingOutput.getNamedEntityOccurrences();
+    final Collection<NamedEntityCategory> namedEntityCategories =
+        documentsProcessingOutput.getNamedEntityCategories();
+
+    persistDocumentsProcessingOutputCallback.persistDocumentsProcessingOutput(null, null, null,
+        namedEntityOccurrences, namedEntityCategories);
+  }
+
   private void outputEmptyResults(final Document document) {
     documentsProcessingOutput.putDocument(document);
     documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
+
+    persistEmptyResults(document);
+  }
+
+  private void persistEmptyResults(final Document document) {
+    final List<NamedEntityOccurrence> namedEntityOccurrences =
+        documentsProcessingOutput.getNamedEntityOccurrences(document.getId());
+
+    persistDocumentProcessingOutputCallback.persistDocumentsProcessingOutput(document, null, null,
+        namedEntityOccurrences);
   }
 
 }

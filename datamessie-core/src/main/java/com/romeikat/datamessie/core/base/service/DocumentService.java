@@ -145,9 +145,11 @@ public class DocumentService {
       // Deprocess
       final Collection<Long> previousDocumentIds =
           Collections2.transform(deprocessedDocuments, new EntityWithIdToIdFunction());
+      final Collection<Long> documentIdsToIgnore =
+          SequentialAsynchronousTask.ASYNC ? previousDocumentIds : null;
       deprocessedDocuments = deprocessDocuments(statelessSession, persistingTask, taskExecution,
           sourceId, targetState, downloadedDateRange.getLeft(), downloadedDateRange.getRight(),
-          statesForDeprocessing, previousDocumentIds, statisticsToBeRebuilt);
+          statesForDeprocessing, documentIdsToIgnore, statisticsToBeRebuilt);
 
       // Prepare for next iteration
       final boolean noMoreDocumentsToDeprocess = deprocessedDocuments.size() < batchSize;
@@ -311,7 +313,7 @@ public class DocumentService {
       final Collection<Document> documents, final DocumentProcessingState state,
       final boolean deleteCleanedContents, final boolean deleteStemmedContents,
       final boolean deleteNamedEntityOccurrences, final boolean deleteDownloads) {
-    if (documents.isEmpty()) {
+    if (CollectionUtils.isEmpty(documents)) {
       return;
     }
 

@@ -34,7 +34,7 @@ import com.romeikat.datamessie.core.processing.service.stemming.namedEntity.Name
 import com.romeikat.datamessie.core.processing.service.stemming.text.TextStemmer;
 
 @Service
-public class DocumentStemmer {
+public class DocumentStemmingService {
 
   @Autowired
   private NamedEntitiesDetector namedEntitiesDetector;
@@ -45,7 +45,7 @@ public class DocumentStemmer {
   @Autowired
   private HtmlUtil htmlUtil;
 
-  private DocumentStemmer() {}
+  private DocumentStemmingService() {}
 
   public DocumentStemmingResult stem(final Document document, final String cleanedContent,
       final Language language) {

@@ -58,15 +58,16 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
+import com.romeikat.datamessie.core.base.util.parallelProcessing.SequentialAsynchronousTask;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
 import com.romeikat.datamessie.core.processing.init.DatamessieIndexingInitializer;
 import com.romeikat.datamessie.core.processing.service.stemming.namedEntity.ClassifierPipelineProvider;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaner;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirector;
-import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmer;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.cleaning.DocumentCleaningService;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentRedirectingService;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentStemmingService;
 import com.romeikat.datamessie.core.processing.task.documentReindexing.DocumentsReindexer;
 import com.romeikat.datamessie.core.processing.util.DocumentsDatesConsumer;
 import com.romeikat.datamessie.core.processing.util.ProcessingDates;
@@ -111,13 +112,13 @@ public class DocumentsProcessingTask implements Task {
   private StringUtil stringUtil;
 
   @Autowired
-  private DocumentRedirector documentRedirector;
+  private DocumentRedirectingService documentRedirectingService;
 
   @Autowired
-  private DocumentCleaner documentCleaner;
+  private DocumentCleaningService documentCleaningService;
 
   @Autowired
-  private DocumentStemmer documentStemmer;
+  private DocumentStemmingService documentStemmingService;
 
   @Autowired
   @Qualifier("processingDocumentDao")
@@ -245,10 +246,12 @@ public class DocumentsProcessingTask implements Task {
       if (documentForTesting != null) {
         documentsToProcess = Lists.newArrayList(documentForTesting);
       } else {
+        final Collection<Long> documentIdsToIgnore =
+            SequentialAsynchronousTask.ASYNC ? previousDocumentIds : null;
         documentsToProcess = documentsLoader.loadDocumentsToProcess(
             sessionProvider.getStatelessSession(), taskExecution,
             processingDates.getProcessingFromDate(), processingDates.getProcessingToDate(),
-            statesForProcessing, sourceIdsForProcessing, previousDocumentIds);
+            statesForProcessing, sourceIdsForProcessing, documentIdsToIgnore);
       }
 
       // Process date range
@@ -258,20 +261,23 @@ public class DocumentsProcessingTask implements Task {
         final TaskExecutionWork work = taskExecution.reportWorkStart(
             String.format("Processing %s %s", documentsToProcess.size(), singularPlural));
 
-        final DocumentsProcessor documentsProcessor =
-            new DocumentsProcessor(documentRedirector::redirect, downloadDao::getForDocuments,
-                documentDao::getIdsWithEntities, downloadDao::getDocumentIdsForUrlsAndSource,
-                documentCleaner::clean, documentStemmer::stem, namedEntityDao::getOrCreate,
-                namedEntityCategoryDao::getWithoutCategories,
-                plugin == null ? null : plugin::provideCategoryTitles,
-                (documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
-                    cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
-                    namedEntityOccurrencesToBeReplaced,
-                    namedEntityCategoriesToBeSaved) -> documentDao.persistDocumentsProcessingOutput(
-                        documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
-                        cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
-                        namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved),
-                ctx);
+        final DocumentsProcessor documentsProcessor = new DocumentsProcessor(
+            documentRedirectingService::redirect, downloadDao::getForDocuments,
+            documentDao::getIdsWithEntities, downloadDao::getDocumentIdsForUrlsAndSource,
+            documentCleaningService::clean, documentStemmingService::stem,
+            namedEntityDao::getOrCreate, namedEntityCategoryDao::getWithoutCategories,
+            plugin == null ? null : plugin::provideCategoryTitles,
+            (documentToBeUpdated, cleanedContentToBeCreatedOrUpdated,
+                stemmedContentToBeCreatedOrUpdated,
+                namedEntityOccurrencesToBeReplaced) -> documentDao.persistDocumentProcessingOutput(
+                    documentToBeUpdated, cleanedContentToBeCreatedOrUpdated,
+                    stemmedContentToBeCreatedOrUpdated, namedEntityOccurrencesToBeReplaced),
+            (documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
+                namedEntityOccurrencesToBeReplaced,
+                namedEntityCategoriesToBeSaved) -> documentDao.persistDocumentsProcessingOutput(
+                    documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
+                    namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved),
+            ctx);
         documentsProcessor.processDocuments(documentsToProcess);
 
         rebuildStatistics(documentsProcessor.getStatisticsToBeRebuilt());

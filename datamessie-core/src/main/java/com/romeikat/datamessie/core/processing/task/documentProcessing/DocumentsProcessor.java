@@ -23,28 +23,22 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import com.google.common.collect.Multimap;
 import com.romeikat.datamessie.core.base.util.ExecutionTimeLogger;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
-import com.romeikat.datamessie.core.base.util.parallelProcessing.SequentialAsynchronousTask;
+import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
+import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
-import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
-import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.CleanCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsForUrlsAndSourceCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsWithEntitiesCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDownloadsPerDocumentIdCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetNamedEntityNamesWithoutCategoryCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetOrCreateNamedEntitiesCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.PersistDocumentProcessingOutputCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.PersistDocumentsProcessingOutputCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.ProvideNamedEntityCategoryTitlesCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.RedirectCallback;
@@ -54,6 +48,7 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.namedEnti
 import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecting.DocumentsRedirector;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.stemming.DocumentsStemmer;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.validate.DocumentsValidator;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 /**
  * Processes multiple documents at a time. The performance strategy is to use as few data access
@@ -87,8 +82,7 @@ public class DocumentsProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(DocumentsProcessor.class);
 
-  private static SequentialAsynchronousTask PERSISTING_TASK = new SequentialAsynchronousTask();
-
+  private final Double processingParallelismFactor;
   private boolean stemmingEnabled = true;
 
   private final DocumentsProcessingInput documentsProcessingInput;
@@ -100,7 +94,6 @@ public class DocumentsProcessor {
   private final DocumentsCleaner documentsCleaner;
   private final DocumentsStemmer documentsStemmer;
   private final NamedEntitiesProcessor namedEntitiesProcessor;
-  private final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback;
 
   private final ExecutionTimeLogger executionTimeLogger;
 
@@ -112,8 +105,11 @@ public class DocumentsProcessor {
       final GetOrCreateNamedEntitiesCallback getOrCreateNamedEntitiesCallback,
       final GetNamedEntityNamesWithoutCategoryCallback getNamedEntityNamesWithoutCategoryCallback,
       final ProvideNamedEntityCategoryTitlesCallback provideNamedEntityCategoryTitlesCallback,
+      final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback,
       final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback,
       final ApplicationContext ctx) {
+    processingParallelismFactor = Double
+        .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
     stemmingEnabled = Boolean
         .parseBoolean(SpringUtil.getPropertyValue(ctx, "documents.processing.stemming.enabled"));
 
@@ -121,19 +117,20 @@ public class DocumentsProcessor {
     documentsProcessingOutput = new DocumentsProcessingOutput();
     statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
 
-    documentsValidator =
-        new DocumentsValidator(documentsProcessingInput, documentsProcessingOutput);
+    documentsValidator = new DocumentsValidator(documentsProcessingInput, documentsProcessingOutput,
+        persistDocumentProcessingOutputCallback);
     documentsRedirector = new DocumentsRedirector(documentsProcessingInput,
         documentsProcessingOutput, redirectCallback, getDownloadIdsWithEntitiesCallback,
-        getDocumentIdsWithEntitiesCallback, getDocumentIdsForUrlsAndSourceCallback, ctx);
+        getDocumentIdsWithEntitiesCallback, getDocumentIdsForUrlsAndSourceCallback,
+        persistDocumentProcessingOutputCallback, persistDocumentsProcessingOutputCallback, ctx);
     documentsCleaner = new DocumentsCleaner(documentsProcessingInput, documentsProcessingOutput,
-        cleanCallback, ctx);
+        cleanCallback, persistDocumentProcessingOutputCallback, ctx);
     documentsStemmer = new DocumentsStemmer(documentsProcessingInput, documentsProcessingOutput,
-        stemCallback, ctx);
+        stemCallback, persistDocumentProcessingOutputCallback, ctx);
     namedEntitiesProcessor = new NamedEntitiesProcessor(documentsProcessingInput,
         documentsProcessingOutput, getOrCreateNamedEntitiesCallback,
-        getNamedEntityNamesWithoutCategoryCallback, provideNamedEntityCategoryTitlesCallback, ctx);
-    this.persistDocumentsProcessingOutputCallback = persistDocumentsProcessingOutputCallback;
+        getNamedEntityNamesWithoutCategoryCallback, provideNamedEntityCategoryTitlesCallback,
+        persistDocumentProcessingOutputCallback, persistDocumentsProcessingOutputCallback, ctx);
 
     executionTimeLogger = new ExecutionTimeLogger(getClass());
   }
@@ -145,13 +142,8 @@ public class DocumentsProcessor {
     executionTimeLogger.log("Add");
 
     // Process documents
-    PERSISTING_TASK.waitUntilCompleted();
     executionTimeLogger.log("Wait");
     doProcessing();
-
-    // Persist all changes (asynchronously)
-    persistDocumentsProcessingOutputAsynchronously();
-    executionTimeLogger.log("Trigger persisting");
 
     // Mark statistics to be rebuilt
     rebuildStatistics();
@@ -164,21 +156,31 @@ public class DocumentsProcessor {
     documentsValidator.validateDocuments();
     executionTimeLogger.log("Validate");
 
+    // Documents must be redirected one after another
     documentsRedirector.redirectDocuments();
     executionTimeLogger.log("Redirect");
 
-    documentsCleaner.cleanDocuments();
-    executionTimeLogger.log("Clean");
+    // Clean and stem documents in parallel
+    new ParallelProcessing<Document>(null, documentsProcessingInput.getDocuments(),
+        processingParallelismFactor) {
+      @Override
+      public void doProcessing(final HibernateSessionProvider sessionProvider,
+          final Document document) {
+        try {
+          final Collection<Document> documentAsCollection = Lists.newArrayList(document);
+          documentsCleaner.cleanDocuments(documentAsCollection);
+          documentsStemmer.stemDocuments(documentAsCollection, stemmingEnabled);
+        } catch (final Exception e) {
+          final String msg = String.format("Could not clean document %s", document.getId());
+          LOG.error(msg, e);
+        }
+      }
+    };
+    executionTimeLogger.log("Clean and stem");
 
-    documentsStemmer.stemDocuments(stemmingEnabled);
-    executionTimeLogger.log("Stem");
-
+    // Named entities must be processed together
     namedEntitiesProcessor.processNamedEntities(stemmingEnabled);
     executionTimeLogger.log("Named entities");
-  }
-
-  protected void waitUntilPersistingDone() {
-    PERSISTING_TASK.waitUntilCompleted();
   }
 
   protected void setStemmingEnabled(final boolean stemmingEnabled) {
@@ -189,31 +191,6 @@ public class DocumentsProcessor {
     for (final Document document : documentsProcessingOutput.getDocuments().values()) {
       statisticsToBeRebuilt.putValue(document.getSourceId(), document.getPublishedDate(), true);
     }
-  }
-
-  private void persistDocumentsProcessingOutputAsynchronously() {
-    // Retrieve output
-    final Map<Long, Document> documentsToBeUpdated = documentsProcessingOutput.getDocuments();
-    final Multimap<Long, Download> downloadsToBeCreatedOrUpdated =
-        documentsProcessingOutput.getDownloads();
-    final Map<Long, RawContent> rawContentsToBeUpdated = documentsProcessingOutput.getRawContents();
-    final Map<Long, CleanedContent> cleanedContentsToBeCreatedOrUpdated =
-        documentsProcessingOutput.getCleanedContents();
-    final Map<Long, StemmedContent> stemmedContentsToBeCreatedOrUpdated =
-        documentsProcessingOutput.getStemmedContents();
-    final Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced =
-        documentsProcessingOutput.getNamedEntityOccurrences();
-    final Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved =
-        documentsProcessingOutput.getNamedEntityCategories();
-
-    final Runnable runnable = () -> {
-      // Persist
-      persistDocumentsProcessingOutputCallback.persistDocumentsProcessingOutput(
-          documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
-          cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
-          namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved);
-    };
-    PERSISTING_TASK.submit(runnable);
   }
 
   protected DocumentsProcessingInput getDocumentsProcessingInput() {

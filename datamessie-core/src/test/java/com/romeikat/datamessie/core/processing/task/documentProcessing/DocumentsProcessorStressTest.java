@@ -231,12 +231,15 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
         documentDao::getIdsWithEntities, downloadDao::getDocumentIdsForUrlsAndSource, cleanCallback,
         stemCallback, namedEntityDao::getOrCreate, namedEntityCategoryDao::getWithoutCategories,
         provideNamedEntityCategoryTitlesCallback,
+        (documentToBeUpdated, cleanedContentToBeCreatedOrUpdated,
+            stemmedContentToBeCreatedOrUpdated,
+            namedEntityOccurrencesToBeReplaced) -> documentDao.persistDocumentProcessingOutput(
+                documentToBeUpdated, cleanedContentToBeCreatedOrUpdated,
+                stemmedContentToBeCreatedOrUpdated, namedEntityOccurrencesToBeReplaced),
         (documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
-            cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
             namedEntityOccurrencesToBeReplaced,
             namedEntityCategoriesToBeSaved) -> documentDao.persistDocumentsProcessingOutput(
                 documentsToBeUpdated, downloadsToBeCreatedOrUpdated, rawContentsToBeUpdated,
-                cleanedContentsToBeCreatedOrUpdated, stemmedContentsToBeCreatedOrUpdated,
                 namedEntityOccurrencesToBeReplaced, namedEntityCategoriesToBeSaved),
         ctx);
   }
@@ -263,7 +266,6 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
     final List<Document> documents =
         documentDao.getAllEntites(sessionProvider.getStatelessSession());
     documentsProcessor.processDocuments(documents);
-    documentsProcessor.waitUntilPersistingDone();
 
     // Processing was successful:
     // state becomes STEMMED

@@ -23,17 +23,16 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import com.romeikat.datamessie.core.base.util.SpringUtil;
-import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
@@ -43,35 +42,34 @@ import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingOutput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.CleanCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.PersistDocumentProcessingOutputCallback;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 
 public class DocumentsCleaner {
 
   private static final Logger LOG = LoggerFactory.getLogger(DocumentsCleaner.class);
 
-  private final Double processingParallelismFactor;
-
   private final DocumentsProcessingInput documentsProcessingInput;
   private final DocumentsProcessingOutput documentsProcessingOutput;
 
   private final CleanCallback cleanCallback;
+  private final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback;
 
   public DocumentsCleaner(final DocumentsProcessingInput documentsProcessingInput,
       final DocumentsProcessingOutput documentsProcessingOutput, final CleanCallback cleanCallback,
+      final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback,
       final ApplicationContext ctx) {
-    processingParallelismFactor = Double
-        .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
-
     this.documentsProcessingInput = documentsProcessingInput;
     this.documentsProcessingOutput = documentsProcessingOutput;
 
+    this.persistDocumentProcessingOutputCallback = persistDocumentProcessingOutputCallback;
     this.cleanCallback = cleanCallback;
   }
 
   /**
    * Performs the cleaning for the documents in {@code documentsProcessingInput}.
    *
-   * Depending on the result, {@code documentsProcessingInput} and {@code documentsProcessingInput}
+   * Depending on the result, {@code documentsProcessingInput} and {@code documentsProcessingOutput}
    * are modified as follows.
    * <ul>
    * <li>Documents whose state is not {@code DocumentProcessingState.REDIRECTED} are ignored.</li>
@@ -85,27 +83,24 @@ public class DocumentsCleaner {
    * {@code documentsProcessingOutput}. Also, empty cleaned content, stemmed content, and named
    * entity occurrences are added to the {@code documentsProcessingOutput}.</li>
    * </ul>
+   *
+   * @param documents
    */
-  public void cleanDocuments() {
-    new ParallelProcessing<Document>(null, documentsProcessingInput.getDocuments(),
-        processingParallelismFactor) {
-      @Override
-      public void doProcessing(final HibernateSessionProvider sessionProvider,
-          final Document document) {
-        try {
-          cleanDocument(document);
-        } catch (final Exception e) {
-          final String msg = String.format("Could not clean document %s", document.getId());
-          LOG.error(msg, e);
+  public void cleanDocuments(final Collection<Document> documents) {
+    for (final Document document : documents) {
+      try {
+        cleanDocument(document);
+      } catch (final Exception e) {
+        final String msg = String.format("Could not clean document %s", document.getId());
+        LOG.error(msg, e);
 
-          document.setState(DocumentProcessingState.TECHNICAL_ERROR);
+        document.setState(DocumentProcessingState.TECHNICAL_ERROR);
 
-          documentsProcessingInput.removeDocument(document);
+        documentsProcessingInput.removeDocument(document);
 
-          outputEmptyResults(document);
-        }
+        outputEmptyResults(document);
       }
-    };
+    }
   }
 
   private void cleanDocument(final Document document) throws BoilerpipeProcessingException {
@@ -148,9 +143,9 @@ public class DocumentsCleaner {
     if (wasCleaningSuccesful) {
       document.setState(DocumentProcessingState.CLEANED);
 
-      documentsProcessingOutput.putDocument(document);
-      documentsProcessingOutput.putCleanedContent(
-          new CleanedContent(document.getId(), documentCleaningResult.getCleanedContent()));
+      final CleanedContent cleanedContent =
+          new CleanedContent(document.getId(), documentCleaningResult.getCleanedContent());
+      outputProperResults(document, cleanedContent);
     } else {
       document.setState(DocumentProcessingState.CLEANING_ERROR);
 
@@ -160,11 +155,44 @@ public class DocumentsCleaner {
     }
   }
 
-  private void outputEmptyResults(final Document document) {
+  private void outputProperResults(final Document document, final CleanedContent cleanedContent) {
     documentsProcessingOutput.putDocument(document);
-    documentsProcessingOutput.putCleanedContent(new CleanedContent(document.getId(), ""));
-    documentsProcessingOutput.putStemmedContent(new StemmedContent(document.getId(), ""));
-    documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
+    documentsProcessingOutput.putCleanedContent(cleanedContent);
+
+    persistProperResults(document);
+  }
+
+  private void persistProperResults(final Document document) {
+    final CleanedContent cleanedContent =
+        documentsProcessingOutput.getCleanedContent(document.getId());
+
+    persistDocumentProcessingOutputCallback.persistDocumentsProcessingOutput(document,
+        cleanedContent, null, null);
+  }
+
+  private void outputEmptyResults(final Document document) {
+    final CleanedContent cleanedContent = new CleanedContent(document.getId(), "");
+    final StemmedContent stemmedContent = new StemmedContent(document.getId(), "");
+    final List<NamedEntityOccurrence> namedEntityOccurrences = Collections.emptyList();
+
+    documentsProcessingOutput.putDocument(document);
+    documentsProcessingOutput.putCleanedContent(cleanedContent);
+    documentsProcessingOutput.putStemmedContent(stemmedContent);
+    documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), namedEntityOccurrences);
+
+    persistEmptyResults(document);
+  }
+
+  private void persistEmptyResults(final Document document) {
+    final CleanedContent cleanedContent =
+        documentsProcessingOutput.getCleanedContent(document.getId());
+    final StemmedContent stemmedContent =
+        documentsProcessingOutput.getStemmedContent(document.getId());
+    final List<NamedEntityOccurrence> namedEntityOccurrences =
+        documentsProcessingOutput.getNamedEntityOccurrences(document.getId());
+
+    persistDocumentProcessingOutputCallback.persistDocumentsProcessingOutput(document,
+        cleanedContent, stemmedContent, namedEntityOccurrences);
   }
 
 }

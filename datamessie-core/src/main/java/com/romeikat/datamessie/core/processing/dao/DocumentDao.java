@@ -34,13 +34,10 @@ import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
-import com.google.common.collect.Multimap;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
@@ -51,7 +48,6 @@ import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.service.DocumentService;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
@@ -61,11 +57,10 @@ import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import jersey.repackaged.com.google.common.collect.Lists;
+import jersey.repackaged.com.google.common.collect.Maps;
 
 @Repository("processingDocumentDao")
 public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.DocumentDao {
-
-  private static final Logger LOG = LoggerFactory.getLogger(DocumentDao.class);
 
   @Value("${documents.processing.parallelism.factor}")
   private Double processingParallelismFactor;
@@ -141,19 +136,23 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
     query.executeUpdate();
   }
 
-  public void persistDocumentsProcessingOutput(final Map<Long, Document> documentsToBeUpdated,
-      final Multimap<Long, Download> downloadsToBeCreatedOrUpdated,
-      final Map<Long, RawContent> rawContentsToBeUpdated,
-      final Map<Long, CleanedContent> cleanedContentsToBeCreatedOrUpdated,
-      final Map<Long, StemmedContent> stemmedContentsToBeCreatedOrUpdated,
-      final Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced,
-      final Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved) {
-    // Persist document-independent entities
+  public void persistDocumentProcessingOutput(final Document documentToBeUpdated,
+      final CleanedContent cleanedContentToBeCreatedOrUpdated,
+      final StemmedContent stemmedContentToBeCreatedOrUpdated,
+      final Collection<NamedEntityOccurrence> namedEntityOccurrencesToBeReplaced) {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
       @Override
       protected void execute(final StatelessSession statelessSession) {
-        saveNamedEntityCategories(statelessSession, namedEntityCategoriesToBeSaved);
+        updateDocument(statelessSession, documentToBeUpdated);
+        createOrUpdateCleanedContent(statelessSession, cleanedContentToBeCreatedOrUpdated);
+        createOrUpdateStemmedContent(statelessSession, stemmedContentToBeCreatedOrUpdated);
+        replaceNamedEntityOccurrences(statelessSession, documentToBeUpdated.getId(),
+            namedEntityOccurrencesToBeReplaced);
+
+        documentService.deleteProcessedEntitiesOfDocumentsWithState(statelessSession,
+            Lists.newArrayList(documentToBeUpdated), DocumentProcessingState.TO_BE_DELETED, true,
+            true, true, true);
       }
 
       @Override
@@ -161,104 +160,136 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
         return true;
       }
     }.execute();
+    sessionProvider.closeStatelessSession();
+  }
 
-    // Persist document-related entities
-    final Collection<Long> documentIds = documentsToBeUpdated.keySet();
-    new ParallelProcessing<Long>(sessionFactory, documentIds, processingParallelismFactor) {
+  public void persistDocumentsProcessingOutput(final Collection<Document> documentsToBeUpdated,
+      final Collection<Download> downloadsToBeCreatedOrUpdated,
+      final Collection<RawContent> rawContentsToBeUpdated,
+      final Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced,
+      final Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved) {
+    final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
+    new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
       @Override
-      public void doProcessing(final HibernateSessionProvider sessionProvider,
-          final Long documentId) {
-        new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
-          @Override
-          protected void execute(final StatelessSession statelessSession) {
-            LOG.debug("Persisting document {}", documentId);
+      protected void execute(final StatelessSession statelessSession) {
+        updateDocuments(statelessSession, documentsToBeUpdated);
+        createOrUpdateDownloads(statelessSession, downloadsToBeCreatedOrUpdated);
+        updateRawContents(statelessSession, rawContentsToBeUpdated);
+        replaceNamedEntityOccurrences(statelessSession, namedEntityOccurrencesToBeReplaced);
+        saveNamedEntityCategories(statelessSession, namedEntityCategoriesToBeSaved);
 
-            final Document document = documentsToBeUpdated.get(documentId);
-
-            updateDocument(statelessSession, document);
-            createOrUpdateDownloads(statelessSession,
-                downloadsToBeCreatedOrUpdated.get(documentId));
-            updateRawContent(statelessSession, rawContentsToBeUpdated.get(documentId));
-            createOrUpdateCleanedContent(statelessSession,
-                cleanedContentsToBeCreatedOrUpdated.get(documentId));
-            createOrUpdateStemmedContent(statelessSession,
-                stemmedContentsToBeCreatedOrUpdated.get(documentId));
-            replaceNamedEntityOccurrences(statelessSession, documentId,
-                namedEntityOccurrencesToBeReplaced.get(documentId));
-
-            documentService.deleteProcessedEntitiesOfDocumentsWithState(statelessSession,
-                Lists.newArrayList(document), DocumentProcessingState.TO_BE_DELETED, true, true,
-                true, true);
-          }
-
-          @Override
-          protected boolean shouldRethrowException() {
-            return true;
-          }
-        }.execute();
+        documentService.deleteProcessedEntitiesOfDocumentsWithState(statelessSession,
+            documentsToBeUpdated, DocumentProcessingState.TO_BE_DELETED, true, true, true, true);
       }
-    };
+
+      @Override
+      protected boolean shouldRethrowException() {
+        return true;
+      }
+    }.execute();
+    sessionProvider.closeStatelessSession();
+  }
+
+  private void updateDocuments(final StatelessSession statelessSession,
+      final Collection<Document> documents) {
+    if (documents == null) {
+      return;
+    }
+
+    for (final Document document : documents) {
+      updateDocument(statelessSession, document);
+    }
   }
 
   private void updateDocument(final StatelessSession statelessSession, final Document document) {
+    if (document == null) {
+      return;
+    }
+
     update(statelessSession, document);
   }
 
   private void createOrUpdateDownloads(final StatelessSession statelessSession,
       final Collection<Download> downloads) {
+    if (downloads == null) {
+      return;
+    }
+
     for (final Download download : downloads) {
       downloadDao.insertOrUpdate(statelessSession, download);
     }
   }
 
-  private void updateRawContent(final StatelessSession statelessSession,
-      final RawContent rawContent) {
-    if (rawContent != null) {
+  private void updateRawContents(final StatelessSession statelessSession,
+      final Collection<RawContent> rawContents) {
+    if (rawContents == null) {
+      return;
+    }
+
+    for (final RawContent rawContent : rawContents) {
       rawContentDao.update(statelessSession, rawContent);
     }
   }
 
   private void createOrUpdateCleanedContent(final StatelessSession statelessSession,
       final CleanedContent cleanedContent) {
-    if (cleanedContent != null) {
-      cleanedContentDao.insertOrUpdate(statelessSession, cleanedContent);
+    if (cleanedContent == null) {
+      return;
     }
+
+    cleanedContentDao.insertOrUpdate(statelessSession, cleanedContent);
   }
 
   private void createOrUpdateStemmedContent(final StatelessSession statelessSession,
       final StemmedContent stemmedContent) {
-    if (stemmedContent != null) {
-      stemmedContentDao.insertOrUpdate(statelessSession, stemmedContent);
+    if (stemmedContent == null) {
+      return;
     }
+
+    stemmedContentDao.insertOrUpdate(statelessSession, stemmedContent);
   }
 
   private void replaceNamedEntityOccurrences(final StatelessSession statelessSession,
-      final long documentId, final Collection<NamedEntityOccurrence> namedEntityOccurrences) {
+      final long documentId,
+      final Collection<NamedEntityOccurrence> namedEntityOccurrencesToBeReplaced) {
+    if (namedEntityOccurrencesToBeReplaced == null) {
+      return;
+    }
+
+    final Map<Long, Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplacedAsMap =
+        Maps.newHashMap();
+    namedEntityOccurrencesToBeReplacedAsMap.put(documentId, namedEntityOccurrencesToBeReplaced);
+    replaceNamedEntityOccurrences(statelessSession, namedEntityOccurrencesToBeReplacedAsMap);
+  }
+
+  private void replaceNamedEntityOccurrences(final StatelessSession statelessSession,
+      final Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced) {
+    if (namedEntityOccurrencesToBeReplaced == null) {
+      return;
+    }
+
     // Delete
-    namedEntityOccurrenceDao.deleteForDocument(statelessSession, documentId);
+    final Collection<Long> documentIds = namedEntityOccurrencesToBeReplaced.keySet();
+    namedEntityOccurrenceDao.deleteForDocuments(statelessSession, documentIds);
 
     // Create
-    for (final NamedEntityOccurrence namedEntityOccurrence : namedEntityOccurrences) {
-      try {
+    for (final long documentId : documentIds) {
+      final Collection<NamedEntityOccurrence> namedEntityOccurrences =
+          namedEntityOccurrencesToBeReplaced.get(documentId);
+      for (final NamedEntityOccurrence namedEntityOccurrence : namedEntityOccurrences) {
         namedEntityOccurrenceDao.insert(statelessSession, namedEntityOccurrence);
-      } catch (final Exception e) {
-        final String msg =
-            String.format("Could not insert named entity occurrence %s", namedEntityOccurrence);
-        LOG.error(msg, e);
       }
     }
   }
 
   private void saveNamedEntityCategories(final StatelessSession statelessSession,
       final Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved) {
+    if (namedEntityCategoriesToBeSaved == null) {
+      return;
+    }
+
     for (final NamedEntityCategory namedEntityCategory : namedEntityCategoriesToBeSaved) {
-      try {
-        namedEntityCategoryDao.insert(statelessSession, namedEntityCategory);
-      } catch (final Exception e) {
-        final String msg =
-            String.format("Could not insert named entity category %s", namedEntityCategory);
-        LOG.error(msg, e);
-      }
+      namedEntityCategoryDao.insert(statelessSession, namedEntityCategory);
     }
   }
 

@@ -54,6 +54,7 @@ import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcess
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
@@ -63,6 +64,8 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.Documents
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsForUrlsAndSourceCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDocumentIdsWithEntitiesCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.GetDownloadsPerDocumentIdCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.PersistDocumentProcessingOutputCallback;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.PersistDocumentsProcessingOutputCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.RedirectCallback;
 import jersey.repackaged.com.google.common.collect.Maps;
 
@@ -81,6 +84,8 @@ public class DocumentsRedirector {
   private final GetDownloadsPerDocumentIdCallback getDownloadsPerDocumentIdCallback;
   private final GetDocumentIdsWithEntitiesCallback getDocumentIdsWithEntitiesCallback;
   private final GetDocumentIdsForUrlsAndSourceCallback getDocumentIdsForUrlsAndSourceCallback;
+  private final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback;
+  private final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback;
 
   public DocumentsRedirector(final DocumentsProcessingInput documentsProcessingInput,
       final DocumentsProcessingOutput documentsProcessingOutput,
@@ -88,6 +93,8 @@ public class DocumentsRedirector {
       final GetDownloadsPerDocumentIdCallback getDownloadsPerDocumentIdCallback,
       final GetDocumentIdsWithEntitiesCallback getDocumentIdsWithEntitiesCallback,
       final GetDocumentIdsForUrlsAndSourceCallback getDocumentIdsForUrlsAndSourceCallback,
+      final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback,
+      final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback,
       final ApplicationContext ctx) {
     collectionUtil = ctx.getBean(CollectionUtil.class);
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
@@ -101,6 +108,8 @@ public class DocumentsRedirector {
     this.getDownloadsPerDocumentIdCallback = getDownloadsPerDocumentIdCallback;
     this.getDocumentIdsWithEntitiesCallback = getDocumentIdsWithEntitiesCallback;
     this.getDocumentIdsForUrlsAndSourceCallback = getDocumentIdsForUrlsAndSourceCallback;
+    this.persistDocumentProcessingOutputCallback = persistDocumentProcessingOutputCallback;
+    this.persistDocumentsProcessingOutputCallback = persistDocumentsProcessingOutputCallback;
   }
 
   /**
@@ -202,6 +211,8 @@ public class DocumentsRedirector {
         documentId2DocumentRedirectingResult, downloadsWithDocument, relevantDocuments, sourceId);
     mergeOverlappingDocuments(overlappingDocuments, downloadsWithDocument, relevantDownloads,
         relevantDocuments);
+
+    persistProperResults(documents);
   }
 
   private Map<Long, DocumentRedirectingResult> downloadRedirectedUrls(
@@ -542,11 +553,32 @@ public class DocumentsRedirector {
     LOG.info("Document {} to be deleted", document.getId());
   }
 
+  private void persistProperResults(final Collection<Document> documents) {
+    final Collection<RawContent> rawContents = documentsProcessingOutput.getRawContents(documents);
+    final Collection<Download> downloads = documentsProcessingOutput.getDownloads(documents);
+
+    persistDocumentsProcessingOutputCallback.persistDocumentsProcessingOutput(documents, downloads,
+        rawContents, null, null);
+  }
+
   private void outputEmptyResults(final Document document) {
+    final CleanedContent cleanedContent = new CleanedContent(document.getId(), "");
+    final StemmedContent stemmedContent = new StemmedContent(document.getId(), "");
+    final List<NamedEntityOccurrence> namedEntityOccurrences = Collections.emptyList();
+
     documentsProcessingOutput.putDocument(document);
-    documentsProcessingOutput.putCleanedContent(new CleanedContent(document.getId(), ""));
-    documentsProcessingOutput.putStemmedContent(new StemmedContent(document.getId(), ""));
-    documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
+    documentsProcessingOutput.putCleanedContent(cleanedContent);
+    documentsProcessingOutput.putStemmedContent(stemmedContent);
+    documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), namedEntityOccurrences);
+
+    persistEmptyResults(document, cleanedContent, stemmedContent, namedEntityOccurrences);
+  }
+
+  private void persistEmptyResults(final Document document, final CleanedContent cleanedContent,
+      final StemmedContent stemmedContent,
+      final List<NamedEntityOccurrence> namedEntityOccurrences) {
+    persistDocumentProcessingOutputCallback.persistDocumentsProcessingOutput(document,
+        cleanedContent, stemmedContent, namedEntityOccurrences);
   }
 
 }

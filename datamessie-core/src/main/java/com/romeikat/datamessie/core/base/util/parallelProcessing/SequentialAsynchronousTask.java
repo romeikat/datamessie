@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
 
 public class SequentialAsynchronousTask {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SequentialAsynchronousTask.class);
+  public static final boolean ASYNC = false;
 
-  private static final boolean ASYNC = false;
+  private static final Logger LOG = LoggerFactory.getLogger(SequentialAsynchronousTask.class);
 
   private final ExecutorService executor = Executors.newSingleThreadScheduledExecutor();
   private Future<?> future;

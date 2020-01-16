@@ -1,6 +1,7 @@
 package com.romeikat.datamessie.core.processing.task.documentProcessing.validate;
 
 import java.util.Collections;
+import java.util.List;
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -26,12 +27,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingOutput;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.PersistDocumentProcessingOutputCallback;
 
 public class DocumentsValidator {
 
@@ -40,10 +43,15 @@ public class DocumentsValidator {
   private final DocumentsProcessingInput documentsProcessingInput;
   private final DocumentsProcessingOutput documentsProcessingOutput;
 
+  private final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback;
+
   public DocumentsValidator(final DocumentsProcessingInput documentsProcessingInput,
-      final DocumentsProcessingOutput documentsProcessingOutput) {
+      final DocumentsProcessingOutput documentsProcessingOutput,
+      final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback) {
     this.documentsProcessingInput = documentsProcessingInput;
     this.documentsProcessingOutput = documentsProcessingOutput;
+
+    this.persistDocumentProcessingOutputCallback = persistDocumentProcessingOutputCallback;
   }
 
   /**
@@ -107,6 +115,20 @@ public class DocumentsValidator {
     documentsProcessingOutput.putCleanedContent(new CleanedContent(document.getId(), ""));
     documentsProcessingOutput.putStemmedContent(new StemmedContent(document.getId(), ""));
     documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
+
+    persistEmptyResults(document);
+  }
+
+  private void persistEmptyResults(final Document document) {
+    final CleanedContent cleanedContent =
+        documentsProcessingOutput.getCleanedContent(document.getId());
+    final StemmedContent stemmedContent =
+        documentsProcessingOutput.getStemmedContent(document.getId());
+    final List<NamedEntityOccurrence> namedEntityOccurrences =
+        documentsProcessingOutput.getNamedEntityOccurrences(document.getId());
+
+    persistDocumentProcessingOutputCallback.persistDocumentsProcessingOutput(document,
+        cleanedContent, stemmedContent, namedEntityOccurrences);
   }
 
 }

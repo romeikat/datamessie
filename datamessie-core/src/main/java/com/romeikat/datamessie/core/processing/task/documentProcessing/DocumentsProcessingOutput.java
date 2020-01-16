@@ -32,6 +32,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
@@ -96,7 +97,7 @@ public class DocumentsProcessingOutput {
 
 
   public DocumentsProcessingOutput() {
-    this.documents = Maps.newConcurrentMap();
+    documents = Maps.newConcurrentMap();
     downloads = Multimaps.synchronizedSetMultimap(HashMultimap.create());
     rawContents = Maps.newConcurrentMap();
     cleanedContents = Maps.newConcurrentMap();
@@ -127,12 +128,33 @@ public class DocumentsProcessingOutput {
     downloads.put(download.getDocumentId(), download);
   }
 
+  public Set<Download> getDownloads(final Collection<Document> documents) {
+    final Set<Download> result = Sets.newHashSet();
+    for (final Document docunent : documents) {
+      final Collection<Download> downloadsOfDocument = downloads.get(docunent.getId());
+      result.addAll(downloadsOfDocument);
+    }
+    return result;
+  }
+
   public Multimap<Long, Download> getDownloads() {
     return downloads;
   }
 
   public void putRawContent(final RawContent rawContent) {
     rawContents.put(rawContent.getId(), rawContent);
+  }
+
+  public Set<RawContent> getRawContents(final Collection<Document> documents) {
+    final Set<RawContent> result = Sets.newHashSet();
+    for (final Document docunent : documents) {
+      final RawContent rawContentOfDocument = rawContents.get(docunent.getId());
+      if (rawContentOfDocument != null) {
+        result.add(rawContentOfDocument);
+      }
+    }
+    return result;
+
   }
 
   public Map<Long, RawContent> getRawContents() {
@@ -166,6 +188,10 @@ public class DocumentsProcessingOutput {
   public void putNamedEntityOccurrences(final long documentId,
       final List<NamedEntityOccurrence> namedEntityOccurrences) {
     this.namedEntityOccurrences.put(documentId, namedEntityOccurrences);
+  }
+
+  public List<NamedEntityOccurrence> getNamedEntityOccurrences(final long documentId) {
+    return namedEntityOccurrences.get(documentId);
   }
 
   public Map<Long, List<NamedEntityOccurrence>> getNamedEntityOccurrences() {

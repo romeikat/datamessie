@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.processing.task.documentProcessing.stemming;
 
+import java.util.Collection;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -28,11 +30,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import com.romeikat.datamessie.core.base.util.SpringUtil;
-import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
-import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -40,38 +40,37 @@ import com.romeikat.datamessie.core.domain.enums.Language;
 import com.romeikat.datamessie.core.processing.dto.NamedEntityDetectionDto;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingInput;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.DocumentsProcessingOutput;
+import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.PersistDocumentProcessingOutputCallback;
 import com.romeikat.datamessie.core.processing.task.documentProcessing.callback.StemCallback;
 
 public class DocumentsStemmer {
 
   private static final Logger LOG = LoggerFactory.getLogger(DocumentsStemmer.class);
 
-  private final Double processingParallelismFactor;
-
   private final DocumentsProcessingInput documentsProcessingInput;
   private final DocumentsProcessingOutput documentsProcessingOutput;
 
   private final StemCallback stemCallback;
+  private final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback;
 
   public DocumentsStemmer(final DocumentsProcessingInput documentsProcessingInput,
       final DocumentsProcessingOutput documentsProcessingOutput, final StemCallback stemCallback,
+      final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback,
       final ApplicationContext ctx) {
-    processingParallelismFactor = Double
-        .parseDouble(SpringUtil.getPropertyValue(ctx, "documents.processing.parallelism.factor"));
-
     this.documentsProcessingInput = documentsProcessingInput;
     this.documentsProcessingOutput = documentsProcessingOutput;
 
     this.stemCallback = stemCallback;
+    this.persistDocumentProcessingOutputCallback = persistDocumentProcessingOutputCallback;
   }
 
   /**
    * Performs the stemming for the documents in {@code documentsProcessingInput}.
    *
-   * Depending on the result, {@code documentsProcessingInput} and {@code documentsProcessingInput}
+   * Depending on the result, {@code documentsProcessingInput} and {@code documentsProcessingOutput}
    * are modified as follows.
    * <ul>
-   * <li>Documents whose state is not {@code DocumentProcessingState.REDIRECTED} are ignored.</li>
+   * <li>Documents whose state is not {@code DocumentProcessingState.CLEANED} are ignored.</li>
    * <li>If stemming was successful, the state of the document is set to
    * {@code DocumentProcessingState.STEMMED}. The properties of the document ({@code stemmedTitle}
    * and {@code stemmedDescription}) are updated. Hence, the document is added to the
@@ -84,32 +83,28 @@ public class DocumentsStemmer {
    * detections are added to the {@code documentsProcessingOutput}.</li>
    * </ul>
    *
+   * @param documents
    * @param stemmingEnabled
    */
-  public void stemDocuments(final boolean stemmingEnabled) {
-    new ParallelProcessing<Document>(null, documentsProcessingInput.getDocuments(),
-        processingParallelismFactor) {
-      @Override
-      public void doProcessing(final HibernateSessionProvider sessionProvider,
-          final Document document) {
-        try {
-          if (stemmingEnabled) {
-            stemDocument(document);
-          } else {
-            outputEmptyResults(document);
-          }
-        } catch (final Exception e) {
-          final String msg = String.format("Could not stem document %s", document.getId());
-          LOG.error(msg, e);
-
-          document.setState(DocumentProcessingState.TECHNICAL_ERROR);
-
-          documentsProcessingInput.removeDocument(document);
-
+  public void stemDocuments(final Collection<Document> documents, final boolean stemmingEnabled) {
+    for (final Document document : documents) {
+      try {
+        if (stemmingEnabled) {
+          stemDocument(document);
+        } else {
           outputEmptyResults(document);
         }
+      } catch (final Exception e) {
+        final String msg = String.format("Could not stem document %s", document.getId());
+        LOG.error(msg, e);
+
+        document.setState(DocumentProcessingState.TECHNICAL_ERROR);
+
+        documentsProcessingInput.removeDocument(document);
+
+        outputEmptyResults(document);
       }
-    };
+    }
   }
 
   private void stemDocument(final Document document) {
@@ -139,11 +134,9 @@ public class DocumentsStemmer {
     document.setStemmedTitle(documentStemmingResult.getStemmedTitle());
     document.setStemmedDescription(documentStemmingResult.getStemmedDescription());
 
-    documentsProcessingOutput.putDocument(document);
-    final String stemmedContent =
-        ObjectUtils.defaultIfNull(documentStemmingResult.getStemmedContent(), "");
-    documentsProcessingOutput
-        .putStemmedContent(new StemmedContent(document.getId(), stemmedContent));
+    final StemmedContent stemmedContent = new StemmedContent(document.getId(),
+        ObjectUtils.defaultIfNull(documentStemmingResult.getStemmedContent(), ""));
+    outputProperResults(document, stemmedContent);
 
     final List<NamedEntityDetectionDto> namedEntityDetections =
         documentStemmingResult.getNamedEntityDetections();
@@ -152,12 +145,43 @@ public class DocumentsStemmer {
     // No cleanup necessary as there is no state STEMMING_ERROR
   }
 
+  private void outputProperResults(final Document document, final StemmedContent stemmedContent) {
+    documentsProcessingOutput.putDocument(document);
+    documentsProcessingOutput.putStemmedContent(stemmedContent);
+
+    persistProperResults(document);
+  }
+
+  private void persistProperResults(final Document document) {
+    final StemmedContent stemmedContent =
+        documentsProcessingOutput.getStemmedContent(document.getId());
+
+    persistDocumentProcessingOutputCallback.persistDocumentsProcessingOutput(document, null,
+        stemmedContent, null);
+  }
+
   private void outputEmptyResults(final Document document) {
     document.setStemmedTitle("");
     document.setStemmedDescription("");
+    final StemmedContent stemmedContent = new StemmedContent(document.getId(), "");
+    final List<NamedEntityOccurrence> namedEntityOccurrences = Collections.emptyList();
+
     documentsProcessingOutput.putDocument(document);
-    documentsProcessingOutput.putStemmedContent(new StemmedContent(document.getId(), ""));
-    documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), Collections.emptyList());
+    documentsProcessingOutput.putStemmedContent(stemmedContent);
+    documentsProcessingOutput.putNamedEntityOccurrences(document.getId(), namedEntityOccurrences);
+
+    persistEmptyResults(document);
   }
+
+  private void persistEmptyResults(final Document document) {
+    final StemmedContent stemmedContent =
+        documentsProcessingOutput.getStemmedContent(document.getId());
+    final List<NamedEntityOccurrence> namedEntityOccurrences =
+        documentsProcessingOutput.getNamedEntityOccurrences(document.getId());
+
+    persistDocumentProcessingOutputCallback.persistDocumentsProcessingOutput(document, null,
+        stemmedContent, namedEntityOccurrences);
+  }
+
 
 }

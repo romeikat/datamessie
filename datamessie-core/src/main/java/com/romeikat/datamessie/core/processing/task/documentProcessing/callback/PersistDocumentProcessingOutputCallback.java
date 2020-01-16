@@ -23,20 +23,17 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-import java.util.Map;
+import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
-import com.romeikat.datamessie.core.domain.entity.impl.Download;
-import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
-import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
+import com.romeikat.datamessie.core.domain.entity.impl.StemmedContent;
 
 @FunctionalInterface
-public interface PersistDocumentsProcessingOutputCallback {
+public interface PersistDocumentProcessingOutputCallback {
 
-  void persistDocumentsProcessingOutput(Collection<Document> documentsToBeUpdated,
-      Collection<Download> downloadsToBeCreatedOrUpdated,
-      Collection<RawContent> rawContentsToBeUpdated,
-      Map<Long, ? extends Collection<NamedEntityOccurrence>> namedEntityOccurrencesToBeReplaced,
-      Collection<NamedEntityCategory> namedEntityCategoriesToBeSaved);
+  void persistDocumentsProcessingOutput(final Document documentToBeUpdated,
+      final CleanedContent cleanedContentToBeCreatedOrUpdated,
+      final StemmedContent stemmedContentToBeCreatedOrUpdated,
+      final Collection<NamedEntityOccurrence> namedEntityOccurrencesToBeReplaced);
 
 }

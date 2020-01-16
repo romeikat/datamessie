@@ -42,14 +42,14 @@ import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
 
 @Service
-public class DocumentRedirector {
+public class DocumentRedirectingService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DocumentRedirector.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DocumentRedirectingService.class);
 
   @Autowired
   private ContentDownloader contentDownloader;
 
-  private DocumentRedirector() {}
+  private DocumentRedirectingService() {}
 
   public DocumentRedirectingResult redirect(final Document document, final RawContent rawContent,
       final List<RedirectingRule> redirectingRules) {
