@@ -27,7 +27,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import com.google.common.collect.Lists;
@@ -115,6 +117,24 @@ public class DateUtil {
     }
 
     return localDatesBetween;
+  }
+
+  public static LocalDate getMin(final LocalDate... localDates) {
+    if (localDates.length == 0) {
+      return null;
+    }
+
+    return Arrays.asList(localDates).stream().min(Comparator.comparing(LocalDate::toEpochDay))
+        .get();
+  }
+
+  public static LocalDate getMax(final LocalDate... localDates) {
+    if (localDates.length == 0) {
+      return null;
+    }
+
+    return Arrays.asList(localDates).stream().max(Comparator.comparing(LocalDate::toEpochDay))
+        .get();
   }
 
 }

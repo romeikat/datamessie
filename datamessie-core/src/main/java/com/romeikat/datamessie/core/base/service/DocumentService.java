@@ -109,7 +109,8 @@ public class DocumentService {
 
   public void deprocessDocumentsOfSource(final StatelessSession statelessSession,
       final TaskExecution taskExecution, final long sourceId,
-      final DocumentProcessingState targetState) throws TaskCancelledException {
+      final DocumentProcessingState targetState, final LocalDate fromDate, final LocalDate toDate)
+      throws TaskCancelledException {
     // Initialize
     taskExecution.reportWork(String.format("Resetting documents of source %s to state %s", sourceId,
         targetState.getName()));
@@ -123,7 +124,7 @@ public class DocumentService {
 
     // Determine downloaded dates
     final SortedMap<LocalDate, Long> datesWithDocuments =
-        documentDao.getDownloadedDatesWithNumberOfDocuments(statelessSession, null, null,
+        documentDao.getDownloadedDatesWithNumberOfDocuments(statelessSession, fromDate, toDate,
             statesForDeprocessing, sourceIds);
     final DocumentsDatesConsumer documentsDatesConsumer =
         new DocumentsDatesConsumer(datesWithDocuments, batchSize);
@@ -133,8 +134,8 @@ public class DocumentService {
     }
 
     // Initialize first date range
-    MutablePair<LocalDate, LocalDate> downloadedDateRange = new MutablePair<LocalDate, LocalDate>();
     final Pair<LocalDate, LocalDate> firstDateRange = documentsDatesConsumer.getNextDateRange();
+    MutablePair<LocalDate, LocalDate> downloadedDateRange = new MutablePair<LocalDate, LocalDate>();
     downloadedDateRange.setLeft(firstDateRange.getLeft());
     downloadedDateRange.setRight(firstDateRange.getRight());
 

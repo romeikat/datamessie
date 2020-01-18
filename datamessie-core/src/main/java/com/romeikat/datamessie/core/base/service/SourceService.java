@@ -1,5 +1,6 @@
 package com.romeikat.datamessie.core.base.service;
 
+import java.time.LocalDate;
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -23,6 +24,8 @@ License along with this program.  If not, see
  */
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.ProjectionList;
@@ -44,6 +47,7 @@ import com.romeikat.datamessie.core.base.dao.impl.TagSelectingRuleDao;
 import com.romeikat.datamessie.core.base.query.entity.EntityWithIdQuery;
 import com.romeikat.datamessie.core.base.task.DocumentsDeprocessingTask;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
+import com.romeikat.datamessie.core.base.util.DateUtil;
 import com.romeikat.datamessie.core.base.util.EntitiesById;
 import com.romeikat.datamessie.core.base.util.EntitiesWithIdById;
 import com.romeikat.datamessie.core.base.util.StringUtil;
@@ -183,57 +187,118 @@ public class SourceService {
     setSourceTypes(statelessSession, source.getId(), sourceDto.getTypes());
 
     // Set new rules
-    final boolean wereRedirectingRulesUpdated =
+    final AffectedDateRange dateRangeForRedirectingRules =
         updateRedirectingRules(statelessSession, sourceDto.getRedirectingRules(), source.getId());
-    final boolean wereDeletingRulesUpdated =
+    final AffectedDateRange dateRangeForDeletingRules =
         updateDeletingRules(statelessSession, sourceDto.getDeletingRules(), source.getId());
-    final boolean wereTagSelectingRulesUpdated =
+    final AffectedDateRange dateRangeForTagSelectingRules =
         updateTagSelectingRules(statelessSession, sourceDto.getTagSelectingRules(), source.getId());
+    final AffectedDateRange dateRangeForDeletingAndTagSelectingRules =
+        AffectedDateRange.mergeRanges(dateRangeForDeletingRules, dateRangeForTagSelectingRules);
+    final AffectedDateRange dateRangeForAll = AffectedDateRange
+        .mergeRanges(dateRangeForRedirectingRules, dateRangeForDeletingAndTagSelectingRules);
 
     // Update
     sourceDao.update(statelessSession, source);
 
     // If the rules have changed, trigger deprocessing of respective documents
-    if (wereRedirectingRulesUpdated) {
-      // Only trigger if no task targeting the same source is being active
-      final boolean taskAlreadyActive = isTaskActive(DocumentsDeprocessingTask.NAME, source.getId(),
+
+    // Only redirecting rules changed
+    if (dateRangeForRedirectingRules.isAffected()
+        && !dateRangeForDeletingAndTagSelectingRules.isAffected()) {
+      triggerNewDocumentsDeprocessingTaskIfNecessary(source.getId(), dateRangeForRedirectingRules,
           DocumentProcessingState.DOWNLOADED);
-      if (!taskAlreadyActive) {
-        final DocumentsDeprocessingTask task =
-            (DocumentsDeprocessingTask) ctx.getBean(DocumentsDeprocessingTask.BEAN_NAME,
-                source.getId(), DocumentProcessingState.DOWNLOADED);
-        taskManager.addTask(task);
-      }
-    } else if (wereDeletingRulesUpdated || wereTagSelectingRulesUpdated) {
-      // Only trigger if no task targeting the same source is being active
-      final boolean taskAlreadyActive = isTaskActive(DocumentsDeprocessingTask.NAME, source.getId(),
-          DocumentProcessingState.REDIRECTED);
-      if (!taskAlreadyActive) {
-        final DocumentsDeprocessingTask task =
-            (DocumentsDeprocessingTask) ctx.getBean(DocumentsDeprocessingTask.BEAN_NAME,
-                source.getId(), DocumentProcessingState.REDIRECTED);
-        taskManager.addTask(task);
-      }
+    }
+
+    // Only deleting / tag selecting rules changed
+    else if (!dateRangeForRedirectingRules.isAffected()
+        && dateRangeForDeletingAndTagSelectingRules.isAffected()) {
+      triggerNewDocumentsDeprocessingTaskIfNecessary(source.getId(),
+          dateRangeForDeletingAndTagSelectingRules, DocumentProcessingState.REDIRECTED);
+    }
+
+    // All redirecting and deleting / tag selecting rules changed
+    else if (dateRangeForRedirectingRules.isAffected()
+        && dateRangeForDeletingAndTagSelectingRules.isAffected()) {
+      triggerNewDocumentsDeprocessingTaskIfNecessary(source.getId(), dateRangeForAll,
+          DocumentProcessingState.DOWNLOADED);
     }
   }
 
-  private boolean updateRedirectingRules(final StatelessSession statelessSession,
+  private void triggerNewDocumentsDeprocessingTaskIfNecessary(final long sourceId,
+      final AffectedDateRange dateRange, final DocumentProcessingState targetState) {
+    final DocumentsDeprocessingTask activeTask =
+        getActiveTask(DocumentsDeprocessingTask.NAME, sourceId, targetState);
+
+    // No task active => add new task
+    if (activeTask == null) {
+      final DocumentsDeprocessingTask task =
+          (DocumentsDeprocessingTask) ctx.getBean(DocumentsDeprocessingTask.BEAN_NAME, sourceId,
+              targetState, dateRange.getFromDate(), dateRange.getToDate());
+      taskManager.addTask(task);
+    }
+    // Task active and date range covered => no new task necessary
+    else if (doesTaskCoverAffectedDateRange(activeTask, dateRange)) {
+    }
+    // Task active, but date range not covered => cancel and add new task
+    else {
+      taskManager.cancelTask(activeTask);
+      final DocumentsDeprocessingTask task =
+          (DocumentsDeprocessingTask) ctx.getBean(DocumentsDeprocessingTask.BEAN_NAME, sourceId,
+              targetState, dateRange.getFromDate(), dateRange.getToDate());
+      taskManager.addTask(task);
+    }
+  }
+
+  private boolean doesTaskCoverAffectedDateRange(final DocumentsDeprocessingTask task,
+      final AffectedDateRange dateRange) {
+    if (task == null) {
+      return false;
+    }
+
+    if (!dateRange.isAffected()) {
+      return true;
+    }
+
+    // Check from date
+    if (task.getFromDate() != null && (dateRange.getFromDate() == null
+        || dateRange.getFromDate().isBefore(task.getFromDate()))) {
+      return false;
+    }
+
+    // Check to date
+    if (task.getToDate() != null
+        && (dateRange.getToDate() == null || dateRange.getToDate().isAfter(task.getToDate()))) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private AffectedDateRange updateRedirectingRules(final StatelessSession statelessSession,
       final List<RedirectingRuleDto> redirectingRuleDtos, final long sourceId) {
-    boolean updated = false;
+    final AffectedDateRange affectedDateRange = new AffectedDateRange();
 
     final Collection<RedirectingRule> redirectingRules =
         redirectingRuleDao.getOfSource(statelessSession, sourceId);
     final EntitiesById<RedirectingRule> redirectingRulesById =
         new EntitiesWithIdById<>(redirectingRules);
     int position = 0;
+    
+    // Create / update
     for (final RedirectingRuleDto redirectingRuleDto : redirectingRuleDtos) {
       RedirectingRule redirectingRule = redirectingRulesById.poll(redirectingRuleDto.getId());
+      Pair<LocalDate, LocalDate> oldDateRange = null;
 
       // Create rule (DTO without ID or with unknown ID)
       if (redirectingRule == null) {
         redirectingRule = new RedirectingRule();
         redirectingRuleDao.insert(statelessSession, redirectingRule);
-        updated = true;
+      } 
+      // Remember old date range of existing rule
+      else {
+        oldDateRange = new MutablePair<LocalDate, LocalDate>(redirectingRule.getActiveFrom(),
+            redirectingRule.getActiveTo());
       }
 
       // Update rule
@@ -248,7 +313,13 @@ public class SourceService {
       updateTracker.endUpdate();
       if (updateTracker.wasObjectUpdated()) {
         redirectingRuleDao.update(statelessSession, redirectingRule);
-        updated = true;
+
+        // Old date range
+        if (oldDateRange != null) {
+          affectedDateRange.affect(oldDateRange.getLeft(), oldDateRange.getRight());
+        }
+        // New date range
+        affectedDateRange.affect(redirectingRule.getActiveFrom(), redirectingRule.getActiveTo());
       }
 
       position++;
@@ -257,28 +328,36 @@ public class SourceService {
     // Delete rules
     for (final RedirectingRule redirectingRule : redirectingRulesById.getObjects()) {
       redirectingRuleDao.delete(statelessSession, redirectingRule);
-      updated = true;
+
+      affectedDateRange.affect(redirectingRule.getActiveFrom(), redirectingRule.getActiveTo());
     }
 
-    return updated;
+    return affectedDateRange;
   }
 
-  private boolean updateDeletingRules(final StatelessSession statelessSession,
+  private AffectedDateRange updateDeletingRules(final StatelessSession statelessSession,
       final List<DeletingRuleDto> deletingRuleDtos, final long sourceId) {
-    boolean updated = false;
+    final AffectedDateRange affectedDateRange = new AffectedDateRange();
 
     final Collection<DeletingRule> deletingRules =
         deletingRuleDao.getOfSource(statelessSession, sourceId);
     final EntitiesById<DeletingRule> deletingRulesById = new EntitiesWithIdById<>(deletingRules);
     int position = 0;
+    
+    // Create / update
     for (final DeletingRuleDto deletingRuleDto : deletingRuleDtos) {
       DeletingRule deletingRule = deletingRulesById.poll(deletingRuleDto.getId());
+      Pair<LocalDate, LocalDate> oldDateRange = null;
 
       // Create rule (DTO without ID or with unknown ID)
       if (deletingRule == null) {
         deletingRule = new DeletingRule();
         deletingRuleDao.insert(statelessSession, deletingRule);
-        updated = true;
+      }
+      // Remember old date range of existing rule
+      else {
+        oldDateRange = new MutablePair<LocalDate, LocalDate>(deletingRule.getActiveFrom(),
+            deletingRule.getActiveTo());
       }
 
       // Update rule
@@ -292,38 +371,52 @@ public class SourceService {
       updateTracker.endUpdate();
       if (updateTracker.wasObjectUpdated()) {
         deletingRuleDao.update(statelessSession, deletingRule);
-        updated = true;
+
+        // Old date range
+        if (oldDateRange != null) {
+          affectedDateRange.affect(oldDateRange.getLeft(), oldDateRange.getRight());
+        }
+        // New date range
+        affectedDateRange.affect(deletingRule.getActiveFrom(), deletingRule.getActiveTo());
       }
 
       position++;
     }
 
     // Delete rules
-    for (final DeletingRule entity : deletingRulesById.getObjects()) {
-      deletingRuleDao.delete(statelessSession, entity);
-      updated = true;
+    for (final DeletingRule deletingRule : deletingRulesById.getObjects()) {
+      deletingRuleDao.delete(statelessSession, deletingRule);
+
+      affectedDateRange.affect(deletingRule.getActiveFrom(), deletingRule.getActiveTo());
     }
 
-    return updated;
+    return affectedDateRange;
   }
 
-  private boolean updateTagSelectingRules(final StatelessSession statelessSession,
+  private AffectedDateRange updateTagSelectingRules(final StatelessSession statelessSession,
       final List<TagSelectingRuleDto> tagSelectingRuleDtos, final long sourceId) {
-    boolean updated = false;
+    final AffectedDateRange affectedDateRange = new AffectedDateRange();
 
     final Collection<TagSelectingRule> tagSelectingRules =
         tagSelectingRuleDao.getOfSource(statelessSession, sourceId);
     final EntitiesById<TagSelectingRule> tagSelectingRulesById =
         new EntitiesWithIdById<>(tagSelectingRules);
     int position = 0;
+    
+    // Create / update
     for (final TagSelectingRuleDto tagSelectingRuleDto : tagSelectingRuleDtos) {
       TagSelectingRule tagSelectingRule = tagSelectingRulesById.poll(tagSelectingRuleDto.getId());
+      Pair<LocalDate, LocalDate> oldDateRange = null;
 
       // Create rule (DTO without ID or with unknown ID)
       if (tagSelectingRule == null) {
         tagSelectingRule = new TagSelectingRule();
         tagSelectingRuleDao.insert(statelessSession, tagSelectingRule);
-        updated = true;
+      }
+      // Remember old date range of existing rule
+      else {
+        oldDateRange = new MutablePair<LocalDate, LocalDate>(tagSelectingRule.getActiveFrom(),
+            tagSelectingRule.getActiveTo());
       }
 
       // Update rule
@@ -332,36 +425,44 @@ public class SourceService {
       tagSelectingRule.setTagSelector(tagSelectingRuleDto.getTagSelector());
       tagSelectingRule.setActiveFrom(tagSelectingRuleDto.getActiveFrom());
       tagSelectingRule.setActiveTo(tagSelectingRuleDto.getActiveTo());
+      tagSelectingRule.setMode(tagSelectingRuleDto.getMode());
       tagSelectingRule.setPosition(position);
       tagSelectingRule.setSourceId(sourceId);
       updateTracker.endUpdate();
       if (updateTracker.wasObjectUpdated()) {
         tagSelectingRuleDao.update(statelessSession, tagSelectingRule);
-        updated = true;
+
+        // Old date range
+        if (oldDateRange != null) {
+          affectedDateRange.affect(oldDateRange.getLeft(), oldDateRange.getRight());
+        }
+        // New date range
+        affectedDateRange.affect(tagSelectingRule.getActiveFrom(), tagSelectingRule.getActiveTo());
       }
 
       position++;
     }
 
     // Delete rules
-    for (final TagSelectingRule entity : tagSelectingRulesById.getObjects()) {
-      tagSelectingRuleDao.delete(statelessSession, entity);
-      updated = true;
+    for (final TagSelectingRule tagSelectingRule : tagSelectingRulesById.getObjects()) {
+      tagSelectingRuleDao.delete(statelessSession, tagSelectingRule);
+
+      affectedDateRange.affect(tagSelectingRule.getActiveFrom(), tagSelectingRule.getActiveTo());
     }
 
-    return updated;
+    return affectedDateRange;
   }
 
-  private boolean isTaskActive(final String name, final long sourceId,
+  private DocumentsDeprocessingTask getActiveTask(final String name, final long sourceId,
       final DocumentProcessingState targetState) {
     final Collection<DocumentsDeprocessingTask> activeTasks =
         taskManager.getActiveTasks(name, DocumentsDeprocessingTask.class);
     for (final DocumentsDeprocessingTask activeTask : activeTasks) {
       if (activeTask.getSourceId() == sourceId && activeTask.getTargetState() == targetState) {
-        return true;
+        return activeTask;
       }
     }
-    return false;
+    return null;
   }
 
   public void setVisible(final StatelessSession statelessSession, final long id,
@@ -427,6 +528,96 @@ public class SourceService {
     for (final Source2SourceType assignment : assignmentsBySourceTypeId.getObjects()) {
       source2SourceTypeDao.delete(statelessSession, assignment);
     }
+  }
+
+  static class AffectedDateRange {
+
+    private boolean affected;
+
+    private LocalDate affectedFrom;
+    private LocalDate affectedTo;
+
+    public AffectedDateRange() {
+      affected = false;
+    }
+
+    public void affect(final LocalDate from, final LocalDate to) {
+      // Update existing dates
+      if (affected) {
+        // From
+        if (affectedFrom == null || from == null) {
+          affectedFrom = null;
+        } else {
+          affectedFrom = DateUtil.getMin(affectedFrom, from);
+        }
+
+        // Until
+        if (affectedTo == null || to == null) {
+          affectedTo = null;
+        } else {
+          affectedTo = DateUtil.getMax(affectedTo, to);
+        }
+      }
+
+      // Set new dates
+      else {
+        affected = true;
+        affectedFrom = from;
+        affectedTo = to;
+      }
+    }
+
+    public boolean isAffected() {
+      return affected;
+    }
+
+    public LocalDate getFromDate() {
+      return affectedFrom;
+    }
+
+    public LocalDate getToDate() {
+      return affectedTo;
+    }
+
+    public static AffectedDateRange mergeRanges(final AffectedDateRange dateRange1,
+        final AffectedDateRange dateRange2) {
+      final AffectedDateRange mergedDateRange = new AffectedDateRange();
+
+      // None is affected
+      if (!dateRange1.isAffected() && !dateRange2.isAffected()) {
+        return mergedDateRange;
+      }
+      // Only first is affected
+      else if (dateRange1.isAffected() && !dateRange2.isAffected()) {
+        return dateRange1;
+      }
+      // Only second is affected
+      else if (!dateRange1.isAffected() && dateRange2.isAffected()) {
+        return dateRange2;
+      }
+      // Both are affected
+      else {
+        // From
+        LocalDate fromDate;
+        if (dateRange1.getFromDate() == null || dateRange2.getFromDate() == null) {
+          fromDate = null;
+        } else {
+          fromDate = DateUtil.getMin(dateRange1.getFromDate(), dateRange2.getFromDate());
+        }
+        // Until
+        LocalDate toDate;
+        if (dateRange1.getToDate() == null || dateRange2.getToDate() == null) {
+          toDate = null;
+        } else {
+          toDate = DateUtil.getMax(dateRange1.getToDate(), dateRange2.getToDate());
+        }
+        // Affect
+        mergedDateRange.affect(fromDate, toDate);
+      }
+
+      return mergedDateRange;
+    }
+
   }
 
 }

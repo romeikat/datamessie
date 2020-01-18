@@ -28,7 +28,6 @@ import java.util.List;
 import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.romeikat.datamessie.core.AbstractTest;
-import com.romeikat.datamessie.core.base.util.DateUtil;
 
 public class DateUtilTest extends AbstractTest {
 
@@ -74,6 +73,28 @@ public class DateUtilTest extends AbstractTest {
 
     final int actual = DateUtil.getLocalDatesBetween(localDate1, localDate2).size();
     final int expected = 365;
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void getsMin() throws Exception {
+    final LocalDate localDate1 = LocalDate.of(2015, 1, 1);
+    final LocalDate localDate2 = LocalDate.of(2015, 12, 31);
+
+    final LocalDate actual = DateUtil.getMin(localDate1, localDate2);
+    final LocalDate expected = localDate1;
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void getsMax() throws Exception {
+    final LocalDate localDate1 = LocalDate.of(2015, 1, 1);
+    final LocalDate localDate2 = LocalDate.of(2015, 12, 31);
+
+    final LocalDate actual = DateUtil.getMax(localDate1, localDate2);
+    final LocalDate expected = localDate2;
 
     assertEquals(expected, actual);
   }

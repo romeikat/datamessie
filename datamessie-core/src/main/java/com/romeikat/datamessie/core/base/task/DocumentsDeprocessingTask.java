@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.base.task;
 
+import java.time.LocalDate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -46,6 +48,10 @@ public class DocumentsDeprocessingTask implements Task {
 
   private final DocumentProcessingState targetState;
 
+  private final LocalDate fromDate;
+  private final LocalDate toDate;
+
+
   @Autowired
   @Qualifier("documentService")
   private DocumentService documentService;
@@ -53,10 +59,12 @@ public class DocumentsDeprocessingTask implements Task {
   @Autowired
   private SessionFactory sessionFactory;
 
-  private DocumentsDeprocessingTask(final long sourceId,
-      final DocumentProcessingState targetState) {
+  private DocumentsDeprocessingTask(final long sourceId, final DocumentProcessingState targetState,
+      final LocalDate fromDate, final LocalDate toDate) {
     this.sourceId = sourceId;
     this.targetState = targetState;
+    this.fromDate = fromDate;
+    this.toDate = toDate;
   }
 
   @Override
@@ -79,7 +87,7 @@ public class DocumentsDeprocessingTask implements Task {
     // Deprocess documents of source
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
     documentService.deprocessDocumentsOfSource(sessionProvider.getStatelessSession(), taskExecution,
-        sourceId, targetState);
+        sourceId, targetState, fromDate, toDate);
     sessionProvider.closeStatelessSession();
   }
 
@@ -89,6 +97,14 @@ public class DocumentsDeprocessingTask implements Task {
 
   public DocumentProcessingState getTargetState() {
     return targetState;
+  }
+
+  public LocalDate getFromDate() {
+    return fromDate;
+  }
+
+  public LocalDate getToDate() {
+    return toDate;
   }
 
 }

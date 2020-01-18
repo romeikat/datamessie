@@ -107,6 +107,17 @@ public class TaskManager {
     return taskExecution;
   }
 
+  public void cancelTask(final Task task) {
+    synchronized (taskExecutions) {
+      for (final TaskExecution taskExecution : taskExecutions) {
+        final Task existingTask = taskExecution.getTask();
+        if (existingTask == task) {
+          taskExecution.requestCancel();
+        }
+      }
+    }
+  }
+
   private void manageTasksExecutions() {
     // Background tasks
     manageBackgroundTasks();
@@ -171,12 +182,14 @@ public class TaskManager {
     final List<TaskExecution> taskExecutions = getTaskExecutions(name,
         TaskExecutionStatus.EXECUTION_REQUESTED, TaskExecutionStatus.EXECUTING,
         TaskExecutionStatus.PAUSE_REQUESTED, TaskExecutionStatus.PAUSING, TaskExecutionStatus.IDLE);
-    for (final TaskExecution taskExecution : taskExecutions) {
-      final Task task = taskExecution.getTask();
-      if (clazz.isAssignableFrom(task.getClass())) {
-        @SuppressWarnings("unchecked")
-        final T typedTask = (T) task;
-        result.add(typedTask);
+    synchronized (taskExecutions) {
+      for (final TaskExecution taskExecution : taskExecutions) {
+        final Task task = taskExecution.getTask();
+        if (clazz.isAssignableFrom(task.getClass())) {
+          @SuppressWarnings("unchecked")
+          final T typedTask = (T) task;
+          result.add(typedTask);
+        }
       }
     }
     return result;
