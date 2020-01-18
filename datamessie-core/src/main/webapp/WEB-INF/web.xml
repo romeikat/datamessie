@@ -1,28 +1,37 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_1.xsd"
 	version="3.1">
 
 	<display-name>data.messie</display-name>
 
-    <!-- Creates the Spring Container shared by all Servlets and Filters -->
-    <listener>
-        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>
-	
-    <listener>
-        <listener-class>com.romeikat.datamessie.core.base.util.DataMessieServletContextListener</listener-class>
-    </listener>
+	<!-- Session timeout -->
+	<session-config>
+		<session-timeout>180</session-timeout>
+	</session-config>
 
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>classpath:applicationContext.xml</param-value>
-    </context-param>
+	<!-- Creates the Spring Container shared by all Servlets and Filters -->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener
+		</listener-class>
+	</listener>
+
+	<listener>
+		<listener-class>com.romeikat.datamessie.core.base.util.DataMessieServletContextListener
+		</listener-class>
+	</listener>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:applicationContext.xml</param-value>
+	</context-param>
 
 	<!-- StatisticsManager -->
 	<servlet>
 		<servlet-name>statisticsManager</servlet-name>
-		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet
+		</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
@@ -32,27 +41,30 @@
 	</servlet-mapping>
 
 	<!-- OpenSessionInView -->
-    <filter>
-        <filter-name>openSessionInView</filter-name>
-        <filter-class>org.springframework.orm.hibernate5.support.OpenSessionInViewFilter</filter-class>
+	<filter>
+		<filter-name>openSessionInView</filter-name>
+		<filter-class>org.springframework.orm.hibernate5.support.OpenSessionInViewFilter
+		</filter-class>
 		<init-param>
 			<param-name>sessionFactoryBeanName</param-name>
 			<param-value>sessionFactory</param-value>
 		</init-param>
-    </filter>
+	</filter>
 
-    <filter-mapping>
-        <filter-name>openSessionInView</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
+	<filter-mapping>
+		<filter-name>openSessionInView</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
 	<!-- Jersey -->
 	<filter>
 		<filter-name>jersey</filter-name>
-		<filter-class>org.glassfish.jersey.servlet.ServletContainer</filter-class>
+		<filter-class>org.glassfish.jersey.servlet.ServletContainer
+		</filter-class>
 		<init-param>
 			<param-name>jersey.config.server.provider.packages</param-name>
-			<param-value>com.romeikat.datamessie.core.processing.app.shared</param-value>
+			<param-value>com.romeikat.datamessie.core.processing.app.shared
+			</param-value>
 		</init-param>
 	</filter>
 
@@ -64,14 +76,16 @@
 	<!-- Wicket -->
 	<filter>
 		<filter-name>wicket</filter-name>
-		<filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
+		<filter-class>org.apache.wicket.protocol.http.WicketFilter
+		</filter-class>
 		<init-param>
 			<param-name>applicationFactoryClassName</param-name>
-			<param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+			<param-value>org.apache.wicket.spring.SpringWebApplicationFactory
+			</param-value>
 		</init-param>
 		<init-param>
 			<param-name>configuration</param-name>
-<!-- 			<param-value>development</param-value> -->
+			<!-- <param-value>development</param-value> -->
 			<param-value>deployment</param-value>
 		</init-param>
 	</filter>

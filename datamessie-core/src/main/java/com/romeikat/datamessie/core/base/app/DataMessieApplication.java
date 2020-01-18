@@ -57,7 +57,7 @@ public class DataMessieApplication extends AuthenticatedWebApplication {
 
   private static final Logger LOG = LoggerFactory.getLogger(DataMessieApplication.class);
 
-  private static final int requestTimeout = 30;
+  private static final int REQUEST_TIMEOUT = 180;
 
   @Autowired
   private DataMessieModuleProvider dataMessieModuleProvider;
@@ -106,7 +106,7 @@ public class DataMessieApplication extends AuthenticatedWebApplication {
 
   private void setTimeout() {
     getRequestCycleSettings()
-        .setTimeout(org.apache.wicket.util.time.Duration.minutes(requestTimeout));
+        .setTimeout(org.apache.wicket.util.time.Duration.minutes(REQUEST_TIMEOUT));
   }
 
   private void mountPages() {
