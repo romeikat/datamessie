@@ -95,6 +95,7 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
     projectionList.add(Projections.property("tagSelector"), "tagSelector");
     projectionList.add(Projections.property("activeFrom"), "activeFrom");
     projectionList.add(Projections.property("activeTo"), "activeTo");
+    projectionList.add(Projections.property("mode"), "mode");
     @SuppressWarnings("unchecked")
     final List<TagSelectingRuleDto> dtos =
         (List<TagSelectingRuleDto>) tagSelectingRuleQuery.listForProjection(ssc, projectionList);

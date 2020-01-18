@@ -46,6 +46,7 @@ public class TagSelectingRuleSynchronizer
     target.setTagSelector(source.getTagSelector());
     target.setActiveFrom(source.getActiveFrom());
     target.setActiveTo(source.getActiveTo());
+    target.setPosition(source.getPosition());
     target.setSourceId(source.getSourceId());
   }
 

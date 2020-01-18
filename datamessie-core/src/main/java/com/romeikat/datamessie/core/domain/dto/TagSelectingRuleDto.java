@@ -24,6 +24,7 @@ License along with this program.  If not, see
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import com.romeikat.datamessie.core.domain.enums.TagSelectingRuleMode;
 
 public class TagSelectingRuleDto implements Serializable {
 
@@ -36,6 +37,8 @@ public class TagSelectingRuleDto implements Serializable {
   private LocalDate activeFrom;
 
   private LocalDate activeTo;
+
+  private TagSelectingRuleMode mode = TagSelectingRuleMode.EXACTLY_ONCE;
 
   public Long getId() {
     return id;
@@ -67,6 +70,14 @@ public class TagSelectingRuleDto implements Serializable {
 
   public void setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
+  }
+
+  public TagSelectingRuleMode getMode() {
+    return mode;
+  }
+
+  public void setMode(final TagSelectingRuleMode mode) {
+    this.mode = mode;
   }
 
 }

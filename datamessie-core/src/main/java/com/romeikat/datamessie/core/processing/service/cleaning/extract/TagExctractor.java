@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
@@ -37,6 +38,7 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
+import com.romeikat.datamessie.core.domain.enums.TagSelectingRuleMode;
 
 @Service
 public class TagExctractor {
@@ -65,13 +67,14 @@ public class TagExctractor {
     for (final TagSelectingRule activeTagSelectingRule : activeTagSelectingRules) {
       // Extract content with tag selector
       final String tagSelector = activeTagSelectingRule.getTagSelector();
-      final String extractedContent = extractContent(content, document, tagSelector);
+      final TagSelectingRuleMode mode = activeTagSelectingRule.getMode();
+      final String extractedContent = extractContent(content, document, tagSelector, mode);
       // If successful, done
       if (extractedContent != null) {
         return extractedContent;
       }
     }
-    // No unique tag found
+    // No match(es) found
     final List<String> tagSelectors = new LinkedList<String>();
     for (final TagSelectingRule activeTagSelectingRule : activeTagSelectingRules) {
       tagSelectors.add(activeTagSelectingRule.getTagSelector());
@@ -84,7 +87,7 @@ public class TagExctractor {
   }
 
   private String extractContent(final String content, final Document document,
-      final String tagSelector) {
+      final String tagSelector, final TagSelectingRuleMode mode) {
     if (tagSelector == null || tagSelector.isEmpty()) {
       return null;
     }
@@ -124,6 +127,10 @@ public class TagExctractor {
       final Elements elementsWithTagName = jsoupDocument.getElementsByTag(tagName);
       for (final Element elementWithTagName : elementsWithTagName) {
         final boolean idNameMatches = idName == null || elementWithTagName.id().equals(idName);
+        if (!idNameMatches) {
+          continue;
+        }
+
         final boolean classNamesMatch;
         if (exactClassNamesMatch) {
           classNamesMatch =
@@ -132,16 +139,25 @@ public class TagExctractor {
           classNamesMatch =
               classNames == null || elementWithTagName.classNames().containsAll(classNames);
         }
-        if (idNameMatches && classNamesMatch) {
-          matchingElements.add(elementWithTagName);
+        if (!classNamesMatch) {
+          continue;
         }
+
+        matchingElements.add(elementWithTagName);
       }
-      // Unique match found
-      if (matchingElements.size() == 1) {
-        final Element matchingElement = matchingElements.get(0);
-        return matchingElement.html();
+      // Match(es) found
+      boolean matchFound = false;
+      if (mode == TagSelectingRuleMode.EXACTLY_ONCE) {
+        matchFound = matchingElements.size() == 1;
+      } else if (mode == TagSelectingRuleMode.AT_LEAST_ONCE) {
+        matchFound = matchingElements.size() >= 1;
       }
-      // No unique match found
+      if (matchFound) {
+        final String html =
+            matchingElements.stream().map(e -> e.html()).collect(Collectors.joining("<br>"));
+        return html;
+      }
+      // No match(es) found
       return null;
     } catch (final Exception e) {
       LOG.warn(warningMessage, e);

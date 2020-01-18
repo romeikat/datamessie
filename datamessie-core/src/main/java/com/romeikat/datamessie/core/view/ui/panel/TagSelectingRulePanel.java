@@ -31,7 +31,9 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import com.romeikat.datamessie.core.base.ui.behavior.ModelUpdatingBehavior;
 import com.romeikat.datamessie.core.base.ui.component.LocalDateTextField;
+import com.romeikat.datamessie.core.base.ui.component.TagSelectingRuleModeSelector;
 import com.romeikat.datamessie.core.domain.dto.TagSelectingRuleDto;
+import com.romeikat.datamessie.core.domain.enums.TagSelectingRuleMode;
 
 public class TagSelectingRulePanel extends Panel {
 
@@ -40,6 +42,12 @@ public class TagSelectingRulePanel extends Panel {
   public TagSelectingRulePanel(final String id,
       final IModel<TagSelectingRuleDto> tagSelectingRuleModel) {
     super(id, tagSelectingRuleModel);
+
+    // Tag selector
+    final TextField<String> tagSelectorTextField = new TextField<String>("tagSelector",
+        new PropertyModel<String>(tagSelectingRuleModel, "tagSelector"));
+    tagSelectorTextField.add(new ModelUpdatingBehavior());
+    add(tagSelectorTextField);
 
     // Active from
     final LocalDateTextField activeFromTextField = new LocalDateTextField("activeFrom",
@@ -65,11 +73,11 @@ public class TagSelectingRulePanel extends Panel {
     activeToDatePicker.setAutoHide(true);
     activeToTextField.add(activeToDatePicker);
 
-    // Tag selector
-    final TextField<String> tagSelectorTextField = new TextField<String>("tagSelector",
-        new PropertyModel<String>(tagSelectingRuleModel, "tagSelector"));
-    tagSelectorTextField.add(new ModelUpdatingBehavior());
-    add(tagSelectorTextField);
+    // Mode
+    final TagSelectingRuleModeSelector modeSelector = new TagSelectingRuleModeSelector("mode",
+        new PropertyModel<TagSelectingRuleMode>(tagSelectingRuleModel, "mode"));
+    modeSelector.add(new ModelUpdatingBehavior());
+    add(modeSelector);
   }
 
 }

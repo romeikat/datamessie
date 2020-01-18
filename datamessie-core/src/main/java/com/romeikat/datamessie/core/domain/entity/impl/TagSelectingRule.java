@@ -25,11 +25,14 @@ License along with this program.  If not, see
 import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.enums.TagSelectingRuleMode;
 import com.romeikat.datamessie.core.domain.util.StringHashProvider;
 
 @Entity
@@ -48,6 +51,8 @@ public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   private LocalDate activeTo;
 
+  private TagSelectingRuleMode mode = TagSelectingRuleMode.EXACTLY_ONCE;
+
   private Integer position;
 
   private long sourceId;
@@ -61,7 +66,8 @@ public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   @Override
   public String asStringHash() {
-    return tagSelector + "#" + activeFrom + "#" + activeTo + "#" + position + "#" + sourceId;
+    return tagSelector + "#" + activeFrom + "#" + activeTo + "#" + mode + "#" + position + "#"
+        + sourceId;
   }
 
   public String getTagSelector() {
@@ -89,6 +95,15 @@ public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
   public TagSelectingRule setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
     return this;
+  }
+
+  @Enumerated(value = EnumType.ORDINAL)
+  public TagSelectingRuleMode getMode() {
+    return mode;
+  }
+
+  public void setMode(final TagSelectingRuleMode mode) {
+    this.mode = mode;
   }
 
   public Integer getPosition() {
