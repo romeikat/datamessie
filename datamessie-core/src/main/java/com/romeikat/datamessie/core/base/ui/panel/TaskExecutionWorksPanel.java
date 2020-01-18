@@ -42,6 +42,7 @@ import com.romeikat.datamessie.core.base.util.converter.DateConverter;
 import com.romeikat.datamessie.core.domain.dto.TaskExecutionDto;
 import com.romeikat.datamessie.core.domain.dto.TaskExecutionWorkDto;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 public class TaskExecutionWorksPanel extends ModalContentPanel {
 
@@ -49,15 +50,12 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
 
   private static final int MAX_TASK_EXECUTION_WORKS = 5000;
 
-  private final IModel<TaskExecutionDto> taskExecutionModel;
-
-  private final IModel<List<TaskExecutionWorkDto>> taskExecutionWorksModel;
-
-  private final ListView<TaskExecutionWorkDto> taskExecutionsWorkList;
-
   private final AjaxLink<Void> updateLink;
-
   private final AjaxConfirmationLink<Void> cancelLink;
+
+  private final IModel<TaskExecutionDto> taskExecutionModel;
+  private final IModel<List<TaskExecutionWorkDto>> taskExecutionWorksModel;
+  private final ListView<TaskExecutionWorkDto> taskExecutionsWorkList;
 
   @SpringBean
   private TaskManager taskManager;
@@ -67,6 +65,58 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
     super(modalContentWindow, null);
     this.taskExecutionModel = taskExecutionModel;
     setTitle("Task Details");
+
+    // Update link
+    updateLink = new AjaxLink<Void>("updateLink") {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      public void onConfigure() {
+        super.onConfigure();
+        final TaskExecutionDto taskExecution =
+            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
+        final boolean visible = taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
+            && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
+            && taskExecution.getStatus() != TaskExecutionStatus.FAILED;
+        setVisible(visible);
+      }
+
+      @Override
+      public void onClick(final AjaxRequestTarget target) {
+        target.add(TaskExecutionWorksPanel.this);
+        target.add(((AbstractAuthenticatedPage) getPage()).getTaskExecutionsPanel());
+      }
+    };
+    add(updateLink);
+
+    // Cancel link
+    final String confirmation = "Would you really like to cancel the execution of this task?";
+    cancelLink = new AjaxConfirmationLink<Void>("cancelLink", confirmation) {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      public void onConfigure() {
+        super.onConfigure();
+        final TaskExecutionDto taskExecution =
+            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
+        final boolean visible = taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
+            && taskExecution.getStatus() != TaskExecutionStatus.CANCEL_REQUESTED
+            && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
+            && taskExecution.getStatus() != TaskExecutionStatus.FAILED;
+        setVisible(visible);
+      }
+
+      @Override
+      public void onClick(final AjaxRequestTarget target) {
+        final TaskExecutionDto taskExecution =
+            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
+        taskManager.cancelTask(taskExecution.getId());
+        target.add(TaskExecutionWorksPanel.this);
+        target.add(((AbstractAuthenticatedPage) getPage()).getTaskExecutionsPanel());
+        modalContentWindow.close(target);
+      }
+    };
+    add(cancelLink);
 
     // Model
     taskExecutionWorksModel = new LoadableDetachableModel<List<TaskExecutionWorkDto>>() {
@@ -79,7 +129,9 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
           return Collections.emptyList();
         }
 
-        final List<TaskExecutionWorkDto> taskExecutionWorks = taskExecution.getWorks();
+        final List<TaskExecutionWorkDto> taskExecutionWorks =
+            Lists.newArrayList(taskExecution.getWorks());
+        Collections.reverse(taskExecutionWorks);
         final int taskExecutionWorksSize = taskExecutionWorks.size();
         if (taskExecutionWorksSize <= MAX_TASK_EXECUTION_WORKS) {
           return taskExecutionWorks;
@@ -125,56 +177,6 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
         };
     taskExecutionsWorkList.setOutputMarkupId(true);
     add(taskExecutionsWorkList);
-
-    updateLink = new AjaxLink<Void>("updateLink") {
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      public void onConfigure() {
-        super.onConfigure();
-        final TaskExecutionDto taskExecution =
-            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
-        final boolean visible = taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
-            && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
-            && taskExecution.getStatus() != TaskExecutionStatus.FAILED;
-        setVisible(visible);
-      }
-
-      @Override
-      public void onClick(final AjaxRequestTarget target) {
-        target.add(TaskExecutionWorksPanel.this);
-        target.add(((AbstractAuthenticatedPage) getPage()).getTaskExecutionsPanel());
-      }
-    };
-    add(updateLink);
-
-    final String confirmation = "Would you really like to cancel the execution of this task?";
-    cancelLink = new AjaxConfirmationLink<Void>("cancelLink", confirmation) {
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      public void onConfigure() {
-        super.onConfigure();
-        final TaskExecutionDto taskExecution =
-            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
-        final boolean visible = taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
-            && taskExecution.getStatus() != TaskExecutionStatus.CANCEL_REQUESTED
-            && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
-            && taskExecution.getStatus() != TaskExecutionStatus.FAILED;
-        setVisible(visible);
-      }
-
-      @Override
-      public void onClick(final AjaxRequestTarget target) {
-        final TaskExecutionDto taskExecution =
-            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
-        taskManager.cancelTask(taskExecution.getId());
-        target.add(TaskExecutionWorksPanel.this);
-        target.add(((AbstractAuthenticatedPage) getPage()).getTaskExecutionsPanel());
-        modalContentWindow.close(target);
-      }
-    };
-    add(cancelLink);
   }
 
   @Override
