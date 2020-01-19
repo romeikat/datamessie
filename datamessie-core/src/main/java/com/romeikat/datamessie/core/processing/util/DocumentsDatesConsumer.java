@@ -29,8 +29,14 @@ import java.util.SortedMap;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import com.romeikat.datamessie.core.base.util.DateUtil;
 
 public class DocumentsDatesConsumer {
+
+  /**
+   * Maximum number of days for date ranges
+   */
+  private final static int MAX_DAYS = 30;
 
   private final SortedMap<LocalDate, Long> datesWithDocuments;
   private final int batchSize;
@@ -51,12 +57,19 @@ public class DocumentsDatesConsumer {
 
     int currentBatchSize = 0;
     for (final Entry<LocalDate, Long> entry : datesWithDocuments.entrySet()) {
-      final LocalDate date = entry.getKey();
+      final LocalDate candidateToDate = entry.getKey();
       final long documents = ObjectUtils.defaultIfNull(entry.getValue(), 0l);
 
-      toDate = date;
+      // Restrict to max number of days
+      final int numberOfDays = DateUtil.getNumberOfDaysBetween(fromDate, candidateToDate);
+      if (numberOfDays > MAX_DAYS) {
+        break;
+      }
+
+      toDate = candidateToDate;
       currentBatchSize += documents;
 
+      // Restrict to batch size
       if (currentBatchSize > batchSize) {
         break;
       }

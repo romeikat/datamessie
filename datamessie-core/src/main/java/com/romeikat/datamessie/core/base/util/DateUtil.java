@@ -93,6 +93,15 @@ public class DateUtil {
     return delayInMillis;
   }
 
+  public static int getNumberOfDaysBetween(final LocalDate localDate1, final LocalDate localDate2) {
+    if (localDate1 == null || localDate2 == null) {
+      return -1;
+    }
+
+    final int result = (int) Math.abs(ChronoUnit.DAYS.between(localDate1, localDate2));
+    return result;
+  }
+
   public static List<LocalDate> getLocalDatesBetween(final LocalDate localDate1,
       final LocalDate localDate2) {
     if (localDate1 == null || localDate2 == null) {

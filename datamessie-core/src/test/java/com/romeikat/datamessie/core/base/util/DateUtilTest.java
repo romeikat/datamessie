@@ -32,6 +32,50 @@ import com.romeikat.datamessie.core.AbstractTest;
 public class DateUtilTest extends AbstractTest {
 
   @Test
+  public void getsNumberOfDaysBetween_ascending() throws Exception {
+    final LocalDate localDate1 = LocalDate.of(2016, 2, 28);
+    final LocalDate localDate2 = LocalDate.of(2016, 3, 1);
+
+    final int actual = DateUtil.getNumberOfDaysBetween(localDate1, localDate2);
+    final int expected = 2;
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void getsNumberOfDaysBetween_decending() throws Exception {
+    final LocalDate localDate1 = LocalDate.of(2016, 3, 1);
+    final LocalDate localDate2 = LocalDate.of(2016, 2, 28);
+
+    final int actual = DateUtil.getNumberOfDaysBetween(localDate1, localDate2);
+    final int expected = 2;
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void getsNumberOfDaysBetween_equals() throws Exception {
+    final LocalDate localDate1 = LocalDate.of(2016, 2, 28);
+    final LocalDate localDate2 = LocalDate.of(2016, 2, 28);
+
+    final int actual = DateUtil.getNumberOfDaysBetween(localDate1, localDate2);
+    final int expected = 0;
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void getsNumberOfDaysBetween_oneYear() throws Exception {
+    final LocalDate localDate1 = LocalDate.of(2015, 1, 1);
+    final LocalDate localDate2 = LocalDate.of(2015, 12, 31);
+
+    final int actual = DateUtil.getNumberOfDaysBetween(localDate1, localDate2);
+    final int expected = 364;
+
+    assertEquals(expected, actual);
+  }
+
+  @Test
   public void getsLocalDatesBetween_ascending() throws Exception {
     final LocalDate localDate1 = LocalDate.of(2016, 2, 28);
     final LocalDate localDate2 = LocalDate.of(2016, 3, 1);
