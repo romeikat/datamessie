@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -50,7 +49,6 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
 
   private static final int MAX_TASK_EXECUTION_WORKS = 5000;
 
-  private final AjaxLink<Void> updateLink;
   private final AjaxConfirmationLink<Void> cancelLink;
 
   private final IModel<TaskExecutionDto> taskExecutionModel;
@@ -65,29 +63,6 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
     super(modalContentWindow, null);
     this.taskExecutionModel = taskExecutionModel;
     setTitle("Task Details");
-
-    // Update link
-    updateLink = new AjaxLink<Void>("updateLink") {
-      private static final long serialVersionUID = 1L;
-
-      @Override
-      public void onConfigure() {
-        super.onConfigure();
-        final TaskExecutionDto taskExecution =
-            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
-        final boolean visible = taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
-            && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
-            && taskExecution.getStatus() != TaskExecutionStatus.FAILED;
-        setVisible(visible);
-      }
-
-      @Override
-      public void onClick(final AjaxRequestTarget target) {
-        target.add(TaskExecutionWorksPanel.this);
-        target.add(((AbstractAuthenticatedPage) getPage()).getTaskExecutionsPanel());
-      }
-    };
-    add(updateLink);
 
     // Cancel link
     final String confirmation = "Would you really like to cancel the execution of this task?";

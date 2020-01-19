@@ -62,7 +62,7 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
 
   private static final long serialVersionUID = 1L;
 
-  private static final int selfUpdatingInterval = 10;
+  private static final int SELF_UPDATING_INTERVAL = 10;
 
   private DropDownChoice<ProjectDto> aciveProjectDropDownChoice;
 
@@ -231,7 +231,7 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
         new WebMarkupContainer("taskExecutionsContainer");
     taskExecutionsContainer.setOutputMarkupId(true);
     taskExecutionsContainer
-        .add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(selfUpdatingInterval)));
+        .add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(SELF_UPDATING_INTERVAL)));
     add(taskExecutionsContainer);
     // Task executions
     taskExecutionsPanel = new AjaxLazyLoadPanel("taskExecutionsPanel") {
