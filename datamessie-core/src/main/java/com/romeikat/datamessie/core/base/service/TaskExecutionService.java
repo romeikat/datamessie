@@ -59,6 +59,7 @@ public class TaskExecutionService {
         workDtos.add(taskExecutionWorkDto);
       }
       taskExecutionDto.setWorks(workDtos);
+      taskExecutionDto.setResult(taskExecution.getTask().getResult());
       // Add
       taskExecutionDtos.add(taskExecutionDto);
     }

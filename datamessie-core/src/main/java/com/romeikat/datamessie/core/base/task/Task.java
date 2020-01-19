@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.base.task;
 
+import java.io.Serializable;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -33,5 +35,9 @@ public interface Task {
   Integer getPriority();
 
   void execute(TaskExecution taskExecution) throws Exception;
+
+  default Serializable getResult() {
+    return null;
+  }
 
 }

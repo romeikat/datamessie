@@ -1,5 +1,8 @@
 package com.romeikat.datamessie.core.base.ui.panel;
 
+import java.io.File;
+import java.io.Serializable;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -27,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -37,6 +41,7 @@ import org.wicketstuff.modalx.ModalContentWindow;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.base.ui.component.AjaxConfirmationLink;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
+import com.romeikat.datamessie.core.base.util.FileDownloadLink;
 import com.romeikat.datamessie.core.base.util.converter.DateConverter;
 import com.romeikat.datamessie.core.domain.dto.TaskExecutionDto;
 import com.romeikat.datamessie.core.domain.dto.TaskExecutionWorkDto;
@@ -58,11 +63,53 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
   @SpringBean
   private TaskManager taskManager;
 
+  static class FileResultDownloadLink extends FileDownloadLink {
+
+    private static final long serialVersionUID = 1L;
+
+    public FileResultDownloadLink(final String id,
+        final IModel<TaskExecutionDto> taskExecutionModel) {
+      super(id, createFileResultModel(taskExecutionModel));
+    }
+
+    @Override
+    protected void onConfigure() {
+      super.onConfigure();
+
+      setVisible(getModelObject() != null);
+    }
+
+    private static IModel<File> createFileResultModel(
+        final IModel<TaskExecutionDto> taskExecutionModel) {
+      return new LoadableDetachableModel<File>() {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public File load() {
+          final TaskExecutionDto taskExecution = taskExecutionModel.getObject();
+          final Serializable result = taskExecution.getResult();
+          final boolean hasFileResult =
+              result != null && File.class.isAssignableFrom(result.getClass());
+          if (hasFileResult) {
+            return (File) result;
+          } else {
+            return null;
+          }
+        }
+      };
+    }
+  }
+
   public TaskExecutionWorksPanel(final ModalContentWindow modalContentWindow,
       final IModel<TaskExecutionDto> taskExecutionModel) {
     super(modalContentWindow, null);
     this.taskExecutionModel = taskExecutionModel;
     setTitle("Task Details");
+
+    // Download link
+    final DownloadLink fileResultDownloadLink =
+        new FileResultDownloadLink("fileResultDownloadLink", taskExecutionModel);
+    add(fileResultDownloadLink);
 
     // Cancel link
     final String confirmation = "Would you really like to cancel the execution of this task?";

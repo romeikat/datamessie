@@ -38,6 +38,8 @@ public class TaskExecutionDto implements Serializable {
 
   private List<TaskExecutionWorkDto> works;
 
+  private Serializable result;
+
   public long getId() {
     return id;
   }
@@ -68,6 +70,14 @@ public class TaskExecutionDto implements Serializable {
 
   public void setWorks(final List<TaskExecutionWorkDto> works) {
     this.works = works;
+  }
+
+  public Serializable getResult() {
+    return result;
+  }
+
+  public void setResult(Serializable result) {
+    this.result = result;
   }
 
 }
