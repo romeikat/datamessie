@@ -72,9 +72,8 @@ public class FileUtil {
       final byte[] bytes = Files.readAllBytes(path);
       final String contents = new String(bytes, charset);
       return contents;
-    } catch (final Exception e) {
-      LOG.error("Could not read file", e);
-      return null;
+    } catch (final IOException e) {
+      throw new RuntimeException("Could not read file", e);
     }
   }
 
@@ -86,9 +85,8 @@ public class FileUtil {
       dir = getNonExisting(dir);
       Files.createDirectories(dir);
       return dir.toString();
-    } catch (final Exception e) {
-      LOG.error("Could not create target directory", e);
-      return null;
+    } catch (final IOException e) {
+      throw new RuntimeException("Could not create target directory", e);
     }
   }
 
@@ -97,9 +95,8 @@ public class FileUtil {
       final Path subDir = Paths.get(parentDir, dir);
       Files.createDirectories(subDir);
       return subDir.toString();
-    } catch (final Exception e) {
-      LOG.error("Could not create subdirectory", e);
-      return null;
+    } catch (final IOException e) {
+      throw new RuntimeException("Could not create subdirectory", e);
     }
   }
 
@@ -116,24 +113,23 @@ public class FileUtil {
   }
 
   public synchronized File createTxtFile(final String dir, String filename, final String content) {
+    filename = normalizeFilename(filename);
+    Path file = Paths.get(dir, filename + ".txt");
+    file = getNonExisting(file);
     try {
-      filename = normalizeFilename(filename);
-      Path file = Paths.get(dir, filename + ".txt");
-      file = getNonExisting(file);
       Files.createDirectories(file.getParent());
       Files.createFile(file);
+    } catch (final IOException e) {
+      throw new RuntimeException("Could not create text file", e);
+    }
+    try (BufferedWriter bufferedWriter =
+        new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file.toFile(), false)));) {
       if (content != null && !content.isEmpty()) {
-        final FileOutputStream fileOutputStream = new FileOutputStream(file.toFile(), false);
-        final BufferedWriter bufferedWriter =
-            new BufferedWriter(new OutputStreamWriter(fileOutputStream));
         bufferedWriter.write(content);
-        bufferedWriter.close();
-        fileOutputStream.close();
       }
       return file.toFile();
-    } catch (final Exception e) {
-      LOG.error("Could not create text file", e);
-      return null;
+    } catch (final IOException e) {
+      throw new RuntimeException("Could not create text file", e);
     }
   }
 
@@ -143,19 +139,21 @@ public class FileUtil {
 
   public synchronized File createXlsxFile(final String dir, String filename,
       final SXSSFWorkbook xlsxWorkbook) {
+    filename = normalizeFilename(filename);
+    Path file = Paths.get(dir, filename + ".xlsx");
+    file = getNonExisting(file);
     try {
-      filename = normalizeFilename(filename);
-      Path file = Paths.get(dir, filename + ".xlsx");
-      file = getNonExisting(file);
       Files.createDirectories(file.getParent());
       Files.createFile(file);
-      final FileOutputStream fileOutputStream = new FileOutputStream(file.toFile());
+    } catch (final IOException e) {
+      throw new RuntimeException("Could not create Excel file", e);
+    }
+    try (FileOutputStream fileOutputStream = new FileOutputStream(file.toFile());) {
       xlsxWorkbook.write(fileOutputStream);
       fileOutputStream.close();
       return file.toFile();
-    } catch (final Exception e) {
-      LOG.error("Could not create Excel file", e);
-      return null;
+    } catch (final IOException e) {
+      throw new RuntimeException("Could not create Excel file", e);
     }
   }
 
@@ -197,9 +195,8 @@ public class FileUtil {
       Files.delete(tempDir);
       // Done
       return zipFile.toFile();
-    } catch (final Exception e) {
-      LOG.error("Could not create ZIP file", e);
-      return null;
+    } catch (final IOException e) {
+      throw new RuntimeException("Could not create ZIP file", e);
     }
   }
 
@@ -253,11 +250,11 @@ public class FileUtil {
   public synchronized void appendToFile(final File file, final String content) {
     final Path path = FileSystems.getDefault().getPath(file.getAbsolutePath());
     final Charset charset = Charset.defaultCharset();
-    try (
-        BufferedWriter writer = Files.newBufferedWriter(path, charset, StandardOpenOption.APPEND)) {
+    try (BufferedWriter writer =
+        Files.newBufferedWriter(path, charset, StandardOpenOption.APPEND);) {
       writer.write(String.format("%s%n", content));
-    } catch (final Exception e) {
-      LOG.error("Could not apennd to file " + file.getAbsolutePath(), e);
+    } catch (final IOException e) {
+      throw new RuntimeException("Could not apennd to file " + file.getAbsolutePath(), e);
     }
   }
 
