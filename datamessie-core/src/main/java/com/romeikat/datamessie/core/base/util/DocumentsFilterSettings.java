@@ -30,6 +30,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.romeikat.datamessie.core.base.app.shared.IFullTextSearcher;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
+import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.base.util.fullText.FullTextResult;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
@@ -216,6 +217,64 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
   public DocumentsFilterSettings clone() {
     return new DocumentsFilterSettings(projectId, sourceId, sourceVisible, sourceTypeIds,
         crawlingId, fromDate, toDate, cleanedContent, states, documentIds);
+  }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+
+    if (projectId != null) {
+      appendSeparatorIfNecessary(sb);
+      sb.append("project " + projectId);
+    }
+
+    if (sourceId != null) {
+      appendSeparatorIfNecessary(sb);
+      sb.append("source " + sourceId);
+    }
+
+    if (sourceVisible != null) {
+      appendSeparatorIfNecessary(sb);
+      sb.append("source visible " + sourceVisible);
+    }
+
+    if (CollectionUtils.isNotEmpty(sourceTypeIds)) {
+      appendSeparatorIfNecessary(sb);
+      sb.append("source types " + sourceTypeIds);
+    }
+
+    if (crawlingId != null) {
+      appendSeparatorIfNecessary(sb);
+      sb.append("crawling " + crawlingId);
+    }
+
+    if (fromDate != null) {
+      appendSeparatorIfNecessary(sb);
+      sb.append("published from " + LocalDateConverter.INSTANCE_UI.convertToString(fromDate));
+    }
+
+    if (toDate != null) {
+      appendSeparatorIfNecessary(sb);
+      sb.append("published until " + LocalDateConverter.INSTANCE_UI.convertToString(toDate));
+    }
+
+    if (CollectionUtils.isNotEmpty(states)) {
+      appendSeparatorIfNecessary(sb);
+      sb.append("states " + states);
+    }
+
+    if (CollectionUtils.isNotEmpty(documentIds)) {
+      appendSeparatorIfNecessary(sb);
+      sb.append("documents " + documentIds);
+    }
+
+    return sb.toString();
+  }
+
+  private void appendSeparatorIfNecessary(final StringBuilder sb) {
+    if (sb.length() > 0) {
+      sb.append(", ");
+    }
   }
 
 }
