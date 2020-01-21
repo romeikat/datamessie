@@ -26,7 +26,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import com.romeikat.datamessie.core.base.app.DataMessieSession;
+import com.romeikat.datamessie.core.base.app.CurrentDocumentFilterSettingsModel;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.view.ui.panel.CrawlingsOverviewPanel;
@@ -55,8 +55,7 @@ public class CrawlingsPage extends AbstractAuthenticatedPage {
 
       @Override
       public Component getLazyLoadComponent(final String id) {
-        return new CrawlingsOverviewPanel(id,
-            DataMessieSession.get().getDocumentsFilterSettingsModel());
+        return new CrawlingsOverviewPanel(id, new CurrentDocumentFilterSettingsModel());
       }
 
       @Override

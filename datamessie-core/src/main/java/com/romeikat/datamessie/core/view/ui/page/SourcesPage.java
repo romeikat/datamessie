@@ -29,6 +29,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
+import com.romeikat.datamessie.core.base.app.CurrentDocumentFilterSettingsModel;
 import com.romeikat.datamessie.core.base.app.DataMessieSession;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.service.SourceService;
@@ -70,8 +71,7 @@ public class SourcesPage extends AbstractAuthenticatedPage {
 
       @Override
       public Component getLazyLoadComponent(final String id) {
-        return new SourcesOverviewPanel(id,
-            DataMessieSession.get().getDocumentsFilterSettingsModel());
+        return new SourcesOverviewPanel(id, new CurrentDocumentFilterSettingsModel());
       }
 
       @Override

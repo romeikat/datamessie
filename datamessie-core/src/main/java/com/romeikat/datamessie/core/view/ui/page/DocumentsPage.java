@@ -27,7 +27,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxLazyLoadPanel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import com.romeikat.datamessie.core.base.app.DataMessieSession;
+import com.romeikat.datamessie.core.base.app.CurrentDocumentFilterSettingsModel;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.ui.page.AbstractDocumentsFilterPage;
 import com.romeikat.datamessie.core.view.ui.panel.DocumentsOverviewPanel;
@@ -56,8 +56,7 @@ public class DocumentsPage extends AbstractDocumentsFilterPage {
 
       @Override
       public Component getLazyLoadComponent(final String id) {
-        return new DocumentsOverviewPanel(id,
-            DataMessieSession.get().getDocumentsFilterSettingsModel());
+        return new DocumentsOverviewPanel(id, new CurrentDocumentFilterSettingsModel());
       }
 
       @Override

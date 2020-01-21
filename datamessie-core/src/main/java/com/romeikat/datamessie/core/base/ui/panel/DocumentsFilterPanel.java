@@ -43,7 +43,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.hibernate.SessionFactory;
-import com.romeikat.datamessie.core.base.app.DataMessieSession;
+import com.romeikat.datamessie.core.base.app.CurrentDocumentFilterSettingsModel;
 import com.romeikat.datamessie.core.base.dao.impl.CrawlingDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.base.ui.component.CleanedContentFilter;
@@ -101,17 +101,12 @@ public class DocumentsFilterPanel extends Panel {
   }
 
   private void initialize() {
-    final IModel<DocumentsFilterSettings> dfsModel =
-        DataMessieSession.get().getDocumentsFilterSettingsModel();
+    final IModel<DocumentsFilterSettings> dfsModel = new CurrentDocumentFilterSettingsModel();
+
     // Form
     final Form<DocumentsFilterSettings> filterForm =
         new Form<DocumentsFilterSettings>("filterForm", dfsModel) {
           private static final long serialVersionUID = 1L;
-
-          @Override
-          protected void onError() {
-            super.onError();
-          }
 
           @Override
           protected void onSubmit() {

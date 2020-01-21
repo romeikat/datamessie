@@ -95,10 +95,6 @@ public class DataMessieSession extends AuthenticatedWebSession {
     return userId;
   }
 
-  public IModel<DocumentsFilterSettings> getDocumentsFilterSettingsModel() {
-    return dfsModel;
-  }
-
   public DocumentsFilterSettings getDocumentsFilterSettings() {
     return dfsModel.getObject();
   }
