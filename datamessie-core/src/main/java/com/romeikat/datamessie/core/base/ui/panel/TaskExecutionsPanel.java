@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -35,18 +34,14 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.time.Duration;
 import org.wicketstuff.modalx.ModalContentWindow;
 import com.romeikat.datamessie.core.base.service.TaskExecutionService;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.domain.dto.TaskExecutionDto;
-import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
 
 public class TaskExecutionsPanel extends Panel {
 
   private static final long serialVersionUID = 1L;
-
-  private static final int SELF_UPDATING_INTERVAL = 10;
 
   private final TaskExecutionsModel taskExecutionsModel;
 
@@ -120,15 +115,6 @@ public class TaskExecutionsPanel extends Panel {
             if (modalContentWindow != null) {
               final TaskExecutionWorksPanel taskExecutionWorksPanel =
                   new TaskExecutionWorksPanel(modalContentWindow, callbackModel);
-
-              final boolean autoUpdateNecessary =
-                  taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
-                      && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
-                      && taskExecution.getStatus() != TaskExecutionStatus.FAILED;
-              if (autoUpdateNecessary) {
-                taskExecutionWorksPanel.add(
-                    new AjaxSelfUpdatingTimerBehavior(Duration.seconds(SELF_UPDATING_INTERVAL)));
-              }
               taskExecutionWorksPanel.show(target);
             }
           }

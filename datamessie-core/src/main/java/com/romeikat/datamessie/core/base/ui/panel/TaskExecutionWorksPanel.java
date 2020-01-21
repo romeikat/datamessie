@@ -29,6 +29,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -36,6 +38,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.time.Duration;
 import org.wicketstuff.modalx.ModalContentPanel;
 import org.wicketstuff.modalx.ModalContentWindow;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
@@ -52,8 +55,12 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
 
   private static final long serialVersionUID = 1L;
 
+  private static final boolean AUTO_UPDATE = true;
+  private static final int AUTO_UPDATING_INTERVAL = 10;
+
   private static final int MAX_TASK_EXECUTION_WORKS = 5000;
 
+  private AjaxLink<Void> updateLink;
   private final AjaxConfirmationLink<Void> cancelLink;
 
   private final IModel<TaskExecutionDto> taskExecutionModel;
@@ -105,6 +112,41 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
     super(modalContentWindow, null);
     this.taskExecutionModel = taskExecutionModel;
     setTitle("Task Details");
+
+    // Auto update
+    if (AUTO_UPDATE) {
+      final TaskExecutionDto taskExecution = taskExecutionModel.getObject();
+      final boolean autoUpdateNecessary = taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
+          && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
+          && taskExecution.getStatus() != TaskExecutionStatus.FAILED;
+      if (autoUpdateNecessary) {
+        add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(AUTO_UPDATING_INTERVAL)));
+      }
+    }
+
+    // Update link
+    updateLink = new AjaxLink<Void>("updateLink") {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      public void onConfigure() {
+        super.onConfigure();
+        final TaskExecutionDto taskExecution =
+            TaskExecutionWorksPanel.this.taskExecutionModel.getObject();
+        final boolean visible = taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
+            && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
+            && taskExecution.getStatus() != TaskExecutionStatus.FAILED;
+        setVisible(visible);
+      }
+
+      @Override
+      public void onClick(final AjaxRequestTarget target) {
+        target.add(TaskExecutionWorksPanel.this);
+        target.add(((AbstractAuthenticatedPage) getPage()).getTaskExecutionsPanel());
+      }
+    };
+    updateLink.setVisible(!AUTO_UPDATE);
+    add(updateLink);
 
     // Download link
     final DownloadLink fileResultDownloadLink =
