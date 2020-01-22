@@ -29,6 +29,7 @@ import org.hibernate.SharedSessionContract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
+import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.util.DocumentsFilterSettings;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.publishedDates.processing.PublishedDateProcessingStrategy;
@@ -48,7 +49,7 @@ public abstract class PublishedDateSequenceProcessingStrategy
     sessionProvider = new HibernateSessionProvider(sessionFactory);
   }
 
-  public void process() {
+  public void process() throws TaskCancelledException {
     // Process published dates in sequence
     final List<LocalDate> publishedDates = getPublishedDates();
     for (final LocalDate publishedDate : publishedDates) {
@@ -61,7 +62,7 @@ public abstract class PublishedDateSequenceProcessingStrategy
   }
 
   private void processForPublishedDate(final SharedSessionContract ssc,
-      final LocalDate publishedDate) {
+      final LocalDate publishedDate) throws TaskCancelledException {
     final DocumentsFilterSettings dfs = getDocumentsFilterSettings();
 
     // Restrict filter settings to the provided published date
@@ -73,6 +74,6 @@ public abstract class PublishedDateSequenceProcessingStrategy
   }
 
   protected abstract void process(SharedSessionContract ssc, LocalDate publishedDate,
-      DocumentsFilterSettings dfsWithPublishedDate);
+      DocumentsFilterSettings dfsWithPublishedDate) throws TaskCancelledException;
 
 }
