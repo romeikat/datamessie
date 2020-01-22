@@ -25,14 +25,10 @@ License along with this program.  If not, see
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.RecursiveAction;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 
 class InternalRecursiveAction<T> extends RecursiveAction {
-
-  private final static Logger LOG = LoggerFactory.getLogger(InternalRecursiveAction.class);
 
   private static final long serialVersionUID = 1L;
 
@@ -68,42 +64,38 @@ class InternalRecursiveAction<T> extends RecursiveAction {
       try {
         parallelProcessing.onBeforeProcessing(sessionProvider);
       } catch (final Exception e) {
-        LOG.error("Error before parallel processing", e);
-        if (sessionProvider != null) {
-          sessionProvider.closeSession();
-          sessionProvider.closeStatelessSession();
-        }
-        throw e;
+        throw new RuntimeException("Error before parallel processing", e);
+      } finally {
+        closeSessions(sessionProvider);
       }
       // Processing
       for (final T objectToBeProcessed : objectsToBeProcessed) {
         try {
           parallelProcessing.doProcessing(sessionProvider, objectToBeProcessed);
         } catch (final Exception e) {
-          LOG.error("Error during parallel processing", e);
-          if (sessionProvider != null) {
-            sessionProvider.closeSession();
-            sessionProvider.closeStatelessSession();
-          }
-          throw e;
+          throw new RuntimeException("Error during parallel processing", e);
+        } finally {
+          closeSessions(sessionProvider);
         }
       }
       // Postprocessing
       try {
         parallelProcessing.onAfterProcessing(sessionProvider);
       } catch (final Exception e) {
-        LOG.error("Error after parallel processing", e);
-        if (sessionProvider != null) {
-          sessionProvider.closeSession();
-          sessionProvider.closeStatelessSession();
-        }
-        throw e;
+        throw new RuntimeException("Error after parallel processing", e);
+      } finally {
+        closeSessions(sessionProvider);
       }
+
       // Session management
-      if (sessionProvider != null) {
-        sessionProvider.closeSession();
-        sessionProvider.closeStatelessSession();
-      }
+      closeSessions(sessionProvider);
+    }
+  }
+
+  private void closeSessions(final HibernateSessionProvider sessionProvider) {
+    if (sessionProvider != null) {
+      sessionProvider.closeSession();
+      sessionProvider.closeStatelessSession();
     }
   }
 
