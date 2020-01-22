@@ -200,8 +200,7 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
         if (taskExecutionWorksSize <= MAX_TASK_EXECUTION_WORKS) {
           return taskExecutionWorks;
         }
-        return taskExecutionWorks.subList(taskExecutionWorksSize - MAX_TASK_EXECUTION_WORKS,
-            taskExecutionWorksSize);
+        return taskExecutionWorks.subList(0, MAX_TASK_EXECUTION_WORKS);
       }
     };
 
