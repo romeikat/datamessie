@@ -254,7 +254,7 @@ public class FileUtil {
         Files.newBufferedWriter(path, charset, StandardOpenOption.APPEND);) {
       writer.write(String.format("%s%n", content));
     } catch (final IOException e) {
-      throw new RuntimeException("Could not apennd to file " + file.getAbsolutePath(), e);
+      throw new RuntimeException("Could not append to file " + file.getAbsolutePath(), e);
     }
   }
 
