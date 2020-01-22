@@ -55,7 +55,7 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
 
   private static final long serialVersionUID = 1L;
 
-  private static final boolean AUTO_UPDATE = true;
+  private static final boolean AUTO_UPDATE = false;
   private static final int AUTO_UPDATING_INTERVAL = 10;
 
   private static final int MAX_TASK_EXECUTION_WORKS = 5000;
