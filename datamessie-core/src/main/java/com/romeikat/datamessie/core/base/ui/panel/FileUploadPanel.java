@@ -178,7 +178,8 @@ public abstract class FileUploadPanel extends ModalContentPanel {
             // Otherwise, close
             modalContentWindow.close(target);
             // Update tasks immediately
-            target.add(((AbstractAuthenticatedPage) getPage()).getTaskExecutionsPanel());
+            target.add(((AbstractAuthenticatedPage) getPage()).getOngoingTaskExecutionsPanel());
+            target.add(((AbstractAuthenticatedPage) getPage()).geDoneTaskExecutionsPanel());
           }
         };
     uploadForm.add(submitButton);

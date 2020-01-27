@@ -22,6 +22,7 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -30,6 +31,7 @@ import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.domain.dto.TaskExecutionDto;
 import com.romeikat.datamessie.core.domain.dto.TaskExecutionWorkDto;
+import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
 
 @Repository
 public class TaskExecutionService {
@@ -37,34 +39,57 @@ public class TaskExecutionService {
   @Autowired
   private TaskManager taskManager;
 
-  public List<TaskExecutionDto> getVisibleTaskExecutionsOrderedByLatestActivityDesc() {
+  public TaskExecutionDto getTaskExecution(final long taskExecutionId) {
+    final TaskExecution taskExecution = taskManager.getTaskExecution(taskExecutionId);
+    final TaskExecutionDto taskExecutionDto = transformToDto(taskExecution);
+    return taskExecutionDto;
+  }
+
+  public List<TaskExecutionDto> getVisibleTaskExecutionsOrderedByLatestActivityDesc(
+      final Collection<TaskExecutionStatus> status) {
     final List<TaskExecutionDto> taskExecutionDtos = new ArrayList<TaskExecutionDto>();
     // Task executions
     final List<TaskExecution> taskExecutionsOrderedByLatestActivityDesc =
         taskManager.getVisibleTaskExecutionsOrderedByLatestActivityDesc();
     for (final TaskExecution taskExecution : taskExecutionsOrderedByLatestActivityDesc) {
-      final TaskExecutionDto taskExecutionDto = new TaskExecutionDto();
-      // Status
-      taskExecutionDto.setId(taskExecution.getId());
-      taskExecutionDto.setName(taskExecution.getName());
-      taskExecutionDto.setStatus(taskExecution.getStatus());
-      // Task execution works
-      final List<TaskExecutionWorkDto> workDtos = new ArrayList<TaskExecutionWorkDto>();
-      final List<TaskExecutionWork> taskExecutionWorks = taskExecution.getWorks();
-      for (final TaskExecutionWork taskExecutionWork : taskExecutionWorks) {
-        final TaskExecutionWorkDto taskExecutionWorkDto = new TaskExecutionWorkDto();
-        taskExecutionWorkDto.setMessage(taskExecutionWork.getMessage());
-        taskExecutionWorkDto.setStart(taskExecutionWork.getStart());
-        taskExecutionWorkDto.setDuration(taskExecutionWork.getDuration());
-        workDtos.add(taskExecutionWorkDto);
+      // Filter by status, if provided
+      if (status != null && !status.contains(taskExecution.getStatus())) {
+        continue;
       }
-      taskExecutionDto.setWorks(workDtos);
-      taskExecutionDto.setResult(taskExecution.getTask().getResult());
+
+      final TaskExecutionDto taskExecutionDto = transformToDto(taskExecution);
+
       // Add
       taskExecutionDtos.add(taskExecutionDto);
     }
     // Done
     return taskExecutionDtos;
+  }
+
+  private TaskExecutionDto transformToDto(final TaskExecution taskExecution) {
+    if (taskExecution == null) {
+      return null;
+    }
+
+    final TaskExecutionDto taskExecutionDto = new TaskExecutionDto();
+    // Status
+    taskExecutionDto.setId(taskExecution.getId());
+    taskExecutionDto.setName(taskExecution.getName());
+    taskExecutionDto.setStatus(taskExecution.getStatus());
+    // Task execution works
+    final List<TaskExecutionWorkDto> workDtos = new ArrayList<TaskExecutionWorkDto>();
+    final List<TaskExecutionWork> taskExecutionWorks = taskExecution.getWorks();
+    for (final TaskExecutionWork taskExecutionWork : taskExecutionWorks) {
+      final TaskExecutionWorkDto taskExecutionWorkDto = new TaskExecutionWorkDto();
+      taskExecutionWorkDto.setMessage(taskExecutionWork.getMessage());
+      taskExecutionWorkDto.setStart(taskExecutionWork.getStart());
+      taskExecutionWorkDto.setDuration(taskExecutionWork.getDuration());
+      workDtos.add(taskExecutionWorkDto);
+    }
+    taskExecutionDto.setWorks(workDtos);
+    taskExecutionDto.setResult(taskExecution.getTask().getResult());
+
+    return taskExecutionDto;
   }
 
 }

@@ -102,7 +102,8 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
     @Override
     public void onClick(final AjaxRequestTarget target) {
       target.add(taskExecutionWorksPanel);
-      target.add(((AbstractAuthenticatedPage) getPage()).getTaskExecutionsPanel());
+      target.add(((AbstractAuthenticatedPage) getPage()).getOngoingTaskExecutionsPanel());
+      target.add(((AbstractAuthenticatedPage) getPage()).geDoneTaskExecutionsPanel());
     }
   }
 
@@ -177,7 +178,8 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
       final TaskExecutionDto taskExecution = taskExecutionModel.getObject();
       taskManager.cancelTask(taskExecution.getId());
       target.add(taskExecutionWorksPanel);
-      target.add(((AbstractAuthenticatedPage) getPage()).getTaskExecutionsPanel());
+      target.add(((AbstractAuthenticatedPage) getPage()).getOngoingTaskExecutionsPanel());
+      target.add(((AbstractAuthenticatedPage) getPage()).geDoneTaskExecutionsPanel());
       taskExecutionWorksPanel.modalContentWindow.close(target);
     }
   }

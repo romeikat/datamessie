@@ -254,9 +254,12 @@ nav a.selected {
 	border-radius: 5px 5px 5px 5px;
 }
 
-#taskExecutionsContainer {
-	height: 400px;
-	min-height: 100px;
+#ongoingTaskExecutionsContainer {
+	max-height: 250px;
+}
+
+#doneTaskExecutionsContainer {
+	max-height: 250px;
 }
 
 /* Line beak within words, if necessary */

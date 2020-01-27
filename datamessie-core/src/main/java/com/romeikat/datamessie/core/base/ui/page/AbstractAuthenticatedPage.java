@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.base.ui.page;
 
+import java.util.Collection;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -57,6 +59,8 @@ import com.romeikat.datamessie.core.base.ui.component.ProjectSelector;
 import com.romeikat.datamessie.core.base.ui.panel.SidePanel;
 import com.romeikat.datamessie.core.base.ui.panel.TaskExecutionsPanel;
 import com.romeikat.datamessie.core.domain.dto.ProjectDto;
+import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 public abstract class AbstractAuthenticatedPage extends AbstractPage implements ModalMgr {
 
@@ -68,7 +72,8 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
 
   private Link<SignInPage> signOutLink;
 
-  private AjaxLazyLoadPanel taskExecutionsPanel;
+  private AjaxLazyLoadPanel ongoingTaskExecutionsPanel;
+  private AjaxLazyLoadPanel doneTaskExecutionsPanel;
 
   private ModalContentWindow[] modalContentWindows;
 
@@ -226,25 +231,54 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
         };
     add(sidePanelsListView);
 
-    // Task executions container
-    final WebMarkupContainer taskExecutionsContainer =
-        new WebMarkupContainer("taskExecutionsContainer");
-    taskExecutionsContainer.setOutputMarkupId(true);
-    taskExecutionsContainer
+    // Ongoing task executions container
+    final WebMarkupContainer ongoingTaskExecutionsContainer =
+        new WebMarkupContainer("ongoingTaskExecutionsContainer");
+    ongoingTaskExecutionsContainer.setOutputMarkupId(true);
+    ongoingTaskExecutionsContainer
         .add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(SELF_UPDATING_INTERVAL)));
-    add(taskExecutionsContainer);
-    // Task executions
-    taskExecutionsPanel = new AjaxLazyLoadPanel("taskExecutionsPanel") {
+    add(ongoingTaskExecutionsContainer);
+
+    // Ongoing task executions
+    final Collection<TaskExecutionStatus> ongoingStatus =
+        Lists.newArrayList(TaskExecutionStatus.EXECUTION_REQUESTED, TaskExecutionStatus.EXECUTING,
+            TaskExecutionStatus.IDLE, TaskExecutionStatus.PAUSE_REQUESTED,
+            TaskExecutionStatus.PAUSING, TaskExecutionStatus.CANCEL_REQUESTED);
+    ongoingTaskExecutionsPanel = new AjaxLazyLoadPanel("ongoingTaskExecutionsPanel") {
       private static final long serialVersionUID = 1L;
 
       @Override
       public Component getLazyLoadComponent(final String id) {
-        final TaskExecutionsPanel taskExecutionsPanel = new TaskExecutionsPanel(id);
-        return taskExecutionsPanel;
+        final TaskExecutionsPanel ongoingTaskExecutionsPanel =
+            new TaskExecutionsPanel(id, ongoingStatus);
+        return ongoingTaskExecutionsPanel;
       }
 
     };
-    taskExecutionsContainer.add(taskExecutionsPanel);
+    ongoingTaskExecutionsContainer.add(ongoingTaskExecutionsPanel);
+
+    // Done task executions container
+    final WebMarkupContainer doneTaskExecutionsContainer =
+        new WebMarkupContainer("doneTaskExecutionsContainer");
+    doneTaskExecutionsContainer.setOutputMarkupId(true);
+    doneTaskExecutionsContainer
+        .add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(SELF_UPDATING_INTERVAL)));
+    add(doneTaskExecutionsContainer);
+
+    // Done task executions
+    final Collection<TaskExecutionStatus> doneStatus = Lists.newArrayList(
+        TaskExecutionStatus.CANCELLED, TaskExecutionStatus.COMPLETED, TaskExecutionStatus.FAILED);
+    doneTaskExecutionsPanel = new AjaxLazyLoadPanel("doneTaskExecutionsPanel") {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      public Component getLazyLoadComponent(final String id) {
+        final TaskExecutionsPanel doneTaskExecutionsPanel = new TaskExecutionsPanel(id, doneStatus);
+        return doneTaskExecutionsPanel;
+      }
+
+    };
+    doneTaskExecutionsContainer.add(doneTaskExecutionsPanel);
   }
 
   private <T extends Page> BookmarkablePageLink<T> createBookmarkablePageLink(final String id,
@@ -334,8 +368,12 @@ public abstract class AbstractAuthenticatedPage extends AbstractPage implements 
     return projectPageParameters;
   }
 
-  public AjaxLazyLoadPanel getTaskExecutionsPanel() {
-    return taskExecutionsPanel;
+  public AjaxLazyLoadPanel getOngoingTaskExecutionsPanel() {
+    return ongoingTaskExecutionsPanel;
+  }
+
+  public AjaxLazyLoadPanel geDoneTaskExecutionsPanel() {
+    return doneTaskExecutionsPanel;
   }
 
   private void provideModalContentWindows() {
