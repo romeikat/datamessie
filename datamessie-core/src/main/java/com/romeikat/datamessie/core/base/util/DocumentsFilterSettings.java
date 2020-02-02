@@ -24,10 +24,12 @@ License along with this program.  If not, see
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.app.shared.IFullTextSearcher;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
@@ -41,13 +43,13 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
   private Long projectId;
   private Long sourceId;
   private Boolean sourceVisible;
-  private Collection<Long> sourceTypeIds;
+  private Set<Long> sourceTypeIds;
   private Long crawlingId;
   private LocalDate fromDate;
   private LocalDate toDate;
   private String cleanedContent;
-  private Collection<DocumentProcessingState> states;
-  private Collection<Long> documentIds;
+  private Set<DocumentProcessingState> states;
+  private Set<Long> documentIds;
 
   public DocumentsFilterSettings() {}
 
@@ -58,13 +60,13 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
     this.projectId = projectId;
     this.sourceId = sourceId;
     this.sourceVisible = sourceVisible;
-    this.sourceTypeIds = sourceTypeIds;
+    this.sourceTypeIds = sourceTypeIds == null ? null : Sets.newHashSet(sourceTypeIds);
     this.crawlingId = crawlingId;
     this.fromDate = fromDate;
     this.toDate = toDate;
     this.cleanedContent = cleanedContent;
-    this.states = states;
-    this.documentIds = documentIds;
+    this.states = states == null ? null : Sets.newHashSet(states);
+    this.documentIds = documentIds == null ? null : Sets.newHashSet(documentIds);
   }
 
   public boolean isEmpty() {
@@ -104,8 +106,8 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
     return sourceTypeIds;
   }
 
-  public DocumentsFilterSettings setSourceTypeIds(final Collection<Long> sourceTypeId) {
-    sourceTypeIds = sourceTypeId;
+  public DocumentsFilterSettings setSourceTypeIds(final Collection<Long> sourceTypeIds) {
+    this.sourceTypeIds = sourceTypeIds == null ? null : Sets.newHashSet(sourceTypeIds);
     return this;
   }
 
@@ -150,30 +152,17 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
   }
 
   public DocumentsFilterSettings setState(final DocumentProcessingState newState) {
-    states = new ArrayList<DocumentProcessingState>(1);
-    states.add(newState);
+    this.states = newState == null ? null : Sets.newHashSet(newState);
     return this;
   }
 
-  public DocumentsFilterSettings setStates(final Collection<DocumentProcessingState> newStates) {
-    if (newStates == null) {
-      states = null;
-    } else {
-      states = new ArrayList<DocumentProcessingState>(newStates.size());
-      states.addAll(newStates);
-    }
+  public DocumentsFilterSettings setStates(final Collection<DocumentProcessingState> states) {
+    this.states = states == null ? null : Sets.newHashSet(states);
     return this;
   }
 
-  public DocumentsFilterSettings setStates(final DocumentProcessingState... newStates) {
-    if (newStates == null) {
-      states = null;
-    } else {
-      states = new ArrayList<DocumentProcessingState>(newStates.length);
-      for (final DocumentProcessingState newState : newStates) {
-        states.add(newState);
-      }
-    }
+  public DocumentsFilterSettings setStates(final DocumentProcessingState... states) {
+    setStates(Arrays.asList(states));
     return this;
   }
 
@@ -182,13 +171,13 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
   }
 
   public DocumentsFilterSettings setDocumentIds(final Collection<Long> documentIds) {
-    this.documentIds = documentIds;
+    this.documentIds = documentIds == null ? null : Sets.newHashSet(documentIds);
     return this;
   }
 
   public DocumentsFilterSettings restrictToDocumentIds(final Collection<Long> documentIds) {
     if (CollectionUtils.isEmpty(this.documentIds)) {
-      this.documentIds = documentIds;
+      setDocumentIds(documentIds);
     }
 
     else {
@@ -215,8 +204,17 @@ public class DocumentsFilterSettings implements Serializable, Cloneable {
 
   @Override
   public DocumentsFilterSettings clone() {
-    return new DocumentsFilterSettings(projectId, sourceId, sourceVisible, sourceTypeIds,
-        crawlingId, fromDate, toDate, cleanedContent, states, documentIds);
+    // Clone reference types
+    final Collection<Long> sourceTypeIdsClone =
+        sourceTypeIds == null ? null : Sets.newHashSet(sourceTypeIds);
+    final Collection<DocumentProcessingState> statesClone =
+        states == null ? null : Sets.newHashSet(states);
+    final Collection<Long> documentIdsClone =
+        documentIds == null ? null : Sets.newHashSet(documentIds);
+
+    // Create overall clone
+    return new DocumentsFilterSettings(projectId, sourceId, sourceVisible, sourceTypeIdsClone,
+        crawlingId, fromDate, toDate, cleanedContent, statesClone, documentIdsClone);
   }
 
   @Override
