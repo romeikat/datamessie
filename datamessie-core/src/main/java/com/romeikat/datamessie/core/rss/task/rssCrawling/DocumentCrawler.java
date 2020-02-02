@@ -169,11 +169,10 @@ public class DocumentCrawler {
     // Process if existing master download failed or current download succeeded
     if (!masterDownloadSuccess || downloadSuccess) {
       if (masterDownloadSuccess) {
-        // Occurs if this is a slave URL that initially had failed to download, but the master URL
-        // has already been downloaded successfully
-        LOG.debug(
-            "Ignoring slave URL {} in RSS feed of source {} as a master URL has already been downloaded",
-            url, sourceId);
+        // Will not happen via SourceCrawler, as SourceCrawler does not re-crawl any URL that has
+        // already been downloaded successfully;
+        // however, can be triggered by a dataworker (e.g. to override an existing useless content)
+        LOG.info("Re-processing a successful download for {} and source {}", url, sourceId);
       }
 
       // Update master document
