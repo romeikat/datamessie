@@ -25,11 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Resource;
 import org.springframework.stereotype.Repository;
+import com.romeikat.datamessie.core.base.service.TaskExecutionService;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
-import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.task.management.TaskManager;
 import com.romeikat.datamessie.core.domain.dto.TaskExecutionDto;
-import com.romeikat.datamessie.core.domain.dto.TaskExecutionWorkDto;
 
 @Repository
 public class TaskExecutionDao {
@@ -37,29 +36,16 @@ public class TaskExecutionDao {
   @Resource
   private TaskManager taskManager;
 
+  @Resource
+  private TaskExecutionService taskExecutionService;
+
   public List<TaskExecutionDto> getVisibleTaskExecutionsOrderedByLatestActivityDesc() {
     final List<TaskExecutionDto> taskExecutionDtos = new ArrayList<TaskExecutionDto>();
     // Task executions
     final List<TaskExecution> taskExecutionsOrderedByLatestActivityDesc =
         taskManager.getVisibleTaskExecutionsOrderedByLatestActivityDesc();
     for (final TaskExecution taskExecution : taskExecutionsOrderedByLatestActivityDesc) {
-      final TaskExecutionDto taskExecutionDto = new TaskExecutionDto();
-      // Status
-      taskExecutionDto.setId(taskExecution.getId());
-      taskExecutionDto.setName(taskExecution.getName());
-      taskExecutionDto.setStatus(taskExecution.getStatus());
-      // Task execution works
-      final List<TaskExecutionWorkDto> workDtos = new ArrayList<TaskExecutionWorkDto>();
-      final List<TaskExecutionWork> taskExecutionWorks = taskExecution.getWorks();
-      for (final TaskExecutionWork taskExecutionWork : taskExecutionWorks) {
-        final TaskExecutionWorkDto taskExecutionWorkDto = new TaskExecutionWorkDto();
-        taskExecutionWorkDto.setMessage(taskExecutionWork.getMessage());
-        taskExecutionWorkDto.setStart(taskExecutionWork.getStart());
-        taskExecutionWorkDto.setDuration(taskExecutionWork.getDuration());
-        workDtos.add(taskExecutionWorkDto);
-      }
-      taskExecutionDto.setWorks(workDtos);
-      // Add
+      final TaskExecutionDto taskExecutionDto = taskExecutionService.transformToDto(taskExecution);
       taskExecutionDtos.add(taskExecutionDto);
     }
     // Done

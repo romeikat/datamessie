@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
 
@@ -33,6 +34,8 @@ public class TaskExecutionDto implements Serializable {
   private long id;
 
   private String name;
+
+  private LocalDateTime created;
 
   private TaskExecutionStatus status;
 
@@ -56,6 +59,14 @@ public class TaskExecutionDto implements Serializable {
     this.name = name;
   }
 
+  public LocalDateTime getCreated() {
+    return created;
+  }
+
+  public void setCreated(final LocalDateTime created) {
+    this.created = created;
+  }
+
   public TaskExecutionStatus getStatus() {
     return status;
   }
@@ -76,7 +87,7 @@ public class TaskExecutionDto implements Serializable {
     return result;
   }
 
-  public void setResult(Serializable result) {
+  public void setResult(final Serializable result) {
     this.result = result;
   }
 

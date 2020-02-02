@@ -262,6 +262,14 @@ nav a.selected {
 	max-height: 250px;
 }
 
+.taskName {
+	font-size: medium;
+}
+
+.taskDetails {
+	font-size: small;
+}
+
 /* Line beak within words, if necessary */
 
 div {

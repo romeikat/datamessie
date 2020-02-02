@@ -66,7 +66,7 @@ public class TaskExecutionService {
     return taskExecutionDtos;
   }
 
-  private TaskExecutionDto transformToDto(final TaskExecution taskExecution) {
+  public TaskExecutionDto transformToDto(final TaskExecution taskExecution) {
     if (taskExecution == null) {
       return null;
     }
@@ -75,6 +75,7 @@ public class TaskExecutionService {
     // Status
     taskExecutionDto.setId(taskExecution.getId());
     taskExecutionDto.setName(taskExecution.getName());
+    taskExecutionDto.setCreated(taskExecution.getCreated());
     taskExecutionDto.setStatus(taskExecution.getStatus());
     // Task execution works
     final List<TaskExecutionWorkDto> workDtos = new ArrayList<TaskExecutionWorkDto>();

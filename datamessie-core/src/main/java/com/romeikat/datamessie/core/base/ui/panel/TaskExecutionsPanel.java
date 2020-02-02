@@ -36,6 +36,7 @@ import com.romeikat.datamessie.core.base.service.TaskExecutionService;
 import com.romeikat.datamessie.core.base.ui.model.TaskExecutionModel;
 import com.romeikat.datamessie.core.base.ui.model.TaskExecutionsModel;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
+import com.romeikat.datamessie.core.base.util.converter.LocalDateTimeConverter;
 import com.romeikat.datamessie.core.domain.dto.TaskExecutionDto;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
 
@@ -80,13 +81,25 @@ public class TaskExecutionsPanel extends Panel {
             }
           }
         };
-        String taskLabelContent = taskExecution.getName();
-        if (taskExecution.getStatus() != null) {
-          taskLabelContent += " (" + taskExecution.getStatus().getName().toLowerCase() + ")";
-        }
-        final Label taskLabel = new Label("taskLabel", taskLabelContent);
-        modalContentWindowLink.add(taskLabel);
         item.add(modalContentWindowLink);
+
+        // Task name
+        final String taskNameContent = taskExecution.getName();
+        final Label taskName = new Label("taskName", taskNameContent);
+        modalContentWindowLink.add(taskName);
+
+        // Task status
+        final StringBuilder taskDetailsContent = new StringBuilder();
+        taskDetailsContent.append("(created ");
+        taskDetailsContent
+            .append(LocalDateTimeConverter.INSTANCE_UI.convertToString(taskExecution.getCreated()));
+        if (taskExecution.getStatus() != null) {
+          taskDetailsContent.append(", ");
+          taskDetailsContent.append(taskExecution.getStatus().getName().toLowerCase());
+        }
+        taskDetailsContent.append(")");
+        final Label taskDetails = new Label("taskDetails", taskDetailsContent);
+        modalContentWindowLink.add(taskDetails);
       }
     };
     taskExecutionsList.setOutputMarkupId(true);

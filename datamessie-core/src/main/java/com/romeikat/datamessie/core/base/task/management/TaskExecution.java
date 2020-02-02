@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -41,6 +42,8 @@ public class TaskExecution {
 
   private final String name;
 
+  private final LocalDateTime created;
+
   private final boolean visibleAfterCompleted;
 
   private final Integer priority;
@@ -58,6 +61,7 @@ public class TaskExecution {
   public TaskExecution(final Task task, final FileUtil fileUtil) {
     id = getNextId();
     name = task.getName();
+    created = LocalDateTime.now();
     visibleAfterCompleted = task.isVisibleAfterCompleted();
     priority = task.getPriority();
     status = TaskExecutionStatus.EXECUTION_REQUESTED;
@@ -218,6 +222,10 @@ public class TaskExecution {
 
   public String getName() {
     return name;
+  }
+
+  public LocalDateTime getCreated() {
+    return created;
   }
 
   public boolean isVisible() {
