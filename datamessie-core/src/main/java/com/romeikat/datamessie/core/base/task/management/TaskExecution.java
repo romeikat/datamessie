@@ -353,6 +353,18 @@ public class TaskExecution {
     // No output to logfile as output that started later might have been appended already
   }
 
+  public void removeWork(final TaskExecutionWork work) {
+    if (work == null) {
+      LOG.error("Removing of work reported for null reference");
+      return;
+    }
+    synchronized (works) {
+      // Remove work
+      works.remove(work);
+      LOG.debug("Work {} - {} removed", task.getName(), work.getMessage());
+    }
+  }
+
   private void waitMillis(final long millis) {
     try {
       Thread.sleep(millis);

@@ -64,22 +64,29 @@ public class DocumentsLoader {
       throws TaskCancelledException {
     try {
       final boolean oneDateOnly = Objects.equal(fromDate, toDate);
-      final StringBuilder msg = new StringBuilder();
-      msg.append("Loading documents to process for download date");
+      final StringBuilder msgBefore = new StringBuilder();
+      msgBefore.append("Loading documents to process for download date");
       if (oneDateOnly) {
-        msg.append(String.format(" %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate)));
+        msgBefore.append(String.format(" %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate)));
       } else {
-        msg.append(
+        msgBefore.append(
             String.format("s %s to %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate),
                 LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
       }
-      work = taskExecution.reportWorkStart(msg.toString());
+      work = taskExecution.reportWorkStart(msgBefore.toString());
 
       // Load documents
       final List<Document> documentsToProcess = documentDao.getToProcess(statelessSession, fromDate,
           toDate, statesForProcessing, sourceIds, excludedDocumentIds, batchSize);
 
+      final String msgAfter = work.getMessage().replace("Loading", "Loaded");
+      work.setMessage(msgAfter);
       taskExecution.reportWorkEnd(work);
+
+      if (documentsToProcess.isEmpty()) {
+        taskExecution.removeWork(work);
+      }
+
       taskExecution.checkpoint();
       return documentsToProcess;
     } catch (final Exception e) {
