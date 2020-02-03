@@ -177,9 +177,9 @@ public class TaskManager {
     }
   }
 
-  public <T extends Task> Set<T> getActiveTasks(final String name, final Class<T> clazz) {
+  public <T extends Task> Set<T> getActiveTasks(final Class<T> clazz) {
     final Set<T> result = Sets.newHashSet();
-    final List<TaskExecution> taskExecutions = getTaskExecutions(name,
+    final List<TaskExecution> taskExecutions = getTaskExecutions(clazz,
         TaskExecutionStatus.EXECUTION_REQUESTED, TaskExecutionStatus.EXECUTING,
         TaskExecutionStatus.PAUSE_REQUESTED, TaskExecutionStatus.PAUSING, TaskExecutionStatus.IDLE);
     synchronized (taskExecutions) {
@@ -248,7 +248,7 @@ public class TaskManager {
     return null;
   }
 
-  public List<TaskExecution> getTaskExecutions(final String name,
+  public List<TaskExecution> getTaskExecutions(final Class<? extends Task> clazz,
       final TaskExecutionStatus... taskExecutionStatus) {
     final List<TaskExecution> result = new LinkedList<TaskExecution>();
     final List<TaskExecutionStatus> taskExecutionStatusAsList = Arrays.asList(taskExecutionStatus);
@@ -256,24 +256,32 @@ public class TaskManager {
       for (final TaskExecution taskExecution : taskExecutions) {
         final boolean statusMatches = taskExecutionStatus == null
             || taskExecutionStatusAsList.contains(taskExecution.getStatus());
-        final boolean nameMatches = name == null || taskExecution.getName().equals(name);
-        if (statusMatches && nameMatches) {
-          result.add(taskExecution);
+        if (!statusMatches) {
+          continue;
         }
+
+        final boolean classMatches =
+            clazz == null || clazz.isAssignableFrom(taskExecution.getTask().getClass());
+        if (!classMatches) {
+          continue;
+        }
+
+        result.add(taskExecution);
       }
     }
     return result;
   }
 
-  public boolean hasTaskExecutions(final String name,
+  public boolean hasTaskExecutions(final Class<? extends Task> clazz,
       final TaskExecutionStatus taskExecutionStatus) {
     final List<TaskExecutionStatus> taskExecutionStatusAsList = Arrays.asList(taskExecutionStatus);
     synchronized (taskExecutions) {
       for (final TaskExecution taskExecution : taskExecutions) {
         final boolean statusMatches = taskExecutionStatus == null
             || taskExecutionStatusAsList.contains(taskExecution.getStatus());
-        final boolean nameMatches = name == null || taskExecution.getName().equals(name);
-        if (statusMatches && nameMatches) {
+        final boolean classMatches =
+            clazz == null || clazz.isAssignableFrom(taskExecution.getTask().getClass());
+        if (statusMatches && classMatches) {
           return true;
         }
       }

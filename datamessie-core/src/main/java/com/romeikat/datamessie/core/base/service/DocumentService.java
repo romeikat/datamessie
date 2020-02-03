@@ -170,7 +170,7 @@ public class DocumentService {
 
     // Notify DocumentsProcessingTask to restart processing
     final Collection<DocumentsProcessingTask> activeTasks =
-        taskManager.getActiveTasks(DocumentsProcessingTask.NAME, DocumentsProcessingTask.class);
+        taskManager.getActiveTasks(DocumentsProcessingTask.class);
     for (final DocumentsProcessingTask activeTask : activeTasks) {
       activeTask.restartProcessing();
     }

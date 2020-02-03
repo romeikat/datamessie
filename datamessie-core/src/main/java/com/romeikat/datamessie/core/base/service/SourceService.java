@@ -227,8 +227,7 @@ public class SourceService {
 
   private void triggerNewDocumentsDeprocessingTaskIfNecessary(final long sourceId,
       final AffectedDateRange dateRange, final DocumentProcessingState targetState) {
-    final DocumentsDeprocessingTask activeTask =
-        getActiveTask(DocumentsDeprocessingTask.NAME, sourceId, targetState);
+    final DocumentsDeprocessingTask activeTask = getActiveDeprocessingTask(sourceId, targetState);
 
     // No task active => add new task
     if (activeTask == null) {
@@ -284,7 +283,7 @@ public class SourceService {
     final EntitiesById<RedirectingRule> redirectingRulesById =
         new EntitiesWithIdById<>(redirectingRules);
     int position = 0;
-    
+
     // Create / update
     for (final RedirectingRuleDto redirectingRuleDto : redirectingRuleDtos) {
       RedirectingRule redirectingRule = redirectingRulesById.poll(redirectingRuleDto.getId());
@@ -294,7 +293,7 @@ public class SourceService {
       if (redirectingRule == null) {
         redirectingRule = new RedirectingRule();
         redirectingRuleDao.insert(statelessSession, redirectingRule);
-      } 
+      }
       // Remember old date range of existing rule
       else {
         oldDateRange = new MutablePair<LocalDate, LocalDate>(redirectingRule.getActiveFrom(),
@@ -343,7 +342,7 @@ public class SourceService {
         deletingRuleDao.getOfSource(statelessSession, sourceId);
     final EntitiesById<DeletingRule> deletingRulesById = new EntitiesWithIdById<>(deletingRules);
     int position = 0;
-    
+
     // Create / update
     for (final DeletingRuleDto deletingRuleDto : deletingRuleDtos) {
       DeletingRule deletingRule = deletingRulesById.poll(deletingRuleDto.getId());
@@ -402,7 +401,7 @@ public class SourceService {
     final EntitiesById<TagSelectingRule> tagSelectingRulesById =
         new EntitiesWithIdById<>(tagSelectingRules);
     int position = 0;
-    
+
     // Create / update
     for (final TagSelectingRuleDto tagSelectingRuleDto : tagSelectingRuleDtos) {
       TagSelectingRule tagSelectingRule = tagSelectingRulesById.poll(tagSelectingRuleDto.getId());
@@ -453,10 +452,10 @@ public class SourceService {
     return affectedDateRange;
   }
 
-  private DocumentsDeprocessingTask getActiveTask(final String name, final long sourceId,
+  private DocumentsDeprocessingTask getActiveDeprocessingTask(final long sourceId,
       final DocumentProcessingState targetState) {
     final Collection<DocumentsDeprocessingTask> activeTasks =
-        taskManager.getActiveTasks(name, DocumentsDeprocessingTask.class);
+        taskManager.getActiveTasks(DocumentsDeprocessingTask.class);
     for (final DocumentsDeprocessingTask activeTask : activeTasks) {
       if (activeTask.getSourceId() == sourceId && activeTask.getTargetState() == targetState) {
         return activeTask;
