@@ -1,7 +1,5 @@
 package com.romeikat.datamessie.core.rss.task.maintenance;
 
-import java.time.LocalDate;
-
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -28,11 +26,8 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -41,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
@@ -51,11 +47,11 @@ import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
-import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.base.util.XmlUtil;
-import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
+import com.romeikat.datamessie.core.base.util.downloadDates.DownloadDateProcessingStrategy;
+import com.romeikat.datamessie.core.base.util.downloadDates.DownloadDateProcessingStrategy.ProcessingCallback;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
@@ -65,10 +61,8 @@ import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.processing.dao.DocumentDao;
-import com.romeikat.datamessie.core.processing.util.DocumentsDatesConsumer;
 import com.romeikat.datamessie.core.rss.dao.CrawlingDao;
 import com.romeikat.datamessie.core.rss.service.DocumentService;
-import jersey.repackaged.com.google.common.base.Objects;
 
 @SuppressWarnings("unused")
 @Service(MaintenanceTask.BEAN_NAME)
@@ -113,6 +107,9 @@ public class MaintenanceTask implements Task {
 
   @Autowired
   private SessionFactory sessionFactory;
+
+  @Autowired
+  private ApplicationContext ctx;
 
   @Override
   public String getName() {
@@ -195,9 +192,9 @@ public class MaintenanceTask implements Task {
     taskExecution.reportWork("Maintaining documents to be deleted");
 
     final DocumentProcessingState stateForMaintenance = DocumentProcessingState.TO_BE_DELETED;
-    final MaintenanceCallback callback = new MaintenanceCallback() {
+    final ProcessingCallback callback = new ProcessingCallback() {
       @Override
-      public void onMaintenance(final StatelessSession statelessSession,
+      public void onProcessing(final StatelessSession statelessSession,
           final Collection<Document> documents) {
         new ExecuteWithTransaction(statelessSession) {
           @Override
@@ -213,7 +210,8 @@ public class MaintenanceTask implements Task {
         }.execute();
       }
     };
-    maintainDocumentsWithStates(taskExecution, Lists.newArrayList(stateForMaintenance), callback);
+    new DownloadDateProcessingStrategy(null, null, Lists.newArrayList(stateForMaintenance), null,
+        batchSize, ctx).process(taskExecution, callback);
   }
 
   private void processDocumentsWithTechnicalError(final TaskExecution taskExecution)
@@ -221,9 +219,9 @@ public class MaintenanceTask implements Task {
     taskExecution.reportWork("Maintaining documents with technical error");
 
     final DocumentProcessingState stateForMaintenance = DocumentProcessingState.TECHNICAL_ERROR;
-    final MaintenanceCallback callback = new MaintenanceCallback() {
+    final ProcessingCallback callback = new ProcessingCallback() {
       @Override
-      public void onMaintenance(final StatelessSession statelessSession,
+      public void onProcessing(final StatelessSession statelessSession,
           final Collection<Document> documents) {
         // Determine which documents lack a raw content
         final Set<Long> documentIds =
@@ -257,93 +255,10 @@ public class MaintenanceTask implements Task {
         }.execute();
       }
     };
-    maintainDocumentsWithStates(taskExecution, Lists.newArrayList(stateForMaintenance), callback);
+    new DownloadDateProcessingStrategy(null, null, Lists.newArrayList(stateForMaintenance), null,
+        batchSize, ctx).process(taskExecution, callback);
   }
 
-
-  interface MaintenanceCallback {
-    void onMaintenance(StatelessSession statelessSession, Collection<Document> documents);
-  }
-
-  private void maintainDocumentsWithStates(final TaskExecution taskExecution,
-      final Collection<DocumentProcessingState> statesForMaintenance,
-      final MaintenanceCallback callback) throws TaskCancelledException {
-    final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
-
-    // Determine downloaded dates
-    final TaskExecutionWork work = taskExecution.reportWorkStart(String.format("Initializing"));
-    final SortedMap<LocalDate, Long> datesWithDocuments =
-        documentDao.getDownloadedDatesWithNumberOfDocuments(sessionProvider.getStatelessSession(),
-            null, null, statesForMaintenance, null);
-    final DocumentsDatesConsumer documentsDatesConsumer =
-        new DocumentsDatesConsumer(datesWithDocuments, batchSize);
-    taskExecution.reportWorkEnd(work);
-    if (documentsDatesConsumer.isEmpty()) {
-      taskExecution.reportWork("No documents to be maintained");
-      return;
-    }
-
-    // Initialize first date range
-    MutablePair<LocalDate, LocalDate> downloadedDateRange = new MutablePair<LocalDate, LocalDate>();
-    final Pair<LocalDate, LocalDate> firstDateRange = documentsDatesConsumer.getNextDateRange();
-    downloadedDateRange.setLeft(firstDateRange.getLeft());
-    downloadedDateRange.setRight(firstDateRange.getRight());
-
-    // Process date ranges
-    while (downloadedDateRange != null) {
-      // Process
-      final int processedDocuments = maintainDocumentsWithStates(
-          sessionProvider.getStatelessSession(), taskExecution, downloadedDateRange.getLeft(),
-          downloadedDateRange.getRight(), statesForMaintenance, callback);
-
-      // Prepare for next iteration
-      final boolean noMoreDocumentsToDeprocess = processedDocuments < batchSize;
-      if (noMoreDocumentsToDeprocess) {
-        documentsDatesConsumer.removeDates(downloadedDateRange.getRight());
-        if (documentsDatesConsumer.isEmpty()) {
-          downloadedDateRange = null;
-        } else {
-          final Pair<LocalDate, LocalDate> nextDateRange =
-              documentsDatesConsumer.getNextDateRange();
-          downloadedDateRange.setLeft(nextDateRange.getLeft());
-          downloadedDateRange.setRight(nextDateRange.getRight());
-        }
-      }
-    }
-  }
-
-  private int maintainDocumentsWithStates(final StatelessSession statelessSession,
-      final TaskExecution taskExecution, final LocalDate fromDate, final LocalDate toDate,
-      final Collection<DocumentProcessingState> statesForProcessing,
-      final MaintenanceCallback callback) throws TaskCancelledException {
-    // Load
-    final boolean oneDateOnly = Objects.equal(fromDate, toDate);
-    final StringBuilder msg = new StringBuilder();
-    msg.append("Loading documents to maintain for download date");
-    if (oneDateOnly) {
-      msg.append(String.format(" %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate)));
-    } else {
-      msg.append(
-          String.format("s %s to %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate),
-              LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
-    }
-    TaskExecutionWork work = taskExecution.reportWorkStart(msg.toString());
-    final List<Document> documentsToMaintain = documentDao.getToProcess(statelessSession, fromDate,
-        toDate, statesForProcessing, null, null, batchSize);
-    taskExecution.reportWorkEnd(work);
-
-    // Process
-    final String singularPlural =
-        stringUtil.getSingularOrPluralTerm("document", documentsToMaintain.size());
-    work = taskExecution.reportWorkStart(
-        String.format("Maintaining %s %s", documentsToMaintain.size(), singularPlural));
-    callback.onMaintenance(statelessSession, documentsToMaintain);
-    taskExecution.reportWorkEnd(work);
-
-    taskExecution.checkpoint();
-
-    return documentsToMaintain.size();
-  }
 
   private void stripNonXml10Chars(final TaskExecution taskExecution) throws TaskCancelledException {
     final HibernateSessionProvider sessionProvider = new HibernateSessionProvider(sessionFactory);
