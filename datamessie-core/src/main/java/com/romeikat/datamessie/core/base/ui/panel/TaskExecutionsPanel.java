@@ -88,7 +88,7 @@ public class TaskExecutionsPanel extends Panel {
         final Label taskName = new Label("taskName", taskNameContent);
         modalContentWindowLink.add(taskName);
 
-        // Task status
+        // Task details
         final StringBuilder taskDetailsContent = new StringBuilder();
         taskDetailsContent.append("(created ");
         taskDetailsContent
@@ -99,6 +99,7 @@ public class TaskExecutionsPanel extends Panel {
         }
         taskDetailsContent.append(")");
         final Label taskDetails = new Label("taskDetails", taskDetailsContent);
+        taskDetails.setVisible(false);
         modalContentWindowLink.add(taskDetails);
       }
     };

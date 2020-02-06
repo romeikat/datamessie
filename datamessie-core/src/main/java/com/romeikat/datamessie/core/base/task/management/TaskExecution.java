@@ -58,9 +58,9 @@ public class TaskExecution {
 
   private final FileUtil fileUtil;
 
-  public TaskExecution(final Task task, final FileUtil fileUtil) {
+  public TaskExecution(final Task task, final String name, final FileUtil fileUtil) {
     id = getNextId();
-    name = task.getName();
+    this.name = name;
     created = LocalDateTime.now();
     visibleAfterCompleted = task.isVisibleAfterCompleted();
     priority = task.getPriority();

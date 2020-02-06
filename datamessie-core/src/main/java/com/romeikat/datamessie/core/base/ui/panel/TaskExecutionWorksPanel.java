@@ -188,11 +188,12 @@ public class TaskExecutionWorksPanel extends ModalContentPanel {
       final IModel<TaskExecutionDto> taskExecutionModel) {
     super(modalContentWindow, null);
     this.taskExecutionModel = taskExecutionModel;
-    setTitle("Task Details");
+
+    final TaskExecutionDto taskExecution = taskExecutionModel.getObject();
+    setTitle(taskExecution.getName());
 
     // Auto update
     if (AUTO_UPDATE) {
-      final TaskExecutionDto taskExecution = taskExecutionModel.getObject();
       final boolean autoUpdateNecessary = taskExecution.getStatus() != TaskExecutionStatus.COMPLETED
           && taskExecution.getStatus() != TaskExecutionStatus.CANCELLED
           && taskExecution.getStatus() != TaskExecutionStatus.FAILED;

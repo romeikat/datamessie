@@ -29,6 +29,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.task.Task;
 import com.romeikat.datamessie.core.base.util.FileUtil;
+import com.romeikat.datamessie.core.base.util.naming.NameGenerator;
 import com.romeikat.datamessie.core.domain.enums.TaskExecutionStatus;
 
 @Service
@@ -49,6 +51,9 @@ public class TaskManager {
   private long managementInterval = DEFAULT_MANAGEMENT_INTERVAL;
 
   private final List<TaskExecution> taskExecutions;
+
+  @Autowired
+  private NameGenerator nameGenerator;
 
   @Autowired
   private FileUtil fileUtil;
@@ -83,7 +88,8 @@ public class TaskManager {
 
   public TaskExecution addTask(final Task task) {
     // Request task execution
-    final TaskExecution taskExecution = new TaskExecution(task, fileUtil);
+    final String taskExecutionName = createTaskExecutionName(task);
+    final TaskExecution taskExecution = new TaskExecution(task, taskExecutionName, fileUtil);
     synchronized (taskExecutions) {
       taskExecutions.add(taskExecution);
       LOG.debug("Task {} requested", taskExecution.getName());
@@ -95,6 +101,18 @@ public class TaskManager {
   public void addTask(final Task task, final long delay) {
     waitMillis(delay);
     addTask(task);
+  }
+
+  private String createTaskExecutionName(final Task task) {
+    final String taskName = task.getName();
+    try {
+      final String generatedName = nameGenerator.generateName();
+      return StringUtils.isBlank(generatedName) ? taskName
+          : taskName + " \"" + generatedName + "\"";
+    } catch (final Exception e) {
+      LOG.error("Could not generate name for task execution", e);
+      return taskName;
+    }
   }
 
   public TaskExecution cancelTask(final long taskExecutionId) {
