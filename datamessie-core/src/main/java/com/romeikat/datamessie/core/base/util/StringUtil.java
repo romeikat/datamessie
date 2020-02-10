@@ -92,4 +92,12 @@ public class StringUtil {
     return false;
   }
 
+  public String removeInvisibleChars(final String s) {
+    if (s == null) {
+      return null;
+    }
+
+    return s.replaceAll("[\\u200b-\\u200d\\u00AD]", "");
+  }
+
 }

@@ -25,6 +25,7 @@ License along with this program.  If not, see
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.romeikat.datamessie.core.base.util.StringUtil;
 import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
@@ -47,6 +48,9 @@ public class DocumentCleaningService {
   @Autowired
   private BoilerplateRemover boilerplateRemover;
 
+  @Autowired
+  private StringUtil stringUtil;
+
   private DocumentCleaningService() {}
 
   public DocumentCleaningResult clean(final Document document, final RawContent rawContent,
@@ -64,6 +68,7 @@ public class DocumentCleaningService {
       // Remove boilerplate from extracted content
       String cleanedContent = boilerplateRemover.removeBoilerplate(extractedContent);
       cleanedContent = StringEscapeUtils.unescapeHtml4(cleanedContent);
+      cleanedContent = stringUtil.removeInvisibleChars(cleanedContent);
 
       // Done
       return new DocumentCleaningResult(cleanedContent);
@@ -73,6 +78,7 @@ public class DocumentCleaningService {
       // Remove boilerplate from raw content
       String cleanedContent = boilerplateRemover.removeBoilerplate(remainingContent);
       cleanedContent = StringEscapeUtils.unescapeHtml4(cleanedContent);
+      cleanedContent = stringUtil.removeInvisibleChars(cleanedContent);
 
       // Done
       return new DocumentCleaningResult(cleanedContent);
@@ -81,7 +87,6 @@ public class DocumentCleaningService {
     else {
       return new DocumentCleaningResult(null);
     }
-
   }
 
 }
