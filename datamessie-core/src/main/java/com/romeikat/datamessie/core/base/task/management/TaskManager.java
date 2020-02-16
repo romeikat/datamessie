@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -53,6 +54,7 @@ public class TaskManager {
   private final List<TaskExecution> taskExecutions;
 
   @Autowired
+  @Qualifier("pigsNameGenerator")
   private NameGenerator nameGenerator;
 
   @Autowired
