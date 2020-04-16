@@ -54,7 +54,7 @@ public class TaskManager {
   private final List<TaskExecution> taskExecutions;
 
   @Autowired
-  @Qualifier("pigsNameGenerator")
+  @Qualifier("celebritiesNameGenerator")
   private NameGenerator nameGenerator;
 
   @Autowired
