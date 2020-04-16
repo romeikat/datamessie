@@ -232,6 +232,7 @@ public class DocumentsProcessingTask implements Task {
         documentForTesting =
             documentDao.getEntity(sessionProvider.getStatelessSession(), documentIdForTesting);
         if (documentForTesting != null) {
+          documentForTesting.setState(DocumentProcessingState.REDIRECTED);
           fromDate = toDate = documentForTesting.getDownloaded().toLocalDate();
         }
       }
