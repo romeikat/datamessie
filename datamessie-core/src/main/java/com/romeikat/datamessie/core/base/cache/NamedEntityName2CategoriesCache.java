@@ -132,6 +132,9 @@ public class NamedEntityName2CategoriesCache
     for (final Set<Long> namedEntityIds : namedEntityNames2CategoryNamedEntityIds.values()) {
       allNamedEntityIds.addAll(namedEntityIds);
     }
+    if (allNamedEntityIds.isEmpty()) {
+      return Collections.emptyMap();
+    }
 
     // Query named entities for the given category named entity IDs
     final EntityWithIdQuery<NamedEntity> namedEntityQuery =

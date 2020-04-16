@@ -22,6 +22,7 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -94,7 +95,7 @@ public class NamedEntityCategoryDao
       final String namedEntityName) {
     final Set<String> namedEntityCategoryNames =
         namedEntityName2CategoriesCache.getValue(ssc, namedEntityName);
-    return namedEntityCategoryNames;
+    return namedEntityCategoryNames == null ? Collections.emptySet() : namedEntityCategoryNames;
   }
 
   public List<NamedEntityCategory> getByNamedEntity(final SharedSessionContract ssc,
