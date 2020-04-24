@@ -118,7 +118,7 @@ public class MaintenanceTask implements Task {
 
   @Override
   public boolean isVisibleAfterCompleted() {
-    return true;
+    return false;
   }
 
   @Override
