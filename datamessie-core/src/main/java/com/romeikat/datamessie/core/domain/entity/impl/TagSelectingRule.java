@@ -45,7 +45,7 @@ public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   public static final String TABLE_NAME = "tagSelectingRule";
 
-  private String tagSelector;
+  private String selector;
 
   private LocalDate activeFrom;
 
@@ -66,16 +66,16 @@ public class TagSelectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   @Override
   public String asStringHash() {
-    return tagSelector + "#" + activeFrom + "#" + activeTo + "#" + mode + "#" + position + "#"
+    return selector + "#" + activeFrom + "#" + activeTo + "#" + mode + "#" + position + "#"
         + sourceId;
   }
 
-  public String getTagSelector() {
-    return tagSelector;
+  public String getSelector() {
+    return selector;
   }
 
-  public TagSelectingRule setTagSelector(final String tagSelector) {
-    this.tagSelector = tagSelector;
+  public TagSelectingRule setSelector(final String selector) {
+    this.selector = selector;
     return this;
   }
 

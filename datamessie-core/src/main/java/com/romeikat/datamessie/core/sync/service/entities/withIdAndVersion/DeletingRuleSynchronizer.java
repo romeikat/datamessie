@@ -42,9 +42,10 @@ public class DeletingRuleSynchronizer extends EntityWithIdAndVersionSynchronizer
 
   @Override
   protected void copyProperties(final DeletingRule source, final DeletingRule target) {
-    target.setRegex(source.getRegex());
+    target.setSelector(source.getSelector());
     target.setActiveFrom(source.getActiveFrom());
     target.setActiveTo(source.getActiveTo());
+    target.setMode(source.getMode());
     target.setSourceId(source.getSourceId());
   }
 

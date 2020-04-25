@@ -4,7 +4,7 @@ package com.romeikat.datamessie.core.base.ui.choicerenderer;
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2020 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,19 +22,19 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.core.domain.enums.StatisticsType;
+import com.romeikat.datamessie.core.domain.enums.DeletingRuleMode;
 
-public class StatisticsTypesChoiceRenderer extends EnumChoiceRenderer<StatisticsType> {
+public class DeletingRuleModesChoiceRenderer extends EnumChoiceRenderer<DeletingRuleMode> {
 
   private static final long serialVersionUID = 1L;
 
-  public StatisticsTypesChoiceRenderer() {
-    super(StatisticsType.class);
+  public DeletingRuleModesChoiceRenderer() {
+    super(DeletingRuleMode.class);
   }
 
   @Override
-  public Object getDisplayValue(final StatisticsType statisticsType) {
-    return statisticsType.getName();
+  public Object getDisplayValue(final DeletingRuleMode mode) {
+    return mode.getName();
   }
 
 }

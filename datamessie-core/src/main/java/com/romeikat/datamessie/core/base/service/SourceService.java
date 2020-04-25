@@ -362,9 +362,10 @@ public class SourceService {
       // Update rule
       final UpdateTracker<DeletingRule> updateTracker =
           new UpdateTracker<>(deletingRule).beginUpdate();
-      deletingRule.setRegex(deletingRuleDto.getRegex());
+      deletingRule.setSelector(deletingRuleDto.getSelector());
       deletingRule.setActiveFrom(deletingRuleDto.getActiveFrom());
       deletingRule.setActiveTo(deletingRuleDto.getActiveTo());
+      deletingRule.setMode(deletingRuleDto.getMode());
       deletingRule.setPosition(position);
       deletingRule.setSourceId(sourceId);
       updateTracker.endUpdate();
@@ -421,7 +422,7 @@ public class SourceService {
       // Update rule
       final UpdateTracker<TagSelectingRule> updateTracker =
           new UpdateTracker<>(tagSelectingRule).beginUpdate();
-      tagSelectingRule.setTagSelector(tagSelectingRuleDto.getTagSelector());
+      tagSelectingRule.setSelector(tagSelectingRuleDto.getSelector());
       tagSelectingRule.setActiveFrom(tagSelectingRuleDto.getActiveFrom());
       tagSelectingRule.setActiveTo(tagSelectingRuleDto.getActiveTo());
       tagSelectingRule.setMode(tagSelectingRuleDto.getMode());

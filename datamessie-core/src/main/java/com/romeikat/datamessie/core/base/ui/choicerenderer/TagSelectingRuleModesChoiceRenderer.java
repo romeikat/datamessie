@@ -33,8 +33,8 @@ public class TagSelectingRuleModesChoiceRenderer extends EnumChoiceRenderer<TagS
   }
 
   @Override
-  public Object getDisplayValue(final TagSelectingRuleMode state) {
-    return state.getName();
+  public Object getDisplayValue(final TagSelectingRuleMode mode) {
+    return mode.getName();
   }
 
 }

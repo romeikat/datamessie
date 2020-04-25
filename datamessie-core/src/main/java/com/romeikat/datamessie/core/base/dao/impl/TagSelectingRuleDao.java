@@ -92,7 +92,7 @@ public class TagSelectingRuleDao extends AbstractEntityWithIdAndVersionDao<TagSe
     // Done
     final ProjectionList projectionList = Projections.projectionList();
     projectionList.add(Projections.property("id"), "id");
-    projectionList.add(Projections.property("tagSelector"), "tagSelector");
+    projectionList.add(Projections.property("selector"), "selector");
     projectionList.add(Projections.property("activeFrom"), "activeFrom");
     projectionList.add(Projections.property("activeTo"), "activeTo");
     projectionList.add(Projections.property("mode"), "mode");

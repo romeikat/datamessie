@@ -32,7 +32,7 @@ public class TagSelectingRuleDto implements Serializable {
 
   private Long id;
 
-  private String tagSelector;
+  private String selector;
 
   private LocalDate activeFrom;
 
@@ -48,12 +48,12 @@ public class TagSelectingRuleDto implements Serializable {
     this.id = id;
   }
 
-  public String getTagSelector() {
-    return tagSelector;
+  public String getSelector() {
+    return selector;
   }
 
-  public void setTagSelector(final String tagSelector) {
-    this.tagSelector = tagSelector;
+  public void setSelector(final String selector) {
+    this.selector = selector;
   }
 
   public LocalDate getActiveFrom() {

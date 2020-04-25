@@ -43,9 +43,10 @@ public class TagSelectingRuleSynchronizer
 
   @Override
   protected void copyProperties(final TagSelectingRule source, final TagSelectingRule target) {
-    target.setTagSelector(source.getTagSelector());
+    target.setSelector(source.getSelector());
     target.setActiveFrom(source.getActiveFrom());
     target.setActiveTo(source.getActiveTo());
+    target.setMode(source.getMode());
     target.setPosition(source.getPosition());
     target.setSourceId(source.getSourceId());
   }

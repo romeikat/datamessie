@@ -201,17 +201,17 @@ public class CommonOperations {
 
   public static Insert insertIntoDeletingRule(final DeletingRule deletingRule) {
     return insertInto(DeletingRule.TABLE_NAME)
-        .columns("id", "version", "regex", "activeFrom", "activeTo", "source_id")
-        .values(deletingRule.getId(), deletingRule.getVersion(), deletingRule.getRegex(),
+        .columns("id", "version", "selector", "activeFrom", "activeTo", "source_id")
+        .values(deletingRule.getId(), deletingRule.getVersion(), deletingRule.getSelector(),
             deletingRule.getActiveFrom(), deletingRule.getActiveTo(), deletingRule.getSourceId())
         .build();
   }
 
   public static Insert insertIntoTagSelectingRule(final TagSelectingRule tagSelectingRule) {
     return insertInto(TagSelectingRule.TABLE_NAME)
-        .columns("id", "version", "tagSelector", "activeFrom", "activeTo", "source_id")
+        .columns("id", "version", "selector", "activeFrom", "activeTo", "source_id")
         .values(tagSelectingRule.getId(), tagSelectingRule.getVersion(),
-            tagSelectingRule.getTagSelector(), tagSelectingRule.getActiveFrom(),
+            tagSelectingRule.getSelector(), tagSelectingRule.getActiveFrom(),
             tagSelectingRule.getActiveTo(), tagSelectingRule.getSourceId())
         .build();
   }

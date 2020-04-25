@@ -24,6 +24,7 @@ License along with this program.  If not, see
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import com.romeikat.datamessie.core.domain.enums.DeletingRuleMode;
 
 public class DeletingRuleDto implements Serializable {
 
@@ -31,11 +32,13 @@ public class DeletingRuleDto implements Serializable {
 
   private Long id;
 
-  private String regex;
+  private String selector;
 
   private LocalDate activeFrom;
 
   private LocalDate activeTo;
+
+  private DeletingRuleMode mode = DeletingRuleMode.REGEX;
 
   public Long getId() {
     return id;
@@ -45,12 +48,12 @@ public class DeletingRuleDto implements Serializable {
     this.id = id;
   }
 
-  public String getRegex() {
-    return regex;
+  public String getSelector() {
+    return selector;
   }
 
-  public void setRegex(final String regex) {
-    this.regex = regex;
+  public void setSelector(final String selector) {
+    this.selector = selector;
   }
 
   public LocalDate getActiveFrom() {
@@ -67,6 +70,14 @@ public class DeletingRuleDto implements Serializable {
 
   public void setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
+  }
+
+  public DeletingRuleMode getMode() {
+    return mode;
+  }
+
+  public void setMode(final DeletingRuleMode mode) {
+    this.mode = mode;
   }
 
 }

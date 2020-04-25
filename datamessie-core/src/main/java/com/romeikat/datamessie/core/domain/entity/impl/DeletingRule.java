@@ -30,6 +30,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.enums.DeletingRuleMode;
 import com.romeikat.datamessie.core.domain.util.StringHashProvider;
 
 @Entity
@@ -42,11 +43,13 @@ public class DeletingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   public static final String TABLE_NAME = "deletingRule";
 
-  private String regex;
+  private String selector;
 
   private LocalDate activeFrom;
 
   private LocalDate activeTo;
+
+  private DeletingRuleMode mode = DeletingRuleMode.REGEX;
 
   private Integer position;
 
@@ -61,15 +64,16 @@ public class DeletingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   @Override
   public String asStringHash() {
-    return regex + "#" + activeFrom + "#" + activeTo + "#" + "#" + position + sourceId;
+    return selector + "#" + activeFrom + "#" + activeTo + "#" + mode + "#" + position + "#"
+        + sourceId;
   }
 
-  public String getRegex() {
-    return regex;
+  public String getSelector() {
+    return selector;
   }
 
-  public DeletingRule setRegex(final String regex) {
-    this.regex = regex;
+  public DeletingRule setSelector(final String selector) {
+    this.selector = selector;
     return this;
   }
 
@@ -88,6 +92,15 @@ public class DeletingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   public DeletingRule setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
+    return this;
+  }
+
+  public DeletingRuleMode getMode() {
+    return mode;
+  }
+
+  public DeletingRule setMode(final DeletingRuleMode mode) {
+    this.mode = mode;
     return this;
   }
 

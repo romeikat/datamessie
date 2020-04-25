@@ -33,8 +33,8 @@ public class StatisticsIntervalsChoiceRenderer extends EnumChoiceRenderer<Statis
   }
 
   @Override
-  public Object getDisplayValue(final StatisticsInterval state) {
-    return state.getName();
+  public Object getDisplayValue(final StatisticsInterval statisticsInterval) {
+    return statisticsInterval.getName();
   }
 
 }

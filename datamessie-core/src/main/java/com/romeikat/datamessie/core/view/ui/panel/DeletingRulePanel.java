@@ -30,8 +30,10 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import com.romeikat.datamessie.core.base.ui.behavior.ModelUpdatingBehavior;
+import com.romeikat.datamessie.core.base.ui.component.DeletingRuleModeSelector;
 import com.romeikat.datamessie.core.base.ui.component.LocalDateTextField;
 import com.romeikat.datamessie.core.domain.dto.DeletingRuleDto;
+import com.romeikat.datamessie.core.domain.enums.DeletingRuleMode;
 
 public class DeletingRulePanel extends Panel {
 
@@ -39,6 +41,12 @@ public class DeletingRulePanel extends Panel {
 
   public DeletingRulePanel(final String id, final IModel<DeletingRuleDto> deletingRuleModel) {
     super(id, deletingRuleModel);
+
+    // Selector
+    final TextField<String> selectorTextField =
+        new TextField<String>("selector", new PropertyModel<String>(deletingRuleModel, "selector"));
+    selectorTextField.add(new ModelUpdatingBehavior());
+    add(selectorTextField);
 
     // Active from
     final LocalDateTextField activeFromTextField = new LocalDateTextField("activeFrom",
@@ -64,11 +72,11 @@ public class DeletingRulePanel extends Panel {
     activeToDatePicker.setAutoHide(true);
     activeToTextField.add(activeToDatePicker);
 
-    // Tag selector
-    final TextField<String> tagSelectorTextField =
-        new TextField<String>("regex", new PropertyModel<String>(deletingRuleModel, "regex"));
-    tagSelectorTextField.add(new ModelUpdatingBehavior());
-    add(tagSelectorTextField);
+    // Mode
+    final DeletingRuleModeSelector modeSelector = new DeletingRuleModeSelector("mode",
+        new PropertyModel<DeletingRuleMode>(deletingRuleModel, "mode"));
+    modeSelector.add(new ModelUpdatingBehavior());
+    add(modeSelector);
   }
 
 }

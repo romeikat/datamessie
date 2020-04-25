@@ -28,9 +28,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.enums.DeletingRuleMode;
+import com.romeikat.datamessie.core.domain.util.TagSelector;
 
 @Service
 public class ContentDeletor {
@@ -59,23 +64,66 @@ public class ContentDeletor {
     // Process active rules one after another
     String currentContent = content;
     for (final DeletingRule activeDeletingRule : activeDeletingRules) {
-      final String regex = activeDeletingRule.getRegex();
-      currentContent = deleteContent(currentContent, regex);
+      final String selector = activeDeletingRule.getSelector();
+      final DeletingRuleMode deletingRuleMode = activeDeletingRule.getMode();
+      if (deletingRuleMode == DeletingRuleMode.REGEX) {
+        currentContent = deleteContentWithRegex(currentContent, selector);
+      } else if (deletingRuleMode == DeletingRuleMode.TAG) {
+        currentContent = deleteContentWithTag(currentContent, selector);
+      }
     }
 
     // Done
     return currentContent;
   }
 
-  private String deleteContent(final String content, final String regex) {
-    if (StringUtils.isBlank(regex)) {
+  private String deleteContentWithRegex(final String content, final String selector) {
+    if (StringUtils.isBlank(selector)) {
       return content;
     }
 
-    final Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+    final Pattern pattern = Pattern.compile(selector, Pattern.DOTALL);
     final Matcher matcher = pattern.matcher(content);
     final String result = matcher.replaceAll("");
     return result;
+  }
+
+  private String deleteContentWithTag(final String content, final String selector) {
+    if (StringUtils.isBlank(selector)) {
+      return content;
+    }
+
+    final TagSelector tagSelector = TagSelector.fromTextualRepresentation(selector);
+    if (!tagSelector.isValid()) {
+      return content;
+    }
+
+    // With selector, search for appropriate element
+    final org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(content);
+    final Elements elementsWithTagName = jsoupDocument.getElementsByTag(tagSelector.getTagName());
+    boolean modified = false;
+    for (final Element elementWithTagName : elementsWithTagName) {
+      final boolean idNameMatches = tagSelector.checkForIdNameMatch(elementWithTagName.id());
+      if (!idNameMatches) {
+        continue;
+      }
+
+      final boolean classNamesMatch =
+          tagSelector.checkForClassNamesMatch(elementWithTagName.classNames());
+      if (!classNamesMatch) {
+        continue;
+      }
+
+      // Remove tag
+      elementWithTagName.remove();
+      modified = true;
+    }
+
+    if (modified) {
+      return jsoupDocument.outerHtml();
+    } else {
+      return content;
+    }
   }
 
 }

@@ -43,11 +43,11 @@ public class TagSelectingRulePanel extends Panel {
       final IModel<TagSelectingRuleDto> tagSelectingRuleModel) {
     super(id, tagSelectingRuleModel);
 
-    // Tag selector
-    final TextField<String> tagSelectorTextField = new TextField<String>("tagSelector",
-        new PropertyModel<String>(tagSelectingRuleModel, "tagSelector"));
-    tagSelectorTextField.add(new ModelUpdatingBehavior());
-    add(tagSelectorTextField);
+    // Selector
+    final TextField<String> selectorTextField = new TextField<String>("selector",
+        new PropertyModel<String>(tagSelectingRuleModel, "selector"));
+    selectorTextField.add(new ModelUpdatingBehavior());
+    add(selectorTextField);
 
     // Active from
     final LocalDateTextField activeFromTextField = new LocalDateTextField("activeFrom",

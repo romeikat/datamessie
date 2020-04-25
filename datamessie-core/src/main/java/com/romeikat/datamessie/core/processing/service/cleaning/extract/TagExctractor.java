@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -35,10 +34,10 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.TagSelectingRule;
 import com.romeikat.datamessie.core.domain.enums.TagSelectingRuleMode;
+import com.romeikat.datamessie.core.domain.util.TagSelector;
 
 @Service
 public class TagExctractor {
@@ -50,101 +49,84 @@ public class TagExctractor {
     if (content == null) {
       return null;
     }
-    // Apply tag selecting rules
-    final LocalDateTime documentDownloaded = document.getDownloaded();
+
     // Determine active rules
+    final LocalDateTime documentDownloaded = document.getDownloaded();
     final List<TagSelectingRule> activeTagSelectingRules = new LinkedList<TagSelectingRule>();
     for (final TagSelectingRule tagSelectingRule : tagSelectingRules) {
       if (tagSelectingRule.isActive(documentDownloaded.toLocalDate())) {
         activeTagSelectingRules.add(tagSelectingRule);
       }
     }
+
     // Without active rules, use whole document
     if (activeTagSelectingRules.isEmpty()) {
       return content;
     }
+
     // Process active rules one after another, until tag selection is successful
     for (final TagSelectingRule activeTagSelectingRule : activeTagSelectingRules) {
       // Extract content with tag selector
-      final String tagSelector = activeTagSelectingRule.getTagSelector();
+      final String selector = activeTagSelectingRule.getSelector();
       final TagSelectingRuleMode mode = activeTagSelectingRule.getMode();
-      final String extractedContent = extractContent(content, document, tagSelector, mode);
+      final String extractedContent = extractContent(content, document, selector, mode);
+
       // If successful, done
       if (extractedContent != null) {
         return extractedContent;
       }
     }
+
     // No match(es) found
-    final List<String> tagSelectors = new LinkedList<String>();
+    final List<String> selectors = new LinkedList<String>();
     for (final TagSelectingRule activeTagSelectingRule : activeTagSelectingRules) {
-      tagSelectors.add(activeTagSelectingRule.getTagSelector());
+      selectors.add(activeTagSelectingRule.getSelector());
     }
     LOG.warn(
         "Could not extract content of document {} ({}) as none of the tag selectors {} of source {} resulted in a unique match",
-        document.getId(), document.getUrl(), StringUtils.join(tagSelectors, ", "),
+        document.getId(), document.getUrl(), StringUtils.join(selectors, ", "),
         document.getSourceId());
     return null;
   }
 
   private String extractContent(final String content, final Document document,
-      final String tagSelector, final TagSelectingRuleMode mode) {
-    if (tagSelector == null || tagSelector.isEmpty()) {
+      final String selector, final TagSelectingRuleMode mode) {
+    if (selector == null || selector.isEmpty()) {
       return null;
     }
-    // Parse tag selector
-    String tagName = null;
-    String idName = null;
-    Set<String> classNames = null;
-    boolean exactClassNamesMatch = false;
+
     final String warningMessage = "Could not apply tag selecting rule on document "
         + document.getId() + " (" + document.getUrl() + ") due to malformed tag selector "
-        + tagSelector + " of source " + document.getSourceId();
+        + selector + " of source " + document.getSourceId();
+
+    // Parse selector
     try {
-      final String[] parts = tagSelector.split("#");
-      tagName = parts[0];
-      if (tagName.isEmpty()) {
-        tagName = null;
-      }
-      if (parts.length >= 2) {
-        idName = parts[1];
-        if (idName.isEmpty()) {
-          idName = null;
-        }
-      }
-      if (parts.length >= 3) {
-        exactClassNamesMatch = parts[2].startsWith("\"") && parts[2].endsWith("\"");
-        final String classDefinition =
-            exactClassNamesMatch ? parts[2].substring(1, parts[2].length() - 1) : parts[2];
-        classNames = Sets.newHashSet(classDefinition.split("\\s+"));
-      }
-      if (tagName == null || idName == null && classNames == null) {
+      final TagSelector tagSelector = TagSelector.fromTextualRepresentation(selector);
+      if (!tagSelector.isValid()) {
         LOG.warn(warningMessage);
         return null;
       }
-      // With tag selector, search for appropriate element
+
+      // With selector, search for appropriate element
       final org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(content);
       final List<Element> matchingElements = new ArrayList<Element>();
-      final Elements elementsWithTagName = jsoupDocument.getElementsByTag(tagName);
+      final Elements elementsWithTagName = jsoupDocument.getElementsByTag(tagSelector.getTagName());
       for (final Element elementWithTagName : elementsWithTagName) {
-        final boolean idNameMatches = idName == null || elementWithTagName.id().equals(idName);
+        final boolean idNameMatches = tagSelector.checkForIdNameMatch(elementWithTagName.id());
         if (!idNameMatches) {
           continue;
         }
 
-        final boolean classNamesMatch;
-        if (exactClassNamesMatch) {
-          classNamesMatch =
-              classNames == null || elementWithTagName.classNames().equals(classNames);
-        } else {
-          classNamesMatch =
-              classNames == null || elementWithTagName.classNames().containsAll(classNames);
-        }
+        final boolean classNamesMatch =
+            tagSelector.checkForClassNamesMatch(elementWithTagName.classNames());
         if (!classNamesMatch) {
           continue;
         }
 
+        // Match found
         matchingElements.add(elementWithTagName);
       }
+
       // Match(es) found
       boolean matchFound = false;
       if (mode == TagSelectingRuleMode.EXACTLY_ONCE) {
@@ -157,6 +139,7 @@ public class TagExctractor {
             matchingElements.stream().map(e -> e.html()).collect(Collectors.joining("<br>"));
         return html;
       }
+
       // No match(es) found
       return null;
     } catch (final Exception e) {
