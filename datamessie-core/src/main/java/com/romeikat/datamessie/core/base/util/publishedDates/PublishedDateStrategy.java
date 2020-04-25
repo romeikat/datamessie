@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.SessionFactory;
@@ -79,12 +80,23 @@ public abstract class PublishedDateStrategy {
       final DocumentsFilterSettings dfs) {
     final LocalDate fromDate = dfs.getFromDate();
     final LocalDate toDate = dfs.getToDate();
-    // Both dates provided => all dates in range (descending)
+
+    Collection<LocalDate> publishedDatesForProcessing = null;
+
+    // If both bounds are provided => use the dates in between as starting point
     if (fromDate != null && toDate != null) {
-      return DateUtil.getLocalDatesBetween(toDate, fromDate);
+      publishedDatesForProcessing = DateUtil.getLocalDatesBetween(toDate, fromDate);
     }
-    // Otherwise => all published dates that actually exist (descending)
-    else {
+
+    // If document IDs are provided, restrict to their published dates
+    if (dfs.getDocumentIds() != null) {
+      final Set<LocalDate> restrictingDates =
+          getPublishedDatesOfDocuments(ssc, dfs.getDocumentIds());
+      publishedDatesForProcessing = restrictToDates(publishedDatesForProcessing, restrictingDates);
+    }
+
+    // If still no published dates, use all published dates that actually exist for documents
+    if (publishedDatesForProcessing == null) {
       final Set<LocalDate> allPublishedDates = getAllPublishedDates(ssc);
       final Predicate<LocalDate> publishedDatePredicate = new Predicate<LocalDate>() {
         @Override
@@ -94,15 +106,58 @@ public abstract class PublishedDateStrategy {
           return fromDateMatch && toDateMatch;
         }
       };
-      final Collection<LocalDate> publishedDates =
-          Collections2.filter(allPublishedDates, publishedDatePredicate);
-      // Sort descending
-      final List<LocalDate> publishedDatesSorted = Lists.newArrayList(publishedDates);
-      Collections.sort(publishedDatesSorted);
-      Collections.reverse(publishedDatesSorted);
-      // Done
-      return publishedDatesSorted;
+      publishedDatesForProcessing = Collections2.filter(allPublishedDates, publishedDatePredicate);
     }
+
+    // Sort descending
+    final List<LocalDate> publishedDatesForProcessingSorted =
+        Lists.newArrayList(publishedDatesForProcessing);
+    Collections.sort(publishedDatesForProcessingSorted);
+    Collections.reverse(publishedDatesForProcessingSorted);
+    // Done
+    return publishedDatesForProcessingSorted;
+  }
+
+  private Collection<LocalDate> restrictToDates(final Collection<LocalDate> candidateDates,
+      @NotNull final Collection<LocalDate> restrictingDates) {
+    if (candidateDates == null) {
+      return restrictingDates;
+    }
+
+    candidateDates.retainAll(restrictingDates);
+    return candidateDates;
+  }
+
+  private Set<LocalDate> getPublishedDatesOfDocuments(final SharedSessionContract ssc,
+      @NotNull final Collection<Long> documentIds) {
+    if (documentIds.isEmpty()) {
+      return Collections.emptySet();
+    }
+
+    final List<LocalDateTime> publishedTimestamps =
+        getPublishedTimestampsOfDocuments(ssc, documentIds);
+    final List<LocalDate> publishedDates =
+        Lists.transform(publishedTimestamps, new Function<LocalDateTime, LocalDate>() {
+          @Override
+          public LocalDate apply(final LocalDateTime localDateTime) {
+            return localDateTime.toLocalDate();
+          }
+        });
+    final Set<LocalDate> uniquePublishedDates = Sets.newHashSet(publishedDates);
+    return uniquePublishedDates;
+  }
+
+  private List<LocalDateTime> getPublishedTimestampsOfDocuments(final SharedSessionContract ssc,
+      @NotNull final Collection<Long> documentIds) {
+    // Query
+    final Criteria criteria = ssc.createCriteria(Document.class);
+    criteria.add(Restrictions.in("id", documentIds));
+    // Projection
+    criteria.setProjection(Projections.property("published"));
+    // Done
+    @SuppressWarnings("unchecked")
+    final List<LocalDateTime> publishedTimestamps = criteria.list();
+    return publishedTimestamps;
   }
 
   private Set<LocalDate> getAllPublishedDates(final SharedSessionContract ssc) {
