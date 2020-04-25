@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.time.LocalDateTime;
+import org.apache.http.entity.ContentType;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authorization.strategies.role.annotations.AuthorizeInstantiation;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -31,17 +32,21 @@ import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.ResourceLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.CharSequenceResource;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.string.StringValue;
 import org.hibernate.SessionFactory;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
+import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.service.AuthenticationService.DataMessieRoles;
 import com.romeikat.datamessie.core.base.ui.page.AbstractAuthenticatedPage;
 import com.romeikat.datamessie.core.domain.dto.DocumentDto;
+import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @AuthorizeInstantiation(DataMessieRoles.DOCUMENT_PAGE)
@@ -55,6 +60,9 @@ public class DocumentPage extends AbstractAuthenticatedPage {
 
   @SpringBean(name = "documentDao")
   private DocumentDao documentDao;
+
+  @SpringBean
+  private RawContentDao rawContentDao;
 
   @SpringBean(name = "sessionFactory")
   private SessionFactory sessionFactory;
@@ -106,7 +114,7 @@ public class DocumentPage extends AbstractAuthenticatedPage {
     final Label stemmedTitleLabel =
         new Label("stemmedTitleLabel", new PropertyModel<String>(documentModel, "stemmedTitle"));
     documentWmc.add(stemmedTitleLabel);
-    // URLs
+    // URL
     urlLink = new ExternalLink("urlLink", new PropertyModel<String>(documentModel, "url"),
         new PropertyModel<String>(documentModel, "url"));
     urlLink.setContextRelative(false);
@@ -145,6 +153,9 @@ public class DocumentPage extends AbstractAuthenticatedPage {
         new Label("stateLabel", new PropertyModel<DocumentProcessingState>(documentModel, "state"));
     documentWmc.add(stateLabel);
     // Raw content
+    final ResourceLink<String> rawContentLink =
+        new ResourceLink<String>("rawContentLink", getRawContentResource());
+    documentWmc.add(rawContentLink);
     final TextArea<String> rawContentTextArea = new TextArea<String>("rawContentTextArea",
         new PropertyModel<String>(documentModel, "rawContent"));
     documentWmc.add(rawContentTextArea);
@@ -160,6 +171,36 @@ public class DocumentPage extends AbstractAuthenticatedPage {
     final TextArea<String> namedEntitiesTextArea = new TextArea<String>("namedEntitiesTextArea",
         new PropertyModel<String>(documentModel, "namedEntities"));
     documentWmc.add(namedEntitiesTextArea);
+  }
+
+  private CharSequenceResource getRawContentResource() {
+    return new CharSequenceResource(ContentType.TEXT_HTML.toString()) {
+      private static final long serialVersionUID = 1L;
+
+      @Override
+      protected CharSequence getData(final Attributes attributes) {
+        return getRawContent();
+      }
+    };
+  }
+
+  private String getRawContent() {
+    final DocumentDto document = documentModel.getObject();
+    if (document == null) {
+      return null;
+    }
+    final Long documentId = document.getId();
+    if (documentId == null) {
+      return null;
+    }
+
+    final RawContent rawContent =
+        rawContentDao.getEntity(sessionFactory.getCurrentSession(), documentId);
+    if (rawContent == null) {
+      return null;
+    }
+
+    return rawContent.getContent();
   }
 
   @Override
