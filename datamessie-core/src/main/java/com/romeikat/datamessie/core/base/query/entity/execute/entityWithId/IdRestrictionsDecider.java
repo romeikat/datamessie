@@ -60,10 +60,6 @@ public class IdRestrictionsDecider {
     Set<Long> result = null;
 
     for (final Collection<Long> idRestriction : idRestrictions) {
-      if (idRestriction.isEmpty()) {
-        idRestriction.add(-1l);
-      }
-
       // First restriction
       if (result == null) {
         result = Sets.newHashSet(idRestriction);
