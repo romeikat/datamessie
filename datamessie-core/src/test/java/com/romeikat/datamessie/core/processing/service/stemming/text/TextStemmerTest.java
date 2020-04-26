@@ -65,7 +65,7 @@ public class TextStemmerTest extends AbstractTest {
   }
 
   @Test
-  public void stemmissingLanguage() {
+  public void stemText_missingLanguage() {
     final String unstemmedText = "This text should not be stemmed.";
     final String stemmedText = textStemmer.stemText(unstemmedText, Collections.emptySet(), null);
 

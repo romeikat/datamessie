@@ -4,7 +4,7 @@ package com.romeikat.datamessie.core.processing.service.stemming.text;
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2020 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,30 +22,17 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.util.FilteringTokenFilter;
+import java.util.List;
 
-public class NumberFilter extends FilteringTokenFilter {
+/**
+ * Represents an algorithm to stem text.
+ *
+ * @author Dr. Raphael Romeikat
+ */
+public interface Stemmer {
 
-  private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+  List<String> stem(String text);
 
-  public NumberFilter(final TokenStream in) {
-    super(in);
-  }
-
-  @Override
-  protected boolean accept() {
-    return containsAtLeastOneAlphabeticCharacter(termAtt.buffer(), termAtt.length());
-  }
-
-  private boolean containsAtLeastOneAlphabeticCharacter(final char[] chars, final int length) {
-    for (int i = 0; i < length; i++) {
-      if (Character.isAlphabetic(chars[i])) {
-        return true;
-      }
-    }
-    return false;
-  }
+  void close();
 
 }

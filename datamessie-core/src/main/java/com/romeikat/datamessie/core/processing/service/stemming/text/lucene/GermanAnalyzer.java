@@ -1,4 +1,4 @@
-package com.romeikat.datamessie.core.processing.service.stemming.text;
+package com.romeikat.datamessie.core.processing.service.stemming.text.lucene;
 
 /*-
  * ============================LICENSE_START============================

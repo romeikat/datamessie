@@ -26,27 +26,23 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.util.CharArraySet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.romeikat.datamessie.core.base.util.DataMessieException;
-import com.romeikat.datamessie.core.base.util.ParseUtil;
 import com.romeikat.datamessie.core.base.util.TextUtil;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntity;
 import com.romeikat.datamessie.core.domain.enums.Language;
+import com.romeikat.datamessie.core.processing.service.stemming.text.lucene.LuceneStemmer;
 
 @Service
 public class TextStemmer {
 
   @Autowired
-  private ParseUtil parseUtil;
+  private ApplicationContext ctx;
 
   @Autowired
   private TextUtil textUtil;
@@ -64,9 +60,9 @@ public class TextStemmer {
     textUnderStemming = replaceNamedEntities(textUnderStemming, namedEntityNames);
 
     // Stem
-    final Analyzer analyzer = getAnalyzer(language, namedEntityNames);
-    final String stemmedText = doStemming(textUnderStemming, analyzer);
-    analyzer.close();
+    final Stemmer stemmer = createStemmer(language, namedEntityNames);
+    final String stemmedText = doStemming(textUnderStemming, stemmer);
+    stemmer.close();
 
     // Done
     return stemmedText;
@@ -128,39 +124,28 @@ public class TextStemmer {
     return namedEntityNamesOrderdByNumberOfWords;
   }
 
-  private String doStemming(final String unstemmedText, final Analyzer analyzer) {
+  /**
+   * Decides which stemming algorithm to be used. Currently uses a Lucene-based implementation that
+   * uses respective {@link org.apache.lucene.analysis.Analyzer Analyzers}. One alterantve would be
+   * the <a href="https://github.com/LeonieWeissweiler/CISTEM/blob/master/Cistem.java">CISTEM</a>
+   * algorithm. algorithm.
+   *
+   * @param language
+   * @param namedEntityNames
+   * @return
+   */
+  private Stemmer createStemmer(final Language language,
+      final Collection<String> namedEntityNames) {
+    return new LuceneStemmer(language, namedEntityNames, ctx);
+  }
+
+  private String doStemming(final String unstemmedText, final Stemmer stemmer) {
     // Process
-    final List<String> terms = parseUtil.parseTerms(unstemmedText, analyzer, false);
+    final List<String> terms = stemmer.stem(unstemmedText);
     final String processedText = StringUtils.join(terms, " ");
 
     // Done
     return processedText;
-  }
-
-  private Analyzer getAnalyzer(final Language language, final Collection<String> namedEntityNames) {
-    final Set<String> singleWords = getAsSingleWords(namedEntityNames);
-
-    final Analyzer analyzer;
-    if (language == Language.DE) {
-      analyzer =
-          new GermanAnalyzer(GermanAnalyzer.getDefaultStopSet(), CharArraySet.copy(singleWords));
-    } else if (language == Language.EN) {
-      analyzer =
-          new EnglishAnalyzer(EnglishAnalyzer.getDefaultStopSet(), CharArraySet.copy(singleWords));
-    } else {
-      throw new DataMessieException("");
-    }
-
-    return analyzer;
-  }
-
-  private Set<String> getAsSingleWords(final Collection<String> namedEntityNames) {
-    final Set<String> singleWords = Sets.newHashSetWithExpectedSize(namedEntityNames.size());
-    for (final String namedEntityName : namedEntityNames) {
-      final String singleWord = NamedEntity.getAsSingleWord(namedEntityName);
-      singleWords.add(singleWord);
-    }
-    return singleWords;
   }
 
 }
