@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.util.List;
+import com.romeikat.datamessie.core.base.service.download.DownloadSession;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
@@ -32,6 +33,6 @@ import com.romeikat.datamessie.core.processing.task.documentProcessing.redirecti
 public interface RedirectCallback {
 
   DocumentRedirectingResult redirect(Document document, RawContent rawContent,
-      List<RedirectingRule> redirectingRules);
+      List<RedirectingRule> redirectingRules, DownloadSession downloadSession);
 
 }

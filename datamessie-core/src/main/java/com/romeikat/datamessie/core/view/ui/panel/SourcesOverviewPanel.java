@@ -191,6 +191,10 @@ public class SourcesOverviewPanel extends Panel {
                 source.getNumberOfRedirectingRules() + "/" + source.getNumberOfDeletingRules() + "/"
                     + source.getNumberOfTagSelectingRules());
             item.add(numberOfRulesLabel);
+            // Cookie
+            final Label cookieLabel =
+                new Label("cookie", new PropertyModel<String>(sourceModel, "cookie"));
+            item.add(cookieLabel);
           }
         };
     sourcesOverviewList.setItemsPerPage(SOURCES_PER_PAGE);

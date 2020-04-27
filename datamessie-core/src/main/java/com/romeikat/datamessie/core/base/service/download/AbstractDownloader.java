@@ -4,7 +4,7 @@ package com.romeikat.datamessie.core.base.service.download;
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2020 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -21,23 +21,31 @@ License along with this program.  If not, see
 <http://www.gnu.org/licenses/gpl-3.0.html>.
  * =============================LICENSE_END=============================
  */
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
-import org.apache.commons.lang3.StringEscapeUtils;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.List;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.client.utils.URIUtils;
+import org.apache.http.entity.ContentType;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import com.romeikat.datamessie.core.base.util.XmlUtil;
 import com.rometools.utils.Strings;
 
 public abstract class AbstractDownloader {
@@ -50,96 +58,96 @@ public abstract class AbstractDownloader {
   @Value("${crawling.timeout}")
   private int timeout;
 
-  @Autowired
-  private XmlUtil xmlUtil;
+  protected DownloadResult download(final String url, final int attempts,
+      final DownloadSession downloadSession) {
+    // Try as many times as desired
+    for (int attempt = 0; attempt < attempts; attempt++) {
+      final DownloadResult downloadResult = download(url, downloadSession);
+      final boolean downloadSuccess = downloadResult.getContent() != null;
+      // Return, if successful or last attempt
+      if (downloadSuccess || attempt >= attempts - 1) {
+        return downloadResult;
+      }
+    }
+
+    // Fallback
+    return new DownloadResult(null, url, null, null, LocalDateTime.now(), null);
+  }
+
+  private DownloadResult download(String url, DownloadSession downloadSession) {
+    // Resulting information
+    String originalUrl = null;
+    String content = null;
+    Charset charset = null;
+    final LocalDateTime downloaded = LocalDateTime.now();
+    Integer statusCode = null;
+
+    // HTTP client
+    final boolean downloadSessionProvided = downloadSession != null;
+    final CloseableHttpClient client;
+    if (downloadSessionProvided) {
+      client = downloadSession.getClient();
+    } else {
+      downloadSession = DownloadSession.create(userAgent, timeout);
+      client = downloadSession.getClient();
+    }
+    final HttpClientContext context = HttpClientContext.create();
+
+    // Request
+    final HttpGet request = new HttpGet(url);
+
+    // Response
+    boolean downloadSuccess = false;
+    try (final CloseableHttpResponse response = client.execute(request, context);) {
+      final int responseStatusCode = response.getStatusLine().getStatusCode();
+      statusCode = responseStatusCode == HttpStatus.SC_OK ? null : responseStatusCode;
+
+      // Content
+      final HttpEntity entity = response.getEntity();
+      downloadSuccess = responseStatusCode < 400 && entity != null;
+      if (downloadSuccess) {
+        try (final InputStream urlInputStream = entity.getContent();) {
+          content = IOUtils.toString(urlInputStream, StandardCharsets.UTF_8.name());
+        }
+
+        // Charset
+        final ContentType contentType = ContentType.getOrDefault(entity);
+        charset = contentType.getCharset();
+      }
+    } catch (final IOException e) {
+      LOG.debug("Could not download " + url, e);
+    }
+
+    // Server-side redirects
+    final URI originalUri = request.getURI();
+    final HttpHost targetHost = context.getTargetHost();
+    final List<URI> redirectLocations = context.getRedirectLocations();
+    try {
+      final URI finalUri = URIUtils.resolve(originalUri, targetHost, redirectLocations);
+      final String responseUrl = finalUri.toASCIIString();
+      // Original URL vs. URL
+      final String redirectedUrl = getRedirectedUrl(url, responseUrl);
+      if (isValidRedirection(url, redirectedUrl)) {
+        originalUrl = url;
+        url = redirectedUrl;
+        LOG.debug("Redirection (server): {} -> {}", originalUrl, url);
+      }
+    } catch (final URISyntaxException | MalformedURLException e) {
+      LOG.debug("Could not download " + url, e);
+    }
+
+    // Done
+    if (!downloadSuccess) {
+      LOG.info("Could not download " + url);
+    }
+    if (!downloadSessionProvided) {
+      downloadSession.close();
+    }
+    return new DownloadResult(originalUrl, url, content, charset, downloaded, statusCode);
+  }
 
   protected boolean isValidRedirection(final String originalUrl, final String redirectedUrl) {
     return Strings.isNotEmpty(redirectedUrl) && !StringUtils.equals(originalUrl, redirectedUrl);
-  }
-
-  protected URLConnection getConnection(final String url) throws IOException {
-    final URLConnection urlConnection = new URL(url).openConnection();
-    if (urlConnection instanceof HttpURLConnection) {
-      final HttpURLConnection httpUrlConnection = (HttpURLConnection) urlConnection;
-      httpUrlConnection.setInstanceFollowRedirects(true);
-    }
-    urlConnection.setConnectTimeout(timeout);
-    urlConnection.setReadTimeout(timeout);
-    urlConnection.setRequestProperty("User-Agent", userAgent);
-    return urlConnection;
-  }
-
-  protected InputStream asInputStream(final URLConnection urlConnection,
-      final boolean stripNonValidXMLCharacters, final boolean unescapeHtml4) throws Exception {
-    final InputStream urlInputStream = urlConnection.getInputStream();
-    final Charset urlCharset = getCharset(urlConnection);
-    final InputStreamReader urlInputStreamReader =
-        new InputStreamReader(urlInputStream, urlCharset);
-    final BufferedReader urlBufferedReader = new BufferedReader(urlInputStreamReader);
-    // Read lines
-    final StringBuilder sb = new StringBuilder();
-    String line;
-    while ((line = urlBufferedReader.readLine()) != null) {
-      sb.append(line + "\n");
-    }
-    urlBufferedReader.close();
-    // Strip non-valid characters as specified by the XML 1.0 standard
-    String content = sb.toString();
-    if (stripNonValidXMLCharacters) {
-      content = xmlUtil.stripNonValidXMLCharacters(content);
-    }
-    // Unescape HTML characters
-    if (unescapeHtml4) {
-      content = StringEscapeUtils.unescapeHtml4(content);
-    }
-    // Return as stream
-    return new ByteArrayInputStream(content.getBytes(urlCharset.name()));
-  }
-
-  protected Charset getCharset(final URLConnection urlConnection) {
-    Charset charset = null;
-    // Prio 1: content encoding specified in header
-    String encoding = urlConnection.getContentEncoding();
-    // Prio 2: charset specified within content type (specified in header)
-    if (encoding == null) {
-      final String contentType = urlConnection.getHeaderField("Content-Type");
-      if (contentType != null) {
-        for (final String metaTagParameter : contentType.replace(" ", "").split(";")) {
-          if (metaTagParameter.startsWith("charset=")) {
-            encoding = metaTagParameter.split("=", 2)[1];
-            break;
-          }
-        }
-      }
-    }
-    // Prio 3: default charset
-    if (encoding == null) {
-      return Charset.defaultCharset();
-    }
-    // Create charset
-    try {
-      charset = Charset.forName(encoding);
-    } catch (final Exception ex) {
-      LOG.warn(
-          "Unsupported encoding " + encoding + " by " + urlConnection.getURL().toExternalForm(),
-          ex);
-    }
-    // Fallback
-    if (charset == null) {
-      charset = Charset.defaultCharset();
-    }
-    // Done
-    return charset;
-  }
-
-  protected String getResponseUrl(final URLConnection urlConnection) throws IOException {
-    if (!(urlConnection instanceof HttpURLConnection)) {
-      return urlConnection.getURL().toExternalForm();
-    }
-    final HttpURLConnection httpUrlConnection = (HttpURLConnection) urlConnection;
-    httpUrlConnection.setInstanceFollowRedirects(false);
-    final String responseUrl = httpUrlConnection.getHeaderField("Location");
-    return responseUrl;
   }
 
   protected String getRedirectedUrl(final String url, final String responseUrl)
@@ -189,20 +197,6 @@ public abstract class AbstractDownloader {
 
     final String protocol = urlAsUrl.getProtocol();
     return protocol;
-  }
-
-  protected void closeUrlConnection(final URLConnection urlConnection) {
-    if (urlConnection == null) {
-      return;
-    }
-    if (urlConnection instanceof HttpURLConnection) {
-      final HttpURLConnection httpUrlConnection = (HttpURLConnection) urlConnection;
-      httpUrlConnection.disconnect();
-    }
-  }
-
-  protected int getTimeout() {
-    return timeout;
   }
 
 }

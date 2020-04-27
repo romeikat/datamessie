@@ -46,17 +46,20 @@ public class Source extends AbstractEntityWithGeneratedIdAndVersion {
 
   private String url;
 
+  private String cookie;
+
   private boolean visible;
 
   private boolean statisticsChecking;
 
   public Source() {}
 
-  public Source(final long id, final String name, final String url, final boolean visible,
-      final boolean statisticsChecking) {
+  public Source(final long id, final String name, final String url, final String cookie,
+      final boolean visible, final boolean statisticsChecking) {
     super(id);
     this.name = name;
     this.url = url;
+    this.cookie = cookie;
     this.visible = visible;
     this.statisticsChecking = statisticsChecking;
   }
@@ -90,6 +93,14 @@ public class Source extends AbstractEntityWithGeneratedIdAndVersion {
   public Source setUrl(final String url) {
     this.url = url;
     return this;
+  }
+
+  public String getCookie() {
+    return cookie;
+  }
+
+  public void setCookie(final String cookie) {
+    this.cookie = cookie;
   }
 
   @Column(nullable = false)

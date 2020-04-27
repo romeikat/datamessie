@@ -43,6 +43,8 @@ public class SourceDto implements Serializable {
 
   private String url;
 
+  private String cookie;
+
   private List<RedirectingRuleDto> redirectingRules;
 
   private List<DeletingRuleDto> deletingRules;
@@ -100,6 +102,14 @@ public class SourceDto implements Serializable {
 
   public void setUrl(final String url) {
     this.url = url;
+  }
+
+  public String getCookie() {
+    return cookie;
+  }
+
+  public void setCookie(final String cookie) {
+    this.cookie = cookie;
   }
 
   public List<RedirectingRuleDto> getRedirectingRules() {

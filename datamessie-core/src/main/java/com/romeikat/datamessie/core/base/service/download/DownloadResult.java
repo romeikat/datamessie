@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.base.service.download;
 
+import java.nio.charset.Charset;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -33,15 +35,18 @@ public class DownloadResult {
 
   private String content;
 
+  private Charset charset;
+
   private LocalDateTime downloaded;
 
   private Integer statusCode;
 
   public DownloadResult(final String originalUrl, final String url, final String content,
-      final LocalDateTime downloaded, final Integer statusCode) {
+      final Charset charset, final LocalDateTime downloaded, final Integer statusCode) {
     this.originalUrl = originalUrl;
     this.url = url;
     this.content = content;
+    this.charset = charset;
     this.downloaded = downloaded;
     this.statusCode = statusCode;
   }
@@ -68,6 +73,14 @@ public class DownloadResult {
 
   public void setContent(final String content) {
     this.content = content;
+  }
+
+  public Charset getCharset() {
+    return charset;
+  }
+
+  public void setCharset(final Charset charset) {
+    this.charset = charset;
   }
 
   public LocalDateTime getDownloaded() {

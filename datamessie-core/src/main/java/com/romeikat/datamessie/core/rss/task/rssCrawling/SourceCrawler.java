@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
+import com.romeikat.datamessie.core.base.service.download.DownloadSession;
 import com.romeikat.datamessie.core.base.service.download.RssFeedDownloader;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
@@ -56,7 +57,8 @@ public class SourceCrawler {
   private final HtmlUtil htmlUtil;
   private final StringUtil stringUtil;
 
-  private final int feedDownloadAttempts;
+  private final String userAgent;
+  private final int timeout;
 
   public SourceCrawler(final ApplicationContext ctx) {
     this.ctx = ctx;
@@ -65,8 +67,8 @@ public class SourceCrawler {
     htmlUtil = ctx.getBean(HtmlUtil.class);
     stringUtil = ctx.getBean(StringUtil.class);
 
-    feedDownloadAttempts =
-        Integer.parseInt(SpringUtil.getPropertyValue(ctx, "crawling.feed.download.attempts"));
+    userAgent = SpringUtil.getPropertyValue(ctx, "crawling.userAgent");
+    timeout = Integer.parseInt(SpringUtil.getPropertyValue(ctx, "crawling.timeout"));
   }
 
   public void performCrawling(final HibernateSessionProvider sessionProvider,
@@ -74,21 +76,27 @@ public class SourceCrawler {
     final TaskExecutionWork work = taskExecution
         .reportWorkStart(String.format("Source %s: performing crawling", source.getId()));
 
+    // Create download session
+    final DownloadSession downloadSession = DownloadSession.create(userAgent, timeout);
+    downloadSession.addCookie(source.getCookie());
+
     // Download RSS feed
-    final SyndFeed syndFeed = downloadFeed(source);
+    final SyndFeed syndFeed = downloadFeed(source, downloadSession);
     if (syndFeed == null) {
       LOG.debug("Source {}: RSS feed could not be downloaded", source.getId());
       return;
     }
 
     // Process RSS feed
-    processFeed(sessionProvider, taskExecution, crawlingId, source.getId(), syndFeed);
+    processFeed(sessionProvider, taskExecution, crawlingId, source.getId(), syndFeed,
+        downloadSession);
 
     // Done
+    downloadSession.close();
     taskExecution.reportWorkEnd(work);
   }
 
-  private SyndFeed downloadFeed(final Source source) {
+  private SyndFeed downloadFeed(final Source source, final DownloadSession downloadSession) {
     LOG.debug("Source {}: downloading RSS feed", source.getId());
 
     final String url = source.getUrl();
@@ -97,13 +105,13 @@ public class SourceCrawler {
       return null;
     }
     final String rssFeedUrl = htmlUtil.addProtocolIfNecessary(url);
-    final SyndFeed syndFeed = rssFeedDownloader.downloadRssFeed(rssFeedUrl, feedDownloadAttempts);
+    final SyndFeed syndFeed = rssFeedDownloader.downloadRssFeed(rssFeedUrl, downloadSession);
     return syndFeed;
   }
 
   private void processFeed(final HibernateSessionProvider sessionProvider,
       final TaskExecution taskExecution, final long crawlingId, final long sourceId,
-      final SyndFeed feed) {
+      final SyndFeed feed, final DownloadSession downloadSession) {
     LOG.debug("Source {}: crawling documents", sourceId);
 
     // Determine entries to be processed
@@ -149,7 +157,8 @@ public class SourceCrawler {
       }
     };
     final Set<String> urls = entriesPerUrl.keySet();
-    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawlingId, sourceId, urls);
+    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawlingId, sourceId, urls,
+        downloadSession);
   }
 
   private Map<String, SyndEntry> getUniqueEntriesPerUrl(final long sourceId, final SyndFeed feed) {

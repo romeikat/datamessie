@@ -51,6 +51,7 @@ import com.romeikat.datamessie.core.base.dao.impl.NamedEntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
+import com.romeikat.datamessie.core.base.service.download.DownloadSession;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
@@ -154,7 +155,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
   @Override
   protected Operation initDb() {
     final Project project1 = new Project(1, "Project1", false, false);
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true, false);
+    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", null, true, false);
     final Crawling crawling1 = new Crawling(1, project1.getId());
     final NamedEntity namedEntity = new NamedEntity(1, "NamedEntity");
 
@@ -205,7 +206,7 @@ public class DocumentsProcessorStressTest extends AbstractDbSetupBasedTest {
     final DocumentRedirectingResult expectedDocumentRedirectingResult =
         new DocumentRedirectingResult(null, null);
     doReturn(expectedDocumentRedirectingResult).when(redirectCallback).redirect(any(Document.class),
-        any(RawContent.class), anyListOf(RedirectingRule.class));
+        any(RawContent.class), anyListOf(RedirectingRule.class), any(DownloadSession.class));
     // Simulate successful cleaning
     final DocumentCleaningResult expectedDocumentCleaningResult =
         new DocumentCleaningResult(CLEANED_CONTENT);

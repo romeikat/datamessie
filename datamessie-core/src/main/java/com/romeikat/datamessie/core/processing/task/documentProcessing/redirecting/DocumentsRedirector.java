@@ -43,6 +43,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
+import com.romeikat.datamessie.core.base.service.download.DownloadSession;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.DisjointSet;
 import com.romeikat.datamessie.core.base.util.DocumentWithDownloads;
@@ -87,6 +88,9 @@ public class DocumentsRedirector {
   private final PersistDocumentProcessingOutputCallback persistDocumentProcessingOutputCallback;
   private final PersistDocumentsProcessingOutputCallback persistDocumentsProcessingOutputCallback;
 
+  private final String userAgent;
+  private final int timeout;
+
   public DocumentsRedirector(final DocumentsProcessingInput documentsProcessingInput,
       final DocumentsProcessingOutput documentsProcessingOutput,
       final RedirectCallback redirectCallback,
@@ -110,6 +114,9 @@ public class DocumentsRedirector {
     this.getDocumentIdsForUrlsAndSourceCallback = getDocumentIdsForUrlsAndSourceCallback;
     this.persistDocumentProcessingOutputCallback = persistDocumentProcessingOutputCallback;
     this.persistDocumentsProcessingOutputCallback = persistDocumentsProcessingOutputCallback;
+
+    userAgent = SpringUtil.getPropertyValue(ctx, "crawling.userAgent");
+    timeout = Integer.parseInt(SpringUtil.getPropertyValue(ctx, "crawling.timeout"));
   }
 
   /**
@@ -154,7 +161,8 @@ public class DocumentsRedirector {
       public void doProcessing(final HibernateSessionProvider sessionProvider,
           final Long sourceId) {
         final Collection<Document> documents = sourceId2Documents.get(sourceId);
-        redirectDocuments(sessionProvider, documents, sourceId);
+        final String cookie = documentsProcessingInput.getCookie(sourceId);
+        redirectDocuments(sessionProvider, documents, sourceId, cookie);
       }
     };
   }
@@ -176,10 +184,10 @@ public class DocumentsRedirector {
   }
 
   private void redirectDocuments(final HibernateSessionProvider sessionProvider,
-      final Collection<Document> documents, final long sourceId) {
+      final Collection<Document> documents, final long sourceId, final String cookie) {
     // Download redirected URLs
     final Map<Long, DocumentRedirectingResult> documentId2DocumentRedirectingResult =
-        downloadRedirectedUrls(documents);
+        downloadRedirectedUrls(documents, cookie);
 
     // Apply redirecting results
     applyRedirectingResults(documents, documentId2DocumentRedirectingResult);
@@ -216,7 +224,11 @@ public class DocumentsRedirector {
   }
 
   private Map<Long, DocumentRedirectingResult> downloadRedirectedUrls(
-      final Collection<Document> documents) {
+      final Collection<Document> documents, final String cookie) {
+    // Create download session
+    final DownloadSession downloadSession = DownloadSession.create(userAgent, timeout);
+    downloadSession.addCookie(cookie);
+
     final ConcurrentMap<Long, DocumentRedirectingResult> documentId2DocumentRedirectingResult =
         new ConcurrentHashMap<Long, DocumentRedirectingResult>(documents.size());
     new ParallelProcessing<Document>(null, documents, processingParallelismFactor) {
@@ -225,7 +237,7 @@ public class DocumentsRedirector {
           final Document document) {
         try {
           final DocumentRedirectingResult documentRedirectingResult =
-              downloadRedirectedUrl(document);
+              downloadRedirectedUrl(document, downloadSession);
           documentId2DocumentRedirectingResult.put(document.getId(), documentRedirectingResult);
         } catch (final Exception e) {
           final String msg = String.format("Could not redirect document %s", document.getId());
@@ -239,10 +251,14 @@ public class DocumentsRedirector {
         }
       }
     };
+
+    // Done
+    downloadSession.close();
     return documentId2DocumentRedirectingResult;
   }
 
-  private DocumentRedirectingResult downloadRedirectedUrl(final Document document) {
+  private DocumentRedirectingResult downloadRedirectedUrl(final Document document,
+      final DownloadSession downloadSession) {
     final RawContent rawContent = documentsProcessingInput.getRawContent(document.getId());
 
     // Determine active rules
@@ -252,7 +268,7 @@ public class DocumentsRedirector {
 
     // Redirect
     final DocumentRedirectingResult documentRedirectingResult =
-        redirectCallback.redirect(document, rawContent, activeRedirectingRules);
+        redirectCallback.redirect(document, rawContent, activeRedirectingRules, downloadSession);
     return documentRedirectingResult;
   }
 

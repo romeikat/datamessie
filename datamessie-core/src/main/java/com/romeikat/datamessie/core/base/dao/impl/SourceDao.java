@@ -399,6 +399,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     final List<SourceTypeDto> sourceTypeDtos = sourceTypeDao.getAsDtos(ssc, source.getId());
     dto.setTypes(sourceTypeDtos);
     dto.setUrl(source.getUrl());
+    dto.setCookie(source.getCookie());
     final List<RedirectingRuleDto> redirectingRules =
         redirectingRuleDao.getAsDtos(ssc, source.getId());
     dto.setRedirectingRules(redirectingRules);
@@ -428,6 +429,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     final List<SourceTypeDto> sourceTypeDtos = sourceTypeDao.getAsDtos(ssc, source.getId());
     dto.setTypes(sourceTypeDtos);
     dto.setUrl(source.getUrl());
+    dto.setCookie(source.getCookie());
     final List<RedirectingRuleDto> redirectingRules =
         redirectingRuleDao.getAsDtos(ssc, source.getId());
     final List<DeletingRuleDto> deletingRules = deletingRuleDao.getAsDtos(ssc, source.getId());

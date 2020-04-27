@@ -70,7 +70,7 @@ public class ProjectCrawlerTest extends AbstractDbSetupBasedTest {
   @Override
   protected Operation initDb() {
     final Project project1 = new Project(1, "Project1", false, false);
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true, false);
+    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", null, true, false);
     final Project2Source project2Source = new Project2Source(1, 1);
 
     return sequenceOf(CommonOperations.DELETE_ALL_FOR_DATAMESSIE,

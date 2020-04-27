@@ -78,7 +78,7 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
   @Override
   protected Operation initDb() {
     final Project project1 = new Project(1, "Project1", false, false);
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true, false);
+    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", null, true, false);
     final Crawling crawling1 = new Crawling(1, project1.getId());
     final LocalDateTime now = LocalDateTime.now();
     // Document1 with download success
@@ -152,8 +152,8 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime downloadedNew = LocalDateTime.now();
     final Integer statusCodeNew = 200;
     final String newRawContentNew = "ContentNew-new";
-    final DownloadResult downloadResultNew =
-        new DownloadResult(originalUrlNew, urlNew, newRawContentNew, downloadedNew, statusCodeNew);
+    final DownloadResult downloadResultNew = new DownloadResult(originalUrlNew, urlNew,
+        newRawContentNew, null, downloadedNew, statusCodeNew);
 
     // Crawl
     final Document result =
@@ -213,8 +213,8 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final LocalDateTime downloadedNew = LocalDateTime.now();
     final Integer statusCodeNew = 400;
     final String newRawContentNew = null;
-    final DownloadResult downloadResultNew =
-        new DownloadResult(originalUrlNew, urlNew, newRawContentNew, downloadedNew, statusCodeNew);
+    final DownloadResult downloadResultNew = new DownloadResult(originalUrlNew, urlNew,
+        newRawContentNew, null, downloadedNew, statusCodeNew);
 
     // Crawl
     final Document result =
@@ -280,7 +280,7 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Integer statusCode1New = 200;
     final String rawContent1New = "rawContent1New";
     final DownloadResult downloadResult1New = new DownloadResult(originalUrl1New, url1New,
-        rawContent1New, downloaded1New, statusCode1New);
+        rawContent1New, null, downloaded1New, statusCode1New);
 
     // Crawl
     final Document result =
@@ -352,7 +352,7 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Integer statusCode1New = 400;
     final String rawContent1New = null;
     final DownloadResult downloadResult1New = new DownloadResult(originalUrl1New, url1New,
-        rawContent1New, downloaded1New, statusCode1New);
+        rawContent1New, null, downloaded1New, statusCode1New);
 
     // Crawl
     final Document result =
@@ -417,7 +417,7 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Integer statusCode2New = 200;
     final String rawContent2New = "rawContent2New";
     final DownloadResult downloadResult2New = new DownloadResult(originalUrl2New, url2New,
-        rawContent2New, downloaded2New, statusCode2New);
+        rawContent2New, null, downloaded2New, statusCode2New);
 
     // Crawl
     final Document result =
@@ -482,7 +482,7 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Integer statusCode2New = 400;
     final String rawContent2New = null;
     final DownloadResult downloadResult2New = new DownloadResult(originalUrl2New, url2New,
-        rawContent2New, downloaded2New, statusCode2New);
+        rawContent2New, null, downloaded2New, statusCode2New);
 
     // Crawl
     final Document result =
@@ -557,7 +557,7 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Integer statusCode1New = 200;
     final String rawContent1New = "rawContent1New";
     final DownloadResult downloadResult1New = new DownloadResult(originalUrl1New, url1New,
-        rawContent1New, downloaded1New, statusCode1New);
+        rawContent1New, null, downloaded1New, statusCode1New);
 
     // Crawl
     final Document result =
@@ -652,7 +652,7 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
     final Integer statusCode1New = 200;
     final String rawContent1New = "rawContent1New";
     final DownloadResult downloadResult1New = new DownloadResult(originalUrl1New, url1New,
-        rawContent1New, downloaded1New, statusCode1New);
+        rawContent1New, null, downloaded1New, statusCode1New);
 
     // Crawl
     final Document result =

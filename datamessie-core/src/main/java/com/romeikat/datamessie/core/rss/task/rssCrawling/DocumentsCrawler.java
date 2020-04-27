@@ -40,6 +40,7 @@ import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.service.DownloadService;
 import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
+import com.romeikat.datamessie.core.base.service.download.DownloadSession;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
@@ -77,7 +78,7 @@ public abstract class DocumentsCrawler {
 
   public void performCrawling(final HibernateSessionProvider sessionProvider,
       final TaskExecution taskExecution, final long crawlingId, final long sourceId,
-      final Collection<String> urls) {
+      final Collection<String> urls, final DownloadSession downloadSession) {
     final TaskExecutionWork work =
         taskExecution.reportWorkStart(String.format("Source %s: performing crawling", sourceId));
 
@@ -86,7 +87,7 @@ public abstract class DocumentsCrawler {
         getUrlsToBeCrawled(sessionProvider.getStatelessSession(), sourceId, urls);
 
     // Process URLs
-    processUrls(sessionProvider, crawlingId, sourceId, urlsToBeCrawled);
+    processUrls(sessionProvider, crawlingId, sourceId, urlsToBeCrawled, downloadSession);
 
     // Close session
     sessionProvider.closeStatelessSession();
@@ -144,9 +145,10 @@ public abstract class DocumentsCrawler {
   }
 
   private void processUrls(final HibernateSessionProvider sessionProvider, final long crawlingId,
-      final long sourceId, final Set<String> urls) {
+      final long sourceId, final Set<String> urls, final DownloadSession downloadSession) {
     // Download contents for new URLs
-    final Map<String, DownloadResult> downloadResultsPerUrl = downloadEntries(sourceId, urls);
+    final Map<String, DownloadResult> downloadResultsPerUrl =
+        downloadEntries(sourceId, urls, downloadSession);
 
     // Process entries and download results
     for (final String url : urls) {
@@ -191,7 +193,7 @@ public abstract class DocumentsCrawler {
   }
 
   private ConcurrentMap<String, DownloadResult> downloadEntries(final long sourceId,
-      final Set<String> urls) {
+      final Set<String> urls, final DownloadSession downloadSession) {
     final ConcurrentMap<String, DownloadResult> downloadResults =
         new ConcurrentHashMap<String, DownloadResult>();
 
@@ -202,7 +204,8 @@ public abstract class DocumentsCrawler {
         try {
           LOG.debug("Source {}: downloading {}", sourceId, url);
 
-          final DownloadResult downloadResult = contentDownloader.downloadContent(url);
+          final DownloadResult downloadResult =
+              contentDownloader.downloadContent(url, downloadSession);
           downloadResults.put(url, downloadResult);
         } catch (final Exception e) {
           LOG.error(String.format("Source %s: could not download URL %s", sourceId, url), e);

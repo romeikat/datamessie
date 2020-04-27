@@ -41,6 +41,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.Before;
@@ -61,6 +62,7 @@ import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.base.dao.impl.StemmedContentDao;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
+import com.romeikat.datamessie.core.base.service.download.DownloadSession;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.CleanedContent;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
@@ -97,6 +99,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
   private static final String URL_2 = "http://www.document2.de/";
   private static final String REDIRECTED_URL = "http://www.this_is_a_redirected_url.com/";
   private static final String REDIRECTED_RAW_CONTENT = "This is a redirected raw content";
+  private static final Charset REDIRECTED_CHARSET = Charset.defaultCharset();
   private static final LocalDateTime REDIRECTED_DOWNLOADED = LocalDateTime.now();
   private static final Integer REDIRECTED_STATUS_CODE = 200;
 
@@ -157,7 +160,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
   @Override
   protected Operation initDb() {
     final Project project1 = new Project(1, "Project1", false, false);
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", true, false);
+    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", null, true, false);
     final Crawling crawling1 = new Crawling(1, project1.getId());
     final NamedEntity namedEntity = new NamedEntity(1, "Outdated NamedEntity");
     final LocalDateTime now = LocalDateTime.now();
@@ -211,10 +214,11 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Simulate successful redirecting
     final DocumentRedirectingResult expectedDocumentRedirectingResult =
-        new DocumentRedirectingResult(REDIRECTED_URL, new DownloadResult(null, REDIRECTED_URL,
-            REDIRECTED_RAW_CONTENT, REDIRECTED_DOWNLOADED, REDIRECTED_STATUS_CODE));
+        new DocumentRedirectingResult(REDIRECTED_URL,
+            new DownloadResult(null, REDIRECTED_URL, REDIRECTED_RAW_CONTENT, REDIRECTED_CHARSET,
+                REDIRECTED_DOWNLOADED, REDIRECTED_STATUS_CODE));
     doReturn(expectedDocumentRedirectingResult).when(redirectCallback).redirect(any(Document.class),
-        any(RawContent.class), anyListOf(RedirectingRule.class));
+        any(RawContent.class), anyListOf(RedirectingRule.class), any(DownloadSession.class));
     // Simulate successful cleaning
     final DocumentCleaningResult expectedDocumentCleaningResult =
         new DocumentCleaningResult(CLEANED_CONTENT);
@@ -440,7 +444,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
     final DocumentRedirectingResult expectedDocumentRedirectingResult =
         new DocumentRedirectingResult(null, null);
     doReturn(expectedDocumentRedirectingResult).when(redirectCallback).redirect(any(Document.class),
-        any(RawContent.class), anyListOf(RedirectingRule.class));
+        any(RawContent.class), anyListOf(RedirectingRule.class), any(DownloadSession.class));
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
@@ -492,10 +496,10 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Simulate error
     final DocumentRedirectingResult expectedDocumentRedirectingResult =
-        new DocumentRedirectingResult(REDIRECTED_URL,
-            new DownloadResult(document1.getUrl(), REDIRECTED_URL, null, LocalDateTime.now(), 503));
+        new DocumentRedirectingResult(REDIRECTED_URL, new DownloadResult(document1.getUrl(),
+            REDIRECTED_URL, null, REDIRECTED_CHARSET, LocalDateTime.now(), 503));
     doReturn(expectedDocumentRedirectingResult).when(redirectCallback).redirect(any(Document.class),
-        any(RawContent.class), anyListOf(RedirectingRule.class));
+        any(RawContent.class), anyListOf(RedirectingRule.class), any(DownloadSession.class));
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));
@@ -553,7 +557,7 @@ public class DocumentsProcessorTest extends AbstractDbSetupBasedTest {
 
     // Simulate exception
     doThrow(Exception.class).when(redirectCallback).redirect(any(Document.class),
-        any(RawContent.class), anyListOf(RedirectingRule.class));
+        any(RawContent.class), anyListOf(RedirectingRule.class), any(DownloadSession.class));
 
     // Process
     documentsProcessor.processDocuments(Lists.newArrayList(document1));

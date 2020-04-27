@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
+import com.romeikat.datamessie.core.base.service.download.DownloadSession;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
@@ -53,7 +54,7 @@ public class DocumentRedirectingService {
   private DocumentRedirectingService() {}
 
   public DocumentRedirectingResult redirect(final Document document, final RawContent rawContent,
-      final List<RedirectingRule> redirectingRules) {
+      final List<RedirectingRule> redirectingRules, final DownloadSession downloadSession) {
     // Prio 1: Use hard-coded redirecting rule
     String redirectedUrl = applyHardCodedRedirectingRule(rawContent);
 
@@ -65,7 +66,8 @@ public class DocumentRedirectingService {
     // Download redirected URL, if one was found
     final boolean wasRedirectingUrlFound = redirectedUrl != null;
     final DownloadResult redirectedDownloadResult =
-        wasRedirectingUrlFound ? contentDownloader.downloadContent(redirectedUrl) : null;
+        wasRedirectingUrlFound ? contentDownloader.downloadContent(redirectedUrl, downloadSession)
+            : null;
 
     // Done
     return new DocumentRedirectingResult(redirectedUrl, redirectedDownloadResult);

@@ -180,6 +180,9 @@ public class SourcePage extends AbstractAuthenticatedPage {
     final TagSelectingRulesPanel tagSelectingRulesPanel =
         new TagSelectingRulesPanel("tagSelectingRules", tagSelectingRulesModel);
     sourceForm.add(tagSelectingRulesPanel);
+    // Cookie
+    final TextField<String> cookieTextField = new TextField<String>("cookie");
+    sourceForm.add(cookieTextField);
     // Visible
     final CheckBox visibleCheckBox = new CheckBox("visible");
     sourceForm.add(visibleCheckBox);

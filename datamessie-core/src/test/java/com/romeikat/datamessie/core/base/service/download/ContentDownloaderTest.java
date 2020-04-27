@@ -26,22 +26,38 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import org.apache.commons.codec.DecoderException;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.romeikat.datamessie.core.AbstractTest;
+import com.romeikat.datamessie.core.base.util.ExecutionTimeLogger;
 
-@Ignore("Testing should not depend on Internet connectivity")
 public class ContentDownloaderTest extends AbstractTest {
 
   @Autowired
   private ContentDownloader contentDownloader;
 
-  @Test
-  public void downloadContent_success() throws DecoderException {
-    final String url = "https://www.google.de";
+  private ExecutionTimeLogger executionTimeLogger;
 
-    final DownloadResult downloadResult = contentDownloader.downloadContent(url);
+  @Override
+  @Before
+  public void before() throws Exception {
+    super.before();
+
+    executionTimeLogger = new ExecutionTimeLogger(getClass());
+  }
+
+  @Test
+  @Ignore("Can be used to actually download")
+  public void downloadContent_success() throws DecoderException {
+    final String url = "https://www.google.de/";
+
+    executionTimeLogger.start();
+    final DownloadResult downloadResult = contentDownloader.downloadContent(url, null);
+    executionTimeLogger.stop();
+    executionTimeLogger.log("Downloading");
+
     assertEquals(url, downloadResult.getUrl());
     assertNotNull(downloadResult.getContent());
     assertNull(downloadResult.getStatusCode());
@@ -51,10 +67,26 @@ public class ContentDownloaderTest extends AbstractTest {
   public void downloadContent_failure() throws DecoderException {
     final String url = "https://www.romeikat.com/this_url_does_not_exist";
 
-    final DownloadResult downloadResult = contentDownloader.downloadContent(url);
+    final DownloadResult downloadResult = contentDownloader.downloadContent(url, null);
     assertEquals(url, downloadResult.getUrl());
     assertNull(downloadResult.getContent());
-    assertNull(downloadResult.getStatusCode());
+    assertEquals(Integer.valueOf(404), downloadResult.getStatusCode());
+  }
+
+  @Test
+  @Ignore("Can be used to actually download")
+  public void downloadContent_withCookie_success() throws Exception {
+    final DownloadSession downloadSession = DownloadSession.create(null, 10000);
+    downloadSession.addCookie("zonconsent", null, ".zeit.de");
+
+    final String url =
+        "https://www.zeit.de/2020/18/lebensmittelversorgung-landwirtschaft-nahrungsmittel-hungerkrisen-coronavirus-pandemie";
+    executionTimeLogger.start();
+    final DownloadResult downloadResult = contentDownloader.download(url, 1, downloadSession);
+    executionTimeLogger.stop();
+    executionTimeLogger.log("Downloading");
+
+    assertNotNull(downloadResult.getContent());
   }
 
 }

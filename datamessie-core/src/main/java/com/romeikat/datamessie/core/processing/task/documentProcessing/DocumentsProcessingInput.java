@@ -75,6 +75,8 @@ public class DocumentsProcessingInput {
   private final ListMultimap<Long, DeletingRule> sourceId2DeletingRules;
   private final ListMultimap<Long, TagSelectingRule> sourceId2TagSelectingRules;
 
+  private final Map<Long, String> sourceId2Cookie;
+
   private final SetMultimap<Long, NamedEntityDetectionDto> namedEntityDetections;
 
 
@@ -95,6 +97,7 @@ public class DocumentsProcessingInput {
     sourceId2RedirectingRules = ArrayListMultimap.create();
     sourceId2DeletingRules = ArrayListMultimap.create();
     sourceId2TagSelectingRules = ArrayListMultimap.create();
+    sourceId2Cookie = Maps.newHashMap();
   }
 
   public void addDocuments(final Collection<Document> documents) {
@@ -107,6 +110,7 @@ public class DocumentsProcessingInput {
     loadAndPutRedirectingRules(sessionProvider, documents);
     loadAndPutDeletingRules(sessionProvider, documents);
     loadAndPutTagSelectingRules(sessionProvider, documents);
+    loadAndPutCookies(sessionProvider, documents);
     sessionProvider.closeStatelessSession();
   }
 
@@ -170,6 +174,18 @@ public class DocumentsProcessingInput {
         tagSelectingRuleDao.getPerSourceId(sessionProvider.getStatelessSession(), sourceIds);
 
     this.sourceId2TagSelectingRules.putAll(sourceId2TagSelectingRules);
+  }
+
+  private void loadAndPutCookies(final HibernateSessionProvider sessionProvider,
+      final Collection<Document> documents) {
+    final Collection<Long> sourceIds =
+        documents.stream().map(d -> d.getSourceId()).collect(Collectors.toSet());
+    final Collection<Source> sources =
+        sourceDao.getEntities(sessionProvider.getStatelessSession(), sourceIds);
+    final Map<Long, String> sourceId2Cookie =
+        sources.stream().collect(Collectors.toMap(s -> s.getId(), s -> s.getCookie()));
+
+    this.sourceId2Cookie.putAll(sourceId2Cookie);
   }
 
   public Set<Document> getDocuments() {
@@ -249,6 +265,10 @@ public class DocumentsProcessingInput {
     }
 
     return activeTagSelectingRules;
+  }
+
+  public String getCookie(final long sourceId) {
+    return sourceId2Cookie.get(sourceId);
   }
 
   public void putNamedEntityDetections(final long documentId,

@@ -4,7 +4,7 @@ package com.romeikat.datamessie.core.base.service.download;
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2018 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2020 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,12 +22,7 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import java.io.InputStream;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
-import java.time.LocalDateTime;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
@@ -43,156 +38,179 @@ public class ContentDownloader extends AbstractDownloader {
 
   private final static Logger LOG = LoggerFactory.getLogger(ContentDownloader.class);
 
+  private final static int DOWNLOAD_ATTEMPTS = 2;
+
   @Autowired
   private XmlUtil xmlUtil;
 
-  public DownloadResult downloadContent(String url) {
+  public DownloadResult downloadContent(final String url, final DownloadSession downloadSession) {
     LOG.debug("Downloading content from {}", url);
-    // In case of a new redirection for that source, use redirected URL
-    URLConnection urlConnection = null;
-    String originalUrl = null;
-    org.jsoup.nodes.Document jsoupDocument = null;
-    Integer statusCode = null;
-    final LocalDateTime downloaded = LocalDateTime.now();
+
+    DownloadResult downloadResultOriginal = null;
+    DownloadResult downloadResultRedirected = null;
+
+    // Download original URL, following server-side redirects
+    downloadResultOriginal = download(url, DOWNLOAD_ATTEMPTS, downloadSession);
+
+    // Follow content-based redirects, if available
+    final boolean originalDownloadSuccess = downloadResultOriginal.getContent() != null;
+    if (originalDownloadSuccess) {
+      // Parse HTML
+      final org.jsoup.nodes.Document jsoupDocument = parseJsoupDocument(downloadResultOriginal);
+
+      // Download redirected URL, if available
+      downloadResultRedirected = followContentBasedRedirects(url, jsoupDocument, downloadSession);
+    }
+
+    // Decide for which download result to use
+    final DownloadResult downloadResult =
+        buildDownloadResultOverall(url, downloadResultOriginal, downloadResultRedirected);
+    final boolean downloadSuccess = downloadResult.getContent() != null;
+    if (!downloadSuccess) {
+      LOG.warn("Could not download content from " + url);
+    }
+
+    // Process content
+    postProcessContent(downloadResult);
+
+    return downloadResult;
+  }
+
+  private org.jsoup.nodes.Document parseJsoupDocument(final DownloadResult downloadResult) {
     try {
-      urlConnection = getConnection(url);
-      // Server-side redirection
-      final String responseUrl = getResponseUrl(urlConnection);
-      if (responseUrl != null) {
-        final String redirectedUrl = getRedirectedUrl(url, responseUrl);
+      return Jsoup.parse(downloadResult.getContent(), downloadResult.getUrl());
+    } catch (final Exception e) {
+      LOG.warn("Could not parse content of " + downloadResult.getUrl(), e);
+      return null;
+    }
+  }
+
+  private DownloadResult followContentBasedRedirects(final String url,
+      final org.jsoup.nodes.Document jsoupDocument, final DownloadSession downloadSession) {
+    if (jsoupDocument == null) {
+      return null;
+    }
+
+    // Meta redirection (<link rel="canonical" .../>)
+    String redirectedUrl = checkForMetaRedirectionCanonical(url, jsoupDocument);
+    if (redirectedUrl != null) {
+      final DownloadResult downloadResult =
+          download(redirectedUrl, DOWNLOAD_ATTEMPTS, downloadSession);
+      return downloadResult;
+    }
+
+    // Meta redirection (<meta http-equiv="refresh" .../>)
+    redirectedUrl = checkForMetaRedirectionRefresh(url, jsoupDocument);
+    if (redirectedUrl != null) {
+      final DownloadResult downloadResult =
+          download(redirectedUrl, DOWNLOAD_ATTEMPTS, downloadSession);
+      return downloadResult;
+    }
+
+    // Meta redirection (<meta property="og:url" .../>)
+    redirectedUrl = checkForMetaRedirectionOgUrl(url, jsoupDocument);
+    if (redirectedUrl != null) {
+      final DownloadResult downloadResult =
+          download(redirectedUrl, DOWNLOAD_ATTEMPTS, downloadSession);
+      return downloadResult;
+    }
+
+    return null;
+  }
+
+  private String checkForMetaRedirectionCanonical(final String url,
+      final org.jsoup.nodes.Document jsoupDocument) {
+    final Elements metaTagsHtmlHeadLink = jsoupDocument.select("html head link");
+
+    for (final Element metaTag : metaTagsHtmlHeadLink) {
+      final Attributes metaTagAttributes = metaTag.attributes();
+      if (metaTagAttributes.hasKey("rel")
+          && metaTagAttributes.get("rel").equalsIgnoreCase("canonical")
+          && metaTagAttributes.hasKey("href")) {
+        final String redirectedUrl = metaTagAttributes.get("href").trim();
         if (isValidRedirection(url, redirectedUrl)) {
-          originalUrl = url;
-          url = redirectedUrl;
-          closeUrlConnection(urlConnection);
-          urlConnection = getConnection(url);
-          LOG.debug("Redirection (server): {} -> {}", originalUrl, url);
+          LOG.debug("Redirection (<link rel=\"canonical\" .../>): {} -> {}", url, redirectedUrl,
+              redirectedUrl);
+          return redirectedUrl;
         }
       }
-      // Download content for further redirects
-      final InputStream urlInputStream = asInputStream(urlConnection, true, false);
-      final Charset charset = getCharset(urlConnection);
-      jsoupDocument = Jsoup.parse(urlInputStream, charset.name(), url);
-      final Elements metaTagsHtmlHeadLink;
-      Elements metaTagsHtmlHeadMeta = null;
-      // Meta redirection (<link rel="canonical" .../>)
-      if (originalUrl == null) {
-        metaTagsHtmlHeadLink = jsoupDocument.select("html head link");
-        for (final Element metaTag : metaTagsHtmlHeadLink) {
-          final Attributes metaTagAttributes = metaTag.attributes();
-          if (metaTagAttributes.hasKey("rel")
-              && metaTagAttributes.get("rel").equalsIgnoreCase("canonical")
-              && metaTagAttributes.hasKey("href")) {
-            final String redirectedUrl = metaTagAttributes.get("href").trim();
-            if (isValidRedirection(url, redirectedUrl)) {
-              originalUrl = url;
-              url = redirectedUrl;
-              jsoupDocument = null;
-              LOG.debug("Redirection (<link rel=\"canonical\" .../>): {} -> {}", originalUrl, url);
-              break;
-            }
+    }
+
+    return null;
+  }
+
+  private String checkForMetaRedirectionRefresh(final String url,
+      final org.jsoup.nodes.Document jsoupDocument) {
+    final Elements metaTagsHtmlHeadMeta = jsoupDocument.select("html head meta");
+
+    for (final Element metaTag : metaTagsHtmlHeadMeta) {
+      final Attributes metaTagAttributes = metaTag.attributes();
+      if (metaTagAttributes.hasKey("http-equiv")
+          && metaTagAttributes.get("http-equiv").equalsIgnoreCase("refresh")
+          && metaTagAttributes.hasKey("content")) {
+        final String[] parts = metaTagAttributes.get("content").replace(" ", "").split("=", 2);
+        if (parts.length > 1) {
+          final String redirectedUrl = parts[1];
+          if (isValidRedirection(url, redirectedUrl)) {
+            LOG.debug("Redirection (<meta http-equiv=\"refresh\" .../>): {} -> {}", url,
+                redirectedUrl);
+            return redirectedUrl;
           }
         }
       }
-      // Meta redirection (<meta http-equiv="refresh" .../>)
-      if (originalUrl == null) {
-        metaTagsHtmlHeadMeta = jsoupDocument.select("html head meta");
-        for (final Element metaTag : metaTagsHtmlHeadMeta) {
-          final Attributes metaTagAttributes = metaTag.attributes();
-          if (metaTagAttributes.hasKey("http-equiv")
-              && metaTagAttributes.get("http-equiv").equalsIgnoreCase("refresh")
-              && metaTagAttributes.hasKey("content")) {
-            final String[] parts = metaTagAttributes.get("content").replace(" ", "").split("=", 2);
-            if (parts.length > 1) {
-              final String redirectedUrl = parts[1];
-              if (isValidRedirection(url, redirectedUrl)) {
-                originalUrl = url;
-                url = redirectedUrl;
-                jsoupDocument = null;
-                LOG.debug("Redirection (<meta http-equiv=\"refresh\" .../>): {} -> {}", originalUrl,
-                    url);
-                break;
-              }
-            }
-          }
+    }
+
+    return null;
+  }
+
+  private String checkForMetaRedirectionOgUrl(final String url,
+      final org.jsoup.nodes.Document jsoupDocument) {
+    final Elements metaTagsHtmlHeadMeta = jsoupDocument.select("html head meta");
+
+    for (final Element metaTag : metaTagsHtmlHeadMeta) {
+      final Attributes metaTagAttributes = metaTag.attributes();
+      if (metaTagAttributes.hasKey("property")
+          && metaTagAttributes.get("property").equalsIgnoreCase("og:url")
+          && metaTagAttributes.hasKey("content")) {
+        final String redirectedUrl = metaTagAttributes.get("content").trim();
+        if (isValidRedirection(url, redirectedUrl)) {
+          LOG.debug("Redirection (<meta property=\"og:url\" .../>): {} -> {}", url, redirectedUrl);
+          return redirectedUrl;
         }
       }
-      // Meta redirection (<meta property="og:url" .../>)
-      if (originalUrl == null) {
-        for (final Element metaTag : metaTagsHtmlHeadMeta) {
-          final Attributes metaTagAttributes = metaTag.attributes();
-          if (metaTagAttributes.hasKey("property")
-              && metaTagAttributes.get("property").equalsIgnoreCase("og:url")
-              && metaTagAttributes.hasKey("content")) {
-            final String redirectedUrl = metaTagAttributes.get("content").trim();
-            if (isValidRedirection(url, redirectedUrl)) {
-              originalUrl = url;
-              url = redirectedUrl;
-              jsoupDocument = null;
-              LOG.debug("Redirection (<meta property=\"og:url\" .../>): {} -> {}", originalUrl,
-                  url);
-              break;
-            }
-          }
-        }
-      }
-    } catch (final Exception e) {
-      if (e instanceof HttpStatusException) {
-        statusCode = ((HttpStatusException) e).getStatusCode();
-      }
-      LOG.warn("Could not determine redirected URL for " + url, e);
-    } finally {
-      closeUrlConnection(urlConnection);
     }
-    // Download content (if not yet done)
-    String content = null;
-    try {
-      if (jsoupDocument == null) {
-        LOG.debug("Downloading content from {}", url);
-        urlConnection = getConnection(url);
-        final InputStream urlInputStream = asInputStream(urlConnection, true, false);
-        final Charset charset = getCharset(urlConnection);
-        jsoupDocument = Jsoup.parse(urlInputStream, charset.name(), url);
-      }
-    } catch (final Exception e) {
-      if (e instanceof HttpStatusException) {
-        statusCode = ((HttpStatusException) e).getStatusCode();
-      }
-      // If the redirected URL does not exist, use the original URL instead
-      if (originalUrl == null) {
-        LOG.warn("Could not download content from " + url, e);
-      }
-      // If the redirected URL does not exist and a original URL is available, use the
-      // original URL instead
-      else {
-        try {
-          LOG.debug(
-              "Could not download content from redirected URL {}, downloading content from original URL {} instead",
-              url, originalUrl);
-          urlConnection = getConnection(originalUrl);
-          final InputStream urlInputStream = asInputStream(urlConnection, true, false);
-          final Charset charset = getCharset(urlConnection);
-          jsoupDocument = Jsoup.parse(urlInputStream, charset.name(), url);
-          url = originalUrl;
-          originalUrl = null;
-          statusCode = null;
-        } catch (final Exception e2) {
-          LOG.warn("Could not download content from original URL " + url, e);
-        }
-      }
-    } finally {
-      closeUrlConnection(urlConnection);
+
+    return null;
+  }
+
+  private DownloadResult buildDownloadResultOverall(final String url,
+      final DownloadResult downloadResultOriginal, final DownloadResult downloadResultRedirected) {
+    // Decide for redirected download result, if successful
+    final boolean redirectedDownloadSuccess =
+        downloadResultRedirected != null && downloadResultRedirected.getContent() != null;
+    if (redirectedDownloadSuccess) {
+      // Remember original URL
+      downloadResultRedirected.setOriginalUrl(url);
+      return downloadResultRedirected;
     }
-    if (jsoupDocument != null) {
-      content = jsoupDocument.html();
+
+    // Otherwise, decide for original download result
+    return downloadResultOriginal;
+  }
+
+  private void postProcessContent(final DownloadResult downloadResult) {
+    final String content = downloadResult.getContent();
+    if (content == null) {
+      return;
     }
+
     // Strip non-valid characters as specified by the XML 1.0 standard
     final String validContent = xmlUtil.stripNonValidXMLCharacters(content);
+
     // Unescape HTML characters
     final String unescapedContent = StringEscapeUtils.unescapeHtml4(validContent);
-    // Done
-    final DownloadResult downloadResult =
-        new DownloadResult(originalUrl, url, unescapedContent, downloaded, statusCode);
-    return downloadResult;
+
+    downloadResult.setContent(unescapedContent);
   }
 
 }

@@ -23,9 +23,10 @@ License along with this program.  If not, see
  */
 
 import java.io.InputStream;
-import java.net.URLConnection;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.SyndFeedInput;
@@ -38,58 +39,31 @@ public class RssFeedDownloader extends AbstractDownloader {
 
   private static final boolean ALLOW_DOCTYPES = true;
 
-  public SyndFeed downloadRssFeed(final String sourceUrl) {
-    return downloadRssFeed(sourceUrl, 1);
-  }
+  @Value("${crawling.feed.download.attempts}")
+  private int feedDownloadAttempts;
 
-  public SyndFeed downloadRssFeed(final String sourceUrl, final int maxAttempts) {
-    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-      final SyndFeed syndFeed = download(sourceUrl);
-      if (syndFeed != null) {
-        return syndFeed;
-      }
+  public SyndFeed downloadRssFeed(final String sourceUrl, final DownloadSession downloadSession) {
+    LOG.debug("Downloading feed from {}", sourceUrl);
 
-      waitMillis(getTimeout());
+    // Download feed
+    final DownloadResult downloadResultFeed =
+        download(sourceUrl, feedDownloadAttempts, downloadSession);
+    final boolean feedDownloadSuccess = downloadResultFeed.getContent() != null;
+    if (!feedDownloadSuccess) {
+      LOG.warn("Could not download feed from " + sourceUrl);
+      return null;
     }
 
-    return null;
-  }
-
-  private SyndFeed download(final String sourceUrl) {
-    LOG.debug("Downloading content from {}", sourceUrl);
-    // Download source
-    XmlReader xmlReader = null;
-    URLConnection urlConnection = null;
-    SyndFeed syndFeed = null;
-    try {
-      urlConnection = getConnection(sourceUrl);
-      final String responseUrl = getResponseUrl(urlConnection);
-      if (responseUrl != null) {
-        closeUrlConnection(urlConnection);
-        urlConnection = getConnection(responseUrl);
-        LOG.debug("Redirection (server): {} -> {}", sourceUrl, responseUrl);
-      }
-      final InputStream urlInputStream = asInputStream(urlConnection, true, false);
-      xmlReader = new XmlReader(urlInputStream);
+    // Parse feed
+    try (final InputStream feedInputStream = IOUtils.toInputStream(downloadResultFeed.getContent());
+        final XmlReader xmlReader = new XmlReader(feedInputStream);) {
       final SyndFeedInput syndFeedInput = new SyndFeedInput();
       syndFeedInput.setAllowDoctypes(ALLOW_DOCTYPES);
-      syndFeed = syndFeedInput.build(xmlReader);
+      final SyndFeed syndFeed = syndFeedInput.build(xmlReader);
+      return syndFeed;
     } catch (final Exception e) {
-      LOG.warn("Could not download feed from " + sourceUrl, e);
-    } finally {
-      try {
-        xmlReader.close();
-        closeUrlConnection(urlConnection);
-      } catch (final Exception e) {
-      }
-    }
-    return syndFeed;
-  }
-
-  private void waitMillis(final long millis) {
-    try {
-      Thread.sleep(millis);
-    } catch (final InterruptedException e) {
+      LOG.warn("Could not parse feed from " + sourceUrl, e);
+      return null;
     }
   }
 

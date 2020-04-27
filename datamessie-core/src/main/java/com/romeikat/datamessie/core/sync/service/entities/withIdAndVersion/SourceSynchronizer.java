@@ -45,6 +45,7 @@ public class SourceSynchronizer extends EntityWithIdAndVersionSynchronizer<Sourc
     target.setName(source.getName());
     target.setLanguage(source.getLanguage());
     target.setUrl(source.getUrl());
+    target.setCookie(source.getCookie());
     target.setVisible(source.getVisible());
     target.setStatisticsChecking(source.getStatisticsChecking());
   }
