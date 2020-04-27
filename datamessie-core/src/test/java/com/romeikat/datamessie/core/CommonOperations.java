@@ -192,27 +192,33 @@ public class CommonOperations {
 
   public static Insert insertIntoTagRedirectingRule(final RedirectingRule redirectingRule) {
     return insertInto(RedirectingRule.TABLE_NAME)
-        .columns("id", "version", "regex", "regexGroup", "activeFrom", "activeTo", "source_id")
+        .columns("id", "version", "regex", "regexGroup", "activeFrom", "activeTo", "mode",
+            "position", "source_id")
         .values(redirectingRule.getId(), redirectingRule.getVersion(), redirectingRule.getRegex(),
             redirectingRule.getRegexGroup(), redirectingRule.getActiveFrom(),
-            redirectingRule.getActiveTo(), redirectingRule.getSourceId())
+            redirectingRule.getActiveTo(), redirectingRule.getMode(), redirectingRule.getPosition(),
+            redirectingRule.getSourceId())
         .build();
   }
 
   public static Insert insertIntoDeletingRule(final DeletingRule deletingRule) {
     return insertInto(DeletingRule.TABLE_NAME)
-        .columns("id", "version", "selector", "activeFrom", "activeTo", "source_id")
+        .columns("id", "version", "selector", "activeFrom", "activeTo", "mode", "position",
+            "source_id")
         .values(deletingRule.getId(), deletingRule.getVersion(), deletingRule.getSelector(),
-            deletingRule.getActiveFrom(), deletingRule.getActiveTo(), deletingRule.getSourceId())
+            deletingRule.getActiveFrom(), deletingRule.getActiveTo(), deletingRule.getMode(),
+            deletingRule.getPosition(), deletingRule.getSourceId())
         .build();
   }
 
   public static Insert insertIntoTagSelectingRule(final TagSelectingRule tagSelectingRule) {
     return insertInto(TagSelectingRule.TABLE_NAME)
-        .columns("id", "version", "selector", "activeFrom", "activeTo", "source_id")
+        .columns("id", "version", "selector", "activeFrom", "activeTo", "mode", "position",
+            "source_id")
         .values(tagSelectingRule.getId(), tagSelectingRule.getVersion(),
             tagSelectingRule.getSelector(), tagSelectingRule.getActiveFrom(),
-            tagSelectingRule.getActiveTo(), tagSelectingRule.getSourceId())
+            tagSelectingRule.getActiveTo(), tagSelectingRule.getMode(),
+            tagSelectingRule.getPosition(), tagSelectingRule.getSourceId())
         .build();
   }
 

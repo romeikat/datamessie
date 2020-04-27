@@ -43,10 +43,10 @@ public class DeletingRuleModeSelector extends DropDownChoice<DeletingRuleMode> {
       final IModel<DeletingRuleMode> deletingRuleModeModel) {
     super(id);
 
-    // Selected tag selecting rule mode
+    // Selected mode
     setModel(deletingRuleModeModel);
 
-    // Statistics types
+    // Modes
     allDeletingRuleModesModel = new LoadableDetachableModel<List<DeletingRuleMode>>() {
       private static final long serialVersionUID = 1L;
 

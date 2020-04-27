@@ -46,6 +46,7 @@ public class DeletingRuleSynchronizer extends EntityWithIdAndVersionSynchronizer
     target.setActiveFrom(source.getActiveFrom());
     target.setActiveTo(source.getActiveTo());
     target.setMode(source.getMode());
+    target.setPosition(source.getPosition());
     target.setSourceId(source.getSourceId());
   }
 

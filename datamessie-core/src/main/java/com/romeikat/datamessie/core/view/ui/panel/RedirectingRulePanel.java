@@ -31,7 +31,9 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import com.romeikat.datamessie.core.base.ui.behavior.ModelUpdatingBehavior;
 import com.romeikat.datamessie.core.base.ui.component.LocalDateTextField;
+import com.romeikat.datamessie.core.base.ui.component.RedirectingRuleModeSelector;
 import com.romeikat.datamessie.core.domain.dto.RedirectingRuleDto;
+import com.romeikat.datamessie.core.domain.enums.RedirectingRuleMode;
 
 public class RedirectingRulePanel extends Panel {
 
@@ -40,6 +42,17 @@ public class RedirectingRulePanel extends Panel {
   public RedirectingRulePanel(final String id,
       final IModel<RedirectingRuleDto> redirectingRuleModel) {
     super(id, redirectingRuleModel);
+
+    // Regex
+    final TextField<String> regexTextField =
+        new TextField<String>("regex", new PropertyModel<String>(redirectingRuleModel, "regex"));
+    add(regexTextField);
+    regexTextField.add(new ModelUpdatingBehavior());
+    // Regex group
+    final TextField<String> regexGroupTextField = new TextField<String>("regexGroup",
+        new PropertyModel<String>(redirectingRuleModel, "regexGroup"));
+    add(regexGroupTextField);
+    regexGroupTextField.add(new ModelUpdatingBehavior());
 
     // Active from
     final LocalDateTextField activeFromTextField = new LocalDateTextField("activeFrom",
@@ -65,16 +78,11 @@ public class RedirectingRulePanel extends Panel {
     activeToDatePicker.setAutoHide(true);
     activeToTextField.add(activeToDatePicker);
 
-    // Regex
-    final TextField<String> regexTextField =
-        new TextField<String>("regex", new PropertyModel<String>(redirectingRuleModel, "regex"));
-    add(regexTextField);
-    regexTextField.add(new ModelUpdatingBehavior());
-    // Regex group
-    final TextField<String> regexGroupTextField = new TextField<String>("regexGroup",
-        new PropertyModel<String>(redirectingRuleModel, "regexGroup"));
-    add(regexGroupTextField);
-    regexGroupTextField.add(new ModelUpdatingBehavior());
+    // Mode
+    final RedirectingRuleModeSelector modeSelector = new RedirectingRuleModeSelector("mode",
+        new PropertyModel<RedirectingRuleMode>(redirectingRuleModel, "mode"));
+    modeSelector.add(new ModelUpdatingBehavior());
+    add(modeSelector);
   }
 
 }

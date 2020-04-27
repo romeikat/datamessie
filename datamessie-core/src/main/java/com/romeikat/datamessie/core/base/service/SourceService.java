@@ -307,6 +307,7 @@ public class SourceService {
       redirectingRule.setRegexGroup(redirectingRuleDto.getRegexGroup());
       redirectingRule.setActiveFrom(redirectingRuleDto.getActiveFrom());
       redirectingRule.setActiveTo(redirectingRuleDto.getActiveTo());
+      redirectingRule.setMode(redirectingRuleDto.getMode());
       redirectingRule.setPosition(position);
       redirectingRule.setSourceId(sourceId);
       updateTracker.endUpdate();

@@ -30,6 +30,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import com.romeikat.datamessie.core.domain.entity.AbstractEntityWithGeneratedIdAndVersion;
+import com.romeikat.datamessie.core.domain.enums.RedirectingRuleMode;
 import com.romeikat.datamessie.core.domain.util.StringHashProvider;
 
 @Entity
@@ -49,6 +50,8 @@ public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion
   private LocalDate activeFrom;
 
   private LocalDate activeTo;
+
+  private RedirectingRuleMode mode = RedirectingRuleMode.RAW_CONTENT;
 
   private Integer position;
 
@@ -100,6 +103,15 @@ public class RedirectingRule extends AbstractEntityWithGeneratedIdAndVersion
 
   public RedirectingRule setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
+    return this;
+  }
+
+  public RedirectingRuleMode getMode() {
+    return mode;
+  }
+
+  public RedirectingRule setMode(final RedirectingRuleMode mode) {
+    this.mode = mode;
     return this;
   }
 

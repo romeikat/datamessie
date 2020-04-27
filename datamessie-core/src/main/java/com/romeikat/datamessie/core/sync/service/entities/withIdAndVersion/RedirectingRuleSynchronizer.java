@@ -47,6 +47,8 @@ public class RedirectingRuleSynchronizer
     target.setRegexGroup(source.getRegexGroup());
     target.setActiveFrom(source.getActiveFrom());
     target.setActiveTo(source.getActiveTo());
+    target.setMode(source.getMode());
+    target.setPosition(source.getPosition());
     target.setSourceId(source.getSourceId());
   }
 

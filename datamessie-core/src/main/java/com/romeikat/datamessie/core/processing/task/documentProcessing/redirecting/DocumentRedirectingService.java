@@ -40,6 +40,7 @@ import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.domain.entity.impl.RedirectingRule;
+import com.romeikat.datamessie.core.domain.enums.RedirectingRuleMode;
 
 @Service
 public class DocumentRedirectingService {
@@ -115,7 +116,12 @@ public class DocumentRedirectingService {
       final RawContent rawContent, final List<RedirectingRule> redirectingRules) {
     // Process rules one after another, until URL for redirection is found
     for (final RedirectingRule redirectingRule : redirectingRules) {
-      final String redirectedUrl = getRedirectedUrl(rawContent.getContent(), redirectingRule);
+      final String content = getContentForRegex(redirectingRule, document, rawContent);
+      if (content == null) {
+        return null;
+      }
+
+      final String redirectedUrl = getRedirectedUrl(content, redirectingRule);
       if (StringUtils.isNotBlank(redirectedUrl)) {
         return redirectedUrl;
       }
@@ -123,6 +129,17 @@ public class DocumentRedirectingService {
 
     // No URL was found
     return null;
+  }
+
+  private String getContentForRegex(final RedirectingRule redirectingRule, final Document document,
+      final RawContent rawContent) {
+    if (redirectingRule.getMode() == RedirectingRuleMode.RAW_CONTENT) {
+      return rawContent.getContent();
+    } else if (redirectingRule.getMode() == RedirectingRuleMode.DESCRIPTION) {
+      return document.getDescription();
+    } else {
+      return null;
+    }
   }
 
   private String getRedirectedUrl(final String content, final RedirectingRule redirectingRule) {

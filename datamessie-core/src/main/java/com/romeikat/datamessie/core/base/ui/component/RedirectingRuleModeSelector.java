@@ -28,45 +28,45 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
-import com.romeikat.datamessie.core.base.ui.choicerenderer.TagSelectingRuleModesChoiceRenderer;
-import com.romeikat.datamessie.core.domain.enums.TagSelectingRuleMode;
+import com.romeikat.datamessie.core.base.ui.choicerenderer.RedirectingRuleModesChoiceRenderer;
+import com.romeikat.datamessie.core.domain.enums.RedirectingRuleMode;
 
-public class TagSelectingRuleModeSelector extends DropDownChoice<TagSelectingRuleMode> {
+public class RedirectingRuleModeSelector extends DropDownChoice<RedirectingRuleMode> {
 
   private static final long serialVersionUID = 1L;
 
-  private final IModel<List<TagSelectingRuleMode>> allTagSelectingRuleModesModel;
+  private final IModel<List<RedirectingRuleMode>> allRedirectingRuleModesModel;
 
-  private final IChoiceRenderer<TagSelectingRuleMode> tagSelectingRuleModesChoiceRenderer;
+  private final IChoiceRenderer<RedirectingRuleMode> redirectingRuleModesChoiceRenderer;
 
-  public TagSelectingRuleModeSelector(final String id,
-      final IModel<TagSelectingRuleMode> tagSelectingRuleModeModel) {
+  public RedirectingRuleModeSelector(final String id,
+      final IModel<RedirectingRuleMode> redirectingRuleModeModel) {
     super(id);
 
     // Selected mode
-    setModel(tagSelectingRuleModeModel);
+    setModel(redirectingRuleModeModel);
 
     // Modes
-    allTagSelectingRuleModesModel = new LoadableDetachableModel<List<TagSelectingRuleMode>>() {
+    allRedirectingRuleModesModel = new LoadableDetachableModel<List<RedirectingRuleMode>>() {
       private static final long serialVersionUID = 1L;
 
       @Override
-      public List<TagSelectingRuleMode> load() {
-        return Arrays.asList(TagSelectingRuleMode.values());
+      public List<RedirectingRuleMode> load() {
+        return Arrays.asList(RedirectingRuleMode.values());
       }
     };
-    setChoices(allTagSelectingRuleModesModel);
+    setChoices(allRedirectingRuleModesModel);
 
     // Choice renderer
-    tagSelectingRuleModesChoiceRenderer = new TagSelectingRuleModesChoiceRenderer();
-    setChoiceRenderer(tagSelectingRuleModesChoiceRenderer);
+    redirectingRuleModesChoiceRenderer = new RedirectingRuleModesChoiceRenderer();
+    setChoiceRenderer(redirectingRuleModesChoiceRenderer);
   }
 
   @Override
   protected void onDetach() {
     super.onDetach();
 
-    allTagSelectingRuleModesModel.detach();
+    allRedirectingRuleModesModel.detach();
   }
 
 }

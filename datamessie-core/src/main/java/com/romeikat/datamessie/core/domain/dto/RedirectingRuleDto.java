@@ -24,6 +24,7 @@ License along with this program.  If not, see
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import com.romeikat.datamessie.core.domain.enums.RedirectingRuleMode;
 
 public class RedirectingRuleDto implements Serializable {
 
@@ -38,6 +39,8 @@ public class RedirectingRuleDto implements Serializable {
   private LocalDate activeFrom;
 
   private LocalDate activeTo;
+
+  private RedirectingRuleMode mode = RedirectingRuleMode.RAW_CONTENT;
 
   public Long getId() {
     return id;
@@ -77,6 +80,14 @@ public class RedirectingRuleDto implements Serializable {
 
   public void setActiveTo(final LocalDate activeTo) {
     this.activeTo = activeTo;
+  }
+
+  public RedirectingRuleMode getMode() {
+    return mode;
+  }
+
+  public void setMode(final RedirectingRuleMode mode) {
+    this.mode = mode;
   }
 
 }
