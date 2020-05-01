@@ -40,14 +40,14 @@ public class RssFeedDownloader extends AbstractDownloader {
   private static final boolean ALLOW_DOCTYPES = true;
 
   @Value("${crawling.feed.download.attempts}")
-  private int feedDownloadAttempts;
+  private int downloadAttempts;
 
   public SyndFeed downloadRssFeed(final String sourceUrl, final DownloadSession downloadSession) {
     LOG.debug("Downloading feed from {}", sourceUrl);
 
     // Download feed
     final DownloadResult downloadResultFeed =
-        download(sourceUrl, feedDownloadAttempts, downloadSession);
+        download(sourceUrl, downloadAttempts, downloadSession);
     final boolean feedDownloadSuccess = downloadResultFeed.getContent() != null;
     if (!feedDownloadSuccess) {
       LOG.warn("Could not download feed from " + sourceUrl);

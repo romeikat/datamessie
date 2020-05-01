@@ -30,6 +30,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.util.XmlUtil;
 
@@ -38,7 +39,8 @@ public class ContentDownloader extends AbstractDownloader {
 
   private final static Logger LOG = LoggerFactory.getLogger(ContentDownloader.class);
 
-  private final static int DOWNLOAD_ATTEMPTS = 2;
+  @Value("${crawling.documents.download.attempts}")
+  private int downloadAttempts;
 
   @Autowired
   private XmlUtil xmlUtil;
@@ -50,7 +52,7 @@ public class ContentDownloader extends AbstractDownloader {
     DownloadResult downloadResultRedirected = null;
 
     // Download original URL, following server-side redirects
-    downloadResultOriginal = download(url, DOWNLOAD_ATTEMPTS, downloadSession);
+    downloadResultOriginal = download(url, downloadAttempts, downloadSession);
 
     // Follow content-based redirects, if available
     final boolean originalDownloadSuccess = downloadResultOriginal.getContent() != null;
@@ -95,7 +97,7 @@ public class ContentDownloader extends AbstractDownloader {
     String redirectedUrl = checkForMetaRedirectionCanonical(url, jsoupDocument);
     if (redirectedUrl != null) {
       final DownloadResult downloadResult =
-          download(redirectedUrl, DOWNLOAD_ATTEMPTS, downloadSession);
+          download(redirectedUrl, downloadAttempts, downloadSession);
       return downloadResult;
     }
 
@@ -103,7 +105,7 @@ public class ContentDownloader extends AbstractDownloader {
     redirectedUrl = checkForMetaRedirectionRefresh(url, jsoupDocument);
     if (redirectedUrl != null) {
       final DownloadResult downloadResult =
-          download(redirectedUrl, DOWNLOAD_ATTEMPTS, downloadSession);
+          download(redirectedUrl, downloadAttempts, downloadSession);
       return downloadResult;
     }
 
@@ -111,7 +113,7 @@ public class ContentDownloader extends AbstractDownloader {
     redirectedUrl = checkForMetaRedirectionOgUrl(url, jsoupDocument);
     if (redirectedUrl != null) {
       final DownloadResult downloadResult =
-          download(redirectedUrl, DOWNLOAD_ATTEMPTS, downloadSession);
+          download(redirectedUrl, downloadAttempts, downloadSession);
       return downloadResult;
     }
 
