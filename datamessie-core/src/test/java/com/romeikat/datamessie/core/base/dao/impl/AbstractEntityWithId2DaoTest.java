@@ -218,8 +218,9 @@ public class AbstractEntityWithId2DaoTest extends AbstractDbSetupBasedTest {
   @Test
   public void insert_stateless_with_new_id() {
     FooEntityWithId2 foo = new FooEntityWithId2(NEW_ID);
-    dao.insert(sessionProvider.getStatelessSession(), foo);
+    final long id = dao.insert(sessionProvider.getStatelessSession(), foo);
     assertEquals(NEW_ID, foo.getId());
+    assertEquals(NEW_ID, id);
     sessionProvider.closeStatelessSession();
 
     final Collection<FooEntityWithId2> foos =
@@ -249,8 +250,9 @@ public class AbstractEntityWithId2DaoTest extends AbstractDbSetupBasedTest {
   @Test
   public void insertOrUpdate_stateless_with_new_id() {
     FooEntityWithId2 foo = new FooEntityWithId2(NEW_ID);
-    dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
+    final long id = dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
     assertEquals(NEW_ID, foo.getId());
+    assertEquals(NEW_ID, id);
     sessionProvider.closeStatelessSession();
 
     final Collection<FooEntityWithId2> foos =
@@ -264,7 +266,8 @@ public class AbstractEntityWithId2DaoTest extends AbstractDbSetupBasedTest {
   public void insertOrUpdate_stateless_with_existing_id() {
     FooEntityWithId2 foo = new FooEntityWithId2(1);
     foo.setName("Updated Foo1");
-    dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
+    final long id = dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
+    assertEquals(foo.getId(), id);
     sessionProvider.closeStatelessSession();
 
     foo = dao.getEntity(sessionProvider.getStatelessSession(), 1);

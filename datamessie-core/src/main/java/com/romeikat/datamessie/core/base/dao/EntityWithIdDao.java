@@ -89,7 +89,7 @@ public interface EntityWithIdDao<E extends EntityWithId> extends EntityDao<E> {
 
   /**
    * Determines whether an entity already exists in the database.
-   * 
+   *
    * @param ssc
    * @param id
    * @return
@@ -97,12 +97,24 @@ public interface EntityWithIdDao<E extends EntityWithId> extends EntityDao<E> {
   boolean exists(SharedSessionContract ssc, long id);
 
   /**
+   * Inserts a new entity. If the entity already exists in the database, a copy of it is saved with
+   * a new id.
+   *
+   * @param statelessSession
+   * @param entity
+   * @return The ID of the entity
+   */
+  @Override
+  Long insert(StatelessSession statelessSession, E entity);
+
+  /**
    * If the entity does not exist in the database, it is inserted. If the entity already exists in
    * the database, it is updated.
    *
    * @param statelessSession
    * @param entity
+   * @return The ID of the entity
    */
-  void insertOrUpdate(StatelessSession statelessSession, E entity);
+  Long insertOrUpdate(StatelessSession statelessSession, E entity);
 
 }

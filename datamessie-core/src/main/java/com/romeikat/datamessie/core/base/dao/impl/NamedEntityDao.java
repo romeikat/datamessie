@@ -70,10 +70,12 @@ public class NamedEntityDao extends AbstractEntityWithIdAndVersionCachingDao<Nam
   }
 
   @Override
-  public void insert(final StatelessSession statelessSession, final NamedEntity namedEntity) {
-    super.insert(statelessSession, namedEntity);
+  public Long insert(final StatelessSession statelessSession, final NamedEntity namedEntity) {
+    final Long id = super.insert(statelessSession, namedEntity);
 
     invalidateNamedEntityName(statelessSession, namedEntity);
+
+    return id;
   }
 
   private void invalidateNamedEntityName(final SharedSessionContract ssc,

@@ -102,7 +102,8 @@ public class AbstractEntityWithIdAndVersionDaoTest extends AbstractDbSetupBasedT
     // The first update will increase the version from 0 to 1
     FooEntityWithGeneratedIdAndVersion foo = new FooEntityWithGeneratedIdAndVersion(1);
     foo.setName("Updated Foo1");
-    dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
+    final long id = dao.insertOrUpdate(sessionProvider.getStatelessSession(), foo);
+    assertEquals(foo.getId(), id);
     sessionProvider.closeStatelessSession();
 
     foo = dao.getEntity(sessionProvider.getStatelessSession(), 1);

@@ -1,5 +1,6 @@
 package com.romeikat.datamessie.core.base.dao.impl;
 
+import java.io.Serializable;
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -182,10 +183,11 @@ public abstract class AbstractEntityDao<E extends Entity> implements EntityDao<E
    *
    * @param statelessSession
    * @param entity
+   * @return The identifier of the entity
    */
   @Override
-  public void insert(final StatelessSession statelessSession, final E entity) {
-    statelessSession.insert(entity);
+  public Serializable insert(final StatelessSession statelessSession, final E entity) {
+    return statelessSession.insert(entity);
   }
 
   /**

@@ -26,6 +26,7 @@ import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import org.junit.Test;
@@ -142,8 +143,10 @@ public class AbstractEntityDaoTest extends AbstractDbSetupBasedTest {
   @Test
   public void insert_stateless_new() {
     FooEntity foo = new FooEntity("Foo4", true);
-    dao.insert(sessionProvider.getStatelessSession(), foo);
+    final Serializable identifier = dao.insert(sessionProvider.getStatelessSession(), foo);
     sessionProvider.closeStatelessSession();
+
+    assertEquals("Foo4", identifier);
 
     final List<FooEntity> foos = dao.getAllEntites(sessionProvider.getStatelessSession());
     assertEquals(4, foos.size());

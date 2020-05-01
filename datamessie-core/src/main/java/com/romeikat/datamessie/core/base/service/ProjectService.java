@@ -33,6 +33,7 @@ import com.romeikat.datamessie.core.domain.dto.ProjectDto;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
+import com.romeikat.datamessie.core.rss.init.RssCrawlingInitializer;
 
 @Service
 public class ProjectService {
@@ -48,6 +49,9 @@ public class ProjectService {
   @Autowired
   @Qualifier("crawlingDao")
   private CrawlingDao crawlingDao;
+
+  @Autowired
+  private RssCrawlingInitializer rssCrawlingInitializer;
 
   public Long getProjectId(final SharedSessionContract ssc, final Document document) {
     if (document == null) {
@@ -72,7 +76,11 @@ public class ProjectService {
     project.setPreprocessingEnabled(projectDto.getPreprocessingEnabled());
     project.setCleaningMethod(projectDto.getCleaningMethod());
     // Insert
-    projectDao.insert(statelessSession, project);
+    final Long projectId = projectDao.insert(statelessSession, project);
+    // Schedule crawling
+    if (projectId != null) {
+      rssCrawlingInitializer.scheduleCrawling(projectId);
+    }
   }
 
   public void updateProject(final StatelessSession statelessSession, final ProjectDto projectDto) {

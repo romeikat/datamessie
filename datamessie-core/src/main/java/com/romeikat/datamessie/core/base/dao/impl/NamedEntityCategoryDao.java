@@ -64,11 +64,13 @@ public class NamedEntityCategoryDao
   }
 
   @Override
-  public void insert(final StatelessSession statelessSession,
+  public Long insert(final StatelessSession statelessSession,
       final NamedEntityCategory namedEntityCategory) {
-    super.insert(statelessSession, namedEntityCategory);
+    final Long id = super.insert(statelessSession, namedEntityCategory);
 
     invalidateNamedEntityName(statelessSession, namedEntityCategory);
+
+    return id;
   }
 
   private void invalidateNamedEntityName(final SharedSessionContract ssc,

@@ -103,18 +103,19 @@ public abstract class AbstractEntityWithIdAndVersionDao<E extends EntityWithIdAn
   }
 
   @Override
-  public void insertOrUpdate(final StatelessSession statelessSession, final E entity) {
+  public Long insertOrUpdate(final StatelessSession statelessSession, final E entity) {
     final E existingEntity = getEntity(statelessSession, entity.getId());
     final boolean exists = existingEntity != null;
 
     // Insert
     if (!exists) {
-      insert(statelessSession, entity);
+      return insert(statelessSession, entity);
     }
     // Update
     else {
       entity.setVersion(existingEntity.getVersion());
       update(statelessSession, entity);
+      return entity.getId();
     }
   }
 

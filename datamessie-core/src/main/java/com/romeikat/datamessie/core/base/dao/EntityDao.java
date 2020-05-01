@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.base.dao;
 
+import java.io.Serializable;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -81,8 +83,9 @@ public interface EntityDao<E extends Entity> {
    *
    * @param statelessSession
    * @param entity
+   * @return The identifier of the entity
    */
-  void insert(StatelessSession statelessSession, E entity);
+  Serializable insert(StatelessSession statelessSession, E entity);
 
   /**
    * Updates an existing entity. If the entity does not exist in the database, an exception is

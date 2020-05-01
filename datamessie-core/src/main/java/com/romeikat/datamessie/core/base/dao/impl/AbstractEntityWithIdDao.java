@@ -169,17 +169,23 @@ public abstract class AbstractEntityWithIdDao<E extends EntityWithId> extends Ab
   }
 
   @Override
-  public void insertOrUpdate(final StatelessSession statelessSession, final E entity) {
+  public Long insert(final StatelessSession statelessSession, final E entity) {
+    return (Long) super.insert(statelessSession, entity);
+  }
+
+  @Override
+  public Long insertOrUpdate(final StatelessSession statelessSession, final E entity) {
     final boolean exists = exists(statelessSession, entity.getId());
 
     // Insert
     if (!exists) {
-      insert(statelessSession, entity);
+      return insert(statelessSession, entity);
     }
     // Update
     else {
       // statelessSession.refresh(entity);
       update(statelessSession, entity);
+      return entity.getId();
     }
   }
 
