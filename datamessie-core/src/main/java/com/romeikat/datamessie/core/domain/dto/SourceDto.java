@@ -57,6 +57,8 @@ public class SourceDto implements Serializable {
 
   private Integer numberOfTagSelectingRules;
 
+  private boolean crawlingEnabled;
+
   private boolean visible;
 
   private boolean statisticsChecking;
@@ -158,6 +160,14 @@ public class SourceDto implements Serializable {
 
   public void setNumberOfTagSelectingRules(final Integer numberOfTagSelectingRules) {
     this.numberOfTagSelectingRules = numberOfTagSelectingRules;
+  }
+
+  public boolean getCrawlingEnabled() {
+    return crawlingEnabled;
+  }
+
+  public void setCrawlingEnabled(final boolean crawlingEnabled) {
+    this.crawlingEnabled = crawlingEnabled;
   }
 
   public boolean getVisible() {

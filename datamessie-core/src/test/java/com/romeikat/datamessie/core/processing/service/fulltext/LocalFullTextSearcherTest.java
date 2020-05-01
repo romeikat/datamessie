@@ -52,7 +52,8 @@ public class LocalFullTextSearcherTest extends AbstractDbSetupBasedTest {
 
   @Override
   protected Operation initDb() {
-    final Source source1 = new Source(1, "Source1", "http://www.source1.de/", null, true, false);
+    final Source source1 =
+        new Source(1, "Source1", "http://www.source1.de/", null, true, true, false);
     final Project project1 = new Project(1, "Project1", false, false);
     final Project2Source project2Source = new Project2Source(1, 1);
     final Crawling crawling1 = new Crawling(1, project1.getId());

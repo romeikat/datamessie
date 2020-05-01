@@ -94,7 +94,8 @@ public class ProjectCrawler {
     }
 
     // Load sources
-    final List<Source> sources = loadSources(projectId, sessionProvider.getStatelessSession());
+    final List<Source> sources =
+        loadSourcesToBeCrawled(projectId, sessionProvider.getStatelessSession());
     if (sources == null) {
       sessionProvider.closeStatelessSession();
       return;
@@ -127,12 +128,13 @@ public class ProjectCrawler {
     return crawling;
   }
 
-  private List<Source> loadSources(final long projectId, final StatelessSession statelessSession) {
+  private List<Source> loadSourcesToBeCrawled(final long projectId,
+      final StatelessSession statelessSession) {
     final List<Source> sources =
         new ExecuteWithTransactionAndResult<List<Source>>(statelessSession) {
           @Override
           protected List<Source> executeWithResult(final StatelessSession statelessSession) {
-            return sourceDao.getOfProject(statelessSession, projectId);
+            return sourceDao.getOfProject(statelessSession, projectId, true);
           }
 
           @Override

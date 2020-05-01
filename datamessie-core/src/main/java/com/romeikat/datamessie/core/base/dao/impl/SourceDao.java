@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.hibernate.SharedSessionContract;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -318,7 +319,8 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     return Lists.newArrayList(dtos);
   }
 
-  public List<Source> getOfProject(final SharedSessionContract ssc, final Long projectId) {
+  public List<Source> getOfProject(final SharedSessionContract ssc, final Long projectId,
+      final Boolean sourceCrawlingEnabled) {
     if (projectId == null) {
       return Collections.emptyList();
     }
@@ -334,6 +336,9 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     // Query: Source
     final EntityWithIdQuery<Source> sourceQuery = new EntityWithIdQuery<>(Source.class);
     sourceQuery.addRestriction(Restrictions.in("id", sourceIds));
+    if (BooleanUtils.isTrue(sourceCrawlingEnabled)) {
+      sourceQuery.addRestriction(Restrictions.eq("crawlingEnabled", sourceCrawlingEnabled));
+    }
     sourceQuery.addOrder(Order.asc("name"));
 
     // Done
@@ -411,6 +416,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     dto.setNumberOfRedirectingRules(redirectingRules.size());
     dto.setNumberOfDeletingRules(deletingRules.size());
     dto.setNumberOfTagSelectingRules(tagSelectingRules.size());
+    dto.setCrawlingEnabled(source.getCrawlingEnabled());
     dto.setVisible(source.getVisible());
     dto.setStatisticsChecking(source.getStatisticsChecking());
     return dto;
@@ -438,6 +444,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     dto.setNumberOfRedirectingRules(redirectingRules.size());
     dto.setNumberOfDeletingRules(deletingRules.size());
     dto.setNumberOfTagSelectingRules(tagSelectingRules.size());
+    dto.setCrawlingEnabled(source.getCrawlingEnabled());
     dto.setVisible(source.getVisible());
     dto.setStatisticsChecking(source.getStatisticsChecking());
     return dto;

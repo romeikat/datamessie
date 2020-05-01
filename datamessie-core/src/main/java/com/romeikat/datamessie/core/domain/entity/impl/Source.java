@@ -48,6 +48,8 @@ public class Source extends AbstractEntityWithGeneratedIdAndVersion {
 
   private String cookie;
 
+  private boolean crawlingEnabled;
+
   private boolean visible;
 
   private boolean statisticsChecking;
@@ -55,11 +57,12 @@ public class Source extends AbstractEntityWithGeneratedIdAndVersion {
   public Source() {}
 
   public Source(final long id, final String name, final String url, final String cookie,
-      final boolean visible, final boolean statisticsChecking) {
+      final boolean crawlingEnabled, final boolean visible, final boolean statisticsChecking) {
     super(id);
     this.name = name;
     this.url = url;
     this.cookie = cookie;
+    this.crawlingEnabled = crawlingEnabled;
     this.visible = visible;
     this.statisticsChecking = statisticsChecking;
   }
@@ -101,6 +104,15 @@ public class Source extends AbstractEntityWithGeneratedIdAndVersion {
 
   public void setCookie(final String cookie) {
     this.cookie = cookie;
+  }
+
+  @Column(nullable = false)
+  public boolean getCrawlingEnabled() {
+    return crawlingEnabled;
+  }
+
+  public void setCrawlingEnabled(final boolean crawlingEnabled) {
+    this.crawlingEnabled = crawlingEnabled;
   }
 
   @Column(nullable = false)

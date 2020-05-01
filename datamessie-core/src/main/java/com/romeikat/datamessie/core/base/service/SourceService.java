@@ -121,7 +121,7 @@ public class SourceService {
 
         // Create
         final String name = getNewName(statelessSession);
-        final Source source = new Source(0, name, "", null, true, false);
+        final Source source = new Source(0, name, "", null, true, true, false);
         sourceDao.insert(statelessSession, source);
 
         // Assign
@@ -181,6 +181,7 @@ public class SourceService {
     source.setLanguage(sourceDto.getLanguage());
     source.setUrl(sourceDto.getUrl());
     source.setCookie(sourceDto.getCookie());
+    source.setCrawlingEnabled(sourceDto.getCrawlingEnabled());
     source.setVisible(sourceDto.getVisible());
     source.setStatisticsChecking(sourceDto.getStatisticsChecking());
 
@@ -465,6 +466,21 @@ public class SourceService {
       }
     }
     return null;
+  }
+
+  public void setCrawlingEnabled(final StatelessSession statelessSession, final long id,
+      final Boolean crawlingEnabled) {
+    if (crawlingEnabled == null) {
+      return;
+    }
+    // Get
+    final Source source = sourceDao.getEntity(statelessSession, id);
+    if (source == null) {
+      return;
+    }
+    // Update
+    source.setCrawlingEnabled(crawlingEnabled);
+    sourceDao.update(statelessSession, source);
   }
 
   public void setVisible(final StatelessSession statelessSession, final long id,

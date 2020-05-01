@@ -141,6 +141,29 @@ public class SourcesOverviewPanel extends Panel {
               }
             });
             item.add(typesChoice);
+            // Crawling enabling
+            final CheckBox crawlingEnabledCheckBox = new CheckBox("crawlingEnabled",
+                new PropertyModel<Boolean>(sourceModel, "crawlingEnabled"));
+            // Updating behavior to save enabling immediately on change
+            crawlingEnabledCheckBox.add(new ModelUpdatingBehavior() {
+              private static final long serialVersionUID = 1L;
+
+              @Override
+              protected void onUpdate(final AjaxRequestTarget target) {
+                final Boolean newSelection = crawlingEnabledCheckBox.getModelObject();
+                final HibernateSessionProvider sessionProvider =
+                    new HibernateSessionProvider(sessionFactory);
+                new ExecuteWithTransaction(sessionProvider.getStatelessSession()) {
+                  @Override
+                  protected void execute(final StatelessSession statelessSession) {
+                    sourceService.setCrawlingEnabled(statelessSession, source.getId(),
+                        newSelection);
+                  }
+                }.execute();
+                sessionProvider.closeStatelessSession();
+              }
+            });
+            item.add(crawlingEnabledCheckBox);
             // Visibility
             final CheckBox visibleCheckBox =
                 new CheckBox("visible", new PropertyModel<Boolean>(sourceModel, "visible"));

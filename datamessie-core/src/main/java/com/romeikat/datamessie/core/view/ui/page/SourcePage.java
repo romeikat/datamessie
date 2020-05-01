@@ -183,6 +183,9 @@ public class SourcePage extends AbstractAuthenticatedPage {
     // Cookie
     final TextField<String> cookieTextField = new TextField<String>("cookie");
     sourceForm.add(cookieTextField);
+    // Crawling enabled
+    final CheckBox crawlingEnabled = new CheckBox("crawlingEnabled");
+    sourceForm.add(crawlingEnabled);
     // Visible
     final CheckBox visibleCheckBox = new CheckBox("visible");
     sourceForm.add(visibleCheckBox);
