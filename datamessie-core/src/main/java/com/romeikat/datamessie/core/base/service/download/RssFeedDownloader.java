@@ -26,8 +26,10 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import com.romeikat.datamessie.core.base.util.XmlUtil;
 import com.rometools.rome.feed.synd.SyndFeed;
 import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
@@ -38,6 +40,9 @@ public class RssFeedDownloader extends AbstractDownloader {
   private final static Logger LOG = LoggerFactory.getLogger(RssFeedDownloader.class);
 
   private static final boolean ALLOW_DOCTYPES = true;
+
+  @Autowired
+  private XmlUtil xmlUtil;
 
   @Value("${crawling.feed.download.attempts}")
   private int downloadAttempts;
@@ -54,6 +59,9 @@ public class RssFeedDownloader extends AbstractDownloader {
       return null;
     }
 
+    // Process feed
+    postProcessContent(downloadResultFeed);
+
     // Parse feed
     try (final InputStream feedInputStream = IOUtils.toInputStream(downloadResultFeed.getContent());
         final XmlReader xmlReader = new XmlReader(feedInputStream);) {
@@ -65,6 +73,18 @@ public class RssFeedDownloader extends AbstractDownloader {
       LOG.warn("Could not parse feed from " + sourceUrl, e);
       return null;
     }
+  }
+
+  private void postProcessContent(final DownloadResult downloadResult) {
+    final String content = downloadResult.getContent();
+    if (content == null) {
+      return;
+    }
+
+    // Strip non-valid characters as specified by the XML 1.0 standard
+    final String validContent = xmlUtil.stripNonValidXMLCharacters(content);
+
+    downloadResult.setContent(validContent);
   }
 
 }
