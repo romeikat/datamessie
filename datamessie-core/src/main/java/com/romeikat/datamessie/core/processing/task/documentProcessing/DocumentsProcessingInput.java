@@ -182,8 +182,8 @@ public class DocumentsProcessingInput {
         documents.stream().map(d -> d.getSourceId()).collect(Collectors.toSet());
     final Collection<Source> sources =
         sourceDao.getEntities(sessionProvider.getStatelessSession(), sourceIds);
-    final Map<Long, String> sourceId2Cookie =
-        sources.stream().collect(Collectors.toMap(s -> s.getId(), s -> s.getCookie()));
+    final Map<Long, String> sourceId2Cookie = Maps.newHashMapWithExpectedSize(sources.size());
+    sources.forEach(s -> sourceId2Cookie.put(s.getId(), s.getCookie()));
 
     this.sourceId2Cookie.putAll(sourceId2Cookie);
   }
