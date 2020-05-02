@@ -205,7 +205,7 @@ public abstract class DocumentsCrawler {
           LOG.debug("Source {}: downloading {}", sourceId, url);
 
           final DownloadResult downloadResult =
-              contentDownloader.downloadContent(url, downloadSession);
+              contentDownloader.downloadContent(url, true, downloadSession);
           downloadResults.put(url, downloadResult);
         } catch (final Exception e) {
           LOG.error(String.format("Source %s: could not download URL %s", sourceId, url), e);

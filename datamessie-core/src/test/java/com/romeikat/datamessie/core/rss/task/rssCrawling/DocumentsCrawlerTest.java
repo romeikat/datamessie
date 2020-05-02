@@ -164,7 +164,7 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
     final DownloadResult downloadResult3 =
         new DownloadResult(null, url3, newRawContent3, null, newDownloaded3, null);
     doReturn(downloadResult3).when(contentDownloaderSpy).downloadContent(eq(url3),
-        any(DownloadSession.class));
+        any(Boolean.class), any(DownloadSession.class));
 
     // Crawl
     final List<String> urls = Lists.newArrayList(url3);
@@ -229,7 +229,7 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
     final DownloadResult downloadResult3 =
         new DownloadResult(null, url3, newRawContent3, null, newDownloaded3, null);
     doReturn(downloadResult3).when(contentDownloaderSpy).downloadContent(eq(url3),
-        any(DownloadSession.class));
+        any(Boolean.class), any(DownloadSession.class));
 
     // Crawl
     final int numberOfUrls = 1000;
@@ -304,7 +304,7 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
     final DownloadResult downloadResult1 =
         new DownloadResult(null, url1, newRawContent1, null, newDownloaded1, null);
     doReturn(downloadResult1).when(contentDownloaderSpy).downloadContent(eq(url1),
-        any(DownloadSession.class));
+        any(Boolean.class), any(DownloadSession.class));
 
     // Crawl
     final List<String> urls = Lists.newArrayList(url1);
@@ -367,7 +367,7 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
     final DownloadResult downloadResult2 =
         new DownloadResult(null, url2, newRawContent2, null, newDownloaded2, null);
     doReturn(downloadResult2).when(contentDownloaderSpy).downloadContent(eq(url2),
-        any(DownloadSession.class));
+        any(Boolean.class), any(DownloadSession.class));
 
     // Crawl
     final List<String> urls = Lists.newArrayList(url2);
@@ -440,7 +440,7 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
     final DownloadResult downloadResult4 =
         new DownloadResult(null, url4, newRawContent4, null, newDownloaded4, null);
     doReturn(downloadResult4).when(contentDownloaderSpy).downloadContent(eq(url4),
-        any(DownloadSession.class));
+        any(Boolean.class), any(DownloadSession.class));
 
     // Crawl
     final List<String> urls = Lists.newArrayList(url3, url4);
@@ -496,13 +496,13 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     // Mock download results (3 fails, 4 works)
     doThrow(Exception.class).when(contentDownloaderSpy).downloadContent(eq(url3),
-        any(DownloadSession.class));
+        any(Boolean.class), any(DownloadSession.class));
     final LocalDateTime newDownloaded4 = LocalDateTime.now();
     final String newRawContent4 = "Content4-new";
     final DownloadResult downloadResult4 =
         new DownloadResult(null, url4, newRawContent4, null, newDownloaded4, null);
     doReturn(downloadResult4).when(contentDownloaderSpy).downloadContent(eq(url4),
-        any(DownloadSession.class));
+        any(Boolean.class), any(DownloadSession.class));
 
     // Crawl
     final List<String> urls = Lists.newArrayList(url3, url4);
@@ -567,11 +567,11 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
     final DownloadResult downloadResult3 =
         new DownloadResult(null, url3, newRawContent3, null, newDownloaded3, null);
     doReturn(downloadResult3).when(contentDownloaderSpy).downloadContent(eq(url3),
-        any(DownloadSession.class));
+        any(Boolean.class), any(DownloadSession.class));
     final DownloadResult downloadResult4 =
         new DownloadResult(null, url4, newRawContent4, null, newDownloaded4, null);
     doReturn(downloadResult4).when(contentDownloaderSpy).downloadContent(eq(url4),
-        any(DownloadSession.class));
+        any(Boolean.class), any(DownloadSession.class));
 
     // Crawl (3 fails, 4 works)
     doThrow(Exception.class).when(documentCrawlerSpy).performCrawling(any(StatelessSession.class),

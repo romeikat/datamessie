@@ -56,30 +56,33 @@ public class DocumentRedirectingService {
   public DocumentRedirectingResult redirect(final Document document, final RawContent rawContent,
       final List<RedirectingRule> redirectingRules, final DownloadSession downloadSession) {
     // Prio 1: Use hard-coded redirecting rule
-    String redirectedUrl = applyHardCodedRedirectingRule(document.getId(), rawContent);
+    String redirectedUrl = applyHardCodedRedirectingRule(document, rawContent);
 
     // Prio 2: Use redirecting rules specified by the user
+    boolean wasUserDefinedRedirectingUrlFound = false;
     if (redirectedUrl == null) {
       redirectedUrl = applyUserDefinedRedirectingRules(document, rawContent, redirectingRules);
+      wasUserDefinedRedirectingUrlFound = true;
     }
 
     // Download redirected URL, if one was found
     final boolean wasRedirectingUrlFound = redirectedUrl != null;
-    final DownloadResult redirectedDownloadResult =
-        wasRedirectingUrlFound ? contentDownloader.downloadContent(redirectedUrl, downloadSession)
-            : null;
+    final DownloadResult redirectedDownloadResult = wasRedirectingUrlFound
+        ? contentDownloader.downloadContent(redirectedUrl, !wasUserDefinedRedirectingUrlFound, downloadSession)
+        : null;
 
     // Done
     return new DocumentRedirectingResult(redirectedUrl, redirectedDownloadResult);
   }
 
-  private String applyHardCodedRedirectingRule(final long documentId, final RawContent rawContent) {
+  private String applyHardCodedRedirectingRule(final Document document,
+      final RawContent rawContent) {
     // Parse raw content
     final org.jsoup.nodes.Document jsoupDocument;
     try {
       jsoupDocument = Jsoup.parse(rawContent.getContent());
     } catch (final Exception e) {
-      LOG.warn("Could not parse content of document " + documentId, e);
+      LOG.warn("Could not parse content of document " + document.getId(), e);
       return null;
     }
 
@@ -112,6 +115,8 @@ public class DocumentRedirectingService {
       }
       // Use most frequent link, if one was found
       if (mostFrequentLinkTarget != null) {
+        LOG.info("Redirection (hard coded advertisment): {} -> {}", document.getUrl(),
+            mostFrequentLinkTarget);
         return mostFrequentLinkTarget;
       }
     }

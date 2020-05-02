@@ -54,7 +54,7 @@ public class ContentDownloaderTest extends AbstractTest {
     final String url = "https://www.google.de/";
 
     executionTimeLogger.start();
-    final DownloadResult downloadResult = contentDownloader.downloadContent(url, null);
+    final DownloadResult downloadResult = contentDownloader.downloadContent(url, true, null);
     executionTimeLogger.stop();
     executionTimeLogger.log("Downloading");
 
@@ -67,7 +67,7 @@ public class ContentDownloaderTest extends AbstractTest {
   public void downloadContent_failure() throws DecoderException {
     final String url = "https://www.romeikat.com/this_url_does_not_exist";
 
-    final DownloadResult downloadResult = contentDownloader.downloadContent(url, null);
+    final DownloadResult downloadResult = contentDownloader.downloadContent(url, true, null);
     assertEquals(url, downloadResult.getUrl());
     assertNull(downloadResult.getContent());
     assertEquals(Integer.valueOf(404), downloadResult.getStatusCode());

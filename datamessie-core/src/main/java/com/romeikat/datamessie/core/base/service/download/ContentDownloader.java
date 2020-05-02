@@ -45,7 +45,8 @@ public class ContentDownloader extends AbstractDownloader {
   @Autowired
   private XmlUtil xmlUtil;
 
-  public DownloadResult downloadContent(final String url, final DownloadSession downloadSession) {
+  public DownloadResult downloadContent(final String url, final boolean followMetaBasedRedirects,
+      final DownloadSession downloadSession) {
     LOG.debug("Downloading content from {}", url);
 
     DownloadResult downloadResultOriginal = null;
@@ -54,14 +55,14 @@ public class ContentDownloader extends AbstractDownloader {
     // Download original URL, following server-side redirects
     downloadResultOriginal = download(url, downloadAttempts, downloadSession);
 
-    // Follow content-based redirects, if available
+    // Also follow meta-based redirects, if content available and following desired
     final boolean originalDownloadSuccess = downloadResultOriginal.getContent() != null;
-    if (originalDownloadSuccess) {
+    if (originalDownloadSuccess && followMetaBasedRedirects) {
       // Parse HTML
       final org.jsoup.nodes.Document jsoupDocument = parseJsoupDocument(downloadResultOriginal);
 
-      // Download redirected URL, if available
-      downloadResultRedirected = followContentBasedRedirects(url, jsoupDocument, downloadSession);
+      // Download redirected URL, if a redirection is found
+      downloadResultRedirected = followMetaBasedRedirects(url, jsoupDocument, downloadSession);
     }
 
     // Decide for which download result to use
@@ -87,7 +88,7 @@ public class ContentDownloader extends AbstractDownloader {
     }
   }
 
-  private DownloadResult followContentBasedRedirects(final String url,
+  private DownloadResult followMetaBasedRedirects(final String url,
       final org.jsoup.nodes.Document jsoupDocument, final DownloadSession downloadSession) {
     if (jsoupDocument == null) {
       return null;
