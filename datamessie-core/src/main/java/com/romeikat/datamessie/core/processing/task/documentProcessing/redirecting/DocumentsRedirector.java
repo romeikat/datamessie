@@ -186,8 +186,11 @@ public class DocumentsRedirector {
   private void redirectDocuments(final HibernateSessionProvider sessionProvider,
       final Collection<Document> documents, final long sourceId, final String cookie) {
     // Download redirected URLs
+    final DownloadSession downloadSession = DownloadSession.create(userAgent, timeout);
+    downloadSession.addCookie(cookie);
     final Map<Long, DocumentRedirectingResult> documentId2DocumentRedirectingResult =
-        downloadRedirectedUrls(documents, cookie);
+        downloadRedirectedUrls(documents, downloadSession);
+    downloadSession.close();
 
     // Apply redirecting results
     applyRedirectingResults(documents, documentId2DocumentRedirectingResult);
@@ -224,11 +227,7 @@ public class DocumentsRedirector {
   }
 
   private Map<Long, DocumentRedirectingResult> downloadRedirectedUrls(
-      final Collection<Document> documents, final String cookie) {
-    // Create download session
-    final DownloadSession downloadSession = DownloadSession.create(userAgent, timeout);
-    downloadSession.addCookie(cookie);
-
+      final Collection<Document> documents, final DownloadSession downloadSession) {
     final ConcurrentMap<Long, DocumentRedirectingResult> documentId2DocumentRedirectingResult =
         new ConcurrentHashMap<Long, DocumentRedirectingResult>(documents.size());
     new ParallelProcessing<Document>(null, documents, processingParallelismFactor) {
@@ -251,9 +250,6 @@ public class DocumentsRedirector {
         }
       }
     };
-
-    // Done
-    downloadSession.close();
     return documentId2DocumentRedirectingResult;
   }
 

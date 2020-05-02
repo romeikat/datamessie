@@ -25,15 +25,20 @@ License along with this program.  If not, see
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.cookie.ClientCookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DownloadSession implements AutoCloseable {
+
+  private static final int MAX_CONNECTIONS_TOTAL = 200;
+  private static final int MAX_CONNECTIONS_PER_ROUTE = 20;
 
   private final static Logger LOG = LoggerFactory.getLogger(DownloadSession.class);
 
@@ -99,11 +104,21 @@ public class DownloadSession implements AutoCloseable {
 
   private static CloseableHttpClient createClient(final String userAgent, final int timeout,
       final BasicCookieStore cookieStore) {
+    final HttpClientConnectionManager connectionManager = createConnectionManager();
     final RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout)
         .setConnectionRequestTimeout(timeout).setSocketTimeout(timeout).build();
-    final CloseableHttpClient client = HttpClients.custom().setDefaultRequestConfig(config)
-        .setUserAgent(userAgent).setDefaultCookieStore(cookieStore).build();
+    final CloseableHttpClient client =
+        HttpClients.custom().setConnectionManager(connectionManager).setDefaultRequestConfig(config)
+            .setUserAgent(userAgent).setDefaultCookieStore(cookieStore).build();
     return client;
+  }
+
+  private static HttpClientConnectionManager createConnectionManager() {
+    final PoolingHttpClientConnectionManager connectionManager =
+        new PoolingHttpClientConnectionManager();
+    connectionManager.setMaxTotal(MAX_CONNECTIONS_TOTAL);
+    connectionManager.setDefaultMaxPerRoute(MAX_CONNECTIONS_PER_ROUTE);
+    return connectionManager;
   }
 
   private static BasicCookieStore createCookieStore() {
