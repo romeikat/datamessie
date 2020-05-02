@@ -56,7 +56,7 @@ public class DocumentRedirectingService {
   public DocumentRedirectingResult redirect(final Document document, final RawContent rawContent,
       final List<RedirectingRule> redirectingRules, final DownloadSession downloadSession) {
     // Prio 1: Use hard-coded redirecting rule
-    String redirectedUrl = applyHardCodedRedirectingRule(rawContent);
+    String redirectedUrl = applyHardCodedRedirectingRule(document.getId(), rawContent);
 
     // Prio 2: Use redirecting rules specified by the user
     if (redirectedUrl == null) {
@@ -73,9 +73,15 @@ public class DocumentRedirectingService {
     return new DocumentRedirectingResult(redirectedUrl, redirectedDownloadResult);
   }
 
-  private String applyHardCodedRedirectingRule(final RawContent rawContent) {
+  private String applyHardCodedRedirectingRule(final long documentId, final RawContent rawContent) {
     // Parse raw content
-    final org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(rawContent.getContent());
+    final org.jsoup.nodes.Document jsoupDocument;
+    try {
+      jsoupDocument = Jsoup.parse(rawContent.getContent());
+    } catch (final Exception e) {
+      LOG.warn("Could not parse content of document " + documentId, e);
+      return null;
+    }
 
     final String title = jsoupDocument.title();
     final boolean documentTitleMatches = title.equalsIgnoreCase("advertisment");

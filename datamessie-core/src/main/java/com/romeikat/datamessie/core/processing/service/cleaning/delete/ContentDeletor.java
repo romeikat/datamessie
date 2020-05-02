@@ -31,6 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.domain.entity.impl.DeletingRule;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -39,6 +41,8 @@ import com.romeikat.datamessie.core.domain.util.TagSelector;
 
 @Service
 public class ContentDeletor {
+
+  private final static Logger LOG = LoggerFactory.getLogger(ContentDeletor.class);
 
   public String deleteContent(final List<DeletingRule> deletingRules, final String content,
       final Document document) {
@@ -69,7 +73,7 @@ public class ContentDeletor {
       if (deletingRuleMode == DeletingRuleMode.REGEX) {
         currentContent = deleteContentWithRegex(currentContent, selector);
       } else if (deletingRuleMode == DeletingRuleMode.TAG) {
-        currentContent = deleteContentWithTag(currentContent, selector);
+        currentContent = deleteContentWithTag(currentContent, selector, document.getId());
       }
     }
 
@@ -88,7 +92,8 @@ public class ContentDeletor {
     return result;
   }
 
-  private String deleteContentWithTag(final String content, final String selector) {
+  private String deleteContentWithTag(final String content, final String selector,
+      final long documentId) {
     if (StringUtils.isBlank(selector)) {
       return content;
     }
@@ -99,7 +104,14 @@ public class ContentDeletor {
     }
 
     // With selector, search for appropriate element
-    final org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(content);
+    final org.jsoup.nodes.Document jsoupDocument;
+    try {
+      jsoupDocument = Jsoup.parse(content);
+    } catch (final Exception e) {
+      LOG.warn("Could not parse content of document " + documentId, e);
+      return null;
+    }
+
     final Elements elementsWithTagName = jsoupDocument.getElementsByTag(tagSelector.getTagName());
     boolean modified = false;
     for (final Element elementWithTagName : elementsWithTagName) {

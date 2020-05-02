@@ -95,20 +95,27 @@ public class TagExctractor {
       return null;
     }
 
-    final String warningMessage = "Could not apply tag selecting rule on document "
-        + document.getId() + " (" + document.getUrl() + ") due to malformed tag selector "
-        + selector + " of source " + document.getSourceId();
 
     // Parse selector
     try {
       final TagSelector tagSelector = TagSelector.fromTextualRepresentation(selector);
       if (!tagSelector.isValid()) {
-        LOG.warn(warningMessage);
+        final String msg = "Could not apply tag selecting rule on document " + document.getId()
+            + " (" + document.getUrl() + ") due to malformed tag selector " + selector
+            + " of source " + document.getSourceId();
+        LOG.warn(msg);
         return null;
       }
 
       // With selector, search for appropriate element
-      final org.jsoup.nodes.Document jsoupDocument = Jsoup.parse(content);
+      final org.jsoup.nodes.Document jsoupDocument;
+      try {
+        jsoupDocument = Jsoup.parse(content);
+      } catch (final Exception e) {
+        LOG.warn("Could not parse content of document " + document.getId(), e);
+        return null;
+      }
+
       final List<Element> matchingElements = new ArrayList<Element>();
       final Elements elementsWithTagName = jsoupDocument.getElementsByTag(tagSelector.getTagName());
       for (final Element elementWithTagName : elementsWithTagName) {
@@ -143,7 +150,7 @@ public class TagExctractor {
       // No match(es) found
       return null;
     } catch (final Exception e) {
-      LOG.warn(warningMessage, e);
+      LOG.warn("Could not extract content of document " + document.getId(), e);
       return null;
     }
   }
