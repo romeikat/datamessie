@@ -25,7 +25,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,7 +37,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.app.shared.IStatisticsManager;
 import com.romeikat.datamessie.core.base.app.shared.SharedBeanProvider;
 import com.romeikat.datamessie.core.base.dao.impl.CleanedContentDao;
@@ -109,7 +107,7 @@ public class DocumentService {
 
   public void deprocessDocumentsOfSource(final StatelessSession statelessSession,
       final TaskExecution taskExecution, final long sourceId,
-      final DocumentProcessingState targetState, final LocalDate fromDate, final LocalDate toDate)
+      final DocumentProcessingState targetState, final Collection<LocalDate> downloadDates)
       throws TaskCancelledException {
     // Initialize
     taskExecution.reportWork(String.format("Resetting documents of source %s to state %s", sourceId,
@@ -119,12 +117,12 @@ public class DocumentService {
 
     // Determine necessary states and sources
     final Collection<DocumentProcessingState> statesForDeprocessing =
-        getStatesForDeprocessing(targetState);
+        DocumentProcessingState.getStatesForDeprocessing(targetState);
     final List<Long> sourceIds = Lists.newArrayList(sourceId);
 
     // Determine downloaded dates
     final SortedMap<LocalDate, Long> datesWithDocuments =
-        documentDao.getDownloadedDatesWithNumberOfDocuments(statelessSession, fromDate, toDate,
+        documentDao.getDownloadedDatesWithNumberOfDocuments(statelessSession, downloadDates,
             statesForDeprocessing, sourceIds);
     final DocumentsDatesConsumer documentsDatesConsumer =
         new DocumentsDatesConsumer(datesWithDocuments, batchSize);
@@ -254,28 +252,6 @@ public class DocumentService {
       taskExecution.reportWorkEnd(work);
     };
     persistingTask.submit(runnable);
-  }
-
-  private Set<DocumentProcessingState> getStatesForDeprocessing(
-      final DocumentProcessingState targetState) {
-    switch (targetState) {
-      case DOWNLOADED:
-        return Sets.newHashSet(DocumentProcessingState.REDIRECTED,
-            DocumentProcessingState.REDIRECTING_ERROR, DocumentProcessingState.CLEANED,
-            DocumentProcessingState.CLEANING_ERROR, DocumentProcessingState.STEMMED,
-            DocumentProcessingState.TECHNICAL_ERROR);
-      case REDIRECTED:
-        return Sets.newHashSet(DocumentProcessingState.REDIRECTING_ERROR,
-            DocumentProcessingState.CLEANED, DocumentProcessingState.CLEANING_ERROR,
-            DocumentProcessingState.STEMMED, DocumentProcessingState.TECHNICAL_ERROR);
-      case CLEANED:
-        return Sets.newHashSet(DocumentProcessingState.CLEANING_ERROR,
-            DocumentProcessingState.STEMMED, DocumentProcessingState.TECHNICAL_ERROR);
-      case STEMMED:
-        return Sets.newHashSet(DocumentProcessingState.TECHNICAL_ERROR);
-      default:
-        return Collections.emptySet();
-    }
   }
 
   /**

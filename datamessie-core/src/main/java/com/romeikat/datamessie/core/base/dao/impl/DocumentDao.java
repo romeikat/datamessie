@@ -25,6 +25,7 @@ License along with this program.  If not, see
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -351,15 +352,42 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   public List<LocalDate> getPublishedDates(final SharedSessionContract ssc) {
     // Query
     final StringBuilder hql = new StringBuilder();
-    hql.append("SELECT DISTINCT DATE(d.published) ");
-    hql.append("FROM document d ");
-    hql.append("WHERE d.published IS NOT NULL ");
-    @SuppressWarnings("unchecked")
-    final Query<Date> query = ssc.createNativeQuery(hql.toString());
+    hql.append("select distinct to_date(published) ");
+    hql.append("from " + Document.class.getSimpleName() + " ");
+    hql.append("where published is not null ");
+    final Query<?> query = ssc.createQuery(hql.toString());
 
     // Execute
-    final List<Date> publishedDates = query.list();
-    return Lists.transform(publishedDates, d -> DateUtil.toLocalDate(d));
+    @SuppressWarnings("unchecked")
+    final List<Date> dates = (List<Date>) query.list();
+    final List<LocalDate> result =
+        dates.stream().map(date -> DateUtil.toLocalDate(date)).collect(Collectors.toList());
+    return result;
+  }
+
+  public List<LocalDate> getDownloadedDates(final SharedSessionContract ssc,
+      final Collection<DocumentProcessingState> states, final long sourceId) {
+    if (states.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    // Query
+    final StringBuilder hql = new StringBuilder();
+    hql.append("select distinct to_date(downloaded) ");
+    hql.append("from " + Document.class.getSimpleName() + " ");
+    hql.append("where downloaded is not null ");
+    hql.append("and state in :_states ");
+    hql.append("and source_id = :_sourceId ");
+    final Query<?> query = ssc.createQuery(hql.toString());
+    query.setParameterList("_states", states);
+    query.setParameter("_sourceId", sourceId);
+
+    // Execute
+    @SuppressWarnings("unchecked")
+    final List<Date> dates = (List<Date>) query.list();
+    final List<LocalDate> result =
+        dates.stream().map(date -> DateUtil.toLocalDate(date)).collect(Collectors.toList());
+    return result;
   }
 
   public LocalDateTime getMinDownloaded(final SharedSessionContract ssc) {
@@ -385,6 +413,48 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
   }
 
   public SortedMap<LocalDate, Long> getDownloadedDatesWithNumberOfDocuments(
+      final SharedSessionContract ssc, final Collection<LocalDate> downloadDates,
+      final Collection<DocumentProcessingState> states, final Collection<Long> sourceIds) {
+    if (downloadDates.isEmpty()) {
+      return Maps.newTreeMap();
+    }
+
+    // Query
+    final StringBuilder hql = new StringBuilder();
+    hql.append("select to_date(downloaded), count(*) ");
+    hql.append("from " + Document.class.getSimpleName() + " ");
+    hql.append("where state in :_states ");
+    if (sourceIds != null) {
+      hql.append("and source_id in :_source_ids ");
+    }
+    if (downloadDates != null) {
+      hql.append("and to_date(downloaded) IN :_downloadDates ");
+    }
+    hql.append("group by to_date(downloaded) ");
+    final Query<?> query = ssc.createQuery(hql.toString());
+    query.setParameterList("_states", states);
+    if (sourceIds != null) {
+      query.setParameterList("_source_ids", sourceIds);
+    }
+    if (downloadDates != null) {
+      final Collection<java.util.Date> downloadDatesAsDates =
+          downloadDates.stream().map(ld -> DateUtil.fromLocalDate(ld)).collect(Collectors.toSet());
+      query.setParameterList("_downloadDates", downloadDatesAsDates);
+    }
+
+    // Done
+    final TreeMap<LocalDate, Long> result = Maps.newTreeMap();
+    @SuppressWarnings("unchecked")
+    final List<Object[]> rows = (List<Object[]>) query.list();
+    for (final Object[] row : rows) {
+      final LocalDate downloadedDate = DateUtil.toLocalDate((Date) row[0]);
+      final long numberOfDocuments = (Long) row[1];
+      result.put(downloadedDate, numberOfDocuments);
+    }
+    return result;
+  }
+
+  public SortedMap<LocalDate, Long> getDownloadedDatesWithNumberOfDocuments(
       final SharedSessionContract ssc, final LocalDate fromDate, final LocalDate toDate,
       final Collection<DocumentProcessingState> states, final Collection<Long> sourceIds) {
     if (states.isEmpty()) {
@@ -407,15 +477,15 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
     }
     hql.append("group by to_date(downloaded) ");
     final Query<?> query = ssc.createQuery(hql.toString());
-    query.setParameter("_states", states);
-    if (sourceIds != null) {
-      query.setParameter("_source_ids", sourceIds);
-    }
     if (fromDate != null) {
       query.setParameter("_fromDate", fromDate.atStartOfDay());
     }
     if (toDate != null) {
       query.setParameter("_toDate", toDate.plusDays(1).atStartOfDay());
+    }
+    query.setParameterList("_states", states);
+    if (sourceIds != null) {
+      query.setParameterList("_source_ids", sourceIds);
     }
 
     // Done

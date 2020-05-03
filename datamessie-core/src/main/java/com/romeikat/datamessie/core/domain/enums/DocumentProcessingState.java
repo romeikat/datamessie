@@ -135,4 +135,26 @@ public enum DocumentProcessingState {
     return Sets.newHashSet(DocumentProcessingState.values());
   }
 
+  public static Set<DocumentProcessingState> getStatesForDeprocessing(
+      final DocumentProcessingState targetState) {
+    switch (targetState) {
+      case DOWNLOADED:
+        return Sets.newHashSet(DocumentProcessingState.REDIRECTED,
+            DocumentProcessingState.REDIRECTING_ERROR, DocumentProcessingState.CLEANED,
+            DocumentProcessingState.CLEANING_ERROR, DocumentProcessingState.STEMMED,
+            DocumentProcessingState.TECHNICAL_ERROR);
+      case REDIRECTED:
+        return Sets.newHashSet(DocumentProcessingState.REDIRECTING_ERROR,
+            DocumentProcessingState.CLEANED, DocumentProcessingState.CLEANING_ERROR,
+            DocumentProcessingState.STEMMED, DocumentProcessingState.TECHNICAL_ERROR);
+      case CLEANED:
+        return Sets.newHashSet(DocumentProcessingState.CLEANING_ERROR,
+            DocumentProcessingState.STEMMED, DocumentProcessingState.TECHNICAL_ERROR);
+      case STEMMED:
+        return Sets.newHashSet(DocumentProcessingState.TECHNICAL_ERROR);
+      default:
+        return Collections.emptySet();
+    }
+  }
+
 }

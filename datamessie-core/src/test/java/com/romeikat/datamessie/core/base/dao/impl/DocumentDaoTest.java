@@ -27,6 +27,7 @@ import static com.romeikat.datamessie.core.CommonOperations.insertIntoDocument;
 import static org.junit.Assert.assertEquals;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 import org.junit.Test;
@@ -76,7 +77,22 @@ public class DocumentDaoTest extends AbstractDbSetupBasedTest {
   }
 
   @Test
-  public void getDownloadedDatesWithDocuments() {
+  public void getDownloadedDatesWithDocuments_singleDates() {
+    final List<DocumentProcessingState> states =
+        Lists.newArrayList(DocumentProcessingState.CLEANED, DocumentProcessingState.STEMMED);
+    final Collection<LocalDate> downloadDates =
+        Lists.newArrayList(LocalDate.of(2019, 11, 1), LocalDate.of(2019, 11, 2));
+    final SortedMap<LocalDate, Long> downloadedDates =
+        documentDao.getDownloadedDatesWithNumberOfDocuments(sessionProvider.getStatelessSession(),
+            downloadDates, states, Lists.newArrayList(1l));
+    assertEquals(1, downloadedDates.size());
+    assertEquals(Long.valueOf(1), downloadedDates.get(LocalDate.of(2019, 11, 2)));
+
+    dbSetupTracker.skipNextLaunch();
+  }
+
+  @Test
+  public void getDownloadedDatesWithDocuments_dateRange() {
     final List<DocumentProcessingState> states =
         Lists.newArrayList(DocumentProcessingState.CLEANED, DocumentProcessingState.STEMMED);
     final SortedMap<LocalDate, Long> downloadedDates =

@@ -4,7 +4,7 @@ package com.romeikat.datamessie.core.base.util;
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2020 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,37 +22,52 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.core.domain.util.StringHashProvider;
+import com.romeikat.datamessie.core.domain.entity.SourceRule;
+import jersey.repackaged.com.google.common.base.Objects;
 
-public class UpdateTracker<T extends StringHashProvider> {
+public class UpdateTracker {
 
-  private final T object;
+  private final SourceRule sourceRule;
 
   private String stringHashBeforeUpdate;
   private String stringHashAfterUpdate;
 
-  public UpdateTracker(final T object) {
-    this.object = object;
+  private String stringHashForDateRangeBeforeUpdate;
+  private String stringHashForDateRangeAfterUpdate;
+
+  private String stringHashForLogicBeforeUpdate;
+  private String stringHashForLogicAfterUpdate;
+
+  public UpdateTracker(final SourceRule sourceRule) {
+    this.sourceRule = sourceRule;
   }
 
-  public UpdateTracker<T> beginUpdate() {
-    stringHashBeforeUpdate = object.asStringHash();
+  public UpdateTracker beginUpdate() {
+    stringHashBeforeUpdate = sourceRule.asStringHash();
+    stringHashForDateRangeBeforeUpdate = sourceRule.getStringHashForDateRange();
+    stringHashForLogicBeforeUpdate = sourceRule.getStringHashForLogic();
 
     return this;
   }
 
-  public UpdateTracker<T> endUpdate() {
-    stringHashAfterUpdate = object.asStringHash();
+  public UpdateTracker endUpdate() {
+    stringHashAfterUpdate = sourceRule.asStringHash();
+    stringHashForDateRangeAfterUpdate = sourceRule.getStringHashForDateRange();
+    stringHashForLogicAfterUpdate = sourceRule.getStringHashForLogic();
 
     return this;
   }
 
-  public boolean wasObjectUpdated() {
-    if (stringHashBeforeUpdate == null || stringHashAfterUpdate == null) {
-      return false;
-    }
+  public boolean wasSourceRuleUpdated() {
+    return !Objects.equal(stringHashBeforeUpdate, stringHashAfterUpdate);
+  }
 
-    return !stringHashBeforeUpdate.equals(stringHashAfterUpdate);
+  public boolean wasSourceRuleDateRangeUpdated() {
+    return !Objects.equal(stringHashForDateRangeBeforeUpdate, stringHashForDateRangeAfterUpdate);
+  }
+
+  public boolean wasSourceRuleLogicUpdated() {
+    return !Objects.equal(stringHashForLogicBeforeUpdate, stringHashForLogicAfterUpdate);
   }
 
 }
