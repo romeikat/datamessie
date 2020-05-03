@@ -63,6 +63,8 @@ public class SourceDto implements Serializable {
 
   private boolean statisticsChecking;
 
+  private String notes;
+
   public long getId() {
     return id;
   }
@@ -184,6 +186,14 @@ public class SourceDto implements Serializable {
 
   public void setStatisticsChecking(final boolean statisticsChecking) {
     this.statisticsChecking = statisticsChecking;
+  }
+
+  public String getNotes() {
+    return notes;
+  }
+
+  public void setNotes(final String notes) {
+    this.notes = notes;
   }
 
 }

@@ -419,6 +419,7 @@ public class SourceDao extends AbstractEntityWithIdAndVersionDao<Source> {
     dto.setCrawlingEnabled(source.getCrawlingEnabled());
     dto.setVisible(source.getVisible());
     dto.setStatisticsChecking(source.getStatisticsChecking());
+    dto.setNotes(source.getNotes());
     return dto;
   }
 

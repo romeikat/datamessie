@@ -195,6 +195,7 @@ public class SourceService {
     source.setCrawlingEnabled(sourceDto.getCrawlingEnabled());
     source.setVisible(sourceDto.getVisible());
     source.setStatisticsChecking(sourceDto.getStatisticsChecking());
+    source.setNotes(sourceDto.getNotes());
 
     // Set new types
     setSourceTypes(statelessSession, source.getId(), sourceDto.getTypes());

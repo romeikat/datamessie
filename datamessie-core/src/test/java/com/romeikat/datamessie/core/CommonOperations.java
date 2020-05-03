@@ -94,10 +94,10 @@ public class CommonOperations {
   public static Insert insertIntoSource(final Source source) {
     return insertInto(Source.TABLE_NAME)
         .columns("id", "version", "name", "language", "url", "cookie", "crawlingEnabled", "visible",
-            "statisticsChecking")
+            "statisticsChecking", "notes")
         .values(source.getId(), source.getVersion(), source.getName(), source.getLanguage(),
             source.getUrl(), source.getCookie(), source.getCrawlingEnabled(), source.getVisible(),
-            source.getStatisticsChecking())
+            source.getStatisticsChecking(), source.getNotes())
         .build();
   }
 

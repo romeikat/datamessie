@@ -36,7 +36,7 @@ License along with this program.  If not, see
 						Name:
 					</td>
 					<td>
-						<input wicket:id="name" type="text" size="50"/>
+						<input wicket:id="name" type="text" class="fullwidth"/>
 					</td>
 				</tr>
 				<tr>
@@ -52,7 +52,7 @@ License along with this program.  If not, see
 						Types:
 					</td>
 					<td>
-						<input wicket:id="types" type="hidden"/>
+						<input wicket:id="types" type="hidden" class="fullwidth"/>
 					</td>
 				</tr>
 				<tr>
@@ -60,7 +60,7 @@ License along with this program.  If not, see
 						URL:
 					</td>
 					<td>
-						<input wicket:id="url" type="text" size="50"/>
+						<input wicket:id="url" type="text" class="fullwidth"/>
 						<a href="#" target="_blank" wicket:id="urlLink" style="margin-left: 0.5em;"><img src="img/doc_page.png" alt="RSS feed"></a>
 					</td>
 				</tr>
@@ -93,7 +93,7 @@ License along with this program.  If not, see
 						Cookie:
 					</td>
 					<td>
-						<input wicket:id="cookie" type="text" size="50"/>
+						<input wicket:id="cookie" type="text" class="fullwidth"/>
 					</td>
 				</tr>
 				<tr>
@@ -118,6 +118,14 @@ License along with this program.  If not, see
 					</td>
 					<td>
 						<input wicket:id="statisticsChecking" type="checkbox"/>
+					</td>
+				</tr>
+				<tr>
+					<td class="nowrap">
+						Notes:
+					</td>
+					<td>
+						<textarea wicket:id="notes" size="50"/>
 					</td>
 				</tr>
 				<tr style="height: 10px;"/>

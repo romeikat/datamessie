@@ -49,6 +49,7 @@ public class SourceSynchronizer extends EntityWithIdAndVersionSynchronizer<Sourc
     target.setCrawlingEnabled(source.getCrawlingEnabled());
     target.setVisible(source.getVisible());
     target.setStatisticsChecking(source.getStatisticsChecking());
+    target.setNotes(source.getNotes());
   }
 
   @Override

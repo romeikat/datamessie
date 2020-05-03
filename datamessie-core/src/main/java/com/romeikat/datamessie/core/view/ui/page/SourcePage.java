@@ -28,6 +28,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.annotations.Aut
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -192,6 +193,9 @@ public class SourcePage extends AbstractAuthenticatedPage {
     // Statistics checking
     final CheckBox statisticsCheckingCheckBox = new CheckBox("statisticsChecking");
     sourceForm.add(statisticsCheckingCheckBox);
+    // Notes
+    final TextArea<String> notesTextArea = new TextArea<String>("notes");
+    sourceForm.add(notesTextArea);
 
     sessionProvider.closeStatelessSession();
   }
