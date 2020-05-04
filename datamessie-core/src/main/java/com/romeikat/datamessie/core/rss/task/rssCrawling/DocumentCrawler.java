@@ -38,7 +38,6 @@ import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.DocumentWithDownloads;
 import com.romeikat.datamessie.core.base.util.comparator.MasterDocumentWithDownloadsComparator;
-import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -223,18 +222,8 @@ public class DocumentCrawler {
     }
 
     // Delete processed entities
-    new ExecuteWithTransaction(statelessSession) {
-      @Override
-      protected void execute(final StatelessSession statelessSession) {
-        documentService.deleteProcessedEntitiesOfDocumentsWithState(statelessSession,
-            slaveDocuments, null, true, true, true, true);
-      }
-
-      @Override
-      protected boolean shouldRethrowException() {
-        return true;
-      }
-    }.execute();
+    documentService.deleteProcessedEntitiesOfDocumentsWithState(statelessSession, slaveDocuments,
+        null, true, true, true, true);
 
     // Rebuild statistics
     for (final Document slaveDocument : slaveDocuments) {
