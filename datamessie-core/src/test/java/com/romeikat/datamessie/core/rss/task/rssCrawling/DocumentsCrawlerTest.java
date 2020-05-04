@@ -36,7 +36,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StatelessSession;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -51,7 +50,6 @@ import com.romeikat.datamessie.core.base.service.DownloadService;
 import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.service.download.DownloadSession;
-import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.util.sparsetable.StatisticsRebuildingSparseTable;
 import com.romeikat.datamessie.core.domain.entity.impl.Crawling;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -74,9 +72,6 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
   @Autowired
   private ContentDownloader contentDownloader;
-
-  @Mock
-  private TaskExecution taskExecution;
 
   @Autowired
   @Qualifier("rssCrawlingDao")
@@ -168,8 +163,8 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     // Crawl
     final List<String> urls = Lists.newArrayList(url3);
-    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawling1.getId(),
-        source1.getId(), urls, null);
+    documentsCrawler.performCrawling(sessionProvider, crawling1.getId(), source1.getId(), urls,
+        null);
 
     // New document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -237,8 +232,8 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
     for (int i = 0; i < numberOfUrls; i++) {
       urls.add(url3);
     }
-    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawling1.getId(),
-        source1.getId(), Lists.newArrayList(urls), null);
+    documentsCrawler.performCrawling(sessionProvider, crawling1.getId(), source1.getId(),
+        Lists.newArrayList(urls), null);
 
     // Only one new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -308,8 +303,8 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     // Crawl
     final List<String> urls = Lists.newArrayList(url1);
-    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawling1.getId(),
-        source1.getId(), urls, null);
+    documentsCrawler.performCrawling(sessionProvider, crawling1.getId(), source1.getId(), urls,
+        null);
 
     // No document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -371,8 +366,8 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     // Crawl
     final List<String> urls = Lists.newArrayList(url2);
-    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawling1.getId(),
-        source1.getId(), urls, null);
+    documentsCrawler.performCrawling(sessionProvider, crawling1.getId(), source1.getId(), urls,
+        null);
 
     // No document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -444,8 +439,8 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     // Crawl
     final List<String> urls = Lists.newArrayList(url3, url4);
-    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawling1.getId(),
-        source1.getId(), urls, null);
+    documentsCrawler.performCrawling(sessionProvider, crawling1.getId(), source1.getId(), urls,
+        null);
 
     // Only one new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -506,8 +501,8 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
 
     // Crawl
     final List<String> urls = Lists.newArrayList(url3, url4);
-    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawling1.getId(),
-        source1.getId(), urls, null);
+    documentsCrawler.performCrawling(sessionProvider, crawling1.getId(), source1.getId(), urls,
+        null);
 
     // Only one new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -578,8 +573,8 @@ public class DocumentsCrawlerTest extends AbstractDbSetupBasedTest {
         anyString(), anyString(), any(LocalDateTime.class), eq(downloadResult3), any(Long.class),
         any(Long.class));
     final List<String> urls = Lists.newArrayList(url3, url4);
-    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawling1.getId(),
-        source1.getId(), urls, null);
+    documentsCrawler.performCrawling(sessionProvider, crawling1.getId(), source1.getId(), urls,
+        null);
 
     // Only one new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());

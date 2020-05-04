@@ -41,8 +41,6 @@ import com.romeikat.datamessie.core.base.service.DownloadService;
 import com.romeikat.datamessie.core.base.service.download.ContentDownloader;
 import com.romeikat.datamessie.core.base.service.download.DownloadResult;
 import com.romeikat.datamessie.core.base.service.download.DownloadSession;
-import com.romeikat.datamessie.core.base.task.management.TaskExecution;
-import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.SpringUtil;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
@@ -76,12 +74,8 @@ public abstract class DocumentsCrawler {
     statisticsToBeRebuilt = new StatisticsRebuildingSparseTable();
   }
 
-  public void performCrawling(final HibernateSessionProvider sessionProvider,
-      final TaskExecution taskExecution, final long crawlingId, final long sourceId,
-      final Collection<String> urls, final DownloadSession downloadSession) {
-    final TaskExecutionWork work =
-        taskExecution.reportWorkStart(String.format("Source %s: performing crawling", sourceId));
-
+  public void performCrawling(final HibernateSessionProvider sessionProvider, final long crawlingId,
+      final long sourceId, final Collection<String> urls, final DownloadSession downloadSession) {
     // Determine URLs to be crawled
     final Set<String> urlsToBeCrawled =
         getUrlsToBeCrawled(sessionProvider.getStatelessSession(), sourceId, urls);
@@ -96,9 +90,6 @@ public abstract class DocumentsCrawler {
     if (statisticsManager != null) {
       statisticsManager.rebuildStatistics(statisticsToBeRebuilt);
     }
-
-    // Done
-    taskExecution.reportWorkEnd(work);
   }
 
   private Set<String> getUrlsToBeCrawled(final StatelessSession statelessSession,

@@ -88,8 +88,7 @@ public class SourceCrawler {
     }
 
     // Process RSS feed
-    processFeed(sessionProvider, taskExecution, crawlingId, source.getId(), syndFeed,
-        downloadSession);
+    processFeed(sessionProvider, crawlingId, source.getId(), syndFeed, downloadSession);
 
     // Done
     downloadSession.close();
@@ -109,9 +108,8 @@ public class SourceCrawler {
     return syndFeed;
   }
 
-  private void processFeed(final HibernateSessionProvider sessionProvider,
-      final TaskExecution taskExecution, final long crawlingId, final long sourceId,
-      final SyndFeed feed, final DownloadSession downloadSession) {
+  private void processFeed(final HibernateSessionProvider sessionProvider, final long crawlingId,
+      final long sourceId, final SyndFeed feed, final DownloadSession downloadSession) {
     LOG.debug("Source {}: crawling documents", sourceId);
 
     // Determine entries to be processed
@@ -157,8 +155,7 @@ public class SourceCrawler {
       }
     };
     final Set<String> urls = entriesPerUrl.keySet();
-    documentsCrawler.performCrawling(sessionProvider, taskExecution, crawlingId, sourceId, urls,
-        downloadSession);
+    documentsCrawler.performCrawling(sessionProvider, crawlingId, sourceId, urls, downloadSession);
   }
 
   private Map<String, SyndEntry> getUniqueEntriesPerUrl(final long sourceId, final SyndFeed feed) {
