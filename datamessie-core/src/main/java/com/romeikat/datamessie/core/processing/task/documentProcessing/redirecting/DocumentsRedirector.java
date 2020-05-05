@@ -561,6 +561,7 @@ public class DocumentsRedirector {
     // Mark slave document to be deleted
     final Document document = relevantDocuments.get(slave.getDocumentId());
     document.setState(DocumentProcessingState.TO_BE_DELETED);
+    documentsProcessingInput.removeDocument(document);
     documentsProcessingOutput.putDocument(document);
     LOG.info("Document {} to be deleted", document.getId());
   }
