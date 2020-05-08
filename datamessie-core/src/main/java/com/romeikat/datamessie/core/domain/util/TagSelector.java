@@ -80,11 +80,6 @@ public class TagSelector {
       return false;
     }
 
-    // Either ID name or class names are required
-    if (idName == null && classNames == null) {
-      return false;
-    }
-
     return true;
   }
 
