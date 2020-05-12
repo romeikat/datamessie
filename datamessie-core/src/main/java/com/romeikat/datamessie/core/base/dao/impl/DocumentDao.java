@@ -36,6 +36,7 @@ import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.wicket.util.lang.Objects;
 import org.hibernate.SessionFactory;
 import org.hibernate.SharedSessionContract;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.Projections;
@@ -46,6 +47,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -498,6 +500,34 @@ public class DocumentDao extends AbstractEntityWithIdAndVersionDao<Document> {
       result.put(downloadedDate, numberOfDocuments);
     }
     return result;
+  }
+
+  public int resetDocumentProcessingState(final StatelessSession statelessSession,
+      final DocumentProcessingState targetState, final LocalDate downloadedDate,
+      final Collection<DocumentProcessingState> states, final Collection<Long> sourceIds) {
+    // Parameters are required
+    if (targetState == null || downloadedDate == null || CollectionUtils.isEmpty(states)
+        || CollectionUtils.isEmpty(sourceIds)) {
+      return 0;
+    }
+
+    final StringBuilder hql = new StringBuilder();
+    hql.append("update ");
+    hql.append(getEntityClass().getSimpleName() + " ");
+    hql.append("set ");
+    hql.append("state = :_targetState ");
+    hql.append("where ");
+    hql.append("downloaded >= :_downloadedDateBegin ");
+    hql.append("and downloaded < :_downloadedDateEnd ");
+    hql.append("and state IN :_states ");
+    hql.append("and sourceId IN :_sourceIds ");
+    final Query<?> query = statelessSession.createQuery(hql.toString());
+    query.setParameter("_targetState", targetState);
+    query.setParameter("_downloadedDateBegin", downloadedDate.atStartOfDay());
+    query.setParameter("_downloadedDateEnd", downloadedDate.plusDays(1).atStartOfDay());
+    query.setParameterList("_states", states);
+    query.setParameterList("_sourceIds", sourceIds);
+    return query.executeUpdate();
   }
 
 }
