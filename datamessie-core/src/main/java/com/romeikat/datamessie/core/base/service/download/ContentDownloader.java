@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Element;
@@ -192,8 +193,10 @@ public class ContentDownloader extends AbstractDownloader {
     final boolean redirectedDownloadSuccess =
         downloadResultRedirected != null && downloadResultRedirected.getContent() != null;
     if (redirectedDownloadSuccess) {
-      // Remember original URL
-      downloadResultRedirected.setOriginalUrl(url);
+      // Remember original URL, if different from URL
+      if (!StringUtils.equals(downloadResultRedirected.getUrl(), url)) {
+        downloadResultRedirected.setOriginalUrl(url);
+      }
       return downloadResultRedirected;
     }
 

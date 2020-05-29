@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -136,11 +137,12 @@ public class DocumentCrawler {
       documentService.createOrUpdateContent(statelessSession, content, documentId);
     }
 
-    // Create new downloads
-    downloadService.insertOrUpdateDownloadForUrl(statelessSession, originalUrl, sourceId,
-        documentId, downloadSuccess);
-    downloadService.insertOrUpdateDownloadForUrl(statelessSession, url, sourceId, documentId,
-        downloadSuccess);
+    // Create new downloads for unique URLs
+    final Set<String> downloadUrls = Sets.newHashSet(originalUrl, url);
+    for (final String downloadUrl : downloadUrls) {
+      downloadService.insertOrUpdateDownloadForUrl(statelessSession, downloadUrl, sourceId,
+          documentId, downloadSuccess);
+    }
 
     // Rebuild statistics
     if (published != null) {
@@ -195,11 +197,12 @@ public class DocumentCrawler {
       }
     }
 
-    // Create new downloads (if necessary)
-    downloadService.insertOrUpdateDownloadForUrl(statelessSession, originalUrl, sourceId,
-        documentId, downloadSuccess);
-    downloadService.insertOrUpdateDownloadForUrl(statelessSession, url, sourceId, documentId,
-        downloadSuccess);
+    // Create new downloads for unique URLs (if necessary)
+    final Set<String> downloadUrls = Sets.newHashSet(originalUrl, url);
+    for (final String downloadUrl : downloadUrls) {
+      downloadService.insertOrUpdateDownloadForUrl(statelessSession, downloadUrl, sourceId,
+          documentId, downloadSuccess);
+    }
 
     return result;
   }

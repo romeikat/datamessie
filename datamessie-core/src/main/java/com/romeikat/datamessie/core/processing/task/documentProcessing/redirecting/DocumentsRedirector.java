@@ -199,7 +199,7 @@ public class DocumentsRedirector {
     final Collection<Long> documentIds = determineRelevantDocumentIds(sessionProvider, sourceId,
         documentId2DocumentRedirectingResult);
 
-    // Load downloads with document for all relevant document IDs:
+    // Load downloads with document for all relevant document IDs
     final Multimap<Long, Download> relevantDownloads = getDownloadsPerDocumentIdCallback
         .getDownloadIdsWithEntities(sessionProvider.getStatelessSession(), documentIds);
     final Map<Long, Document> relevantDocuments = Maps.newHashMap(getDocumentIdsWithEntitiesCallback
@@ -419,13 +419,10 @@ public class DocumentsRedirector {
               && documentRedirectingResult.getRedirectedDownloadResult().getContent() != null;
 
       // Create or update the two downloads
-      if (StringUtils.isNotBlank(redirectedUrl)) {
-        createUrUpdateDownload(downloadsWithDocument, documents, redirectedUrl, sourceId,
-            documentId, downloadSuccess, documentsToBeMerged);
-      }
-      if (StringUtils.isNotBlank(redirectedOriginalUrl)) {
-        createUrUpdateDownload(downloadsWithDocument, documents, redirectedOriginalUrl, sourceId,
-            documentId, downloadSuccess, documentsToBeMerged);
+      final Set<String> downloadUrls = Sets.newHashSet(redirectedUrl, redirectedOriginalUrl);
+      for (final String downloadUrl : downloadUrls) {
+        createUrUpdateDownload(downloadsWithDocument, documents, downloadUrl, sourceId, documentId,
+            downloadSuccess, documentsToBeMerged);
       }
     }
 
@@ -441,6 +438,10 @@ public class DocumentsRedirector {
       final Map<Long, Document> documents, final String url, final long sourceId,
       final long documentId, final boolean downloadSuccess,
       final DisjointSet<Document> documentsToBeMerged) {
+    if (url == null) {
+      return;
+    }
+
     // Prepare new download
     final Download possiblyNewDownload = new Download(0, sourceId, documentId, downloadSuccess);
     possiblyNewDownload.setUrl(url);
