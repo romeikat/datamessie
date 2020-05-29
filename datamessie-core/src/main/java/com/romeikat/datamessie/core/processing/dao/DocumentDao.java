@@ -34,6 +34,8 @@ import org.hibernate.SharedSessionContract;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,6 +63,8 @@ import jersey.repackaged.com.google.common.collect.Maps;
 
 @Repository("processingDocumentDao")
 public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.DocumentDao {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DocumentDao.class);
 
   @Value("${documents.processing.parallelism.factor}")
   private Double processingParallelismFactor;
@@ -207,7 +211,13 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
       return;
     }
 
-    update(statelessSession, document);
+    try {
+      update(statelessSession, document);
+    } catch (final Exception e) {
+      LOG.error("Could not update document {} in version {}}", document.getId(),
+          document.getVersion());
+      throw e;
+    }
   }
 
   private void createOrUpdateDownloads(final StatelessSession statelessSession,
