@@ -63,14 +63,22 @@ public abstract class AbstractDownloader {
     // Try as many times as desired
     for (int attempt = 0; attempt < attempts; attempt++) {
       final DownloadResult downloadResult = download(url, downloadSession);
+
+      // Return, if successful
       final boolean downloadSuccess = downloadResult.getContent() != null;
-      // Return, if successful or last attempt
-      if (downloadSuccess || attempt >= attempts - 1) {
+      if (downloadSuccess) {
+        return downloadResult;
+      }
+
+      // Return anyway, if last attempt
+      if (attempt >= attempts - 1) {
+        LOG.info("Could not download " + url);
         return downloadResult;
       }
     }
 
     // Fallback
+    LOG.info("Could not download " + url);
     return new DownloadResult(null, url, null, null, LocalDateTime.now(), null);
   }
 
@@ -94,7 +102,13 @@ public abstract class AbstractDownloader {
     final HttpClientContext context = HttpClientContext.create();
 
     // Request
-    final HttpGet request = new HttpGet(url);
+    final HttpGet request;
+    try {
+      request = new HttpGet(url);
+    } catch (final IllegalArgumentException e) {
+      LOG.debug("Could not download " + url, e);
+      return new DownloadResult(originalUrl, url, content, charset, downloaded, statusCode);
+    }
 
     // Response
     boolean downloadSuccess = false;
@@ -137,9 +151,6 @@ public abstract class AbstractDownloader {
     }
 
     // Done
-    if (!downloadSuccess) {
-      LOG.info("Could not download " + url);
-    }
     if (!downloadSessionProvided) {
       downloadSession.close();
     }
@@ -147,7 +158,22 @@ public abstract class AbstractDownloader {
   }
 
   protected boolean isValidRedirection(final String originalUrl, final String redirectedUrl) {
-    return Strings.isNotEmpty(redirectedUrl) && !StringUtils.equals(originalUrl, redirectedUrl);
+    // Validate redirected URL
+    if (Strings.isEmpty(redirectedUrl)) {
+      return false;
+    }
+    try {
+      URI.create(redirectedUrl);
+    } catch (final IllegalArgumentException e) {
+      return false;
+    }
+
+    // Compare both URLs
+    if (StringUtils.equals(originalUrl, redirectedUrl)) {
+      return false;
+    }
+
+    return true;
   }
 
   protected String getRedirectedUrl(final String url, final String responseUrl)
