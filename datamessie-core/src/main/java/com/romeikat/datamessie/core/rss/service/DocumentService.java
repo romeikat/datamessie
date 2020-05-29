@@ -24,6 +24,8 @@ License along with this program.  If not, see
 import java.time.LocalDateTime;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.StatelessSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -36,6 +38,8 @@ import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 
 @Service("rssDocumentService")
 public class DocumentService extends com.romeikat.datamessie.core.base.service.DocumentService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(DocumentService.class);
 
   @Autowired
   private DocumentDao documentDao;
@@ -120,7 +124,13 @@ public class DocumentService extends com.romeikat.datamessie.core.base.service.D
     }
     document.setCrawlingId(crawlingId);
 
-    documentDao.update(statelessSession, document);
+    try {
+      documentDao.update(statelessSession, document);
+    } catch (final Exception e) {
+      LOG.error("Could not update document {} in version {} with URL {} and state {}}",
+          document.getId(), document.getVersion(), url, state);
+      throw e;
+    }
   }
 
 }
