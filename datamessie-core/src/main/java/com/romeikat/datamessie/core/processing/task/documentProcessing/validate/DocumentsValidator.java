@@ -82,7 +82,7 @@ public class DocumentsValidator {
       final Source source) {
     // A missing raw content must only occur in case of a download error
     if (rawContent == null && document.getState() != DocumentProcessingState.DOWNLOAD_ERROR) {
-      LOG.warn("Raw content is missing for document {}", document.getId());
+      LOG.error("Raw content is missing for document {}", document.getId());
 
       document.setState(DocumentProcessingState.TECHNICAL_ERROR);
       outputEmptyResults(document);
@@ -92,7 +92,7 @@ public class DocumentsValidator {
 
     // A source must be present
     if (source == null) {
-      LOG.warn("Source is missing for document {}", document.getId());
+      LOG.error("Source is missing for document {}", document.getId());
 
       document.setState(DocumentProcessingState.TECHNICAL_ERROR);
       outputEmptyResults(document);

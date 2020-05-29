@@ -163,7 +163,7 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
         try {
           create(rhsSessionProvider.getStatelessSession(), lhsEntity);
         } catch (final ConstraintViolationException e) {
-          LOG.info("Could not create entity {} at RHS", lhsEntity.getId());
+          LOG.warn("Could not create entity {} at RHS", lhsEntity.getId());
           rhsSessionProvider.closeStatelessSession();
           failedLhsIds.add(lhsEntity.getId());
         }
@@ -274,7 +274,7 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
       // Update version
       updateVersion(rhsSessionProvider.getStatelessSession(), lhsEntity, rhsEntity);
     } catch (final ConstraintViolationException e) {
-      LOG.info("Could not update entity {} at RHS", lhsEntity.getId());
+      LOG.warn("Could not update entity {} at RHS", lhsEntity.getId());
       rhsSessionProvider.closeStatelessSession();
       failedLhsIds.add(lhsEntity.getId());
       deleteFailed(rhsSessionProvider.getStatelessSession(), lhsEntity.getId());

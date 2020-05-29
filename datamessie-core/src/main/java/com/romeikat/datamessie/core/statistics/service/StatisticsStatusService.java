@@ -216,7 +216,7 @@ public class StatisticsStatusService {
     // No criticals
     if (numberOfCriticalSources == 0) {
       msg.append("everything is alright");
-      LOG.info(msg.toString());
+      LOG.debug(msg.toString());
     }
     // Criticals
     else {
@@ -231,7 +231,7 @@ public class StatisticsStatusService {
       msg.append(stringUtil.getSingularOrPluralTerm("is", "are", numberOfCriticalSources));
       msg.append(" critical: ");
       msg.append(StringUtils.join(criticalSourceNames, ", "));
-      LOG.warn(msg.toString());
+      LOG.info(msg.toString());
     }
 
     // Done

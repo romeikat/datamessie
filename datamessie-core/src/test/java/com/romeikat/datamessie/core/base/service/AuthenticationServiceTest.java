@@ -93,9 +93,9 @@ public class AuthenticationServiceTest extends AbstractTest {
     final byte[] salt = authenticationService.createSalt();
     final byte[] hash = authenticationService.calculateHash(password, salt);
 
-    LOG.info("Password: {}", password);
-    LOG.info("Salt: {}", Hex.encodeHexString(salt));
-    LOG.info("Hash: {}", Hex.encodeHexString(hash));
+    LOG.debug("Password: {}", password);
+    LOG.debug("Salt: {}", Hex.encodeHexString(salt));
+    LOG.debug("Hash: {}", Hex.encodeHexString(hash));
   }
 
 }

@@ -75,13 +75,13 @@ public class NamedEntityService {
       final NamedEntity namedEntity =
           namedEntitiesById.get(namedEntityOccurrence.getNamedEntityId());
       if (namedEntity == null) {
-        LOG.warn("No named entity with ID {} found", namedEntityOccurrence.getNamedEntityId());
+        LOG.error("No named entity with ID {} found", namedEntityOccurrence.getNamedEntityId());
         continue;
       }
       final NamedEntity parentNamedEntity =
           namedEntitiesById.get(namedEntityOccurrence.getParentNamedEntityId());
       if (parentNamedEntity == null) {
-        LOG.warn("No parent named entity with ID {} found",
+        LOG.error("No parent named entity with ID {} found",
             namedEntityOccurrence.getParentNamedEntityId());
         continue;
       }

@@ -68,7 +68,8 @@ public class DocumentRedirectingService {
     // Download redirected URL, if one was found
     final boolean wasRedirectingUrlFound = redirectedUrl != null;
     final DownloadResult redirectedDownloadResult = wasRedirectingUrlFound
-        ? contentDownloader.downloadContent(redirectedUrl, !wasUserDefinedRedirectingUrlFound, downloadSession)
+        ? contentDownloader.downloadContent(redirectedUrl, !wasUserDefinedRedirectingUrlFound,
+            downloadSession)
         : null;
 
     // Done
@@ -115,7 +116,7 @@ public class DocumentRedirectingService {
       }
       // Use most frequent link, if one was found
       if (mostFrequentLinkTarget != null) {
-        LOG.info("Redirection (hard coded advertisment): {} -> {}", document.getUrl(),
+        LOG.debug("Redirection (hard coded advertisment): {} -> {}", document.getUrl(),
             mostFrequentLinkTarget);
         return mostFrequentLinkTarget;
       }

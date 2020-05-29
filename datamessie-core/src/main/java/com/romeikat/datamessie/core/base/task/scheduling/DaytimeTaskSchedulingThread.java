@@ -71,7 +71,7 @@ public abstract class DaytimeTaskSchedulingThread extends Thread {
       // Determine task execution daytime
       final LocalTime taskExecutionDaytime = getTaskExecutionDaytime();
       if (taskExecutionDaytime == null) {
-        LOG.warn("No more scheduling task \"{}\" as task execution daytime is not available",
+        LOG.error("No more scheduling task \"{}\" as task execution daytime is not available",
             getTaskName());
         break;
       }
@@ -104,7 +104,7 @@ public abstract class DaytimeTaskSchedulingThread extends Thread {
       // Check whether this execution should be skipped
       final boolean shouldSkipTaskExecution = shouldSkipTaskExecution();
       if (shouldSkipTaskExecution) {
-        LOG.info("Skippig task execution for task \"{}\" as desired", getTaskName());
+        LOG.debug("Skippig task execution for task \"{}\" as desired", getTaskName());
         waitMillis(1000);
         continue;
       }
@@ -112,9 +112,9 @@ public abstract class DaytimeTaskSchedulingThread extends Thread {
       // Execute task
       final Task task = getTask();
       if (task == null) {
-        LOG.warn("Not executing task \"{}\" as task is not available", getTaskName());
+        LOG.error("Not executing task \"{}\" as task is not available", getTaskName());
       } else {
-        LOG.info("Executing task \"{}\"", getTaskName());
+        LOG.debug("Executing task \"{}\"", getTaskName());
         latestTaskExecution = getTaskManager().addTask(task);
       }
 
@@ -129,9 +129,9 @@ public abstract class DaytimeTaskSchedulingThread extends Thread {
     final LocalDateTime nextStart = getNextStart(taskExecutionDaytime);
     final long delay = DateUtil.getDelayUntil(nextStart);
     if (delay == 0) {
-      LOG.info("Scheduling task \"{}\" to be executed immediately", getTaskName());
+      LOG.debug("Scheduling task \"{}\" to be executed immediately", getTaskName());
     } else {
-      LOG.info("Scheduling task \"{}\" to be executed at {}", getTaskName(),
+      LOG.debug("Scheduling task \"{}\" to be executed at {}", getTaskName(),
           DATE_TIME_FPRMATTER.format(nextStart));
       waitMillis(delay);
     }

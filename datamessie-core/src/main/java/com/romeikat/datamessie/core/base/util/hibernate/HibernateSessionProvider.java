@@ -100,7 +100,7 @@ public class HibernateSessionProvider {
       session.clear();
       session.close();
     } catch (final Exception e) {
-      LOG.warn("Could not close session", e);
+      LOG.debug("Could not close session", e);
     }
   }
 
@@ -108,7 +108,7 @@ public class HibernateSessionProvider {
     try {
       statelessSession.close();
     } catch (final Exception e) {
-      LOG.warn("Could not close stateless session", e);
+      LOG.debug("Could not close stateless session", e);
     }
   }
 

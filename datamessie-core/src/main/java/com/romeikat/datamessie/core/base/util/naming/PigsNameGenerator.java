@@ -62,7 +62,7 @@ public class PigsNameGenerator implements NameGenerator {
     try {
       d = Jsoup.connect(url).get();
     } catch (final IOException e) {
-      LOG.error("Cannot extract pig names", e);
+      LOG.warn("Cannot extract pig names", e);
       return null;
     }
 

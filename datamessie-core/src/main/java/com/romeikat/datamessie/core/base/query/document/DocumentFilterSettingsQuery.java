@@ -183,7 +183,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
       final Class<?> clazz = entry.getKey();
       final EntityWithIdQuery<?> query = getQuery(clazz);
       if (query == null) {
-        LOG.warn("No query for class {} available", clazz.getName());
+        LOG.error("No query for class {} available", clazz.getName());
         continue;
       }
 
@@ -195,7 +195,7 @@ public class DocumentFilterSettingsQuery<E extends EntityWithId> {
     for (final Entry<Class<?>, Order> entry : orders.entries()) {
       final Class<?> clazz = entry.getKey();
       if (clazz != targetClass) {
-        LOG.warn("Order for class {} cannot be applied to target class {}", clazz.getName(),
+        LOG.error("Order for class {} cannot be applied to target class {}", clazz.getName(),
             targetClass.getName());
         continue;
       }

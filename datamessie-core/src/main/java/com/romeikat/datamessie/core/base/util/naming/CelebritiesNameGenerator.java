@@ -72,7 +72,7 @@ public class CelebritiesNameGenerator implements NameGenerator {
       final JsonObject jsonObject = jsonReader.readObject();
       return jsonObject;
     } catch (final IOException e) {
-      LOG.error("Could not read JSON object", e);
+      LOG.warn("Could not read JSON object", e);
       return null;
     }
   }

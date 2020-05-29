@@ -385,7 +385,7 @@ public class DocumentsRedirector {
 
       final Document document = documents.get(documentId);
       if (document == null) {
-        LOG.warn("No document found for download {}", download.getId());
+        LOG.error("No document found for download {}", download.getId());
         continue;
       }
 
@@ -563,7 +563,7 @@ public class DocumentsRedirector {
     document.setState(DocumentProcessingState.TO_BE_DELETED);
     documentsProcessingInput.removeDocument(document);
     documentsProcessingOutput.putDocument(document);
-    LOG.info("Document {} to be deleted", document.getId());
+    LOG.debug("Document {} to be deleted", document.getId());
   }
 
   private void persistProperResults(final Collection<Document> documents) {

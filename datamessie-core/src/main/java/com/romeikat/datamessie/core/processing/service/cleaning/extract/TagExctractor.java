@@ -82,7 +82,7 @@ public class TagExctractor {
     for (final TagSelectingRule activeTagSelectingRule : activeTagSelectingRules) {
       selectors.add(activeTagSelectingRule.getSelector());
     }
-    LOG.warn(
+    LOG.info(
         "Could not extract content of document {} ({}) as none of the tag selectors {} of source {} resulted in a unique match",
         document.getId(), document.getUrl(), StringUtils.join(selectors, ", "),
         document.getSourceId());

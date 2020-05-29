@@ -155,7 +155,7 @@ public abstract class FileUploadPanel extends ModalContentPanel {
                 try {
                   uploadStream = uploadedFile.getInputStream();
                 } catch (final IOException e) {
-                  LOG.error("Could not read content from uploaded file", e);
+                  LOG.warn("Could not read content from uploaded file", e);
                   return;
                 }
                 final Scanner uploadFileScanner = new Scanner(uploadStream, "UTF-8");

@@ -70,7 +70,7 @@ public class ContentDownloader extends AbstractDownloader {
         buildDownloadResultOverall(url, downloadResultOriginal, downloadResultRedirected);
     final boolean downloadSuccess = downloadResult.getContent() != null;
     if (!downloadSuccess) {
-      LOG.warn("Could not download content from " + url);
+      LOG.info("Could not download content from " + url);
     }
 
     // Process content
@@ -83,7 +83,7 @@ public class ContentDownloader extends AbstractDownloader {
     try {
       return Jsoup.parse(downloadResult.getContent(), downloadResult.getUrl());
     } catch (final Exception e) {
-      LOG.warn("Could not parse content of " + downloadResult.getUrl(), e);
+      LOG.info("Could not parse content of " + downloadResult.getUrl(), e);
       return null;
     }
   }

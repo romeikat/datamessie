@@ -83,7 +83,7 @@ public class SourceCrawler {
     // Download RSS feed
     final SyndFeed syndFeed = downloadFeed(source, downloadSession);
     if (syndFeed == null) {
-      LOG.debug("Source {}: RSS feed could not be downloaded", source.getId());
+      LOG.warn("Source {}: RSS feed could not be downloaded", source.getId());
       return;
     }
 

@@ -55,7 +55,7 @@ public class RssFeedDownloader extends AbstractDownloader {
         download(sourceUrl, downloadAttempts, downloadSession);
     final boolean feedDownloadSuccess = downloadResultFeed.getContent() != null;
     if (!feedDownloadSuccess) {
-      LOG.warn("Could not download feed from " + sourceUrl);
+      LOG.info("Could not download feed from " + sourceUrl);
       return null;
     }
 
@@ -70,7 +70,7 @@ public class RssFeedDownloader extends AbstractDownloader {
       final SyndFeed syndFeed = syndFeedInput.build(xmlReader);
       return syndFeed;
     } catch (final Exception e) {
-      LOG.warn("Could not parse feed from " + sourceUrl, e);
+      LOG.info("Could not parse feed from " + sourceUrl, e);
       return null;
     }
   }

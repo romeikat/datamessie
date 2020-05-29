@@ -54,7 +54,7 @@ public class SharedBeanProvider {
       }
     }
     if (sharedBeans.isEmpty()) {
-      LOG.warn("No shared bean of type {} found", clazz.getName());
+      LOG.error("No shared bean of type {} found", clazz.getName());
       return null;
     }
     Collections.sort(sharedBeans, ORDER_COMPARATOR);
