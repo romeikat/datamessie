@@ -94,7 +94,8 @@ public class DocumentDao extends com.romeikat.datamessie.core.base.dao.impl.Docu
       final LocalDate toDate, final Collection<DocumentProcessingState> states,
       final Collection<Long> sourceIds, final Collection<Long> excludedDocumentIds,
       final int maxResults) {
-    if (fromDate == null || toDate == null || states.isEmpty() || sourceIds.isEmpty()) {
+    if (fromDate == null || toDate == null || CollectionUtils.isEmpty(states)
+        || CollectionUtils.isEmpty(sourceIds)) {
       return Collections.emptyList();
     }
 
