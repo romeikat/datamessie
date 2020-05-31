@@ -25,6 +25,7 @@ License along with this program.  If not, see
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import javax.validation.constraints.NotNull;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +34,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
-import com.romeikat.datamessie.core.base.task.management.TaskExecution;
-import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -49,8 +48,6 @@ public class DocumentsLoader {
   @Value("${documents.processing.batch.size}")
   private int batchSize;
 
-  private TaskExecutionWork work;
-
   @Autowired
   @Qualifier("processingDocumentDao")
   private DocumentDao documentDao;
@@ -58,43 +55,34 @@ public class DocumentsLoader {
   private DocumentsLoader() {}
 
   public List<Document> loadDocumentsToProcess(final StatelessSession statelessSession,
-      final TaskExecution taskExecution, final LocalDate fromDate, final LocalDate toDate,
+      final LocalDate fromDate, final LocalDate toDate,
       final Collection<DocumentProcessingState> statesForProcessing,
       final Collection<Long> sourceIds, final Collection<Long> excludedDocumentIds)
       throws TaskCancelledException {
     try {
-      final boolean oneDateOnly = Objects.equal(fromDate, toDate);
-      final StringBuilder msgBefore = new StringBuilder();
-      msgBefore.append("Loading documents to process for download date");
-      if (oneDateOnly) {
-        msgBefore.append(String.format(" %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate)));
-      } else {
-        msgBefore.append(
-            String.format("s %s to %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate),
-                LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
-      }
-      work = taskExecution.reportWorkStart(msgBefore.toString());
-
       // Load documents
+      LOG.debug(createLogMessage(fromDate, toDate));
       final List<Document> documentsToProcess = documentDao.getToProcess(statelessSession, fromDate,
           toDate, statesForProcessing, sourceIds, excludedDocumentIds, batchSize);
-
-      final String msgAfter = work.getMessage().replace("Loading", "Loaded");
-      work.setMessage(msgAfter);
-      taskExecution.reportWorkEnd(work);
-
-      if (documentsToProcess.isEmpty()) {
-        taskExecution.removeWork(work);
-      }
-
-      taskExecution.checkpoint();
       return documentsToProcess;
     } catch (final Exception e) {
-      taskExecution.reportWorkEnd(work);
-      taskExecution.reportWork("Could not load documents to process");
       LOG.error("Could not load documents to process", e);
       return null;
     }
+  }
+
+  private String createLogMessage(final LocalDate fromDate, @NotNull final LocalDate toDate) {
+    final StringBuilder result = new StringBuilder();
+    final boolean oneDateOnly = Objects.equal(fromDate, toDate);
+    result.append("Loading documents to process for download date");
+    if (oneDateOnly) {
+      result.append(String.format(" %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate)));
+    } else {
+      result.append(
+          String.format("s %s to %s", LocalDateConverter.INSTANCE_UI.convertToString(fromDate),
+              LocalDateConverter.INSTANCE_UI.convertToString(toDate)));
+    }
+    return result.toString();
   }
 
 }

@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.util.Date;
+import java.util.function.Function;
 import com.romeikat.datamessie.core.base.util.converter.DateConverter;
 
 public class TaskExecutionWork {
@@ -47,6 +48,10 @@ public class TaskExecutionWork {
 
   public void setMessage(final String message) {
     this.message = message;
+  }
+
+  public void alterMessage(final Function<String, String> f) {
+    message = f.apply(message);
   }
 
   public Long getStart() {

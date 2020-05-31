@@ -56,6 +56,7 @@ import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
 import com.romeikat.datamessie.core.base.util.StringUtil;
+import com.romeikat.datamessie.core.base.util.converter.LocalDateConverter;
 import com.romeikat.datamessie.core.base.util.function.EntityWithIdToIdFunction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.SequentialAsynchronousTask;
@@ -240,6 +241,7 @@ public class DocumentsProcessingTask implements Task {
       // Initialize
       initializeProcessingIfNecessary(taskExecution, fromDate, toDate, statesForProcessing,
           sourceIdsForProcessing);
+      final TaskExecutionWork work = taskExecution.reportWorkStart(createProcessingMessage(null));
 
       // Load documents within date range
       final Collection<Long> previousDocumentIds =
@@ -249,18 +251,17 @@ public class DocumentsProcessingTask implements Task {
       } else {
         final Collection<Long> documentIdsToIgnore =
             SequentialAsynchronousTask.ASYNC ? previousDocumentIds : null;
-        documentsToProcess = documentsLoader.loadDocumentsToProcess(
-            sessionProvider.getStatelessSession(), taskExecution,
-            processingDates.getProcessingFromDate(), processingDates.getProcessingToDate(),
-            statesForProcessing, sourceIdsForProcessing, documentIdsToIgnore);
+        documentsToProcess =
+            documentsLoader.loadDocumentsToProcess(sessionProvider.getStatelessSession(),
+                processingDates.getProcessingFromDate(), processingDates.getProcessingToDate(),
+                statesForProcessing, sourceIdsForProcessing, documentIdsToIgnore);
       }
 
       // Process date range
-      if (CollectionUtils.isNotEmpty(documentsToProcess)) {
-        final String singularPlural =
-            stringUtil.getSingularOrPluralTerm("document", documentsToProcess.size());
-        final TaskExecutionWork work = taskExecution.reportWorkStart(
-            String.format("Processing %s %s", documentsToProcess.size(), singularPlural));
+      if (CollectionUtils.isEmpty(documentsToProcess)) {
+        taskExecution.removeWork(work);
+      } else {
+        work.setMessage(createProcessingMessage(documentsToProcess.size()));
 
         final DocumentsProcessor documentsProcessor = new DocumentsProcessor(
             documentRedirectingService::redirect, downloadDao::getForDocuments,
@@ -284,6 +285,7 @@ public class DocumentsProcessingTask implements Task {
         rebuildStatistics(documentsProcessor.getStatisticsToBeRebuilt());
         reindexDocuments(documentsToProcess);
 
+        work.alterMessage(msg -> msg.replace("Processing", "Processed"));
         taskExecution.reportWorkEnd(work);
         taskExecution.checkpoint();
       }
@@ -346,7 +348,7 @@ public class DocumentsProcessingTask implements Task {
     }
 
     final TaskExecutionWork work =
-        taskExecution.reportWorkStart(String.format("Initializing processing"));
+        taskExecution.reportWorkStart(String.format("Initializing processing for download dates"));
 
     // Initialize all numbers and processing dates
     initializeNumbersAndProcessingDates(fromDate, toDate, statesForProcessing,
@@ -354,6 +356,37 @@ public class DocumentsProcessingTask implements Task {
     restartProcessing = false;
 
     taskExecution.reportWorkEnd(work);
+  }
+
+  private String createProcessingMessage(final Integer numberOfDocuments) {
+    final StringBuilder result = new StringBuilder();
+
+    // Processing
+    result.append("Processing ");
+
+    // Documents
+    if (numberOfDocuments != null) {
+      result.append(String.format("%s ", numberOfDocuments));
+      result.append(
+          String.format("%s ", stringUtil.getSingularOrPluralTerm("document", numberOfDocuments)));
+
+    } else {
+      result.append("documents ");
+    }
+
+    // From date
+    result.append("for ");
+    result.append(String.format("%s",
+        LocalDateConverter.INSTANCE_UI.convertToString(processingDates.getProcessingFromDate())));
+    // To date
+    final boolean multipleDates = !Objects.equal(processingDates.getProcessingFromDate(),
+        processingDates.getProcessingToDate());
+    if (multipleDates) {
+      result.append(String.format(" to %s",
+          LocalDateConverter.INSTANCE_UI.convertToString(processingDates.getProcessingToDate())));
+    }
+
+    return result.toString();
   }
 
   private void prepareForNextIteration(final TaskExecution taskExecution, final LocalDate toDate,
