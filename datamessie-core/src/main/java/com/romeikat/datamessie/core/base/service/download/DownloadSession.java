@@ -24,6 +24,7 @@ License along with this program.  If not, see
 
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.cookie.ClientCookie;
@@ -105,8 +106,9 @@ public class DownloadSession implements AutoCloseable {
   private static CloseableHttpClient createClient(final String userAgent, final int timeout,
       final BasicCookieStore cookieStore) {
     final HttpClientConnectionManager connectionManager = createConnectionManager();
-    final RequestConfig config = RequestConfig.custom().setConnectTimeout(timeout)
-        .setConnectionRequestTimeout(timeout).setSocketTimeout(timeout).build();
+    final RequestConfig config =
+        RequestConfig.custom().setConnectTimeout(timeout).setConnectionRequestTimeout(timeout)
+            .setSocketTimeout(timeout).setCookieSpec(CookieSpecs.STANDARD).build();
     final CloseableHttpClient client =
         HttpClients.custom().setConnectionManager(connectionManager).setDefaultRequestConfig(config)
             .setUserAgent(userAgent).setDefaultCookieStore(cookieStore).build();
