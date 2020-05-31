@@ -84,6 +84,8 @@ public class SourceCrawler {
     final SyndFeed syndFeed = downloadFeed(source, downloadSession);
     if (syndFeed == null) {
       LOG.warn("Source {}: RSS feed could not be downloaded", source.getId());
+      downloadSession.close();
+      taskExecution.reportWorkEnd(work);
       return;
     }
 
