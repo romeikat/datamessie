@@ -48,7 +48,7 @@ public class SourceTypeIdFilter extends Select2MultiChoice<Long> {
     // Settings
     final Settings settings = getSettings();
     settings.setWidth("300px");
-    settings.setPlaceholder("Select source types (boolean AND)");
+    settings.setPlaceholder("Select source types");
     settings.setAllowClear(true);
     settings.setMinimumResultsForSearch(20);
   }
