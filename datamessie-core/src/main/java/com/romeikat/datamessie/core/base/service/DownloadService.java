@@ -23,6 +23,7 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.hibernate.SharedSessionContract;
@@ -37,6 +38,7 @@ import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.base.dao.impl.DownloadDao;
 import com.romeikat.datamessie.core.base.util.DocumentWithDownloads;
+import com.romeikat.datamessie.core.base.util.comparator.AbstractIdComparator;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
 import com.romeikat.datamessie.core.domain.entity.impl.Download;
 import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
@@ -70,6 +72,7 @@ public class DownloadService {
     final List<DocumentWithDownloads> documentsWithDownloads =
         Lists.newArrayListWithExpectedSize(urls.size());
 
+    // Process URLs
     final Set<Long> processedDocumentIds = Sets.newHashSetWithExpectedSize(urls.size());
     for (final String url : urls) {
       final DocumentWithDownloads documentWithDownloads =
@@ -86,6 +89,16 @@ public class DownloadService {
       processedDocumentIds.add(documentId);
       documentsWithDownloads.add(documentWithDownloads);
     }
+
+    // Sort by document ID
+    final AbstractIdComparator<DocumentWithDownloads> DocumentWithDownloadsComparator =
+        new AbstractIdComparator<DocumentWithDownloads>() {
+          @Override
+          protected long getId(final DocumentWithDownloads documentWithDownloads) {
+            return documentWithDownloads.getDocumentId();
+          }
+        };
+    Collections.sort(documentsWithDownloads, DocumentWithDownloadsComparator);
 
     return documentsWithDownloads;
   }

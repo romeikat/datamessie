@@ -4,7 +4,7 @@ package com.romeikat.datamessie.core.base.util.comparator;
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2020 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,13 +22,17 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import com.romeikat.datamessie.core.domain.util.Identifiable;
+import java.util.Comparator;
 
-public class IdComparator<T extends Identifiable> extends AbstractIdComparator<T> {
+public abstract class AbstractIdComparator<T> implements Comparator<T> {
 
   @Override
-  protected long getId(final T o) {
-    return o.getId();
+  public int compare(final T o1, final T o2) {
+    final long l1 = getId(o1);
+    final long l2 = getId(o2);
+    return Long.compare(l1, l2);
   }
+
+  protected abstract long getId(T o);
 
 }
