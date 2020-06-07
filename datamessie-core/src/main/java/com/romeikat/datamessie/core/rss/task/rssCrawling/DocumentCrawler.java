@@ -26,10 +26,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.hibernate.StatelessSession;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -140,8 +142,18 @@ public class DocumentCrawler {
     // Create new downloads for unique URLs
     final Set<String> downloadUrls = Sets.newHashSet(originalUrl, url);
     for (final String downloadUrl : downloadUrls) {
-      downloadService.insertOrUpdateDownloadForUrl(statelessSession, downloadUrl, sourceId,
-          documentId, downloadSuccess);
+      try {
+        downloadService.insertOrUpdateDownloadForUrl(statelessSession, downloadUrl, sourceId,
+            documentId, downloadSuccess);
+      } catch (final ConstraintViolationException e) {
+        final HashSet<String> otherDownloadUrls = Sets.newHashSet(downloadUrls);
+        otherDownloadUrls.remove(downloadUrl);
+        final String msg = String.format(
+            "Source {}, document {}: could not insert or update download URL {}; other download URLs: {}",
+            sourceId, documentId, downloadUrl, otherDownloadUrls);
+        LOG.error(msg, e);
+        throw e;
+      }
     }
 
     // Rebuild statistics
