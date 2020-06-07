@@ -83,7 +83,11 @@ public abstract class ExecuteWithTransactionAndResult<T> {
   }
 
   private void rollbackTransaction(final Transaction tx) {
-    if (tx == null) {
+    if (tx == null || !tx.isActive()) {
+      return;
+    }
+
+    if (!statelessSession.isOpen()) {
       return;
     }
 

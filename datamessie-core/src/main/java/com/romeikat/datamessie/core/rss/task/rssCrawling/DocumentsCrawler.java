@@ -178,7 +178,6 @@ public abstract class DocumentsCrawler {
       @Override
       protected void onException(final Exception e) {
         LOG.error("Source " + sourceId + ": could not perform crawling for " + url, e);
-        sessionProvider.closeStatelessSession();
       }
     }.execute();
   }
