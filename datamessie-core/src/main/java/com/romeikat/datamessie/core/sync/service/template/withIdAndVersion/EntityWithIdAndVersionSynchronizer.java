@@ -125,7 +125,7 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
         if (!moreBatches) {
           return;
         }
-      } catch (final PersistenceException e) {
+      } catch (final Exception e) {
         retry(taskExecution);
       }
     }

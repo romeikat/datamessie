@@ -23,7 +23,6 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
-import javax.persistence.PersistenceException;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
@@ -83,7 +82,7 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
       try {
         synchronizeAll(taskExecution);
         break;
-      } catch (final PersistenceException e) {
+      } catch (final Exception e) {
         retry(taskExecution);
       }
     }
