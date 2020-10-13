@@ -66,7 +66,7 @@
 		<commons-lang3.version>3.4</commons-lang3.version>
 		<commons-math3.version>3.5</commons-math3.version>
 		<slf4j.version>1.7.12</slf4j.version>
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13.1</junit.version>
 		<mockito.version>1.10.19</mockito.version>
 		<dbsetup.version>2.0.0</dbsetup.version>
 		<activation.version>1.1.1</activation.version>
