@@ -1,5 +1,8 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.Set;
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -23,6 +26,7 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityOccurrenceDao;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityOccurrence;
@@ -32,13 +36,27 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 public class NamedEntityOccurrenceSynchronizer
     extends EntityWithIdAndVersionSynchronizer<NamedEntityOccurrence> {
 
-  public NamedEntityOccurrenceSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final DocumentSynchronizer documentSynchronizer;
+
+  // Output
+  private final Set<Long> namedEntityIds = Sets.newHashSet();
+
+  public NamedEntityOccurrenceSynchronizer(final DocumentSynchronizer documentSynchronizer,
+      final ApplicationContext ctx) {
     super(NamedEntityOccurrence.class, ctx);
+    this.documentSynchronizer = documentSynchronizer;
   }
 
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateProcessedData();
+  }
+
+  @Override
+  protected Predicate<NamedEntityOccurrence> getLhsEntityFilter() {
+    return namedEntityOccurrence -> documentSynchronizer.getDocumentIds()
+        .contains(namedEntityOccurrence.getDocumentId());
   }
 
   @Override
@@ -49,11 +67,18 @@ public class NamedEntityOccurrenceSynchronizer
     target.setType(source.getType());
     target.setQuantity(source.getQuantity());
     target.setDocumentId(source.getDocumentId());
+
+    // Output
+    namedEntityIds.add(source.getNamedEntityId());
   }
 
   @Override
   protected EntityWithIdAndVersionDao<NamedEntityOccurrence> getDao(final ApplicationContext ctx) {
     return ctx.getBean("namedEntityOccurrenceDao", NamedEntityOccurrenceDao.class);
+  }
+
+  public Set<Long> getNamedEntityIds() {
+    return namedEntityIds;
   }
 
 }

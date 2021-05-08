@@ -1,5 +1,8 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.Set;
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -23,6 +26,7 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Source;
@@ -31,6 +35,13 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class SourceSynchronizer extends EntityWithIdAndVersionSynchronizer<Source> {
 
+  // Input
+  private static final Set<Long> SOURCE_IDS =
+      Sets.newHashSet(200l, 199l, 196l, 5l, 8l, 19l, 1l, 24l, 90l, 30l, 660l, 226l, 227l);
+
+  // Output
+  private final Set<Long> sourceIds = Sets.newHashSet();
+
   public SourceSynchronizer(final ApplicationContext ctx) {
     super(Source.class, ctx);
   }
@@ -38,6 +49,11 @@ public class SourceSynchronizer extends EntityWithIdAndVersionSynchronizer<Sourc
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateOriginalData();
+  }
+
+  @Override
+  protected Predicate<Long> getLhsIdFilter() {
+    return sourceId -> SOURCE_IDS == null ? true : SOURCE_IDS.contains(sourceId);
   }
 
   @Override
@@ -50,11 +66,18 @@ public class SourceSynchronizer extends EntityWithIdAndVersionSynchronizer<Sourc
     target.setVisible(source.getVisible());
     target.setStatisticsChecking(source.getStatisticsChecking());
     target.setNotes(source.getNotes());
+
+    // Output
+    sourceIds.add(source.getId());
   }
 
   @Override
   protected EntityWithIdAndVersionDao<Source> getDao(final ApplicationContext ctx) {
     return ctx.getBean(SourceDao.class);
+  }
+
+  public Set<Long> getSourceIds() {
+    return sourceIds;
   }
 
 }

@@ -23,7 +23,12 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
@@ -40,10 +45,14 @@ import com.romeikat.datamessie.core.sync.util.SyncMode;
 public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
     implements ISynchronizer {
 
+  private static final Logger LOG =
+      LoggerFactory.getLogger(EntityWithoutIdAndVersionSynchronizer.class);
+
   private final Class<E> clazz;
   private final EntityDao<E> entityDao;
   private final SyncMode syncMode;
   private final SyncData syncData;
+  private final boolean syncFilterEnabled;
 
   private final SessionFactory sessionFactorySyncSource;
   private final SessionFactory sessionFactory;
@@ -51,12 +60,14 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
   private final HibernateSessionProvider rhsSessionProvider;
   private final Double parallelismFactor;
   private final long sleepingInterval = 60000;
+  private Predicate<E> lhsEntityFilter;
 
   public EntityWithoutIdAndVersionSynchronizer(final Class<E> clazz, final ApplicationContext ctx) {
     this.clazz = clazz;
     this.entityDao = getDao(ctx);
     syncMode = SyncMode.valueOf(SpringUtil.getPropertyValue(ctx, "sync.mode"));
     syncData = SyncData.valueOf(SpringUtil.getPropertyValue(ctx, "sync.data"));
+    syncFilterEnabled = Boolean.valueOf(SpringUtil.getPropertyValue(ctx, "sync.filter.enabled"));
 
     sessionFactorySyncSource = ctx.getBean("sessionFactorySyncSource", SessionFactory.class);
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
@@ -69,6 +80,11 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
 
   protected abstract EntityDao<E> getDao(ApplicationContext ctx);
 
+  protected Predicate<E> getLhsEntityFilter() {
+    // Per default, all available entites are synchronized
+    return e -> true;
+  }
+
   @Override
   public void synchronize(final TaskExecution taskExecution) throws TaskCancelledException {
     if (!appliesFor(syncData)) {
@@ -78,12 +94,14 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
     final String msg = String.format("Synchronizing %s", clazz.getSimpleName());
     final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
+    lhsEntityFilter = getLhsEntityFilter();
+
     while (true) {
       try {
         synchronizeAll(taskExecution);
         break;
       } catch (final Exception e) {
-        retry(taskExecution);
+        retry(taskExecution, e);
       }
     }
 
@@ -93,12 +111,17 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
 
   private void synchronizeAll(final TaskExecution taskExecution) {
     // Load
-    final Collection<E> lhsEntities = SyncService.MAX_RESULTS == null
+    List<E> lhsEntities = SyncService.MAX_RESULTS == null
         ? entityDao.getAllEntites(lhsSessionProvider.getStatelessSession())
         : entityDao.getEntites(lhsSessionProvider.getStatelessSession(), 0,
             SyncService.MAX_RESULTS);
     final Collection<E> rhsEntities =
         entityDao.getAllEntites(rhsSessionProvider.getStatelessSession());
+
+    // Filter entities
+    if (syncFilterEnabled) {
+      lhsEntities = lhsEntities.stream().filter(lhsEntityFilter).collect(Collectors.toList());
+    }
 
     // Decide
     final DecisionResults<E> decisionResults =
@@ -117,16 +140,17 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
     rhsSessionProvider.closeStatelessSession();
   }
 
-  private void retry(final TaskExecution taskExecution) {
+  private void retry(final TaskExecution taskExecution, final Exception e) {
     lhsSessionProvider.closeStatelessSession();
     rhsSessionProvider.closeStatelessSession();
 
     final String msg =
         String.format("Retrying in %,d seconds due to connection issues", sleepingInterval / 1000);
+    LOG.error(msg, e);
     taskExecution.reportWork(msg);
     try {
       Thread.sleep(sleepingInterval);
-    } catch (final InterruptedException e) {
+    } catch (final InterruptedException e2) {
     }
   }
 

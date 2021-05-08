@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -26,18 +28,29 @@ import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.SourceTypeDao;
 import com.romeikat.datamessie.core.domain.entity.impl.SourceType;
+import com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion.Source2SourceTypeSynchronizer;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class SourceTypeSynchronizer extends EntityWithIdAndVersionSynchronizer<SourceType> {
 
-  public SourceTypeSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final Source2SourceTypeSynchronizer source2SourceTypeSynchronizer;
+
+  public SourceTypeSynchronizer(final Source2SourceTypeSynchronizer source2SourceTypeSynchronizer,
+      final ApplicationContext ctx) {
     super(SourceType.class, ctx);
+    this.source2SourceTypeSynchronizer = source2SourceTypeSynchronizer;
   }
 
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateOriginalData();
+  }
+
+  @Override
+  protected Predicate<Long> getLhsIdFilter() {
+    return sourceTypeId -> source2SourceTypeSynchronizer.getSourceTypeIds().contains(sourceTypeId);
   }
 
   @Override

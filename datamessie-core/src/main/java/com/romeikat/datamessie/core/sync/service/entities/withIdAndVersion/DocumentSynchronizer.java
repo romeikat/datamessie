@@ -1,5 +1,8 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.Set;
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -23,6 +26,7 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
@@ -31,13 +35,27 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class DocumentSynchronizer extends EntityWithIdAndVersionSynchronizer<Document> {
 
-  public DocumentSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final SourceSynchronizer sourceSynchronizer;
+
+  // Output
+  private final Set<Long> documentIds = Sets.newHashSet();
+  private final Set<Long> crawlingIds = Sets.newHashSet();
+
+  public DocumentSynchronizer(final SourceSynchronizer sourceSynchronizer,
+      final ApplicationContext ctx) {
     super(Document.class, ctx);
+    this.sourceSynchronizer = sourceSynchronizer;
   }
 
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateOriginalData();
+  }
+
+  @Override
+  protected Predicate<Document> getLhsEntityFilter() {
+    return document -> sourceSynchronizer.getSourceIds().contains(document.getSourceId());
   }
 
   @Override
@@ -53,11 +71,23 @@ public class DocumentSynchronizer extends EntityWithIdAndVersionSynchronizer<Doc
     target.setStatusCode(source.getStatusCode());
     target.setCrawlingId(source.getCrawlingId());
     target.setSourceId(source.getSourceId());
+
+    // Output
+    documentIds.add(source.getId());
+    crawlingIds.add(source.getCrawlingId());
   }
 
   @Override
   protected EntityWithIdAndVersionDao<Document> getDao(final ApplicationContext ctx) {
     return ctx.getBean("documentDao", DocumentDao.class);
+  }
+
+  public Set<Long> getDocumentIds() {
+    return documentIds;
+  }
+
+  public Set<Long> getCrawlingIds() {
+    return crawlingIds;
   }
 
 }

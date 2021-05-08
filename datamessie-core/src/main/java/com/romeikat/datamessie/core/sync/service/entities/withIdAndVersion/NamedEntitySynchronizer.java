@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -31,13 +33,29 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class NamedEntitySynchronizer extends EntityWithIdAndVersionSynchronizer<NamedEntity> {
 
-  public NamedEntitySynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final NamedEntityOccurrenceSynchronizer namedEntityOccurrenceSynchronizer;
+  private final NamedEntityCategorySynchronizer namedEntityCategorySynchronizer;
+
+  public NamedEntitySynchronizer(
+      final NamedEntityOccurrenceSynchronizer namedEntityOccurrenceSynchronizer,
+      final NamedEntityCategorySynchronizer namedEntityCategorySynchronizer,
+      final ApplicationContext ctx) {
     super(NamedEntity.class, ctx);
+    this.namedEntityOccurrenceSynchronizer = namedEntityOccurrenceSynchronizer;
+    this.namedEntityCategorySynchronizer = namedEntityCategorySynchronizer;
   }
 
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateProcessedData();
+  }
+
+  @Override
+  protected Predicate<Long> getLhsIdFilter() {
+    return namedEntityId -> namedEntityOccurrenceSynchronizer.getNamedEntityIds()
+        .contains(namedEntityId)
+        || namedEntityCategorySynchronizer.getCategoryNamedEntityIds().contains(namedEntityId);
   }
 
   @Override

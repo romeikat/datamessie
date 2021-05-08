@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -31,13 +33,23 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class DownloadSynchronizer extends EntityWithIdAndVersionSynchronizer<Download> {
 
-  public DownloadSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final DocumentSynchronizer documentSynchronizer;
+
+  public DownloadSynchronizer(final DocumentSynchronizer documentSynchronizer,
+      final ApplicationContext ctx) {
     super(Download.class, ctx);
+    this.documentSynchronizer = documentSynchronizer;
   }
 
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateOriginalData();
+  }
+
+  @Override
+  protected Predicate<Download> getLhsEntityFilter() {
+    return download -> documentSynchronizer.getDocumentIds().contains(download.getDocumentId());
   }
 
   @Override

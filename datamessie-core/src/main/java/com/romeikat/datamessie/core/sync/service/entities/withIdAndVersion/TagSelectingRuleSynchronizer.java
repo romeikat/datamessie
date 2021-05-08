@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -32,13 +34,24 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 public class TagSelectingRuleSynchronizer
     extends EntityWithIdAndVersionSynchronizer<TagSelectingRule> {
 
-  public TagSelectingRuleSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final SourceSynchronizer sourceSynchronizer;
+
+  public TagSelectingRuleSynchronizer(final SourceSynchronizer sourceSynchronizer,
+      final ApplicationContext ctx) {
     super(TagSelectingRule.class, ctx);
+    this.sourceSynchronizer = sourceSynchronizer;
   }
 
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateOriginalData();
+  }
+
+  @Override
+  protected Predicate<TagSelectingRule> getLhsEntityFilter() {
+    return tagSelectingRule -> sourceSynchronizer.getSourceIds()
+        .contains(tagSelectingRule.getSourceId());
   }
 
   @Override

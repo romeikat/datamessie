@@ -81,29 +81,88 @@ public class SyncService {
   private List<ISynchronizer> getSynchronizersFromCore() {
     final List<ISynchronizer> synchronizers = Lists.newLinkedList();
 
-    synchronizers.add(new UserSynchronizer(ctx));
-    synchronizers.add(new SourceTypeSynchronizer(ctx));
-    synchronizers.add(new SourceSynchronizer(ctx));
-    synchronizers.add(new Source2SourceTypeSynchronizer(ctx));
-    synchronizers.add(new RedirectingRuleSynchronizer(ctx));
-    synchronizers.add(new DeletingRuleSynchronizer(ctx));
-    synchronizers.add(new TagSelectingRuleSynchronizer(ctx));
+    // Original data
 
-    synchronizers.add(new ProjectSynchronizer(ctx));
-    synchronizers.add(new Project2UserSynchronizer(ctx));
-    synchronizers.add(new Project2SourceSynchronizer(ctx));
+    // If filtered sync is enabled, sources are the starting point
+    final SourceSynchronizer sourceSynchronizer = new SourceSynchronizer(ctx);
+    synchronizers.add(sourceSynchronizer);
 
-    synchronizers.add(new CrawlingSynchronizer(ctx));
-    synchronizers.add(new DocumentSynchronizer(ctx));
-    synchronizers.add(new DownloadSynchronizer(ctx));
-    synchronizers.add(new RawContentSynchronizer(ctx));
+    final Source2SourceTypeSynchronizer source2SourceTypeSynchronizer =
+        new Source2SourceTypeSynchronizer(sourceSynchronizer, ctx);
+    synchronizers.add(source2SourceTypeSynchronizer);
 
-    synchronizers.add(new CleanedContentSynchronizer(ctx));
-    synchronizers.add(new StemmedContentSynchronizer(ctx));
-    synchronizers.add(new NamedEntitySynchronizer(ctx));
-    synchronizers.add(new NamedEntityCategorySynchronizer(ctx));
-    synchronizers.add(new NamedEntityOccurrenceSynchronizer(ctx));
-    synchronizers.add(new StatisticsSynchronizer(ctx));
+    final SourceTypeSynchronizer sourceTypeSynchronizer =
+        new SourceTypeSynchronizer(source2SourceTypeSynchronizer, ctx);
+    synchronizers.add(sourceTypeSynchronizer);
+
+    final RedirectingRuleSynchronizer redirectingRuleSynchronizer =
+        new RedirectingRuleSynchronizer(sourceSynchronizer, ctx);
+    synchronizers.add(redirectingRuleSynchronizer);
+
+    final DeletingRuleSynchronizer deletingRuleSynchronizer =
+        new DeletingRuleSynchronizer(sourceSynchronizer, ctx);
+    synchronizers.add(deletingRuleSynchronizer);
+
+    final TagSelectingRuleSynchronizer tagSelectingRuleSynchronizer =
+        new TagSelectingRuleSynchronizer(sourceSynchronizer, ctx);
+    synchronizers.add(tagSelectingRuleSynchronizer);
+
+    final Project2SourceSynchronizer project2SourceSynchronizer =
+        new Project2SourceSynchronizer(sourceSynchronizer, ctx);
+    synchronizers.add(project2SourceSynchronizer);
+
+    final ProjectSynchronizer projectSynchronizer =
+        new ProjectSynchronizer(project2SourceSynchronizer, ctx);
+    synchronizers.add(projectSynchronizer);
+
+    final Project2UserSynchronizer project2UserSynchronizer =
+        new Project2UserSynchronizer(projectSynchronizer, ctx);
+    synchronizers.add(project2UserSynchronizer);
+
+    final UserSynchronizer userSynchronizer = new UserSynchronizer(project2UserSynchronizer, ctx);
+    synchronizers.add(userSynchronizer);
+
+    final DocumentSynchronizer documentSynchronizer =
+        new DocumentSynchronizer(sourceSynchronizer, ctx);
+    synchronizers.add(documentSynchronizer);
+
+    final DownloadSynchronizer downloadSynchronizer =
+        new DownloadSynchronizer(documentSynchronizer, ctx);
+    synchronizers.add(downloadSynchronizer);
+
+    final RawContentSynchronizer rawContentSynchronizer =
+        new RawContentSynchronizer(documentSynchronizer, ctx);
+    synchronizers.add(rawContentSynchronizer);
+
+    final CrawlingSynchronizer crawlingSynchronizer =
+        new CrawlingSynchronizer(documentSynchronizer, ctx);
+    synchronizers.add(crawlingSynchronizer);
+
+    // Processed data
+
+    final CleanedContentSynchronizer cleanedContentSynchronizer =
+        new CleanedContentSynchronizer(documentSynchronizer, ctx);
+    synchronizers.add(cleanedContentSynchronizer);
+
+    final StemmedContentSynchronizer stemmedContentSynchronizer =
+        new StemmedContentSynchronizer(documentSynchronizer, ctx);
+    synchronizers.add(stemmedContentSynchronizer);
+
+    final NamedEntityOccurrenceSynchronizer namedEntityOccurrenceSynchronizer =
+        new NamedEntityOccurrenceSynchronizer(documentSynchronizer, ctx);
+    synchronizers.add(namedEntityOccurrenceSynchronizer);
+
+    final NamedEntityCategorySynchronizer namedEntityCategorySynchronizer =
+        new NamedEntityCategorySynchronizer(namedEntityOccurrenceSynchronizer, ctx);
+    synchronizers.add(namedEntityCategorySynchronizer);
+
+    final NamedEntitySynchronizer namedEntitySynchronizer = new NamedEntitySynchronizer(
+        namedEntityOccurrenceSynchronizer, namedEntityCategorySynchronizer, ctx);
+    synchronizers.add(namedEntitySynchronizer);
+
+    final StatisticsSynchronizer statisticsSynchronizer =
+        new StatisticsSynchronizer(sourceSynchronizer, ctx);
+    synchronizers.add(statisticsSynchronizer);
 
     return synchronizers;
   }
