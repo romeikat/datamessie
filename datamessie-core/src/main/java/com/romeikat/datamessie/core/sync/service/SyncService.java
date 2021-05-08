@@ -25,6 +25,7 @@ License along with this program.  If not, see
 import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import com.romeikat.datamessie.core.base.app.plugin.DateMessiePlugins;
@@ -62,6 +63,9 @@ public class SyncService {
   @Autowired
   private ApplicationContext ctx;
 
+  @Value("${sync.filter.sources}")
+  private List<Long> sourceIdsForSync;
+
   private SyncService() {}
 
   public void doSynchronization(final TaskExecution taskExecution) throws TaskCancelledException {
@@ -84,7 +88,7 @@ public class SyncService {
     // Original data
 
     // If filtered sync is enabled, sources are the starting point
-    final SourceSynchronizer sourceSynchronizer = new SourceSynchronizer(ctx);
+    final SourceSynchronizer sourceSynchronizer = new SourceSynchronizer(sourceIdsForSync, ctx);
     synchronizers.add(sourceSynchronizer);
 
     final Source2SourceTypeSynchronizer source2SourceTypeSynchronizer =

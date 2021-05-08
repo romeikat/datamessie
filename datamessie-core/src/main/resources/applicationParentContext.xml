@@ -126,7 +126,9 @@
 		<property name="serviceUrl" value="${statistics.manager.url}" />
 		<property name="serviceInterface"
 			value="com.romeikat.datamessie.core.base.app.shared.IStatisticsManager" />
-
 	</bean>
+
+	<bean id="conversionService"
+		class="org.springframework.context.support.ConversionServiceFactoryBean" />
 
 </beans>

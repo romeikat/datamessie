@@ -1,7 +1,9 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import org.apache.commons.collections4.CollectionUtils;
 
 /*-
  * ============================LICENSE_START============================
@@ -36,14 +38,14 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 public class SourceSynchronizer extends EntityWithIdAndVersionSynchronizer<Source> {
 
   // Input
-  private static final Set<Long> SOURCE_IDS =
-      Sets.newHashSet(200l, 199l, 196l, 5l, 8l, 19l, 1l, 24l, 90l, 30l, 660l, 226l, 227l);
+  private final List<Long> sourceIdsForSync;
 
   // Output
   private final Set<Long> sourceIds = Sets.newHashSet();
 
-  public SourceSynchronizer(final ApplicationContext ctx) {
+  public SourceSynchronizer(final List<Long> sourceIdsForSync, final ApplicationContext ctx) {
     super(Source.class, ctx);
+    this.sourceIdsForSync = sourceIdsForSync;
   }
 
   @Override
@@ -53,7 +55,8 @@ public class SourceSynchronizer extends EntityWithIdAndVersionSynchronizer<Sourc
 
   @Override
   protected Predicate<Long> getLhsIdFilter() {
-    return sourceId -> SOURCE_IDS == null ? true : SOURCE_IDS.contains(sourceId);
+    return sourceId -> CollectionUtils.isEmpty(sourceIdsForSync) ? true
+        : sourceIdsForSync.contains(sourceId);
   }
 
   @Override
