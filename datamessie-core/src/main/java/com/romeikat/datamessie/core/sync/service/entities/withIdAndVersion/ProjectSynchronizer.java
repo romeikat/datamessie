@@ -1,5 +1,8 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.Set;
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -23,21 +26,36 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.ProjectDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Project;
+import com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion.Project2SourceSynchronizer;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class ProjectSynchronizer extends EntityWithIdAndVersionSynchronizer<Project> {
 
-  public ProjectSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final Project2SourceSynchronizer project2SourceSynchronizer;
+
+  // Output
+  private final Set<Long> projectIds = Sets.newHashSet();
+
+  public ProjectSynchronizer(final Project2SourceSynchronizer project2SourceSynchronizer,
+      final ApplicationContext ctx) {
     super(Project.class, ctx);
+    this.project2SourceSynchronizer = project2SourceSynchronizer;
   }
 
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateOriginalData();
+  }
+
+  @Override
+  protected Predicate<Long> getLhsIdFilter() {
+    return projectId -> project2SourceSynchronizer.getProjectIds().contains(projectId);
   }
 
   @Override
@@ -47,11 +65,18 @@ public class ProjectSynchronizer extends EntityWithIdAndVersionSynchronizer<Proj
     target.setCrawlingInterval(source.getCrawlingInterval());
     target.setPreprocessingEnabled(source.getPreprocessingEnabled());
     target.setCleaningMethod(source.getCleaningMethod());
+
+    // Output
+    projectIds.add(source.getId());
   }
 
   @Override
   protected EntityWithIdAndVersionDao<Project> getDao(final ApplicationContext ctx) {
     return ctx.getBean(ProjectDao.class);
+  }
+
+  public Set<Long> getProjectIds() {
+    return projectIds;
   }
 
 }

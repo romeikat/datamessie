@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -32,13 +34,24 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 public class RedirectingRuleSynchronizer
     extends EntityWithIdAndVersionSynchronizer<RedirectingRule> {
 
-  public RedirectingRuleSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final SourceSynchronizer sourceSynchronizer;
+
+  public RedirectingRuleSynchronizer(final SourceSynchronizer sourceSynchronizer,
+      final ApplicationContext ctx) {
     super(RedirectingRule.class, ctx);
+    this.sourceSynchronizer = sourceSynchronizer;
   }
 
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateOriginalData();
+  }
+
+  @Override
+  protected Predicate<RedirectingRule> getLhsEntityFilter() {
+    return redirectingRule -> sourceSynchronizer.getSourceIds()
+        .contains(redirectingRule.getSourceId());
   }
 
   @Override

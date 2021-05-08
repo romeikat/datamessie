@@ -23,6 +23,9 @@ License along with this program.  If not, see
  */
 
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.hibernate.SessionFactory;
 import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
@@ -44,6 +47,7 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
   private final EntityDao<E> entityDao;
   private final SyncMode syncMode;
   private final SyncData syncData;
+  private final boolean syncFilterEnabled;
 
   private final SessionFactory sessionFactorySyncSource;
   private final SessionFactory sessionFactory;
@@ -51,12 +55,14 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
   private final HibernateSessionProvider rhsSessionProvider;
   private final Double parallelismFactor;
   private final long sleepingInterval = 60000;
+  private Predicate<E> lhsEntityFilter;
 
   public EntityWithoutIdAndVersionSynchronizer(final Class<E> clazz, final ApplicationContext ctx) {
     this.clazz = clazz;
     this.entityDao = getDao(ctx);
     syncMode = SyncMode.valueOf(SpringUtil.getPropertyValue(ctx, "sync.mode"));
     syncData = SyncData.valueOf(SpringUtil.getPropertyValue(ctx, "sync.data"));
+    syncFilterEnabled = Boolean.valueOf(SpringUtil.getPropertyValue(ctx, "sync.filter.enabled"));
 
     sessionFactorySyncSource = ctx.getBean("sessionFactorySyncSource", SessionFactory.class);
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
@@ -68,6 +74,11 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
   protected abstract boolean appliesFor(SyncData syncData);
 
   protected abstract EntityDao<E> getDao(ApplicationContext ctx);
+
+  protected Predicate<E> getLhsEntityFilter() {
+    // Per default, all available entites are synchronized
+    return e -> true;
+  }
 
   @Override
   public void synchronize(final TaskExecution taskExecution) throws TaskCancelledException {
@@ -93,12 +104,17 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
 
   private void synchronizeAll(final TaskExecution taskExecution) {
     // Load
-    final Collection<E> lhsEntities = SyncService.MAX_RESULTS == null
+    List<E> lhsEntities = SyncService.MAX_RESULTS == null
         ? entityDao.getAllEntites(lhsSessionProvider.getStatelessSession())
         : entityDao.getEntites(lhsSessionProvider.getStatelessSession(), 0,
             SyncService.MAX_RESULTS);
     final Collection<E> rhsEntities =
         entityDao.getAllEntites(rhsSessionProvider.getStatelessSession());
+
+    // Filter entities
+    if (syncFilterEnabled) {
+      lhsEntities = lhsEntities.stream().filter(lhsEntityFilter).collect(Collectors.toList());
+    }
 
     // Decide
     final DecisionResults<E> decisionResults =

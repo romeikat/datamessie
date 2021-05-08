@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -26,18 +28,29 @@ import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.UserDao;
 import com.romeikat.datamessie.core.domain.entity.impl.User;
+import com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion.Project2UserSynchronizer;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class UserSynchronizer extends EntityWithIdAndVersionSynchronizer<User> {
 
-  public UserSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final Project2UserSynchronizer project2UserSynchronizer;
+
+  public UserSynchronizer(final Project2UserSynchronizer project2UserSynchronizer,
+      final ApplicationContext ctx) {
     super(User.class, ctx);
+    this.project2UserSynchronizer = project2UserSynchronizer;
   }
 
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateOriginalData();
+  }
+
+  @Override
+  protected Predicate<Long> getLhsIdFilter() {
+    return userId -> project2UserSynchronizer.getUserIds().contains(userId);
   }
 
   @Override

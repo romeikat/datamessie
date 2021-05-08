@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.persistence.PersistenceException;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.hibernate.SessionFactory;
@@ -48,6 +50,7 @@ import com.romeikat.datamessie.core.sync.service.template.ISynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 import com.romeikat.datamessie.core.sync.util.SyncMode;
 
+
 public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdAndVersion>
     implements ISynchronizer {
 
@@ -55,6 +58,7 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
   private final EntityWithIdAndVersionDao<E> dao;
   private final SyncMode syncMode;
   private final SyncData syncData;
+  private final boolean syncFilterEnabled;
 
   private final SessionFactory sessionFactorySyncSource;
   private final SessionFactory sessionFactory;
@@ -65,12 +69,15 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
   private final int batchSizeEntities;
   private final Double parallelismFactor;
   private final long sleepingInterval = 60000;
+  private Predicate<Long> lhsIdFilter;
+  private Predicate<E> lhsEntityFilter;
 
   public EntityWithIdAndVersionSynchronizer(final Class<E> clazz, final ApplicationContext ctx) {
     this.clazz = clazz;
     this.dao = getDao(ctx);
     syncMode = SyncMode.valueOf(SpringUtil.getPropertyValue(ctx, "sync.mode"));
     syncData = SyncData.valueOf(SpringUtil.getPropertyValue(ctx, "sync.data"));
+    syncFilterEnabled = Boolean.valueOf(SpringUtil.getPropertyValue(ctx, "sync.filter.enabled"));
 
     sessionFactorySyncSource = ctx.getBean("sessionFactorySyncSource", SessionFactory.class);
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
@@ -90,6 +97,16 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
 
   protected abstract EntityWithIdAndVersionDao<E> getDao(ApplicationContext ctx);
 
+  protected Predicate<Long> getLhsIdFilter() {
+    // Per default, all available IDs are synchronized
+    return id -> true;
+  }
+
+  protected Predicate<E> getLhsEntityFilter() {
+    // Per default, all available entities are synchronized
+    return e -> true;
+  }
+
   @Override
   public void synchronize(final TaskExecution taskExecution) throws TaskCancelledException {
     if (!appliesFor(syncData)) {
@@ -98,6 +115,9 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
 
     final String msg = String.format("Synchronizing %s", clazz.getSimpleName());
     final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
+
+    lhsIdFilter = getLhsIdFilter();
+    lhsEntityFilter = getLhsEntityFilter();
 
     // Delete non-existing RHS
     if (syncMode.shouldDeleteData()) {
@@ -162,7 +182,12 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
 
   private void delete(final List<Long> rhsIds) {
     // Load corresponding LHS
-    final Collection<Long> lhsIds = loadLhsIds(rhsIds);
+    List<Long> lhsIds = loadLhsIds(rhsIds);
+
+    // Filter IDs
+    if (syncFilterEnabled) {
+      lhsIds = lhsIds.stream().filter(lhsIdFilter).collect(Collectors.toList());
+    }
 
     // Decide
     final DeleteDecisionResults decisionResults =
@@ -239,9 +264,16 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     return true;
   }
 
-  private void createOrUpdate(final Map<Long, Long> lhsIdsWithVersion,
+  private void createOrUpdate(Map<Long, Long> lhsIdsWithVersion,
       final StatelessSession lhsStatelessSession, final StatelessSession rhsStatelessSession,
       final TaskExecution taskExecution) throws TaskCancelledException {
+    // Filter IDs
+    if (syncFilterEnabled) {
+      lhsIdsWithVersion =
+          lhsIdsWithVersion.entrySet().stream().filter(e -> lhsIdFilter.test(e.getKey()))
+              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     // Load corresponding RHS (in batches)
     final Map<Long, Long> rhsIdsWithVersion = loadRhsIdsWithVersion(lhsIdsWithVersion);
 
@@ -251,9 +283,9 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
             .getDecisionResults();
 
     // Execute
-    new CreateOrUpdateExecutor<E>(decisionResults, batchSizeEntities, dao, clazz,
-        lhsStatelessSession, rhsStatelessSession, sessionFactory, parallelismFactor,
-        taskExecution) {
+    new CreateOrUpdateExecutor<E>(decisionResults, batchSizeEntities, dao, clazz, syncFilterEnabled,
+        lhsEntityFilter, lhsStatelessSession, rhsStatelessSession, sessionFactory,
+        parallelismFactor, taskExecution) {
       @Override
       protected void copyProperties(final E source, final E target) {
         EntityWithIdAndVersionSynchronizer.this.copyProperties(source, target);

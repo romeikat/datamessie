@@ -1,5 +1,8 @@
 package com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion;
 
+import java.util.Set;
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -23,17 +26,27 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.Source2SourceTypeDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Source2SourceType;
+import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.SourceSynchronizer;
 import com.romeikat.datamessie.core.sync.service.template.withoutIdAndVersion.EntityWithoutIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class Source2SourceTypeSynchronizer
     extends EntityWithoutIdAndVersionSynchronizer<Source2SourceType> {
 
-  public Source2SourceTypeSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final SourceSynchronizer sourceSynchronizer;
+
+  // Output
+  private final Set<Long> sourceTypeIds = Sets.newHashSet();
+
+  public Source2SourceTypeSynchronizer(final SourceSynchronizer sourceSynchronizer,
+      final ApplicationContext ctx) {
     super(Source2SourceType.class, ctx);
+    this.sourceSynchronizer = sourceSynchronizer;
   }
 
   @Override
@@ -42,14 +55,27 @@ public class Source2SourceTypeSynchronizer
   }
 
   @Override
+  protected Predicate<Source2SourceType> getLhsEntityFilter() {
+    return source2SourceType -> sourceSynchronizer.getSourceIds()
+        .contains(source2SourceType.getSourceId());
+  }
+
+  @Override
   protected void copyProperties(final Source2SourceType source, final Source2SourceType target) {
     target.setSourceId(source.getSourceId());
     target.setSourceTypeId(source.getSourceTypeId());
+
+    // Output
+    sourceTypeIds.add(source.getSourceTypeId());
   }
 
   @Override
   protected EntityDao<Source2SourceType> getDao(final ApplicationContext ctx) {
     return ctx.getBean(Source2SourceTypeDao.class);
+  }
+
+  public Set<Long> getSourceTypeIds() {
+    return sourceTypeIds;
   }
 
 }

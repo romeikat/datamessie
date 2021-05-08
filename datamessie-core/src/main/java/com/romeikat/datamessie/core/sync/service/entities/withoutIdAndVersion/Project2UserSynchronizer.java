@@ -1,5 +1,8 @@
 package com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion;
 
+import java.util.Set;
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -23,16 +26,26 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.Project2UserDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2User;
+import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.ProjectSynchronizer;
 import com.romeikat.datamessie.core.sync.service.template.withoutIdAndVersion.EntityWithoutIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class Project2UserSynchronizer extends EntityWithoutIdAndVersionSynchronizer<Project2User> {
 
-  public Project2UserSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final ProjectSynchronizer projectSynchronizer;
+
+  // Output
+  private final Set<Long> userIds = Sets.newHashSet();
+
+  public Project2UserSynchronizer(final ProjectSynchronizer projectSynchronizer,
+      final ApplicationContext ctx) {
     super(Project2User.class, ctx);
+    this.projectSynchronizer = projectSynchronizer;
   }
 
   @Override
@@ -41,14 +54,27 @@ public class Project2UserSynchronizer extends EntityWithoutIdAndVersionSynchroni
   }
 
   @Override
+  protected Predicate<Project2User> getLhsEntityFilter() {
+    return project2User -> projectSynchronizer.getProjectIds()
+        .contains(project2User.getProjectId());
+  }
+
+  @Override
   protected void copyProperties(final Project2User source, final Project2User target) {
     target.setProjectId(source.getProjectId());
     target.setUserId(source.getUserId());
+
+    // Output
+    userIds.add(source.getUserId());
   }
 
   @Override
   protected EntityDao<Project2User> getDao(final ApplicationContext ctx) {
     return ctx.getBean(Project2UserDao.class);
+  }
+
+  public Set<Long> getUserIds() {
+    return userIds;
   }
 
 }

@@ -1,5 +1,8 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.Set;
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -23,6 +26,7 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.NamedEntityCategoryDao;
 import com.romeikat.datamessie.core.domain.entity.impl.NamedEntityCategory;
@@ -32,8 +36,17 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 public class NamedEntityCategorySynchronizer
     extends EntityWithIdAndVersionSynchronizer<NamedEntityCategory> {
 
-  public NamedEntityCategorySynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final NamedEntityOccurrenceSynchronizer namedEntityOccurrenceSynchronizer;
+
+  // Output
+  private final Set<Long> categoryNamedEntityIds = Sets.newHashSet();
+
+  public NamedEntityCategorySynchronizer(
+      final NamedEntityOccurrenceSynchronizer namedEntityOccurrenceSynchronizer,
+      final ApplicationContext ctx) {
     super(NamedEntityCategory.class, ctx);
+    this.namedEntityOccurrenceSynchronizer = namedEntityOccurrenceSynchronizer;
   }
 
   @Override
@@ -42,15 +55,28 @@ public class NamedEntityCategorySynchronizer
   }
 
   @Override
+  protected Predicate<NamedEntityCategory> getLhsEntityFilter() {
+    return namedEntityCategory -> namedEntityOccurrenceSynchronizer.getNamedEntityIds()
+        .contains(namedEntityCategory.getNamedEntityId());
+  }
+
+  @Override
   protected void copyProperties(final NamedEntityCategory source,
       final NamedEntityCategory target) {
     target.setNamedEntityId(source.getNamedEntityId());
     target.setCategoryNamedEntityId(source.getCategoryNamedEntityId());
+
+    // Output
+    categoryNamedEntityIds.add(source.getCategoryNamedEntityId());
   }
 
   @Override
   protected EntityWithIdAndVersionDao<NamedEntityCategory> getDao(final ApplicationContext ctx) {
     return ctx.getBean(NamedEntityCategoryDao.class);
+  }
+
+  public Set<Long> getCategoryNamedEntityIds() {
+    return categoryNamedEntityIds;
   }
 
 }

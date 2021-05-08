@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -31,13 +33,23 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class CleanedContentSynchronizer extends EntityWithIdAndVersionSynchronizer<CleanedContent> {
 
-  public CleanedContentSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final DocumentSynchronizer documentSynchronizer;
+
+  public CleanedContentSynchronizer(final DocumentSynchronizer documentSynchronizer,
+      final ApplicationContext ctx) {
     super(CleanedContent.class, ctx);
+    this.documentSynchronizer = documentSynchronizer;
   }
 
   @Override
   protected boolean appliesFor(final SyncData syncData) {
     return syncData.shouldUpdateProcessedData();
+  }
+
+  @Override
+  protected Predicate<Long> getLhsIdFilter() {
+    return cleanedContentId -> documentSynchronizer.getDocumentIds().contains(cleanedContentId);
   }
 
   @Override

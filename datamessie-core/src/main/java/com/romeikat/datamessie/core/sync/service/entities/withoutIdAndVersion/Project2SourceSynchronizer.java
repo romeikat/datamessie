@@ -1,5 +1,8 @@
 package com.romeikat.datamessie.core.sync.service.entities.withoutIdAndVersion;
 
+import java.util.Set;
+import java.util.function.Predicate;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -23,17 +26,27 @@ License along with this program.  If not, see
  */
 
 import org.springframework.context.ApplicationContext;
+import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.EntityDao;
 import com.romeikat.datamessie.core.base.dao.impl.Project2SourceDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Project2Source;
+import com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion.SourceSynchronizer;
 import com.romeikat.datamessie.core.sync.service.template.withoutIdAndVersion.EntityWithoutIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class Project2SourceSynchronizer
     extends EntityWithoutIdAndVersionSynchronizer<Project2Source> {
 
-  public Project2SourceSynchronizer(final ApplicationContext ctx) {
+  // Input
+  private final SourceSynchronizer sourceSynchronizer;
+
+  // Output
+  private final Set<Long> projectIds = Sets.newHashSet();
+
+  public Project2SourceSynchronizer(final SourceSynchronizer sourceSynchronizer,
+      final ApplicationContext ctx) {
     super(Project2Source.class, ctx);
+    this.sourceSynchronizer = sourceSynchronizer;
   }
 
   @Override
@@ -42,14 +55,27 @@ public class Project2SourceSynchronizer
   }
 
   @Override
+  protected Predicate<Project2Source> getLhsEntityFilter() {
+    return project2Source -> sourceSynchronizer.getSourceIds()
+        .contains(project2Source.getSourceId());
+  }
+
+  @Override
   protected void copyProperties(final Project2Source source, final Project2Source target) {
     target.setProjectId(source.getProjectId());
     target.setSourceId(source.getSourceId());
+
+    // Output
+    projectIds.add(source.getProjectId());
   }
 
   @Override
   protected EntityDao<Project2Source> getDao(final ApplicationContext ctx) {
     return ctx.getBean(Project2SourceDao.class);
+  }
+
+  public Set<Long> getProjectIds() {
+    return projectIds;
   }
 
 }
