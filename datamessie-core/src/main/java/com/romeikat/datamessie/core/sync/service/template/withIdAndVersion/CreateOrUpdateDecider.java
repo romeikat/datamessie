@@ -44,21 +44,21 @@ public class CreateOrUpdateDecider {
   public CreateOrUpdateDecider makeDecisions() {
     final Collection<Long> lhsIds = lhsIdsWithVersion.keySet();
     for (final long lhsId : lhsIds) {
-      makeDecision(lhsId);
+      final Long lhsVersion = lhsIdsWithVersion.get(lhsId);
+      makeDecision(lhsId, lhsVersion);
     }
 
     return this;
   }
 
-  private void makeDecision(final long lhsId) {
+  private void makeDecision(final long lhsId, final Long lhsVersion) {
     // Create on RHS
     if (!rhsIdsWithVersion.containsKey(lhsId)) {
-      result.addToBeCreated(lhsId);
+      result.addToBeCreated(lhsId, lhsVersion);
       return;
     }
 
     // RHS = LHS
-    final Long lhsVersion = lhsIdsWithVersion.get(lhsId);
     final Long rhsVersion = rhsIdsWithVersion.get(lhsId);
     final boolean versionEquals = Objects.equals(lhsVersion, rhsVersion);
     if (versionEquals) {
@@ -66,7 +66,7 @@ public class CreateOrUpdateDecider {
     }
 
     // Update on RHS
-    result.addToBeUpdated(lhsId);
+    result.addToBeUpdated(lhsId, lhsVersion);
   }
 
   public CreateOrUpdateDecisionResults getDecisionResults() {

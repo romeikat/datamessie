@@ -4,7 +4,7 @@ package com.romeikat.datamessie.core.sync.service.template.withIdAndVersion;
  * ============================LICENSE_START============================
  * data.messie (core)
  * =====================================================================
- * Copyright (C) 2013 - 2017 Dr. Raphael Romeikat
+ * Copyright (C) 2013 - 2021 Dr. Raphael Romeikat
  * =====================================================================
  * This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as
@@ -22,32 +22,32 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
-import java.util.List;
-import com.google.common.collect.Lists;
+import java.util.Map;
+import jersey.repackaged.com.google.common.collect.Maps;
 
 public class CreateOrUpdateDecisionResults {
 
-  private final List<Long> toBeCreated;
-  private final List<Long> toBeUpdated;
+  private final Map<Long, Long> toBeCreated;
+  private final Map<Long, Long> toBeUpdated;
 
   public CreateOrUpdateDecisionResults() {
-    toBeCreated = Lists.newArrayList();
-    toBeUpdated = Lists.newArrayList();
+    toBeCreated = Maps.newLinkedHashMap();
+    toBeUpdated = Maps.newLinkedHashMap();
   }
 
-  public void addToBeCreated(final long id) {
-    toBeCreated.add(id);
+  public void addToBeCreated(final long id, final Long version) {
+    toBeCreated.put(id, version);
   }
 
-  public void addToBeUpdated(final long id) {
-    toBeUpdated.add(id);
+  public void addToBeUpdated(final long id, final Long version) {
+    toBeUpdated.put(id, version);
   }
 
-  public List<Long> getToBeCreated() {
+  public Map<Long, Long> getToBeCreated() {
     return toBeCreated;
   }
 
-  public List<Long> getToBeUpdated() {
+  public Map<Long, Long> getToBeUpdated() {
     return toBeUpdated;
   }
 

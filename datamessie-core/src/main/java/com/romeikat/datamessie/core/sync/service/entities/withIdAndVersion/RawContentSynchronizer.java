@@ -1,6 +1,9 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
+import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
+import org.hibernate.StatelessSession;
 
 /*-
  * ============================LICENSE_START============================
@@ -50,6 +53,13 @@ public class RawContentSynchronizer extends EntityWithIdAndVersionSynchronizer<R
   @Override
   protected Predicate<Long> getLhsIdFilter() {
     return rawContentId -> documentSynchronizer.getDocumentIds().contains(rawContentId);
+  }
+
+  @Override
+  protected List<RawContent> loadLhsEntities(final Map<Long, Long> lhsIdsWithVersion,
+      final StatelessSession lhsStatelessSession) {
+    // TODO mock empty contents, then post-update them
+    return super.loadLhsEntities(lhsIdsWithVersion, lhsStatelessSession);
   }
 
   @Override

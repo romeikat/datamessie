@@ -77,6 +77,8 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
   private Predicate<Long> lhsIdFilter;
   private Predicate<E> lhsEntityFilter;
 
+  private final ApplicationContext ctx;
+
   public EntityWithIdAndVersionSynchronizer(final Class<E> clazz, final ApplicationContext ctx) {
     this.clazz = clazz;
     this.dao = getDao(ctx);
@@ -96,6 +98,8 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     batchSizeEntities =
         Integer.valueOf(SpringUtil.getPropertyValue(ctx, "sync.batch.size.entities"));
     parallelismFactor = Double.valueOf(SpringUtil.getPropertyValue(ctx, "sync.parallelism.factor"));
+
+    this.ctx = ctx;
   }
 
   protected abstract boolean appliesFor(SyncData syncData);
@@ -105,6 +109,11 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
   protected Predicate<Long> getLhsIdFilter() {
     // Per default, all available IDs are synchronized
     return id -> true;
+  }
+
+  protected List<E> loadLhsEntities(final Map<Long, Long> lhsIdsWithVersion,
+      final StatelessSession lhsStatelessSession) {
+    return dao.getEntities(lhsStatelessSession, lhsIdsWithVersion.keySet());
   }
 
   protected Predicate<E> getLhsEntityFilter() {
@@ -308,7 +317,14 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     // Execute
     new CreateOrUpdateExecutor<E>(decisionResults, batchSizeEntities, dao, clazz, syncFilterEnabled,
         lhsEntityFilter, lhsStatelessSession, rhsStatelessSession, sessionFactory,
-        parallelismFactor, taskExecution) {
+        parallelismFactor, taskExecution, ctx) {
+      @Override
+      protected List<E> loadLhsEntities(final Map<Long, Long> lhsIdsWithVersion,
+          final StatelessSession lhsStatelessSession) {
+        return EntityWithIdAndVersionSynchronizer.this.loadLhsEntities(lhsIdsWithVersion,
+            lhsStatelessSession);
+      }
+
       @Override
       protected void copyProperties(final E source, final E target) {
         EntityWithIdAndVersionSynchronizer.this.copyProperties(source, target);

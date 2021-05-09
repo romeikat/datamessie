@@ -24,6 +24,7 @@ License along with this program.  If not, see
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,17 +40,19 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.collect.Lists;
+import org.springframework.context.ApplicationContext;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.task.management.TaskCancelledException;
 import com.romeikat.datamessie.core.base.task.management.TaskExecution;
 import com.romeikat.datamessie.core.base.task.management.TaskExecutionWork;
+import com.romeikat.datamessie.core.base.util.CollectionUtil;
 import com.romeikat.datamessie.core.base.util.converter.IntegerConverter;
 import com.romeikat.datamessie.core.base.util.converter.PercentageConverter;
 import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransaction;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
 import com.romeikat.datamessie.core.domain.entity.EntityWithIdAndVersion;
+import jersey.repackaged.com.google.common.collect.Maps;
 
 public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
 
@@ -67,14 +70,16 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
   private final Double parallelismFactor;
   private final TaskExecution taskExecution;
 
-  private final List<Long> failedLhsIds;
+  private final CollectionUtil collectionUtil;
+
+  private final Map<Long, Long> failedLhsIdsWithVersion;
 
   public CreateOrUpdateExecutor(final CreateOrUpdateDecisionResults decisionResults,
       final int batchSizeEntities, final EntityWithIdAndVersionDao<E> dao, final Class<E> clazz,
       final boolean syncFilterEnabled, final Predicate<E> lhsEntityFilter,
       final StatelessSession lhsStatelessSession, final StatelessSession rhsStatelessSession,
       final SessionFactory sessionFactory, final Double parallelismFactor,
-      final TaskExecution taskExecution) {
+      final TaskExecution taskExecution, final ApplicationContext ctx) {
     this.decisionResults = decisionResults;
     this.batchSizeEntities = batchSizeEntities;
     this.dao = dao;
@@ -87,21 +92,24 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
     this.parallelismFactor = parallelismFactor;
     this.taskExecution = taskExecution;
 
-    failedLhsIds = Collections.synchronizedList(Lists.newArrayList());
+    this.collectionUtil = ctx.getBean(CollectionUtil.class);
+
+    failedLhsIdsWithVersion = Collections.synchronizedMap(Maps.newHashMap());
   }
 
   protected abstract void copyProperties(E source, E target);
 
+  protected abstract List<E> loadLhsEntities(Map<Long, Long> lhsIdsWithVersion,
+      StatelessSession lhsStatelessSession);
+
   public void executeDecisons() throws TaskCancelledException {
-
-
     create();
     update();
 
-    while (!failedLhsIds.isEmpty()) {
-      final int numberOfFailedLhsIdsBefore = failedLhsIds.size();
+    while (!failedLhsIdsWithVersion.isEmpty()) {
+      final int numberOfFailedLhsIdsBefore = failedLhsIdsWithVersion.size();
       createFailed();
-      final int numberOfFailedLhsIdsAfter = failedLhsIds.size();
+      final int numberOfFailedLhsIdsAfter = failedLhsIdsWithVersion.size();
 
       if (numberOfFailedLhsIdsAfter >= numberOfFailedLhsIdsBefore) {
         LOG.warn("Number of failed LHS IDs could not be reduced");
@@ -111,22 +119,23 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
   }
 
   private void create() throws TaskCancelledException {
-    final List<Long> lhsIds = decisionResults.getToBeCreated();
-    create(lhsIds);
+    final Map<Long, Long> lhsIdsWithVersion = decisionResults.getToBeCreated();
+    create(lhsIdsWithVersion);
   }
 
-  private void create(final List<Long> lhsIds) throws TaskCancelledException {
-    final Collection<List<Long>> lhsIdsBatches = Lists.partition(lhsIds, batchSizeEntities);
-    final int lhsCount = lhsIds.size();
+  private void create(final Map<Long, Long> lhsIdsWithVersion) throws TaskCancelledException {
+    final Collection<LinkedHashMap<Long, Long>> lhsIdsWithVersionBatches =
+        collectionUtil.partitionMap(lhsIdsWithVersion, batchSizeEntities);
+    final int lhsCount = lhsIdsWithVersion.size();
     int firstEntity = 0;
 
     CountDownLatch rhsInProgress = null;
     CountDownLatch rhsDone = null;
     final Executor e = Executors.newSingleThreadExecutor();
 
-    for (final List<Long> lhsIdsBatch : lhsIdsBatches) {
+    for (final Map<Long, Long> lhsIdsWithVersionBatch : lhsIdsWithVersionBatches) {
       // Feedback
-      final int lastEntity = firstEntity + lhsIdsBatch.size();
+      final int lastEntity = firstEntity + lhsIdsWithVersionBatch.size();
       final double progress = (double) lastEntity / (double) lhsCount;
       final String msg = String.format("Creating %s to %s of %s (%s)",
           IntegerConverter.INSTANCE.convertToString(firstEntity + 1),
@@ -136,7 +145,7 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
       final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
       // Load LHS
-      final Collection<E> lhsEntities = loadLhsBatch(rhsInProgress, lhsIdsBatch);
+      final Collection<E> lhsEntities = loadLhsBatch(rhsInProgress, lhsIdsWithVersionBatch);
 
       // Create RHS
       rhsInProgress = new CountDownLatch(1);
@@ -174,7 +183,7 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
         } catch (final ConstraintViolationException e) {
           LOG.warn("Could not create entity {} at RHS", lhsEntity.getId());
           rhsSessionProvider.closeStatelessSession();
-          failedLhsIds.add(lhsEntity.getId());
+          failedLhsIdsWithVersion.put(lhsEntity.getId(), lhsEntity.getVersion());
         }
       }
     };
@@ -200,22 +209,23 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
   }
 
   private void update() throws TaskCancelledException {
-    final List<Long> lhsIds = decisionResults.getToBeUpdated();
-    update(lhsIds);
+    final Map<Long, Long> lhsIdsWithVersion = decisionResults.getToBeUpdated();
+    update(lhsIdsWithVersion);
   }
 
-  private void update(final List<Long> lhsIds) throws TaskCancelledException {
-    final Collection<List<Long>> lhsIdsBatches = Lists.partition(lhsIds, batchSizeEntities);
-    final int lhsCount = lhsIds.size();
+  private void update(final Map<Long, Long> lhsIdsWithVersion) throws TaskCancelledException {
+    final Collection<LinkedHashMap<Long, Long>> lhsIdsWithVersionBatches =
+        collectionUtil.partitionMap(lhsIdsWithVersion, batchSizeEntities);
+    final int lhsCount = lhsIdsWithVersion.size();
     int firstEntity = 0;
 
     CountDownLatch rhsInProgress = null;
     CountDownLatch rhsDone = null;
     final Executor e = Executors.newSingleThreadExecutor();
 
-    for (final List<Long> lhsIdsBatch : lhsIdsBatches) {
+    for (final Map<Long, Long> lhsIdsWithVersionBatch : lhsIdsWithVersionBatches) {
       // Feedback
-      final int lastEntity = firstEntity + lhsIdsBatch.size();
+      final int lastEntity = firstEntity + lhsIdsWithVersionBatch.size();
       final double progress = (double) lastEntity / (double) lhsCount;
       final String msg = String.format("Updating %s to %s of %s (%s)",
           IntegerConverter.INSTANCE.convertToString(firstEntity + 1),
@@ -225,12 +235,13 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
       final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
       // Load LHS
-      final Collection<E> lhsEntities = loadLhsBatch(rhsInProgress, lhsIdsBatch);
+      final Collection<E> lhsEntities = loadLhsBatch(rhsInProgress, lhsIdsWithVersionBatch);
 
       // Update RHS
       rhsInProgress = new CountDownLatch(1);
       rhsDone = new CountDownLatch(1);
-      e.execute(new RhsUpdater(rhsInProgress, rhsDone, lhsIdsBatch, lhsEntities));
+      e.execute(
+          new RhsUpdater(rhsInProgress, rhsDone, lhsIdsWithVersionBatch.keySet(), lhsEntities));
 
       firstEntity += batchSizeEntities;
 
@@ -285,7 +296,7 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
     } catch (final ConstraintViolationException e) {
       LOG.warn("Could not update entity {} at RHS", lhsEntity.getId());
       rhsSessionProvider.closeStatelessSession();
-      failedLhsIds.add(lhsEntity.getId());
+      failedLhsIdsWithVersion.put(lhsEntity.getId(), lhsEntity.getVersion());
       deleteFailed(rhsSessionProvider.getStatelessSession(), lhsEntity.getId());
     }
   }
@@ -314,13 +325,13 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
   }
 
   private void createFailed() throws TaskCancelledException {
-    final List<Long> lhsIds = Lists.newArrayList(failedLhsIds);
-    failedLhsIds.clear();
-    create(lhsIds);
+    final Map<Long, Long> lhsIdsWithVersion = Maps.newHashMap(failedLhsIdsWithVersion);
+    failedLhsIdsWithVersion.clear();
+    create(lhsIdsWithVersion);
   }
 
   private Collection<E> loadLhsBatch(final CountDownLatch previousRhsInProgress,
-      final List<Long> lhsIds) {
+      final Map<Long, Long> lhsIdsWithVersion) {
     // Wait until previous LHS is being consumed
     if (previousRhsInProgress != null) {
       try {
@@ -330,7 +341,7 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
     }
 
     // Load LHS
-    List<E> lhsEntities = dao.getEntities(lhsStatelessSession, lhsIds);
+    List<E> lhsEntities = loadLhsEntities(lhsIdsWithVersion, lhsStatelessSession);
 
     // Filter entities
     if (syncFilterEnabled) {

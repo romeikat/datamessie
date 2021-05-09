@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.romeikat.datamessie.core.base.util.Function.InvalidValueException;
 import com.romeikat.datamessie.core.base.util.hibernate.HibernateSessionProvider;
 import com.romeikat.datamessie.core.base.util.parallelProcessing.ParallelProcessing;
@@ -250,6 +252,22 @@ public class CollectionUtil {
       }
     };
     return transformedMap;
+  }
+
+  public <K, V> List<LinkedHashMap<K, V>> partitionMap(final Map<K, V> map, final int size) {
+    final List<LinkedHashMap<K, V>> result = Lists.newArrayListWithExpectedSize(map.size() / size);
+
+    final Collection<List<K>> keyPartitions =
+        Lists.partition(Lists.newArrayList(map.keySet()), size);
+    for (final List<K> keyPartition : keyPartitions) {
+      final LinkedHashMap<K, V> partition =
+          Maps.newLinkedHashMapWithExpectedSize(keyPartition.size());
+      for (final K key : keyPartition) {
+        partition.put(key, map.get(key));
+      }
+      result.add(partition);
+    }
+    return result;
   }
 
   public static <T> List<List<T>> splitIntoSubListsBySize(final List<T> list,
