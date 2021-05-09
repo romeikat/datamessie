@@ -94,7 +94,7 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
     final String msg = String.format("Synchronizing %s", clazz.getSimpleName());
     final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
-    lhsEntityFilter = getLhsEntityFilter();
+    initializeFiltering(taskExecution);
 
     while (true) {
       try {
@@ -107,6 +107,23 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
 
     taskExecution.reportWorkEnd(work);
     taskExecution.checkpoint();
+  }
+
+  private void initializeFiltering(final TaskExecution taskExecution)
+      throws TaskCancelledException {
+    if (!syncFilterEnabled) {
+      return;
+    }
+
+    final boolean rhsIsEmpty =
+        entityDao.getEntites(rhsSessionProvider.getStatelessSession(), 0, 1).isEmpty();
+    if (!rhsIsEmpty) {
+      final String msg = String.format("Synchronizing with filtering requires RHS to be empty");
+      taskExecution.reportWork(msg);
+      throw new TaskCancelledException();
+    }
+
+    lhsEntityFilter = getLhsEntityFilter();
   }
 
   private void synchronizeAll(final TaskExecution taskExecution) {

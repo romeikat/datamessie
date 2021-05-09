@@ -121,8 +121,8 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     final String msg = String.format("Synchronizing %s", clazz.getSimpleName());
     final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
-    lhsIdFilter = getLhsIdFilter();
-    lhsEntityFilter = getLhsEntityFilter();
+    // Filters
+    initializeFiltering(taskExecution);
 
     // Delete non-existing RHS
     if (syncMode.shouldDeleteData()) {
@@ -136,6 +136,24 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
 
     taskExecution.reportWorkEnd(work);
     taskExecution.checkpoint();
+  }
+
+  private void initializeFiltering(final TaskExecution taskExecution)
+      throws TaskCancelledException {
+    if (!syncFilterEnabled) {
+      return;
+    }
+
+    lhsIdFilter = getLhsIdFilter();
+    lhsEntityFilter = getLhsEntityFilter();
+
+    final boolean rhsIsEmpty =
+        dao.getIds(rhsSessionProvider.getStatelessSession(), 0l, 1).isEmpty();
+    if (!rhsIsEmpty) {
+      final String msg = String.format("Synchronizing with filtering requires RHS to be empty");
+      taskExecution.reportWork(msg);
+      throw new TaskCancelledException();
+    }
   }
 
   private void delete(final TaskExecution taskExecution) throws TaskCancelledException {
