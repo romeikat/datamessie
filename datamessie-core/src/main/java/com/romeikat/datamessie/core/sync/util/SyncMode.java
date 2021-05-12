@@ -24,16 +24,47 @@ License along with this program.  If not, see
 
 public enum SyncMode {
 
-  CREATE_UPDATE,
+  SYNC,
 
-  CREATE_UPDATE_DELETE;
+  MIGRATE;
 
+  /**
+   * Determines whether data should be deleted at all.
+   */
+  public boolean shouldDeleteData() {
+    // SYNC mode: data is always deleted
+    // MIGRATE mode: data is never deleted
+    return this == SYNC;
+  }
+
+  /**
+   * Determines whether data should be created or updated at all.
+   */
   public boolean shouldCreateAndUpdateData() {
     return true;
   }
 
-  public boolean shouldDeleteData() {
-    return this == CREATE_UPDATE_DELETE;
+  /**
+   * Determines whether data should be created depending on the RHS.
+   */
+  public boolean shouldCreateData(final boolean isRhsEmpty) {
+    // SYNC mode: data is always created
+    // MIGRATE mode: data is only created in the 1st run, i.e. when RHS is empty
+    return this == SYNC || isRhsEmpty;
+  }
+
+  /**
+   * Determines whether data should be updated depending on the RHS.
+   */
+  public boolean shouldUpdateData(final boolean isRhsEmpty) {
+    // SYNC mode: data is always updated
+    // MIGRATE mode: data is only created in the 2nd run, i.e. when RHS is non-empty
+    return this == SYNC || !isRhsEmpty;
+  }
+
+  public boolean shouldApplyFilters() {
+    // Filters only make sense for MIGRATE mode
+    return this == MIGRATE;
   }
 
 }

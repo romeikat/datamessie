@@ -87,7 +87,6 @@ public class SyncService {
 
     // Original data
 
-    // If filtered sync is enabled, sources are the starting point
     final SourceSynchronizer sourceSynchronizer = new SourceSynchronizer(sourceIdsForSync, ctx);
     synchronizers.add(sourceSynchronizer);
 

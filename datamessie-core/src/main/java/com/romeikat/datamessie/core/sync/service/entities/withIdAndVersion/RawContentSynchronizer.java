@@ -1,9 +1,6 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
-import java.util.List;
-import java.util.Map;
 import java.util.function.Predicate;
-import org.hibernate.StatelessSession;
 
 /*-
  * ============================LICENSE_START============================
@@ -32,6 +29,7 @@ import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.RawContentDao;
 import com.romeikat.datamessie.core.domain.entity.impl.RawContent;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
+import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.MockCreator;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class RawContentSynchronizer extends EntityWithIdAndVersionSynchronizer<RawContent> {
@@ -56,10 +54,15 @@ public class RawContentSynchronizer extends EntityWithIdAndVersionSynchronizer<R
   }
 
   @Override
-  protected List<RawContent> loadLhsEntities(final Map<Long, Long> lhsIdsWithVersion,
-      final StatelessSession lhsStatelessSession) {
-    // TODO mock empty contents, then post-update them
-    return super.loadLhsEntities(lhsIdsWithVersion, lhsStatelessSession);
+  protected MockCreator<RawContent> getMockCreator() {
+    return new MockCreator<RawContent>() {
+      @Override
+      public RawContent createMockInstance(final Long id) {
+        final RawContent result = new RawContent(id, "");
+        result.setVersion(-1l);
+        return result;
+      }
+    };
   }
 
   @Override

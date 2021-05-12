@@ -31,12 +31,19 @@ public class CreateOrUpdateDecider {
   private final Map<Long, Long> lhsIdsWithVersion;
   private final Map<Long, Long> rhsIdsWithVersion;
 
+  private final boolean shouldCreateData;
+  private final boolean shouldUpdateData;
+
   private final CreateOrUpdateDecisionResults result;
 
   public CreateOrUpdateDecider(final Map<Long, Long> lhsIdsWithVersion,
-      final Map<Long, Long> rhsIdsWithVersion) {
+      final Map<Long, Long> rhsIdsWithVersion, final boolean shouldCreateData,
+      final boolean shouldUpdateData) {
     this.lhsIdsWithVersion = lhsIdsWithVersion;
     this.rhsIdsWithVersion = rhsIdsWithVersion;
+
+    this.shouldCreateData = shouldCreateData;
+    this.shouldUpdateData = shouldUpdateData;
 
     result = new CreateOrUpdateDecisionResults();
   }
@@ -52,21 +59,25 @@ public class CreateOrUpdateDecider {
   }
 
   private void makeDecision(final long lhsId, final Long lhsVersion) {
-    // Create on RHS
+    // LHS id missing on RHS => Create on RHS
     if (!rhsIdsWithVersion.containsKey(lhsId)) {
-      result.addToBeCreated(lhsId, lhsVersion);
+      if (shouldCreateData) {
+        result.addToBeCreated(lhsId, lhsVersion);
+      }
       return;
     }
 
-    // RHS = LHS
+    // RHS (id,version) = LHS (id,version) => nothing to do
     final Long rhsVersion = rhsIdsWithVersion.get(lhsId);
     final boolean versionEquals = Objects.equals(lhsVersion, rhsVersion);
     if (versionEquals) {
       return;
     }
 
-    // Update on RHS
-    result.addToBeUpdated(lhsId, lhsVersion);
+    // LHS id existing on RHS, but with different version => Update on RHS
+    if (shouldUpdateData) {
+      result.addToBeUpdated(lhsId, lhsVersion);
+    }
   }
 
   public CreateOrUpdateDecisionResults getDecisionResults() {

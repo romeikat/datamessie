@@ -31,8 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.apache.wicket.util.lang.Objects;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
@@ -62,8 +60,6 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
   private final int batchSizeEntities;
   private final EntityWithIdAndVersionDao<E> dao;
   private final Class<E> clazz;
-  private final boolean syncFilterEnabled;
-  private final Predicate<E> lhsEntityFilter;
   private final StatelessSession lhsStatelessSession;
   private final StatelessSession rhsStatelessSession;
   private final SessionFactory sessionFactory;
@@ -76,7 +72,6 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
 
   public CreateOrUpdateExecutor(final CreateOrUpdateDecisionResults decisionResults,
       final int batchSizeEntities, final EntityWithIdAndVersionDao<E> dao, final Class<E> clazz,
-      final boolean syncFilterEnabled, final Predicate<E> lhsEntityFilter,
       final StatelessSession lhsStatelessSession, final StatelessSession rhsStatelessSession,
       final SessionFactory sessionFactory, final Double parallelismFactor,
       final TaskExecution taskExecution, final ApplicationContext ctx) {
@@ -84,8 +79,6 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
     this.batchSizeEntities = batchSizeEntities;
     this.dao = dao;
     this.clazz = clazz;
-    this.syncFilterEnabled = syncFilterEnabled;
-    this.lhsEntityFilter = lhsEntityFilter;
     this.lhsStatelessSession = lhsStatelessSession;
     this.rhsStatelessSession = rhsStatelessSession;
     this.sessionFactory = sessionFactory;
@@ -341,14 +334,7 @@ public abstract class CreateOrUpdateExecutor<E extends EntityWithIdAndVersion> {
     }
 
     // Load LHS
-    List<E> lhsEntities = loadLhsEntities(lhsIdsWithVersion, lhsStatelessSession);
-
-    // Filter entities
-    if (syncFilterEnabled) {
-      lhsEntities = lhsEntities.stream().filter(lhsEntityFilter).collect(Collectors.toList());
-    }
-
-    return lhsEntities;
+    return loadLhsEntities(lhsIdsWithVersion, lhsStatelessSession);
   }
 
   class RhsCreator implements Runnable {

@@ -53,6 +53,41 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 import com.romeikat.datamessie.core.sync.util.SyncMode;
 
 
+/**
+ * <p>
+ * Supports two modes for synchronizing existing data or migrating to an empty database.
+ * </p>
+ *
+ *
+ * <p>
+ * SYNCHRONIZE mode:<br>
+ * <ul>
+ * <li>First, existing RHS entites whose ID does not exist at the LHS are deleted first. This is to
+ * free IDs that are not needed any more.</li>
+ * <li>Then, RHS entites whose ID does not exist at the RHS are created.</li>
+ * <li>Finally, RHS entites whose ID does exist at the LHS but with a different version are updated
+ * at the RHS.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * MIGRATE mode:<br>
+ * <ul>
+ * <li>>In the first run, LHS entities are created at the RHS for empty tables. To speed up
+ * migration, LHS entities can be pseudo-created at the RHS in the first run, i.e. only with (id,
+ * version) = (id, -1). This e.g. makes sense for RawContent, whose entites no not influence
+ * crawling. During this first run, no crawling should be active at the LHS and RHS to migrate a
+ * consistent snapshot of all data.</li>
+ * <li>For this reason, existing RHS entities in non-empty tables are updated only in the second
+ * run. While doing so, crawling at the LHS should still be stopped, but can be active at the RHS
+ * already.</li>
+ * </ul>
+ * </p>
+ *
+ * @author Dr. Raphael Romeikat
+ *
+ * @param <E>
+ */
 public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdAndVersion>
     implements ISynchronizer {
 
@@ -63,7 +98,6 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
   private final EntityWithIdAndVersionDao<E> dao;
   private final SyncMode syncMode;
   private final SyncData syncData;
-  private final boolean syncFilterEnabled;
 
   private final SessionFactory sessionFactorySyncSource;
   private final SessionFactory sessionFactory;
@@ -74,8 +108,11 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
   private final int batchSizeEntities;
   private final Double parallelismFactor;
   private final long sleepingInterval = 60000;
+
   private Predicate<Long> lhsIdFilter;
   private Predicate<E> lhsEntityFilter;
+  private boolean isRhsEmpty;
+  private MockCreator<E> mockCreator;
 
   private final ApplicationContext ctx;
 
@@ -84,7 +121,6 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     this.dao = getDao(ctx);
     syncMode = SyncMode.valueOf(SpringUtil.getPropertyValue(ctx, "sync.mode"));
     syncData = SyncData.valueOf(SpringUtil.getPropertyValue(ctx, "sync.data"));
-    syncFilterEnabled = Boolean.valueOf(SpringUtil.getPropertyValue(ctx, "sync.filter.enabled"));
 
     sessionFactorySyncSource = ctx.getBean("sessionFactorySyncSource", SessionFactory.class);
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
@@ -111,14 +147,13 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     return id -> true;
   }
 
-  protected List<E> loadLhsEntities(final Map<Long, Long> lhsIdsWithVersion,
-      final StatelessSession lhsStatelessSession) {
-    return dao.getEntities(lhsStatelessSession, lhsIdsWithVersion.keySet());
-  }
-
   protected Predicate<E> getLhsEntityFilter() {
     // Per default, all available entities are synchronized
     return e -> true;
+  }
+
+  protected MockCreator<E> getMockCreator() {
+    return null;
   }
 
   @Override
@@ -130,8 +165,7 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     final String msg = String.format("Synchronizing %s", clazz.getSimpleName());
     final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
-    // Filters
-    initializeFiltering(taskExecution);
+    initialize();
 
     // Delete non-existing RHS
     if (syncMode.shouldDeleteData()) {
@@ -147,22 +181,11 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
     taskExecution.checkpoint();
   }
 
-  private void initializeFiltering(final TaskExecution taskExecution)
-      throws TaskCancelledException {
-    if (!syncFilterEnabled) {
-      return;
-    }
-
+  private void initialize() {
     lhsIdFilter = getLhsIdFilter();
     lhsEntityFilter = getLhsEntityFilter();
-
-    final boolean rhsIsEmpty =
-        dao.getIds(rhsSessionProvider.getStatelessSession(), 0l, 1).isEmpty();
-    if (!rhsIsEmpty) {
-      final String msg = String.format("Synchronizing with filtering requires RHS to be empty");
-      taskExecution.reportWork(msg);
-      throw new TaskCancelledException();
-    }
+    isRhsEmpty = dao.getIds(rhsSessionProvider.getStatelessSession(), 0l, 1).isEmpty();
+    mockCreator = getMockCreator();
   }
 
   private void delete(final TaskExecution taskExecution) throws TaskCancelledException {
@@ -214,12 +237,7 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
 
   private void delete(final List<Long> rhsIds) {
     // Load corresponding LHS
-    List<Long> lhsIds = loadLhsIds(rhsIds);
-
-    // Filter IDs
-    if (syncFilterEnabled) {
-      lhsIds = lhsIds.stream().filter(lhsIdFilter).collect(Collectors.toList());
-    }
+    final List<Long> lhsIds = loadLhsIds(rhsIds);
 
     // Decide
     final DeleteDecisionResults decisionResults =
@@ -300,7 +318,7 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
       final StatelessSession lhsStatelessSession, final StatelessSession rhsStatelessSession,
       final TaskExecution taskExecution) throws TaskCancelledException {
     // Filter IDs
-    if (syncFilterEnabled) {
+    if (syncMode.shouldApplyFilters()) {
       lhsIdsWithVersion =
           lhsIdsWithVersion.entrySet().stream().filter(e -> lhsIdFilter.test(e.getKey()))
               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -311,18 +329,34 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
 
     // Decide
     final CreateOrUpdateDecisionResults decisionResults =
-        new CreateOrUpdateDecider(lhsIdsWithVersion, rhsIdsWithVersion).makeDecisions()
-            .getDecisionResults();
+        new CreateOrUpdateDecider(lhsIdsWithVersion, rhsIdsWithVersion,
+            syncMode.shouldCreateData(isRhsEmpty), syncMode.shouldUpdateData(isRhsEmpty))
+                .makeDecisions().getDecisionResults();
 
     // Execute
-    new CreateOrUpdateExecutor<E>(decisionResults, batchSizeEntities, dao, clazz, syncFilterEnabled,
-        lhsEntityFilter, lhsStatelessSession, rhsStatelessSession, sessionFactory,
-        parallelismFactor, taskExecution, ctx) {
+    new CreateOrUpdateExecutor<E>(decisionResults, batchSizeEntities, dao, clazz,
+        lhsStatelessSession, rhsStatelessSession, sessionFactory, parallelismFactor, taskExecution,
+        ctx) {
       @Override
       protected List<E> loadLhsEntities(final Map<Long, Long> lhsIdsWithVersion,
           final StatelessSession lhsStatelessSession) {
-        return EntityWithIdAndVersionSynchronizer.this.loadLhsEntities(lhsIdsWithVersion,
-            lhsStatelessSession);
+        List<E> lhsEntities;
+
+        // MIGRATE 1st run with mocking
+        if (syncMode == SyncMode.MIGRATE && isRhsEmpty && mockCreator != null) {
+          lhsEntities = lhsIdsWithVersion.keySet().stream()
+              .map(id -> mockCreator.createMockInstance(id)).collect(Collectors.toList());
+        }
+        // MIGRATE others, and SYNCHRONIZE
+        else {
+          lhsEntities = dao.getEntities(lhsStatelessSession, lhsIdsWithVersion.keySet());
+        }
+
+        // Filter
+        if (syncMode.shouldApplyFilters()) {
+          lhsEntities = lhsEntities.stream().filter(lhsEntityFilter).collect(Collectors.toList());
+        }
+        return lhsEntities;
       }
 
       @Override

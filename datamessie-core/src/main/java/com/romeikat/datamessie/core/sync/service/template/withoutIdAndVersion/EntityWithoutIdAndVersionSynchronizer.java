@@ -52,7 +52,6 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
   private final EntityDao<E> entityDao;
   private final SyncMode syncMode;
   private final SyncData syncData;
-  private final boolean syncFilterEnabled;
 
   private final SessionFactory sessionFactorySyncSource;
   private final SessionFactory sessionFactory;
@@ -67,7 +66,6 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
     this.entityDao = getDao(ctx);
     syncMode = SyncMode.valueOf(SpringUtil.getPropertyValue(ctx, "sync.mode"));
     syncData = SyncData.valueOf(SpringUtil.getPropertyValue(ctx, "sync.data"));
-    syncFilterEnabled = Boolean.valueOf(SpringUtil.getPropertyValue(ctx, "sync.filter.enabled"));
 
     sessionFactorySyncSource = ctx.getBean("sessionFactorySyncSource", SessionFactory.class);
     sessionFactory = ctx.getBean("sessionFactory", SessionFactory.class);
@@ -94,7 +92,7 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
     final String msg = String.format("Synchronizing %s", clazz.getSimpleName());
     final TaskExecutionWork work = taskExecution.reportWorkStart(msg);
 
-    initializeFiltering(taskExecution);
+    initialize(taskExecution);
 
     while (true) {
       try {
@@ -109,20 +107,7 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
     taskExecution.checkpoint();
   }
 
-  private void initializeFiltering(final TaskExecution taskExecution)
-      throws TaskCancelledException {
-    if (!syncFilterEnabled) {
-      return;
-    }
-
-    final boolean rhsIsEmpty =
-        entityDao.getEntites(rhsSessionProvider.getStatelessSession(), 0, 1).isEmpty();
-    if (!rhsIsEmpty) {
-      final String msg = String.format("Synchronizing with filtering requires RHS to be empty");
-      taskExecution.reportWork(msg);
-      throw new TaskCancelledException();
-    }
-
+  private void initialize(final TaskExecution taskExecution) throws TaskCancelledException {
     lhsEntityFilter = getLhsEntityFilter();
   }
 
@@ -136,7 +121,7 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
         entityDao.getAllEntites(rhsSessionProvider.getStatelessSession());
 
     // Filter entities
-    if (syncFilterEnabled) {
+    if (syncMode.shouldApplyFilters()) {
       lhsEntities = lhsEntities.stream().filter(lhsEntityFilter).collect(Collectors.toList());
     }
 
