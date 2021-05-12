@@ -400,4 +400,12 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
 
   protected abstract void copyProperties(E source, E target);
 
+  protected SyncMode getSyncMode() {
+    return syncMode;
+  }
+
+  protected SyncData getSyncData() {
+    return syncData;
+  }
+
 }

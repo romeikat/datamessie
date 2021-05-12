@@ -30,6 +30,7 @@ import com.google.common.collect.Sets;
 import com.romeikat.datamessie.core.base.dao.EntityWithIdAndVersionDao;
 import com.romeikat.datamessie.core.base.dao.impl.DocumentDao;
 import com.romeikat.datamessie.core.domain.entity.impl.Document;
+import com.romeikat.datamessie.core.domain.enums.DocumentProcessingState;
 import com.romeikat.datamessie.core.sync.service.template.withIdAndVersion.EntityWithIdAndVersionSynchronizer;
 import com.romeikat.datamessie.core.sync.util.SyncData;
 
@@ -61,13 +62,13 @@ public class DocumentSynchronizer extends EntityWithIdAndVersionSynchronizer<Doc
   @Override
   protected void copyProperties(final Document source, final Document target) {
     target.setTitle(source.getTitle());
-    target.setStemmedTitle(source.getStemmedTitle());
+    target.setStemmedTitle(getTargetStemmedTitle(source));
     target.setUrl(source.getUrl());
     target.setDescription(source.getDescription());
-    target.setStemmedDescription(source.getStemmedDescription());
+    target.setStemmedDescription(getTargetStemmedDescription(source));
     target.setPublished(source.getPublished());
     target.setDownloaded(source.getDownloaded());
-    target.setState(source.getState());
+    target.setState(getTargetState(source));
     target.setStatusCode(source.getStatusCode());
     target.setCrawlingId(source.getCrawlingId());
     target.setSourceId(source.getSourceId());
@@ -75,6 +76,35 @@ public class DocumentSynchronizer extends EntityWithIdAndVersionSynchronizer<Doc
     // Output
     documentIds.add(source.getId());
     crawlingIds.add(source.getCrawlingId());
+  }
+
+  private String getTargetStemmedTitle(final Document source) {
+    if (getSyncData().shouldUpdateProcessedData()) {
+      return source.getStemmedTitle();
+    } else {
+      return null;
+    }
+  }
+
+  private String getTargetStemmedDescription(final Document source) {
+    if (getSyncData().shouldUpdateProcessedData()) {
+      return source.getStemmedDescription();
+    } else {
+      return null;
+    }
+  }
+
+  private DocumentProcessingState getTargetState(final Document source) {
+    if (getSyncData().shouldUpdateProcessedData()) {
+      return source.getState();
+    } else {
+      // CLEANED => back to REDIRECTED
+      // STEMMED => back to REDIRECTED
+      return source.getState() == DocumentProcessingState.CLEANED
+          || source.getState() == DocumentProcessingState.STEMMED
+              ? DocumentProcessingState.REDIRECTED
+              : source.getState();
+    }
   }
 
   @Override
