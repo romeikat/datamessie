@@ -1,5 +1,7 @@
 package com.romeikat.datamessie.core.sync.util;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 /*-
  * ============================LICENSE_START============================
  * data.messie (core)
@@ -62,9 +64,10 @@ public enum SyncMode {
     return this == SYNC || !isRhsEmpty;
   }
 
-  public boolean shouldApplyFilters() {
-    // Filters only make sense for MIGRATE mode
-    return this == MIGRATE;
+  public boolean shouldApplyFilters(final Boolean isRhsEmpty) {
+    // SYNC mode: no filtering
+    // MIGRATE mode:filtering only in the 1st run, i.e. when RHS is empty
+    return this == MIGRATE && BooleanUtils.isNotFalse(isRhsEmpty);
   }
 
 }

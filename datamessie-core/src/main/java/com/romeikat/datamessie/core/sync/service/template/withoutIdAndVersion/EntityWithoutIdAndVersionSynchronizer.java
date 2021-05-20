@@ -121,7 +121,7 @@ public abstract class EntityWithoutIdAndVersionSynchronizer<E extends Entity>
         entityDao.getAllEntites(rhsSessionProvider.getStatelessSession());
 
     // Filter entities
-    if (syncMode.shouldApplyFilters()) {
+    if (syncMode.shouldApplyFilters(null)) {
       lhsEntities = lhsEntities.stream().filter(lhsEntityFilter).collect(Collectors.toList());
     }
 

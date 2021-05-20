@@ -318,7 +318,7 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
       final StatelessSession lhsStatelessSession, final StatelessSession rhsStatelessSession,
       final TaskExecution taskExecution) throws TaskCancelledException {
     // Filter IDs
-    if (syncMode.shouldApplyFilters()) {
+    if (syncMode.shouldApplyFilters(isRhsEmpty)) {
       lhsIdsWithVersion =
           lhsIdsWithVersion.entrySet().stream().filter(e -> lhsIdFilter.test(e.getKey()))
               .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
@@ -353,7 +353,7 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
         }
 
         // Filter
-        if (syncMode.shouldApplyFilters()) {
+        if (syncMode.shouldApplyFilters(isRhsEmpty)) {
           lhsEntities = lhsEntities.stream().filter(lhsEntityFilter).collect(Collectors.toList());
         }
         return lhsEntities;
