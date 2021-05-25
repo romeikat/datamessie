@@ -34,6 +34,8 @@ import com.romeikat.datamessie.core.sync.util.SyncData;
 
 public class RawContentSynchronizer extends EntityWithIdAndVersionSynchronizer<RawContent> {
 
+  private static final Long MOCK_VERSION = Long.MAX_VALUE - 1;
+
   // Input
   private final DocumentSynchronizer documentSynchronizer;
 
@@ -59,7 +61,7 @@ public class RawContentSynchronizer extends EntityWithIdAndVersionSynchronizer<R
       @Override
       public RawContent createMockInstance(final Long id) {
         final RawContent result = new RawContent(id, "");
-        result.setVersion(-1l);
+        result.setVersion(MOCK_VERSION);
         return result;
       }
     };
