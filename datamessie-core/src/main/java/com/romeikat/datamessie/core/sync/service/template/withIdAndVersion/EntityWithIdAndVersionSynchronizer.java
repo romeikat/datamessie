@@ -32,6 +32,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.persistence.PersistenceException;
 import org.apache.commons.lang3.mutable.MutableLong;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.slf4j.Logger;
@@ -109,7 +111,7 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
   private final Double parallelismFactor;
   private final long sleepingInterval = 60000;
 
-  private Predicate<Long> lhsIdFilter;
+  private Predicate<Pair<Long, Long>> lhsIdFilter;
   private Predicate<E> lhsEntityFilter;
   private boolean isRhsEmpty;
   private MockCreator<E> mockCreator;
@@ -142,9 +144,9 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
 
   protected abstract EntityWithIdAndVersionDao<E> getDao(ApplicationContext ctx);
 
-  protected Predicate<Long> getLhsIdFilter() {
+  protected Predicate<Pair<Long, Long>> getLhsIdFilter() {
     // Per default, all available IDs are synchronized
-    return id -> true;
+    return idAndVersion -> true;
   }
 
   protected Predicate<E> getLhsEntityFilter() {
@@ -319,9 +321,9 @@ public abstract class EntityWithIdAndVersionSynchronizer<E extends EntityWithIdA
       final TaskExecution taskExecution) throws TaskCancelledException {
     // Filter IDs
     if (syncMode.shouldApplyFilters(isRhsEmpty)) {
-      lhsIdsWithVersion =
-          lhsIdsWithVersion.entrySet().stream().filter(e -> lhsIdFilter.test(e.getKey()))
-              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      lhsIdsWithVersion = lhsIdsWithVersion.entrySet().stream()
+          .filter(e -> lhsIdFilter.test(new ImmutablePair<Long, Long>(e.getKey(), e.getValue())))
+          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     // Load corresponding RHS (in batches)

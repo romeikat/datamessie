@@ -1,6 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
 import java.util.function.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
 
 /*-
  * ============================LICENSE_START============================
@@ -51,8 +52,8 @@ public class RawContentSynchronizer extends EntityWithIdAndVersionSynchronizer<R
   }
 
   @Override
-  protected Predicate<Long> getLhsIdFilter() {
-    return rawContentId -> documentSynchronizer.getDocumentIds().contains(rawContentId);
+  protected Predicate<Pair<Long, Long>> getLhsIdFilter() {
+    return idAndVersion -> documentSynchronizer.getDocumentIds().contains(idAndVersion.getKey());
   }
 
   @Override

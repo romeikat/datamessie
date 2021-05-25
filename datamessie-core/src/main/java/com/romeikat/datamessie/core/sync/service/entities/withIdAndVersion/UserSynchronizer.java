@@ -1,6 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
 import java.util.function.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
 
 /*-
  * ============================LICENSE_START============================
@@ -49,8 +50,8 @@ public class UserSynchronizer extends EntityWithIdAndVersionSynchronizer<User> {
   }
 
   @Override
-  protected Predicate<Long> getLhsIdFilter() {
-    return userId -> project2UserSynchronizer.getUserIds().contains(userId);
+  protected Predicate<Pair<Long, Long>> getLhsIdFilter() {
+    return idAndVersion -> project2UserSynchronizer.getUserIds().contains(idAndVersion.getKey());
   }
 
   @Override

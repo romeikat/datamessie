@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 /*-
  * ============================LICENSE_START============================
@@ -54,9 +55,9 @@ public class SourceSynchronizer extends EntityWithIdAndVersionSynchronizer<Sourc
   }
 
   @Override
-  protected Predicate<Long> getLhsIdFilter() {
-    return sourceId -> CollectionUtils.isEmpty(sourceIdsForSync) ? true
-        : sourceIdsForSync.contains(sourceId);
+  protected Predicate<Pair<Long, Long>> getLhsIdFilter() {
+    return idAndVersion -> CollectionUtils.isEmpty(sourceIdsForSync) ? true
+        : sourceIdsForSync.contains(idAndVersion.getKey());
   }
 
   @Override

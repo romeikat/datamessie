@@ -1,6 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
 import java.util.function.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
 
 /*-
  * ============================LICENSE_START============================
@@ -48,8 +49,8 @@ public class CrawlingSynchronizer extends EntityWithIdAndVersionSynchronizer<Cra
   }
 
   @Override
-  protected Predicate<Long> getLhsIdFilter() {
-    return crawlingId -> documentSynchronizer.getCrawlingIds().contains(crawlingId);
+  protected Predicate<Pair<Long, Long>> getLhsIdFilter() {
+    return idAndVersion -> documentSynchronizer.getCrawlingIds().contains(idAndVersion.getKey());
   }
 
   @Override

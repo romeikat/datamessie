@@ -1,6 +1,7 @@
 package com.romeikat.datamessie.core.sync.service.entities.withIdAndVersion;
 
 import java.util.function.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
 
 /*-
  * ============================LICENSE_START============================
@@ -52,10 +53,11 @@ public class NamedEntitySynchronizer extends EntityWithIdAndVersionSynchronizer<
   }
 
   @Override
-  protected Predicate<Long> getLhsIdFilter() {
-    return namedEntityId -> namedEntityOccurrenceSynchronizer.getNamedEntityIds()
-        .contains(namedEntityId)
-        || namedEntityCategorySynchronizer.getCategoryNamedEntityIds().contains(namedEntityId);
+  protected Predicate<Pair<Long, Long>> getLhsIdFilter() {
+    return idAndVersion -> namedEntityOccurrenceSynchronizer.getNamedEntityIds()
+        .contains(idAndVersion.getKey())
+        || namedEntityCategorySynchronizer.getCategoryNamedEntityIds()
+            .contains(idAndVersion.getKey());
   }
 
   @Override
