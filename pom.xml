@@ -52,7 +52,7 @@
 		<jersey.version>2.22.1</jersey.version>
 		<json.version>1.1</json.version>
 		<mysql-connector-java.version>6.0.5</mysql-connector-java.version>
-		<h2.version>1.4.193</h2.version>
+		<h2.version>2.0.206</h2.version>
 		<!-- <c3p0.version>0.9.2.1</c3p0.version> -->
 		<!-- Attention: com.rometools.rome.io.impl.DateParser has been copied and 
 			overridden -->
