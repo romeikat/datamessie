@@ -27,8 +27,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import com.romeikat.datamessie.core.base.util.execute.ExecuteWithTransactionAndResult;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import org.hibernate.StatelessSession;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,9 +160,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         newRawContentNew, null, downloadedNew, statusCodeNew);
 
     // Crawl
-    final Document result =
-        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), titleNew,
+    final Document result = new ExecuteWithTransactionAndResult<Document>(
+        sessionProvider.getStatelessSession()) {
+      @Override
+      protected Document executeWithResult(StatelessSession statelessSession) {
+        return documentCrawler.performCrawling(statelessSession, titleNew,
             descriptionNew, publishedNew, downloadResultNew, crawling1.getId(), source1.getId());
+      }
+    }.execute();
 
     // New document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -218,9 +226,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         newRawContentNew, null, downloadedNew, statusCodeNew);
 
     // Crawl
-    final Document result =
-        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), titleNew,
+    final Document result = new ExecuteWithTransactionAndResult<Document>(
+        sessionProvider.getStatelessSession()) {
+      @Override
+      protected Document executeWithResult(StatelessSession statelessSession) {
+        return documentCrawler.performCrawling(statelessSession, titleNew,
             descriptionNew, publishedNew, downloadResultNew, crawling1.getId(), source1.getId());
+      }
+    }.execute();
 
     // New document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -284,9 +297,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent1New, null, downloaded1New, statusCode1New);
 
     // Crawl
-    final Document result =
-        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+    final Document result = new ExecuteWithTransactionAndResult<Document>(
+        sessionProvider.getStatelessSession()) {
+      @Override
+      protected Document executeWithResult(StatelessSession statelessSession) {
+        return documentCrawler.performCrawling(statelessSession, title1New,
             description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
+      }
+    }.execute();
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -356,9 +374,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent1New, null, downloaded1New, statusCode1New);
 
     // Crawl
-    final Document result =
-        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+    final Document result = new ExecuteWithTransactionAndResult<Document>(
+        sessionProvider.getStatelessSession()) {
+      @Override
+      protected Document executeWithResult(StatelessSession statelessSession) {
+        return documentCrawler.performCrawling(statelessSession, title1New,
             description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
+      }
+    }.execute();
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -421,9 +444,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent2New, null, downloaded2New, statusCode2New);
 
     // Crawl
-    final Document result =
-        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title2New,
+    final Document result = new ExecuteWithTransactionAndResult<Document>(
+        sessionProvider.getStatelessSession()) {
+      @Override
+      protected Document executeWithResult(StatelessSession statelessSession) {
+        return documentCrawler.performCrawling(statelessSession, title2New,
             description2New, published2New, downloadResult2New, crawling1.getId(), source1.getId());
+      }
+    }.execute();
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -486,9 +514,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent2New, null, downloaded2New, statusCode2New);
 
     // Crawl
-    final Document result =
-        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title2New,
+    final Document result = new ExecuteWithTransactionAndResult<Document>(
+        sessionProvider.getStatelessSession()) {
+      @Override
+      protected Document executeWithResult(StatelessSession statelessSession) {
+        return documentCrawler.performCrawling(statelessSession, title2New,
             description2New, published2New, downloadResult2New, crawling1.getId(), source1.getId());
+      }
+    }.execute();
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -561,9 +594,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent1New, null, downloaded1New, statusCode1New);
 
     // Crawl
-    final Document result =
-        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+    final Document result = new ExecuteWithTransactionAndResult<Document>(
+        sessionProvider.getStatelessSession()) {
+      @Override
+      protected Document executeWithResult(StatelessSession statelessSession) {
+        return documentCrawler.performCrawling(statelessSession, title1New,
             description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
+      }
+    }.execute();
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
@@ -656,9 +694,14 @@ public class DocumentCrawlerTest extends AbstractDbSetupBasedTest {
         rawContent1New, null, downloaded1New, statusCode1New);
 
     // Crawl
-    final Document result =
-        documentCrawler.performCrawling(sessionProvider.getStatelessSession(), title1New,
+    final Document result = new ExecuteWithTransactionAndResult<Document>(
+        sessionProvider.getStatelessSession()) {
+      @Override
+      protected Document executeWithResult(StatelessSession statelessSession) {
+        return documentCrawler.performCrawling(statelessSession, title1New,
             description1New, published1New, downloadResult1New, crawling1.getId(), source1.getId());
+      }
+    }.execute();
 
     // No new document is created
     final long count = documentDao.countAll(sessionProvider.getStatelessSession());
