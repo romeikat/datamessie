@@ -20,3 +20,6 @@ dependency-reduced-pom.xml
 .project
 .classpath
 .settings/
+
+# IntelliJ
+.idea
