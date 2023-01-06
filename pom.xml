@@ -58,7 +58,7 @@
 			overridden -->
 		<rome.version>1.7.1</rome.version>
 		<jsoup.version>1.13.1</jsoup.version>
-		<stanford.corenlp.version>3.5.2</stanford.corenlp.version>
+		<stanford.corenlp.version>4.4.0</stanford.corenlp.version>
 		<bliki-core.version>3.0.19</bliki-core.version>
 		<super-csv-java8.version>2.4.0</super-csv-java8.version>
 		<poi.version>3.13</poi.version>
