@@ -91,7 +91,7 @@
 	<repositories>
 		<repository>
 			<id>Maven Central</id>
-			<url>http://repo.maven.apache.org</url>
+			<url>https://repo.maven.apache.org</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
