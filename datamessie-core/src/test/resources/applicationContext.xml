@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- All property placeholders except the last one (highest order) should 
 		have ignore-unresolvable=?true? to allow the resolution mechanism to pass 
 		to others in the context without throwing an exception -->
-	<context:property-placeholder location="classpath:datamessie.base.properties"
+	<context:property-placeholder
+		location="classpath:datamessie.base.properties"
 		order="1" ignore-unresolvable="true" />
-	<context:property-placeholder location="classpath:datamessie.view.properties"
+	<context:property-placeholder
+		location="classpath:datamessie.view.properties"
 		order="2" ignore-unresolvable="true" />
-	<context:property-placeholder location="classpath:datamessie.rss.properties"
+	<context:property-placeholder
+		location="classpath:datamessie.rss.properties"
 		order="3" ignore-unresolvable="true" />
 	<context:property-placeholder
-		location="classpath:datamessie.processing.properties" order="4"
-		ignore-unresolvable="true" />
+		location="classpath:datamessie.processing.properties"
+		order="4" ignore-unresolvable="true" />
 	<context:property-placeholder
-		location="classpath:datamessie.statistics.properties" order="5"
-		ignore-unresolvable="true" />
+		location="classpath:datamessie.statistics.properties"
+		order="5" ignore-unresolvable="true" />
 	<context:property-placeholder location="classpath:datamessie.sync.properties"
 		order="6" />
 
