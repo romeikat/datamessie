@@ -23,3 +23,6 @@ dependency-reduced-pom.xml
 
 # IntelliJ
 .idea
+
+# Data
+data/
