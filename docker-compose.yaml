@@ -5,7 +5,23 @@ services:
     container_name: datamessie-db
     ports:
       - 3306:3306
+    networks:
+      - datamessie
     environment:
       - MYSQL_ROOT_PASSWORD=password
     volumes:
       - ./data/db:/var/lib/mysql
+  webapp:
+    image: datamessie-webapp:latest
+    container_name: datamessie-webapp
+    ports:
+      - 8080:8080
+    networks:
+      - datamessie
+    volumes:
+      - ./data/download:/tmp/download
+    depends_on:
+      - db
+
+networks:
+  datamessie:

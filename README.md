@@ -2,9 +2,19 @@
 
 datamessie is a solution for scraping online news articles via RSS feeds. It also processes articles automatically to facilitate content analysis.
 
-## Usage
+## Build
 
-datamessie consists of a web app and a database. Both can be run in Docker containers:
+### Web App
+
+Prerequisites: Java 8, Maven, Docker
+```bash
+mvn clean package
+docker build -t datamessie-webapp ./datamessie-core
+```
+
+## Run
+
+Prerequisites: Docker
 ```bash
 docker-compose up
 ```
