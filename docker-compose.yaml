@@ -19,6 +19,12 @@ services:
     networks:
       - datamessie
     volumes:
+      - ./datamessie-core/src/conf/datamessie.base.properties:/usr/local/tomcat/conf/datamessie.base.properties
+      - ./datamessie-core/src/conf/datamessie.processing.properties:/usr/local/tomcat/conf/datamessie.processing.properties
+      - ./datamessie-core/src/conf/datamessie.rss.properties:/usr/local/tomcat/conf/datamessie.rss.properties
+      - ./datamessie-core/src/conf/datamessie.statistics.properties:/usr/local/tomcat/conf/datamessie.statistics.properties
+      - ./datamessie-core/src/conf/datamessie.sync.properties:/usr/local/tomcat/conf/datamessie.sync.properties
+      - ./datamessie-core/src/conf/datamessie.view.properties:/usr/local/tomcat/conf/datamessie.view.properties
       - ./data/download:/tmp/download
     depends_on:
       - db
