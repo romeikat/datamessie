@@ -9,7 +9,7 @@ datamessie is a solution for scraping online news articles via RSS feeds. It als
 Prerequisites: Java 8, Maven, Docker
 ```bash
 mvn clean package
-docker build -t datamessie-webapp ./datamessie-core
+docker-compose build
 ```
 
 ## Run
