@@ -105,6 +105,9 @@ public abstract class AbstractDownloader {
     final HttpGet request;
     try {
       request = new HttpGet(url);
+      request.addHeader("Accept", "*");
+      request.addHeader("Accept-Encoding", "*");
+      request.addHeader("Connection", "keep-alive");
     } catch (final IllegalArgumentException e) {
       LOG.debug("Could not download " + url, e);
       return new DownloadResult(originalUrl, url, content, charset, downloaded, statusCode);
