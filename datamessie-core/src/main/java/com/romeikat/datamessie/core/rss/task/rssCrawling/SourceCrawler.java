@@ -77,7 +77,9 @@ public class SourceCrawler {
         .reportWorkStart(String.format("Source %s: performing crawling", source.getId()));
 
     // Create download session
-    final DownloadSession downloadSession = DownloadSession.create(userAgent, timeout);
+    final String sourceUserAgent =
+        source.getUserAgent() != null ? source.getUserAgent() : userAgent;
+    final DownloadSession downloadSession = DownloadSession.create(sourceUserAgent, timeout);
     downloadSession.addCookie(source.getCookie());
 
     // Download RSS feed

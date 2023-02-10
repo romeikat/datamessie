@@ -43,6 +43,8 @@ public class SourceOverviewDto implements Serializable {
 
   private String url;
 
+  private String userAgent;
+
   private String cookie;
 
   private Integer numberOfRedirectingRules;
@@ -98,6 +100,14 @@ public class SourceOverviewDto implements Serializable {
 
   public void setUrl(final String url) {
     this.url = url;
+  }
+
+  public String getUserAgent() {
+    return userAgent;
+  }
+
+  public void setUserAgent(final String userAgent) {
+    this.userAgent = userAgent;
   }
 
   public String getCookie() {

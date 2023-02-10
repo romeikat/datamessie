@@ -132,7 +132,7 @@ public class SourceService {
 
         // Create
         final String name = getNewName(statelessSession);
-        final Source source = new Source(0, name, "", null, true, true, false);
+        final Source source = new Source(0, name, "", null, null, true, true, false);
         sourceDao.insert(statelessSession, source);
 
         // Assign
@@ -191,6 +191,7 @@ public class SourceService {
     source.setName(sourceDto.getName());
     source.setLanguage(sourceDto.getLanguage());
     source.setUrl(sourceDto.getUrl());
+    source.setUserAgent(sourceDto.getUserAgent());
     source.setCookie(sourceDto.getCookie());
     source.setCrawlingEnabled(sourceDto.getCrawlingEnabled());
     source.setVisible(sourceDto.getVisible());

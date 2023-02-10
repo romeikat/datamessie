@@ -22,6 +22,7 @@ License along with this program.  If not, see
  * =============================LICENSE_END=============================
  */
 
+import com.romeikat.datamessie.core.domain.entity.impl.Source;
 import java.io.Serializable;
 import java.util.List;
 import com.romeikat.datamessie.core.domain.enums.Language;
@@ -42,6 +43,8 @@ public class SourceDto implements Serializable {
   private List<SourceTypeDto> types;
 
   private String url;
+
+  private String userAgent;
 
   private String cookie;
 
@@ -106,6 +109,14 @@ public class SourceDto implements Serializable {
 
   public void setUrl(final String url) {
     this.url = url;
+  }
+
+  public String getUserAgent() {
+    return userAgent;
+  }
+
+  public void setUserAgent(final String userAgent) {
+    this.userAgent = userAgent;
   }
 
   public String getCookie() {

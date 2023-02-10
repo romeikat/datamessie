@@ -181,6 +181,9 @@ public class SourcePage extends AbstractAuthenticatedPage {
     final TagSelectingRulesPanel tagSelectingRulesPanel =
         new TagSelectingRulesPanel("tagSelectingRules", tagSelectingRulesModel);
     sourceForm.add(tagSelectingRulesPanel);
+    // UserAgent
+    final TextField<String> userAgentTextField = new TextField<String>("userAgent");
+    sourceForm.add(userAgentTextField);
     // Cookie
     final TextField<String> cookieTextField = new TextField<String>("cookie");
     sourceForm.add(cookieTextField);

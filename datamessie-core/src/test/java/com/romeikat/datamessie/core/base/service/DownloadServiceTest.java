@@ -59,7 +59,7 @@ public class DownloadServiceTest extends AbstractDbSetupBasedTest {
     final Project project = new Project(1, "Project1", false, false);
     final Crawling crawling = new Crawling(1, project.getId());
     final Source source =
-        new Source(1, "Source1", "http://www.source1.de/", null, true, true, false);
+        new Source(1, "Source1", "http://www.source1.de/", null, null, true, true, false);
 
     final Document document1 = new Document(1, crawling.getId(), source.getId());
     final Download download1 =

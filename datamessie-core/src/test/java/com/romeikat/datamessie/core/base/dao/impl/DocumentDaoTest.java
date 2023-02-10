@@ -54,7 +54,7 @@ public class DocumentDaoTest extends AbstractDbSetupBasedTest {
   protected Operation initDb() {
     final Project project = new Project(1, "Project1", false, false);
     final Source source =
-        new Source(1, "Source1", "http://www.source1.de/", null, true, true, false);
+        new Source(1, "Source1", "http://www.source1.de/", null, null, true, true, false);
     final Crawling crawling = new Crawling(1, project.getId());
 
     final LocalDateTime downloaded1 = LocalDate.of(2019, 11, 1).atStartOfDay();

@@ -214,6 +214,10 @@ public class SourcesOverviewPanel extends Panel {
                 source.getNumberOfRedirectingRules() + "/" + source.getNumberOfDeletingRules() + "/"
                     + source.getNumberOfTagSelectingRules());
             item.add(numberOfRulesLabel);
+            // User agent
+            final Label userAgentLabel =
+                new Label("userAgent", new PropertyModel<String>(sourceModel, "userAgent"));
+            item.add(userAgentLabel);
             // Cookie
             final Label cookieLabel =
                 new Label("cookie", new PropertyModel<String>(sourceModel, "cookie"));
