@@ -10,7 +10,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=password
     volumes:
-      - ./datamessie-core/src/conf/my.cnf:/etc/mysql/my.cnf:ro
+      - ./datamessie-core/src/conf/my.cnf:/etc/mysql/conf.d/my.cnf
       - ./data/db:/var/lib/mysql
   webapp:
     build: ./datamessie-core
