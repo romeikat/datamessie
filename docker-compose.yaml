@@ -27,6 +27,13 @@ services:
       - ./datamessie-core/src/conf/datamessie.sync.properties:/usr/local/tomcat/conf/datamessie.sync.properties
       - ./datamessie-core/src/conf/datamessie.view.properties:/usr/local/tomcat/conf/datamessie.view.properties
       - ./data/download:/tmp/download
+    environment:
+      - CATALINA_OPTS=-Xms512M -Xmx7G
+    deploy:
+      resources:
+        limits:
+          memory: "8G"
+          cpus: "2"
     depends_on:
       - db
 
