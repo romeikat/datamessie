@@ -48,7 +48,7 @@
 		<hibernate.version>5.2.9.Final</hibernate.version>
 		<hibernate.search.version>5.7.0.Final</hibernate.search.version>
 		<lucene.version>5.5.2</lucene.version>
-		<jetty.version>9.3.4.v20151007</jetty.version>
+		<jetty.version>9.4.34.v20201102</jetty.version>
 		<jersey.version>2.22.1</jersey.version>
 		<json.version>1.1</json.version>
 		<mysql-connector-java.version>6.0.5</mysql-connector-java.version>
